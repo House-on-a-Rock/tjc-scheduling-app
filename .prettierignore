@@ -1,0 +1,16 @@
+## Please check .gitignore when changing this file
+## file extensions
+*.*
+!*.css
+!*.ts
+!*.js
+!*.json
+!*.sass
+!*.md
+!*.ts
+!*.tsx
+!*.yml
+## copied from .gitignore
+node_modules
+.vscode/
+dist/
