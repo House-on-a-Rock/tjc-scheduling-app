@@ -1,6 +1,7 @@
 import express, { Request, Response } from 'express';
-import db from '../index';
 import { UserInstance } from 'shared/SequelizeTypings/models';
+import secured from '../middleware/secured';
+import db from '../index';
 
 const router = express.Router();
 
