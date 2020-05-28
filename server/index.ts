@@ -2,29 +2,34 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import cors from 'cors';
 import session from 'express-session';
-import passport from 'passport';
-import Auth0Strategy from 'passport-auth0';
+import request from 'request-promise';
+import openid from 'express-openid-connect';
+import { connect } from 'http2';
 import db from './db';
-
-const authRouter = require('./routes/auth');
 
 const port = process.env.PORT || 8080;
 const app: express.Application = express();
 
-const strategy = new Auth0Strategy(
-    {
-        domain: process.env.AUTH0_DOMAIN,
-        clientID: process.env.CLIENT_ID,
-        clientSecret: process.env.CLIENT_SECRET,
-        callbackURL: process.env.CALLBACK_URL || 'http://10.10.150.50:8080/callback',
+const config = {
+    required: false,
+    auth0Logout: true,
+    appSession: {
+        secret: process.env.CLIENT_SECRET,
     },
-    function (accessToken, refreshToken, extraParams, profile, done) {
-        extraParams = {
-            audience: process.env.AUDIENCE,
-        };
-        return done(null, profile, accessToken);
+    baseURL: process.env.BASE_URL,
+    clientID: process.env.CLIENT_ID,
+    issuerBaseURL: process.env.ISSUER_BASE_URL,
+    authorizationParams: {
+        response_type: 'code',
+        audience: process.env.AUDIENCE,
+        scope: 'openid profile email read:AllUsers',
     },
-);
+    clientSecret: process.env.CLIENT_SECRET,
+    handleCallback: function (req, res, next) {
+        req.session.openidTokens = req.openidTokens;
+        next();
+    },
+};
 
 app.use(
     session({
@@ -37,26 +42,15 @@ app.use(
     }),
 );
 
-passport.use(strategy);
-
-app.use(passport.initialize());
-app.use(passport.session());
+app.use(openid.auth(config));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors());
 
-passport.serializeUser(function (user, done) {
-    done(null, user);
-});
-
-passport.deserializeUser(function (user, done) {
-    done(null, user);
-});
-
 app.get('/', (req, res) => {
     let msg = 'Welcome to this API. ';
     console.log(req.authInfo);
-    if (req.isAuthenticated()) {
+    if (req.user) {
         msg += 'Logged In';
     } else {
         msg += 'Logged Out';
@@ -68,7 +62,6 @@ app.get('/', (req, res) => {
 
 app.use('/api', require('./routes'));
 
-app.use('/', authRouter);
 const syncDb = () =>
     db.sequelize.sync().then(() => {
         app.listen(port, () => {
