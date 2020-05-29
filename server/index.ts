@@ -4,7 +4,6 @@ import cors from 'cors';
 import session from 'express-session';
 import request from 'request-promise';
 import openid from 'express-openid-connect';
-import { connect } from 'http2';
 import db from './db';
 
 const port = process.env.PORT || 8080;
