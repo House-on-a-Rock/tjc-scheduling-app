@@ -1,26 +1,12 @@
 import express, { Request, Response, NextFunction } from 'express';
-import jwt from 'express-jwt';
-import jwtAuthz from 'express-jwt-authz';
-import jwksRsa from 'jwks-rsa';
 import Sequelize from 'sequelize';
 import db from '../index';
+import checkJwt from './jwt_helper_function';
 
 const router = express.Router();
-const Op = Sequelize.Op;
+const { Op } = Sequelize;
+
 module.exports = router;
-
-const checkJwt = jwt({
-    secret: jwksRsa.expressJwtSecret({
-        cache: true,
-        rateLimit: true,
-        jwksRequestsPerMinute: 5,
-        jwksUri: `https://${process.env.AUTH0_DOMAIN}/.well-known/jwks.json`,
-    }),
-
-    audience: process.env.AUDIENCE,
-    issuer: `https://${process.env.AUTH0_DOMAIN}/`,
-    algorithms: ['RS256'],
-});
 
 router.post(
     '/authenticate',
@@ -36,6 +22,7 @@ router.get(
             const parsedId = req.query.id.toString();
             const user = await db.User.findOne({
                 where: {
+                    // eslint-disable-next-line radix
                     id: parseInt(parsedId),
                 },
                 attributes: ['firstName', 'lastName', 'email'],
