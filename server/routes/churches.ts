@@ -7,20 +7,16 @@ const router = express.Router();
 
 module.exports = router;
 
-router.get(
-    '/getAll',
-    checkJwt,
-    async (req: Request, res: Response, next: NextFunction) => {
-        db.Church.findAll({
-            attributes: ['name', 'address', 'description'],
-        })
-            .then((churches: ChurchInstance[]) => res.status(200).json(churches))
-            .catch((err) => {
-                res.status(500);
-                next(err);
-            });
-    },
-);
+router.get('/getAll', checkJwt, (req: Request, res: Response, next: NextFunction) => {
+    db.Church.findAll({
+        attributes: ['name', 'address', 'description'],
+    })
+        .then((churches: ChurchInstance[]) => res.status(200).json(churches))
+        .catch((err) => {
+            res.status(500);
+            next(err);
+        });
+});
 
 router.post(
     '/createChurch',

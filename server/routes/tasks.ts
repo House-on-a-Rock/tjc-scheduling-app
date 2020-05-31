@@ -1,19 +1,43 @@
 import express, { Request, Response, NextFunction } from 'express';
+import Sequelize from 'sequelize';
 import db from '../index';
 import checkJwt from './jwt_helper_function';
 
 const router = express.Router();
+const { Op } = Sequelize;
 module.exports = router;
 
 router.get(
     '/getAllUserTasks',
-    checkJwt,
+    // checkJwt,
     async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const task = await db.Task.findAll({
-                where: { user: req.body.user },
+            const tasks = await db.Task.findAll({
+                where: {
+                    UserId: req.query.id.toString(),
+                    // ChurchId: req.query.id.toString(),
+                    date: {
+                        [Op.between]: [
+                            '2020-03-07T00:00:00.000Z',
+                            '2020-07-30T00:00:00.000Z',
+                        ],
+                    },
+                },
+                attributes: ['date'],
+                include: [
+                    {
+                        model: db.Role,
+                        as: 'role',
+                        // attributes: ['name'],
+                    },
+                    {
+                        model: db.Church,
+                        as: 'church',
+                        attributes: ['name'],
+                    },
+                ],
             });
-            res.status(200).json(task);
+            res.json(tasks);
         } catch (err) {
             next(err);
         }
