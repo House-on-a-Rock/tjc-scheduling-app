@@ -1,34 +1,43 @@
 import express, { Request, Response, NextFunction } from 'express';
-import jwt from 'express-jwt';
-import jwtAuthz from 'express-jwt-authz';
-import jwksRsa from 'jwks-rsa';
+import Sequelize from 'sequelize';
 import db from '../index';
+import checkJwt from './jwt_helper_function';
 
 const router = express.Router();
+const { Op } = Sequelize;
 module.exports = router;
-
-const checkJwt = jwt({
-    secret: jwksRsa.expressJwtSecret({
-        cache: true,
-        rateLimit: true,
-        jwksRequestsPerMinute: 5,
-        jwksUri: `https://${process.env.AUTH0_DOMAIN}/.well-known/jwks.json`,
-    }),
-
-    audience: process.env.AUDIENCE,
-    issuer: `https://${process.env.AUTH0_DOMAIN}/`,
-    algorithms: ['RS256'],
-});
 
 router.get(
     '/getAllUserTasks',
-    checkJwt,
+    // checkJwt,
     async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const task = await db.Task.findAll({
-                where: { user: req.body.user },
+            const tasks = await db.Task.findAll({
+                where: {
+                    UserId: req.query.id.toString(),
+                    // ChurchId: req.query.id.toString(),
+                    date: {
+                        [Op.between]: [
+                            '2020-03-07T00:00:00.000Z',
+                            '2020-07-30T00:00:00.000Z',
+                        ],
+                    },
+                },
+                attributes: ['date'],
+                include: [
+                    {
+                        model: db.Role,
+                        as: 'role',
+                        // attributes: ['name'],
+                    },
+                    {
+                        model: db.Church,
+                        as: 'church',
+                        attributes: ['name'],
+                    },
+                ],
             });
-            res.status(200).json(task);
+            res.json(tasks);
         } catch (err) {
             next(err);
         }
