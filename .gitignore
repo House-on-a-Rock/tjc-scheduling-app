@@ -14,3 +14,4 @@ web-report/
 # secrets
 secrets/
 *.env
+*.pem
