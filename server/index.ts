@@ -27,12 +27,6 @@ app.use(cors());
 
 app.get('/', (req: any, res) => {
     let msg = 'Welcome to this API. ';
-    console.log(req.authInfo);
-    if (req.user) {
-        msg += 'Logged In';
-    } else {
-        msg += 'Logged Out';
-    }
     res.status(200).send({
         message: msg,
     });
