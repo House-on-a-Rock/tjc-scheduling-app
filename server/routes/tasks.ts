@@ -1,17 +1,19 @@
 import express, { Request, Response, NextFunction } from 'express';
 import Sequelize from 'sequelize';
+import fs from 'fs';
+import jwt from 'jsonwebtoken';
 import db from '../index';
-import checkJwt from './jwt_helper_function';
 
 const router = express.Router();
 const { Op } = Sequelize;
+const cert = fs.readFileSync('tjcschedule_pub.pem');
 module.exports = router;
 
 router.get(
     '/getAllUserTasks',
-    // checkJwt,
     async (req: Request, res: Response, next: NextFunction) => {
         try {
+            const verify = jwt.verify(req.headers.authorization, cert);
             const tasks = await db.Task.findAll({
                 where: {
                     UserId: req.query.id.toString(),
@@ -44,17 +46,14 @@ router.get(
     },
 );
 
-router.post(
-    '/createTask',
-    checkJwt,
-    async (req: Request, res: Response, next: NextFunction) => {
-        try {
-            const task = await db.Task.create({
-                date: req.body.date,
-            });
-            res.send(task);
-        } catch (err) {
-            next(err);
-        }
-    },
-);
+router.post('/createTask', async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const verify = jwt.verify(req.headers.authorization, cert);
+        const task = await db.Task.create({
+            date: req.body.date,
+        });
+        res.send(task);
+    } catch (err) {
+        next(err);
+    }
+});
