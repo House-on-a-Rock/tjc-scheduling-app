@@ -1,36 +1,39 @@
 import express, { Request, Response, NextFunction } from 'express';
+import fs from 'fs';
+import jwt from 'jsonwebtoken';
 import { ChurchInstance } from 'shared/SequelizeTypings/models';
 import db from '../index';
-import checkJwt from './jwt_helper_function';
 
 const router = express.Router();
-
+const cert = fs.readFileSync('tjcschedule_pub.pem');
 module.exports = router;
 
-router.get('/getAll', checkJwt, (req: Request, res: Response, next: NextFunction) => {
-    db.Church.findAll({
-        attributes: ['name', 'address', 'description'],
-    })
-        .then((churches: ChurchInstance[]) => res.status(200).json(churches))
-        .catch((err) => {
-            res.status(500);
-            next(err);
-        });
+router.get('/getAll', (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const verify = jwt.verify(req.headers.authorization, cert);
+        db.Church.findAll({
+            attributes: ['name', 'address', 'description'],
+        })
+            .then((churches: ChurchInstance[]) => res.status(200).json(churches))
+            .catch((err) => {
+                res.status(500);
+                next(err);
+            });
+    } catch (err) {
+        next(err);
+    }
 });
 
-router.post(
-    '/createChurch',
-    checkJwt,
-    async (req: Request, res: Response, next: NextFunction) => {
-        try {
-            const church: ChurchInstance = await db.Church.create({
-                name: req.body.name,
-                address: req.body.address,
-                description: req.body.description,
-            });
-            res.send(church);
-        } catch (err) {
-            next(err);
-        }
-    },
-);
+router.post('/createChurch', async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const verify = jwt.verify(req.headers.authorization, cert);
+        const church: ChurchInstance = await db.Church.create({
+            name: req.body.name,
+            address: req.body.address,
+            description: req.body.description,
+        });
+        res.send(church);
+    } catch (err) {
+        next(err);
+    }
+});
