@@ -233,13 +233,13 @@ router.post(
                         if (error) {
                             console.log(error.stack);
                         }
+                        client.end();
                     });
                     res.status(200).send({
                         message: 'Password change success.',
                     });
                 }
             });
-            //client.end();
             // }
         } catch (err) {
             next(err);
