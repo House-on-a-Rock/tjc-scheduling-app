@@ -8,6 +8,7 @@ export interface UserAttributes {
     email: string;
     password: string;
     salt: string;
+    isVerified: boolean;
     createdAt?: Date | null;
     updatedAt?: Date | null;
     duty?: RoleAttributes[] | RoleAttributes['id'];

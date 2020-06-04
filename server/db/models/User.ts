@@ -26,6 +26,10 @@ const UserFactory = (
             type: DataTypes.STRING(255),
             allowNull: false,
         },
+        isVerified: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: false,
+        },
         salt: {
             type: DataTypes.STRING,
         },
