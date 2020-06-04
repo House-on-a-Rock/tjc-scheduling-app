@@ -161,11 +161,11 @@ router.post('/login', async (req: Request, res: Response, next: NextFunction) =>
             // console.log(checkedHash);
             // console.log(password);
             if (checkedHash !== user.password) {
-                return res.status(200).send({
+                return res.status(400).send({
                     message: 'Invalid Username or Password',
                 });
             }
-
+            console.log('Creating token');
             const privateKey = fs.readFileSync('tjcschedule.pem');
             const token = jwt.sign(
                 {
