@@ -34,6 +34,7 @@ router.get('/getUser', async (req, res, next) => {
             include: [
                 {
                     model: db.Church,
+                    as: 'church',
                     attributes: ['name'],
                 },
             ],

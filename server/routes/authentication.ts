@@ -8,6 +8,7 @@ import nodemailer from 'nodemailer';
 import { TokenInstance } from 'shared/SequelizeTypings/models';
 import db from '../index';
 import newClient from './pg_helper';
+import { createIconSetFromFontello } from '@expo/vector-icons';
 
 const router = express.Router();
 const cert = fs.readFileSync('tjcschedule_pub.pem');
@@ -195,49 +196,51 @@ router.post(
     '/changePassword',
     async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const verify = jwt.verify(req.headers.authorization, cert);
+            console.log('Entered');
+            /* const verify = jwt.verify(req.headers.authorization, cert);
             const decodedToken = jwt.decode(req.headers.authorization, { json: true });
             const requestId = decodedToken.sub.split('|')[1];
-            if (requestId === req.body.userId) {
-                const newPassword = req.body.password;
-                const email = req.body.email;
-                const client = new postgres.Client({
-                    user: process.env.DB_USER,
-                    host: process.env.DB_HOST,
-                    database: 'testdb',
-                    password: process.env.DB_PASS,
-                    port: 5432,
-                });
-                let query = {
-                    name: 'get-salt',
-                    text: `SELECT salt FROM public."Users" WHERE email = $1`,
-                    values: [email],
-                };
-                client.query(query, (err, result) => {
-                    if (err) {
-                        console.log(err.stack);
-                    } else {
-                        const user = result.rows[0];
-                        const newHash = crypto
-                            .createHash('rsa-sha256')
-                            .update(newPassword)
-                            .update(user.salt)
-                            .digest('hex');
-                        console.log(newHash);
-                        query = {
-                            name: 'change-password',
-                            text: `UPDATE public."Users" SET password = $1 WHERE email = $2`,
-                            values: [newHash, email],
-                        };
-                        client.query(query, (err, result) => {
-                            if (err) {
-                                console.log(err.stack);
-                            }
-                        });
-                        client.end();
-                    }
-                });
-            }
+            if (requestId === req.body.userId) { */
+            const newPassword = req.body.password;
+            const email = req.body.email;
+            const client = newClient();
+            let query = {
+                name: 'get-salt',
+                text: `SELECT salt FROM public."Users" WHERE email = $1`,
+                values: [email],
+            };
+            client.connect();
+            client.query(query, (err, result) => {
+                if (err) {
+                    console.log(err.stack);
+                } else {
+                    console.log('Query 1');
+                    const user = result.rows[0];
+                    const newHash = crypto
+                        .createHash('rsa-sha256')
+                        .update(newPassword)
+                        .update(user.salt)
+                        .digest('hex');
+                    console.log(newHash);
+                    query = {
+                        name: 'change-password',
+                        text: `UPDATE public."Users" SET password = $1 WHERE email = $2`,
+                        values: [newHash, email],
+                    };
+                    client.query(query, (error, result1) => {
+                        console.log('Query 2');
+                        console.log(query);
+                        if (error) {
+                            console.log(error.stack);
+                        }
+                    });
+                    res.status(200).send({
+                        message: 'Password change success.',
+                    });
+                }
+            });
+            //client.end();
+            // }
         } catch (err) {
             next(err);
         }
