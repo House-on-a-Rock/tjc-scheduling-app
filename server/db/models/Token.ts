@@ -11,11 +11,11 @@ const TokenFactory = (
         token: { type: DataTypes.STRING },
         expiresIn: {
             type: DataTypes.DATE,
-            defaultValue: Math.floor(Date.now() / 1000) + 60,
+            defaultValue: Date.now() + 30 * 60 * 1000,
         },
         createdAt: {
             type: DataTypes.DATE,
-            defaultValue: Math.floor(Date.now() / 1000),
+            defaultValue: Date.now(),
         },
     };
 
