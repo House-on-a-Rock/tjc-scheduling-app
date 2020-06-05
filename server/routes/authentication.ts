@@ -1,13 +1,11 @@
 import express, { Request, Response, NextFunction } from 'express';
 import Sequelize from 'sequelize';
-import postgres from 'pg';
 import crypto from 'crypto';
 import fs from 'fs';
 import jwt from 'jsonwebtoken';
 import nodemailer from 'nodemailer';
-import { TokenInstance, UserInstance } from 'shared/SequelizeTypings/models';
+import { UserInstance } from 'shared/SequelizeTypings/models';
 import db from '../index';
-import newClient from './pg_helper';
 
 const router = express.Router();
 const cert = fs.readFileSync('tjcschedule_pub.pem');
@@ -124,6 +122,50 @@ router.get('/confirmation', async (req: Request, res: Response, next: NextFuncti
     } catch (err) {
         next(err);
     }
+});
+
+router.post('/resendConfirm', async (req: Request, res: Response, next: NextFunction) => {
+    const username = req.body.email;
+    const newToken = crypto.randomBytes(16).toString('hex');
+    // get user id associated with email
+    const user = await db.User.findOne({
+        where: { email: username },
+        attributes: ['id'],
+    });
+    // get token associated with user
+    const userToken = await db.Token.findOne({
+        where: { _userId: user.id },
+        attributes: ['id', 'token', 'expiresIn'],
+    });
+    // update token entry with new token and extended expire time
+    userToken.update({
+        id: userToken.id,
+        token: newToken,
+        expiresIn: Date.now() + 30 * 60 * 1000,
+    });
+    console.log('Sending email..');
+    const transporter = nodemailer.createTransport({
+        service: 'Sendgrid',
+        auth: {
+            user: process.env.VER_EMAIL,
+            pass: process.env.VER_PASS,
+        },
+    });
+    // send confirmation email
+    const mailOptions = {
+        from: 'alraneus@gmail.com',
+        to: username,
+        subject: 'Account Verification Token',
+        text: `Hello,\n\n Please verify your account by clicking the link: \nhttp://${req.headers.host}/api/authentication/confirmation?token=${newToken}`,
+    };
+    transporter.sendMail(mailOptions, function (err) {
+        if (err) {
+            return res.status(500).send({ message: err.message });
+        }
+        res.status(200).send({
+            message: `A verification email has been sent to ${username}.`,
+        });
+    });
 });
 
 router.post('/login', async (req: Request, res: Response, next: NextFunction) => {
