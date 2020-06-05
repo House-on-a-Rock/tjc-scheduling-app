@@ -54,29 +54,31 @@ router.post('/createUser', async (req: Request, res: Response, next: NextFunctio
                 _userId: addedUser.id,
                 token: token,
             });
-        }
-        const transporter = nodemailer.createTransport({
-            service: 'Sendgrid',
-            auth: {
-                user: process.env.VER_EMAIL,
-                pass: process.env.VER_PASS,
-            },
-        });
 
-        const mailOptions = {
-            from: 'alraneus@gmail.com',
-            to: username,
-            subject: 'Account Verification Token',
-            text: `Hello,\n\n Please verify your account by clicking the link: \nhttp://${req.headers.host}/api/authentication/confirmation?token=${token}`,
-        };
-        transporter.sendMail(mailOptions, function (err) {
-            if (err) {
-                return res.status(500).send({ message: err.message });
-            }
-            res.status(200).send({
-                message: `A verification email has been sent to ${username}.`,
+            console.log('Sending email..');
+            const transporter = nodemailer.createTransport({
+                service: 'Sendgrid',
+                auth: {
+                    user: process.env.VER_EMAIL,
+                    pass: process.env.VER_PASS,
+                },
             });
-        });
+
+            const mailOptions = {
+                from: 'alraneus@gmail.com',
+                to: username,
+                subject: 'Account Verification Token',
+                text: `Hello,\n\n Please verify your account by clicking the link: \nhttp://${req.headers.host}/api/authentication/confirmation?token=${token}`,
+            };
+            transporter.sendMail(mailOptions, function (err) {
+                if (err) {
+                    return res.status(500).send({ message: err.message });
+                }
+                res.status(200).send({
+                    message: `A verification email has been sent to ${username}.`,
+                });
+            });
+        }
     } catch (err) {
         next(err);
     }
@@ -129,19 +131,30 @@ router.post('/login', async (req: Request, res: Response, next: NextFunction) =>
     const password = req.body.password;
     const user = await db.User.findOne({
         where: { email: username },
-        attributes: ['id', 'firstName', 'lastName', 'email', 'password', 'salt'],
+        attributes: [
+            'id',
+            'firstName',
+            'lastName',
+            'email',
+            'password',
+            'salt',
+            'isVerified',
+        ],
     });
     const checkedHash = crypto
         .createHash('rsa-sha256')
         .update(password)
         .update(user.salt)
         .digest('hex');
-    // console.log(user.email);
-    // console.log(checkedHash);
-    // console.log(password);
     if (checkedHash !== user.password) {
         return res.status(400).send({
             message: 'Invalid Username or Password',
+        });
+    }
+
+    if (!user.isVerified) {
+        return res.status(400).send({
+            message: 'Please verify your email',
         });
     }
     console.log('Creating token');
