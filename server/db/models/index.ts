@@ -6,6 +6,7 @@ import TaskFactory from './Task';
 import RoleFactory from './Role';
 import TeamFactory from './Team';
 import UserRoleFactory from './User_Role';
+import TokenFactory from './Token';
 
 const createModels = (database, username, password, config): DbInterface => {
     const sequelize = new Sequelize(database, username, password, config);
@@ -19,6 +20,7 @@ const createModels = (database, username, password, config): DbInterface => {
         Role: RoleFactory(sequelize, Sequelize),
         Team: TeamFactory(sequelize, Sequelize),
         UserRole: UserRoleFactory(sequelize, Sequelize),
+        Token: TokenFactory(sequelize, Sequelize),
     };
 
     Object.keys(db).forEach((modelName) => {

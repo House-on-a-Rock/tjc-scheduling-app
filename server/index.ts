@@ -20,7 +20,7 @@ app.use(
     }),
 );
 
-app.use(openid.auth(auth_config));
+// app.use(openid.auth(auth_config));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors());

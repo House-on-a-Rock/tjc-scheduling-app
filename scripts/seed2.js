@@ -56,6 +56,7 @@ const users = [
         lastName: 'Tung',
         email: 'shaun.tung@gmail.com',
         password: 'password',
+        isVerified: true,
         ChurchId: 2,
     },
     {
@@ -63,6 +64,7 @@ const users = [
         lastName: 'Chen',
         email: 'ted.chen@gmail.com',
         password: 'password1',
+        isVerified: true,
         ChurchId: 1,
     },
     {
@@ -70,6 +72,7 @@ const users = [
         lastName: 'Lee',
         email: 'Jonathan.Lee@gmail.com',
         password: 'password3',
+        isVerified: true,
         ChurchId: 6,
     },
     {
@@ -77,6 +80,7 @@ const users = [
         lastName: 'Chu',
         email: 'Geoff.Chu@gmail.com',
         password: 'password3',
+        isVerified: true,
         ChurchId: 3,
     },
     {
@@ -84,6 +88,7 @@ const users = [
         lastName: 'Chin',
         email: 'amanda.chin@gmail.com',
         password: 'password4',
+        isVerified: true,
         ChurchId: 4,
     },
     {
@@ -91,6 +96,7 @@ const users = [
         lastName: 'Lin',
         email: 'Alan.Lin@gmail.com',
         password: 'password5',
+        isVerified: true,
         ChurchId: 2,
     },
     {
@@ -98,6 +104,7 @@ const users = [
         lastName: 'Lin',
         email: 'Ian.Lin@gmail.com',
         password: 'password6',
+        isVerified: true,
         ChurchId: 5,
     },
 ];
@@ -131,7 +138,7 @@ const tasks = [
         date: '2020-05-06',
         UserId: 2,
         RoleId: 2,
-        ChurchId: 1,
+        ChurchId: 4,
     },
     {
         date: '2020-05-06',
@@ -141,51 +148,51 @@ const tasks = [
     },
     {
         date: '2020-04-06',
-        UserId: 1,
+        UserId: 2,
         RoleId: 3,
-        ChurchId: 1,
+        ChurchId: 4,
     },
     {
         date: '2020-05-12',
-        UserId: 1,
+        UserId: 2,
         RoleId: 2,
-        ChurchId: 1,
+        ChurchId: 4,
     },
     {
         date: '2020-05-16',
         UserId: 1,
         RoleId: 1,
-        ChurchId: 1,
+        ChurchId: 3,
     },
     {
         date: '2020-05-16',
         UserId: 1,
         RoleId: 2,
-        ChurchId: 1,
+        ChurchId: 3,
     },
     {
         date: '2020-05-16',
         UserId: 1,
         RoleId: 3,
-        ChurchId: 1,
+        ChurchId: 3,
     },
     {
         date: '2020-05-16',
         UserId: 1,
         RoleId: 1,
-        ChurchId: 2,
+        ChurchId: 3,
     },
     {
         date: '2020-06-01',
         UserId: 1,
         RoleId: 3,
-        ChurchId: 1,
+        ChurchId: 3,
     },
     {
         date: '2020-05-21',
         UserId: 1,
         RoleId: 4,
-        ChurchId: 1,
+        ChurchId: 3,
     },
 ];
 

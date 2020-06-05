@@ -26,6 +26,10 @@ const UserFactory = (
             type: DataTypes.STRING(255),
             allowNull: false,
         },
+        isVerified: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: false,
+        },
         salt: {
             type: DataTypes.STRING,
         },
@@ -73,7 +77,7 @@ const UserFactory = (
 
     User.associate = (models) => {
         User.hasMany(models.Task, { foreignKey: 'UserId' });
-        User.belongsTo(models.Church), { as: 'church', foreignKey: 'ChurchId' };
+        User.belongsTo(models.Church, { as: 'church', foreignKey: 'ChurchId' });
         User.belongsToMany(models.Role, { through: models.UserRole, as: 'role' });
     };
 
