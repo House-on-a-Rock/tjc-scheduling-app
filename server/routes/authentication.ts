@@ -5,6 +5,7 @@ import fs from 'fs';
 import jwt from 'jsonwebtoken';
 import nodemailer from 'nodemailer';
 import { UserInstance } from 'shared/SequelizeTypings/models';
+import sendVerEmail from './helper_functions';
 import db from '../index';
 
 const router = express.Router();
@@ -18,7 +19,7 @@ router.post(
     async (req: Request, res: Response, next: NextFunction) => {},
 );
 
-router.post('/createUser', async (req: Request, res: Response, next: NextFunction) => {
+router.post('/user', async (req: Request, res: Response, next: NextFunction) => {
     try {
         let exist = false;
         const username = req.body.email;
@@ -49,33 +50,11 @@ router.post('/createUser', async (req: Request, res: Response, next: NextFunctio
                 attributes: ['id'],
             });
             db.Token.create({
-                _userId: addedUser.id,
+                userId: addedUser.id,
                 token: token,
             });
 
-            console.log('Sending email..');
-            const transporter = nodemailer.createTransport({
-                service: 'Sendgrid',
-                auth: {
-                    user: process.env.VER_EMAIL,
-                    pass: process.env.VER_PASS,
-                },
-            });
-
-            const mailOptions = {
-                from: 'alraneus@gmail.com',
-                to: username,
-                subject: 'Account Verification Token',
-                text: `Hello,\n\n Please verify your account by clicking the link: \nhttp://${req.headers.host}/api/authentication/confirmation?token=${token}`,
-            };
-            transporter.sendMail(mailOptions, function (err) {
-                if (err) {
-                    return res.status(500).send({ message: err.message });
-                }
-                res.status(200).send({
-                    message: `A verification email has been sent to ${username}.`,
-                });
-            });
+            sendVerEmail(username, req, res, token);
         }
     } catch (err) {
         next(err);
@@ -89,7 +68,7 @@ router.get('/confirmation', async (req: Request, res: Response, next: NextFuncti
         console.log(typeof req.query.token, req.query.token);
         const checkToken = await db.Token.findOne({
             where: { token: req.query.token.toString() },
-            attributes: ['_userId', 'token', 'expiresIn'],
+            attributes: ['userId', 'token', 'expiresIn'],
         });
         const expiryTime = new Date(checkToken.expiresIn).getTime();
         console.log(expiryTime, currentTime);
@@ -107,12 +86,12 @@ router.get('/confirmation', async (req: Request, res: Response, next: NextFuncti
                 message: 'Token not found',
             });
         const tokenUser = await db.User.findOne({
-            where: { id: checkToken._userId },
+            where: { id: checkToken.userId },
             attributes: ['isVerified'],
         });
 
         tokenUser.update({
-            id: checkToken._userId,
+            id: checkToken.userId,
             isVerified: true,
         });
 
@@ -134,7 +113,7 @@ router.post('/resendConfirm', async (req: Request, res: Response, next: NextFunc
     });
     // get token associated with user
     const userToken = await db.Token.findOne({
-        where: { _userId: user.id },
+        where: { userId: user.id },
         attributes: ['id', 'token', 'expiresIn'],
     });
     // update token entry with new token and extended expire time
@@ -143,29 +122,7 @@ router.post('/resendConfirm', async (req: Request, res: Response, next: NextFunc
         token: newToken,
         expiresIn: Date.now() + 30 * 60 * 1000,
     });
-    console.log('Sending email..');
-    const transporter = nodemailer.createTransport({
-        service: 'Sendgrid',
-        auth: {
-            user: process.env.VER_EMAIL,
-            pass: process.env.VER_PASS,
-        },
-    });
-    // send confirmation email
-    const mailOptions = {
-        from: 'alraneus@gmail.com',
-        to: username,
-        subject: 'Account Verification Token',
-        text: `Hello,\n\n Please verify your account by clicking the link: \nhttp://${req.headers.host}/api/authentication/confirmation?token=${newToken}`,
-    };
-    transporter.sendMail(mailOptions, function (err) {
-        if (err) {
-            return res.status(500).send({ message: err.message });
-        }
-        res.status(200).send({
-            message: `A verification email has been sent to ${username}.`,
-        });
-    });
+    sendVerEmail(username, req, res, newToken);
 });
 
 router.post('/login', async (req: Request, res: Response, next: NextFunction) => {

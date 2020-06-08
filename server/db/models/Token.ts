@@ -7,7 +7,7 @@ const TokenFactory = (
     DataTypes: Sequelize.DataTypes,
 ): Sequelize.Model<TokenInstance, TokenAttributes> => {
     const attributes: SequelizeAttributes<TokenAttributes> = {
-        _userId: { type: DataTypes.INTEGER },
+        userId: { type: DataTypes.INTEGER },
         token: { type: DataTypes.STRING },
         expiresIn: {
             type: DataTypes.DATE,

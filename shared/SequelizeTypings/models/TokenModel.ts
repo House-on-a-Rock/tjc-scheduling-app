@@ -2,8 +2,8 @@ import * as Sequelize from 'sequelize';
 
 export interface TokenAttributes {
     id?: number;
-    _userId?: number;
-    token?: string;
+    userId: number;
+    token: string;
     expiresIn?: Date;
     createdAt?: Date;
 }
