@@ -206,14 +206,22 @@ router.post(
                 attributes: ['id', 'password', 'salt'],
             });
 
-            user.update({
-                id: user.id,
-                password: req.body.password,
-            });
+            const oldPasswordHash = crypto
+                .createHash('rsa-sha256')
+                .update(req.body.oldPass)
+                .update(user.salt)
+                .digest('hex');
 
-            res.status(200).send({
-                message: 'Password change success.',
-            });
+            if (oldPasswordHash === user.password) {
+                user.update({
+                    id: user.id,
+                    password: req.body.password,
+                });
+
+                res.status(200).send({
+                    message: 'Password change success.',
+                });
+            }
 
             // }
         } catch (err) {
