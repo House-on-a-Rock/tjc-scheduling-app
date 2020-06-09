@@ -7,7 +7,7 @@ export interface UserAttributes {
     lastName: string;
     email: string;
     password: string;
-    salt: string;
+    salt?: string;
     isVerified: boolean;
     createdAt?: Date | null;
     updatedAt?: Date | null;

@@ -1,17 +1,27 @@
 import express, { Request, Response, NextFunction } from 'express';
 import Sequelize from 'sequelize';
-import postgres from 'pg';
 import crypto from 'crypto';
 import fs from 'fs';
 import jwt from 'jsonwebtoken';
-import nodemailer from 'nodemailer';
-import { TokenInstance } from 'shared/SequelizeTypings/models';
+import { UserInstance } from 'shared/SequelizeTypings/models';
+import helper from '../helper_functions';
 import db from '../index';
-import newClient from './pg_helper';
-import { createIconSetFromFontello } from '@expo/vector-icons';
 
 const router = express.Router();
-const cert = fs.readFileSync('tjcschedule_pub.pem');
+let cert;
+let privateKey;
+fs.readFile('tjcschedule_pub.pem', function read(err, data) {
+    if (err) throw err;
+    cert = data;
+    // console.log(cert);
+});
+
+fs.readFile('tjcschedule.pem', function read(err, data) {
+    if (err) throw err;
+    privateKey = data;
+    // console.log(privateKey);
+});
+
 const { Op } = Sequelize;
 
 module.exports = router;
@@ -21,82 +31,43 @@ router.post(
     async (req: Request, res: Response, next: NextFunction) => {},
 );
 
-router.post('/signUp', async (req: Request, res: Response, next: NextFunction) => {
+router.post('/user', async (req: Request, res: Response, next: NextFunction) => {
     try {
-        let newUserId;
-        const client = newClient();
+        let doesUserExist = false;
         const username = req.body.email;
         console.log(typeof username, username);
         const token = crypto.randomBytes(16).toString('hex');
-        const salt = crypto.randomBytes(16).toString('base64');
-        const passwordHash = crypto
-            .createHash(process.env.SECRET_HASH)
-            .update(req.body.password)
-            .update(salt)
-            .digest('hex');
-        const query = {
-            name: 'sign-up',
-            text: `INSERT INTO public."Users"("firstName", "lastName", email, password, salt, "isVerified") VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`,
-            values: [
-                req.body.firstName,
-                req.body.lastName,
-                username,
-                passwordHash,
-                salt,
-                false,
-            ],
-        };
         const checkIfUserExist = await db.User.findOne({
             where: { email: username },
+            attributes: ['id', 'email'],
         }).then(function (user) {
-            if (user)
+            if (user) {
+                doesUserExist = true;
                 return res.status(400).send({
                     message: 'User already exists',
                 });
-            client.connect();
-            client.query(query, (err, result) => {
-                console.log('querying');
-                if (err) {
-                    console.log(err.stack);
-                }
-                client.end();
-
-                const user = result.rows[0];
-                console.log(user);
-                db.Token.create({
-                    _userId: user.id,
-                    token: token,
-                });
-            });
-
-            const transporter = nodemailer.createTransport({
-                service: 'Sendgrid',
-                auth: {
-                    user: process.env.VER_EMAIL,
-                    pass: process.env.VER_PASS,
-                },
-            });
-
-            const mailOptions = {
-                from: 'alraneus@gmail.com',
-                to: username,
-                subject: 'Account Verification Token',
-                text:
-                    'Hello,\n\n' +
-                    'Please verify your account by clicking the link: \nhttp://' +
-                    req.headers.host +
-                    '/api/authentication/confirmation?token=' +
-                    token,
-            };
-            transporter.sendMail(mailOptions, function (err) {
-                if (err) {
-                    return res.status(500).send({ message: err.message });
-                }
-                res.status(200).send({
-                    message: 'A verification email has been sent to ' + username + '.',
-                });
-            });
+            }
         });
+        if (!doesUserExist) {
+            const newUser: UserInstance = await db.User.create({
+                firstName: req.body.firstName,
+                lastName: req.body.lastName,
+                email: req.body.email,
+                password: req.body.password,
+                isVerified: false,
+            });
+
+            const addedUser = await db.User.findOne({
+                where: { email: username },
+                attributes: ['id'],
+            });
+            db.Token.create({
+                userId: addedUser.id,
+                token: token,
+            });
+
+            helper.sendVerEmail(username, req, res, token);
+        }
     } catch (err) {
         next(err);
     }
@@ -104,91 +75,119 @@ router.post('/signUp', async (req: Request, res: Response, next: NextFunction) =
 
 router.get('/confirmation', async (req: Request, res: Response, next: NextFunction) => {
     try {
+        let isValidToken = false;
+        const currentTime = Date.now();
         console.log(typeof req.query.token, req.query.token);
-        const client = newClient();
         const checkToken = await db.Token.findOne({
             where: { token: req.query.token.toString() },
-        }).then(function (token) {
-            console.log(token);
-            if (!token)
-                return res.status(400).send({
-                    message: 'Token not found',
-                });
-            const query = {
-                name: 'update-verify',
-                text: `UPDATE public."Users" SET "isVerified" = $1 WHERE id = $2`,
-                values: [true, token._userId],
-            };
-            client.connect();
-            client.query(query, (err, result) => {
-                if (err) {
-                    console.log(err.stack);
-                }
-                console.log(result);
-                client.end();
+            attributes: ['userId', 'token', 'expiresIn'],
+        });
+        const expiryTime = new Date(checkToken.expiresIn).getTime();
+        console.log(expiryTime, currentTime);
+        console.log(expiryTime <= currentTime);
+        if (checkToken.token) isValidToken = true;
+        if (expiryTime <= currentTime) {
+            isValidToken = false;
+            console.log('Token expired');
+            return res.status(400).send({
+                message: 'Token expired',
             });
-            res.status(200).send({
-                message: 'The account has been verified. Please log in.',
+        }
+        if (!isValidToken)
+            return res.status(400).send({
+                message: 'Token not found',
             });
+        const tokenUser = await db.User.findOne({
+            where: { id: checkToken.userId },
+            attributes: ['isVerified'],
+        });
+
+        tokenUser.update({
+            id: checkToken.userId,
+            isVerified: true,
+        });
+
+        res.status(200).send({
+            message: 'The account has been verified. Please log in.',
         });
     } catch (err) {
         next(err);
     }
 });
 
-router.post('/login', async (req: Request, res: Response, next: NextFunction) => {
-    const postgres_client = newClient();
+router.post('/resendConfirm', async (req: Request, res: Response, next: NextFunction) => {
     const username = req.body.email;
-    const password = req.body.password;
-    const query = {
-        name: 'fetch-user',
-        text: `SELECT id, "firstName", "lastName", email, password, salt FROM public."Users" WHERE email = $1`,
-        values: [username],
-    };
-    postgres_client.connect();
-    postgres_client.query(query, (err, result) => {
-        if (err) {
-            console.log(err.stack);
-        } else {
-            // console.log(result.rows[0]);
-            const user = result.rows[0];
-            const checkedHash = crypto
-                .createHash('rsa-sha256')
-                .update(password)
-                .update(user.salt)
-                .digest('hex');
-            // console.log(user.email);
-            // console.log(checkedHash);
-            // console.log(password);
-            if (checkedHash !== user.password) {
-                return res.status(400).send({
-                    message: 'Invalid Username or Password',
-                });
-            }
-            console.log('Creating token');
-            const privateKey = fs.readFileSync('tjcschedule.pem');
-            const token = jwt.sign(
-                {
-                    iss: process.env.AUDIENCE,
-                    sub: `tjc-scheduling|${user.id}`,
-                    exp: Math.floor(Date.now() / 1000) + 60 * 60,
-                },
-                {
-                    key: privateKey,
-                    passphrase: 'houseonthehill',
-                },
-                { algorithm: 'RS256' },
-            );
+    const newToken = crypto.randomBytes(16).toString('hex');
+    // get user id associated with email
+    const user = await db.User.findOne({
+        where: { email: username },
+        attributes: ['id'],
+    });
+    // get token associated with user
+    const userToken = await db.Token.findOne({
+        where: { userId: user.id },
+        attributes: ['id', 'token', 'expiresIn'],
+    });
+    // update token entry with new token and extended expire time
+    userToken.update({
+        id: userToken.id,
+        token: newToken,
+        expiresIn: Date.now() + 30 * 60 * 1000,
+    });
+    helper.sendVerEmail(username, req, res, newToken);
+});
 
-            res.json({
-                user_id: user.id,
-                firstName: user.firstName,
-                lastName: user.lastName,
-                email: user.email,
-                access_token: token,
-            });
-            postgres_client.end();
-        }
+router.post('/login', async (req: Request, res: Response, next: NextFunction) => {
+    const userEmail = req.body.email;
+    const userPassword = req.body.password;
+    const user = await db.User.findOne({
+        where: { email: userEmail },
+        attributes: [
+            'id',
+            'firstName',
+            'lastName',
+            'email',
+            'password',
+            'salt',
+            'isVerified',
+        ],
+    });
+    const checkedHash = crypto
+        .createHash('rsa-sha256')
+        .update(userPassword)
+        .update(user.salt)
+        .digest('hex');
+    if (checkedHash !== user.password) {
+        return res.status(400).send({
+            message: 'Invalid Username or Password',
+        });
+    }
+
+    if (!user.isVerified) {
+        return res.status(400).send({
+            message: 'Please verify your email',
+        });
+    }
+    console.log('Creating token');
+    const token = jwt.sign(
+        {
+            iss: process.env.AUDIENCE,
+            sub: `tjc-scheduling|${user.id}`,
+            exp: Math.floor(Date.now() / 1000) + 60 * 60,
+        },
+        {
+            key: privateKey,
+            passphrase: process.env.PRIVATEKEY_PASS,
+        },
+        { algorithm: 'RS256' },
+    );
+
+    res.json({
+        user_id: user.id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        access_token: token,
     });
 });
 
@@ -201,45 +200,21 @@ router.post(
             const decodedToken = jwt.decode(req.headers.authorization, { json: true });
             const requestId = decodedToken.sub.split('|')[1];
             if (requestId === req.body.userId) { */
-            const newPassword = req.body.password;
-            const email = req.body.email;
-            const client = newClient();
-            let query = {
-                name: 'get-salt',
-                text: `SELECT salt FROM public."Users" WHERE email = $1`,
-                values: [email],
-            };
-            client.connect();
-            client.query(query, (err, result) => {
-                if (err) {
-                    console.log(err.stack);
-                } else {
-                    console.log('Query 1');
-                    const user = result.rows[0];
-                    const newHash = crypto
-                        .createHash('rsa-sha256')
-                        .update(newPassword)
-                        .update(user.salt)
-                        .digest('hex');
-                    console.log(newHash);
-                    query = {
-                        name: 'change-password',
-                        text: `UPDATE public."Users" SET password = $1 WHERE email = $2`,
-                        values: [newHash, email],
-                    };
-                    client.query(query, (error, result1) => {
-                        console.log('Query 2');
-                        console.log(query);
-                        if (error) {
-                            console.log(error.stack);
-                        }
-                        client.end();
-                    });
-                    res.status(200).send({
-                        message: 'Password change success.',
-                    });
-                }
+            const userEmail = req.body.email;
+            const user = await db.User.findOne({
+                where: { email: userEmail },
+                attributes: ['id', 'password', 'salt'],
             });
+
+            user.update({
+                id: user.id,
+                password: req.body.password,
+            });
+
+            res.status(200).send({
+                message: 'Password change success.',
+            });
+
             // }
         } catch (err) {
             next(err);
