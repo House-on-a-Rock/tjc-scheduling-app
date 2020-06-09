@@ -3,6 +3,7 @@ import Sequelize from 'sequelize';
 import crypto from 'crypto';
 import fs from 'fs';
 import jwt from 'jsonwebtoken';
+import request from 'request-promise';
 import { UserInstance } from 'shared/SequelizeTypings/models';
 import helper from '../helper_functions';
 import db from '../index';
@@ -192,6 +193,38 @@ router.post('/login', async (req: Request, res: Response, next: NextFunction) =>
 });
 
 router.post(
+    '/confirmPassword',
+    async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const user = await db.User.findOne({
+                where: { email: req.body.email },
+                attributes: ['salt', 'password'],
+            });
+
+            const checkedHash = crypto
+                .createHash('rsa-sha256')
+                .update(req.body.password)
+                .update(user.salt)
+                .digest('hex');
+
+            if (checkedHash !== user.password) {
+                res.status(400).send({
+                    message: 'Invalid credentials',
+                    verify: false,
+                });
+            } else {
+                res.status(200).send({
+                    message: 'Password confirmed',
+                    verify: true,
+                });
+            }
+        } catch (err) {
+            next(err);
+        }
+    },
+);
+
+router.post(
     '/changePassword',
     async (req: Request, res: Response, next: NextFunction) => {
         try {
@@ -201,18 +234,24 @@ router.post(
             const requestId = decodedToken.sub.split('|')[1];
             if (requestId === req.body.userId) { */
             const userEmail = req.body.email;
+            const options = {
+                method: 'POST',
+                uri: 'http://10.10.150.50:8080/api/authentication/confirmPassword',
+                body: {
+                    email: userEmail,
+                    password: req.body.oldPass,
+                },
+                json: true,
+            };
+            const verifyOldPassword = await request(options);
+
+            console.log(verifyOldPassword);
             const user = await db.User.findOne({
                 where: { email: userEmail },
                 attributes: ['id', 'password', 'salt'],
             });
 
-            const oldPasswordHash = crypto
-                .createHash('rsa-sha256')
-                .update(req.body.oldPass)
-                .update(user.salt)
-                .digest('hex');
-
-            if (oldPasswordHash === user.password) {
+            if (verifyOldPassword.verify) {
                 user.update({
                     id: user.id,
                     password: req.body.password,
