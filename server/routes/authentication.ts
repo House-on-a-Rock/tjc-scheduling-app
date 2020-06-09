@@ -3,7 +3,6 @@ import Sequelize from 'sequelize';
 import crypto from 'crypto';
 import fs from 'fs';
 import jwt from 'jsonwebtoken';
-import nodemailer from 'nodemailer';
 import { UserInstance } from 'shared/SequelizeTypings/models';
 import sendVerEmail from './helper_functions';
 import db from '../index';
