@@ -7,6 +7,7 @@ import RoleFactory from './Role';
 import TeamFactory from './Team';
 import UserRoleFactory from './User_Role';
 import TokenFactory from './Token';
+import RecovTokenFactory from './RecovToken';
 
 const createModels = (database, username, password, config): DbInterface => {
     const sequelize = new Sequelize(database, username, password, config);
@@ -21,6 +22,7 @@ const createModels = (database, username, password, config): DbInterface => {
         Team: TeamFactory(sequelize, Sequelize),
         UserRole: UserRoleFactory(sequelize, Sequelize),
         Token: TokenFactory(sequelize, Sequelize),
+        RecovToken: RecovTokenFactory(sequelize, Sequelize),
     };
 
     Object.keys(db).forEach((modelName) => {

@@ -14,13 +14,11 @@ let privateKey;
 fs.readFile('tjcschedule_pub.pem', function read(err, data) {
     if (err) throw err;
     cert = data;
-    // console.log(cert);
 });
 
 fs.readFile('tjcschedule.pem', function read(err, data) {
     if (err) throw err;
     privateKey = data;
-    // console.log(privateKey);
 });
 
 const { Op } = Sequelize;
@@ -36,7 +34,6 @@ router.post('/user', async (req: Request, res: Response, next: NextFunction) => 
     try {
         let doesUserExist = false;
         const username = req.body.email;
-        console.log(typeof username, username);
         const token = crypto.randomBytes(16).toString('hex');
         const checkIfUserExist = await db.User.findOne({
             where: { email: username },
@@ -48,6 +45,7 @@ router.post('/user', async (req: Request, res: Response, next: NextFunction) => 
                     message: 'User already exists',
                 });
             }
+            return true;
         });
         if (!doesUserExist) {
             const newUser: UserInstance = await db.User.create({
@@ -67,7 +65,7 @@ router.post('/user', async (req: Request, res: Response, next: NextFunction) => 
                 token: token,
             });
 
-            helper.sendVerEmail(username, req, res, token);
+            helper.sendVerEmail(username, req, res, token, 'confirmation');
         }
     } catch (err) {
         next(err);
@@ -90,12 +88,12 @@ router.get('/confirmation', async (req: Request, res: Response, next: NextFuncti
         if (expiryTime <= currentTime) {
             isValidToken = false;
             console.log('Token expired');
-            return res.status(400).send({
+            res.status(400).send({
                 message: 'Token expired',
             });
         }
         if (!isValidToken)
-            return res.status(400).send({
+            res.status(400).send({
                 message: 'Token not found',
             });
         const tokenUser = await db.User.findOne({
@@ -117,25 +115,29 @@ router.get('/confirmation', async (req: Request, res: Response, next: NextFuncti
 });
 
 router.post('/resendConfirm', async (req: Request, res: Response, next: NextFunction) => {
-    const username = req.body.email;
-    const newToken = crypto.randomBytes(16).toString('hex');
-    // get user id associated with email
-    const user = await db.User.findOne({
-        where: { email: username },
-        attributes: ['id'],
-    });
-    // get token associated with user
-    const userToken = await db.Token.findOne({
-        where: { userId: user.id },
-        attributes: ['id', 'token', 'expiresIn'],
-    });
-    // update token entry with new token and extended expire time
-    userToken.update({
-        id: userToken.id,
-        token: newToken,
-        expiresIn: Date.now() + 30 * 60 * 1000,
-    });
-    helper.sendVerEmail(username, req, res, newToken);
+    try {
+        const username = req.body.email;
+        const newToken = crypto.randomBytes(16).toString('hex');
+        // get user id associated with email
+        const user = await db.User.findOne({
+            where: { email: username },
+            attributes: ['id'],
+        });
+        // get token associated with user
+        const userToken = await db.Token.findOne({
+            where: { userId: user.id },
+            attributes: ['id', 'token', 'expiresIn'],
+        });
+        // update token entry with new token and extended expire time
+        userToken.update({
+            id: userToken.id,
+            token: newToken,
+            expiresIn: Date.now() + 30 * 60 * 1000,
+        });
+        helper.sendVerEmail(username, req, res, newToken, 'confirmation');
+    } catch (err) {
+        next(err);
+    }
 });
 
 router.post('/login', async (req: Request, res: Response, next: NextFunction) => {
@@ -159,37 +161,36 @@ router.post('/login', async (req: Request, res: Response, next: NextFunction) =>
         .update(user.salt)
         .digest('hex');
     if (checkedHash !== user.password) {
-        return res.status(400).send({
+        res.status(400).send({
             message: 'Invalid Username or Password',
         });
-    }
-
-    if (!user.isVerified) {
-        return res.status(400).send({
+    } else if (!user.isVerified) {
+        res.status(400).send({
             message: 'Please verify your email',
         });
-    }
-    console.log('Creating token');
-    const token = jwt.sign(
-        {
-            iss: process.env.AUDIENCE,
-            sub: `tjc-scheduling|${user.id}`,
-            exp: Math.floor(Date.now() / 1000) + 60 * 60,
-        },
-        {
-            key: privateKey,
-            passphrase: process.env.PRIVATEKEY_PASS,
-        },
-        { algorithm: 'RS256' },
-    );
+    } else {
+        console.log('Creating token');
+        const token = jwt.sign(
+            {
+                iss: process.env.AUDIENCE,
+                sub: `tjc-scheduling|${user.id}`,
+                exp: Math.floor(Date.now() / 1000) + 60 * 60,
+            },
+            {
+                key: privateKey,
+                passphrase: process.env.PRIVATEKEY_PASS,
+            },
+            { algorithm: 'RS256' },
+        );
 
-    res.json({
-        user_id: user.id,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        email: user.email,
-        access_token: token,
-    });
+        res.json({
+            user_id: user.id,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            email: user.email,
+            access_token: token,
+        });
+    }
 });
 
 router.post(
@@ -263,6 +264,85 @@ router.post(
             }
 
             // }
+        } catch (err) {
+            next(err);
+        }
+    },
+);
+
+router.post(
+    '/sendRecoverEmail',
+    async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const recovToken = crypto.randomBytes(16).toString('hex');
+            const user = await db.User.findOne({
+                where: { email: req.body.email },
+                attributes: ['id', 'isVerified'],
+            });
+
+            if (user && user.isVerified) {
+                db.RecovToken.create({
+                    userId: user.id,
+                    token: recovToken,
+                });
+                // helper.sendVerEmail(
+                //     req.body.email,
+                //     req,
+                //     res,
+                //     recovToken,
+                //     'resetPasswordPage',
+                // );
+                res.status(200).send({
+                    message: 'Recovery token created',
+                    token: recovToken,
+                });
+            } else {
+                res.status(400).send({
+                    message: 'Invalid or unverified user',
+                });
+            }
+        } catch (err) {
+            next(err);
+        }
+    },
+);
+
+router.post(
+    '/recoverPassword',
+    async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const currentTime = Date.now();
+            const recovToken = await db.RecovToken.findOne({
+                where: { token: req.body.token },
+                attributes: ['userId', 'expiresIn'],
+            });
+
+            if (recovToken.expiresIn.getTime() > currentTime) {
+                const user = await db.User.findOne({
+                    where: { id: recovToken.userId },
+                    attributes: ['id', 'isVerified'],
+                });
+                console.log(user);
+                if (user.isVerified && req.body.password === req.body.confirmPassword) {
+                    user.update({
+                        id: user.id,
+                        password: req.body.password,
+                    });
+
+                    res.status(200).send({
+                        message: 'Password change success.',
+                    });
+                } else {
+                    res.status(400).send({
+                        message:
+                            'User does not exist or is not verified or passwords do not match',
+                    });
+                }
+            } else {
+                res.status(400).send({
+                    message: 'Recovery token invalid or expired',
+                });
+            }
         } catch (err) {
             next(err);
         }

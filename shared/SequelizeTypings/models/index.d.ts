@@ -5,3 +5,4 @@ export * from './RoleModel';
 export * from './TeamModel';
 export * from './UserRoleModel';
 export * from './TokenModel';
+export * from './PassRecovToken';

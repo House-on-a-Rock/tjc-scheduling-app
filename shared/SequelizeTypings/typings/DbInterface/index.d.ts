@@ -12,6 +12,8 @@ import {
     UserRoleAttributes,
     TokenInstance,
     TokenAttributes,
+    PassRecovTokenInstance,
+    PassRecovTokenAttributes,
 } from 'shared/SequelizeTypings/models';
 import { TeamInstance, TeamAttributes } from 'shared/SequelizeTypings/models/TeamModel';
 
@@ -25,4 +27,5 @@ export interface DbInterface {
     Team: Sequelize.Model<TeamInstance, TeamAttributes>;
     UserRole: Sequelize.Model<UserRoleInstance, UserRoleAttributes>;
     Token: Sequelize.Model<TokenInstance, TokenAttributes>;
+    RecovToken: Sequelize.Model<PassRecovTokenInstance, PassRecovTokenAttributes>;
 }
