@@ -5,7 +5,12 @@ import { ChurchInstance } from 'shared/SequelizeTypings/models';
 import db from '../index';
 
 const router = express.Router();
-const cert = fs.readFileSync('tjcschedule_pub.pem');
+let cert;
+fs.readFile('tjcschedule_pub.pem', function read(err, data) {
+    if (err) throw err;
+    cert = data;
+    console.log(cert);
+});
 module.exports = router;
 
 router.get('/getAll', (req: Request, res: Response, next: NextFunction) => {

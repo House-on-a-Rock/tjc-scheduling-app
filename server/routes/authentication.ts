@@ -4,11 +4,24 @@ import crypto from 'crypto';
 import fs from 'fs';
 import jwt from 'jsonwebtoken';
 import { UserInstance } from 'shared/SequelizeTypings/models';
-import sendVerEmail from './helper_functions';
+import helper from '../helper_functions';
 import db from '../index';
 
 const router = express.Router();
-const cert = fs.readFileSync('tjcschedule_pub.pem');
+let cert;
+let privateKey;
+fs.readFile('tjcschedule_pub.pem', function read(err, data) {
+    if (err) throw err;
+    cert = data;
+    // console.log(cert);
+});
+
+fs.readFile('tjcschedule.pem', function read(err, data) {
+    if (err) throw err;
+    privateKey = data;
+    // console.log(privateKey);
+});
+
 const { Op } = Sequelize;
 
 module.exports = router;
@@ -20,7 +33,7 @@ router.post(
 
 router.post('/user', async (req: Request, res: Response, next: NextFunction) => {
     try {
-        let exist = false;
+        let doesUserExist = false;
         const username = req.body.email;
         console.log(typeof username, username);
         const token = crypto.randomBytes(16).toString('hex');
@@ -29,13 +42,13 @@ router.post('/user', async (req: Request, res: Response, next: NextFunction) => 
             attributes: ['id', 'email'],
         }).then(function (user) {
             if (user) {
-                exist = true;
+                doesUserExist = true;
                 return res.status(400).send({
                     message: 'User already exists',
                 });
             }
         });
-        if (!exist) {
+        if (!doesUserExist) {
             const newUser: UserInstance = await db.User.create({
                 firstName: req.body.firstName,
                 lastName: req.body.lastName,
@@ -53,7 +66,7 @@ router.post('/user', async (req: Request, res: Response, next: NextFunction) => 
                 token: token,
             });
 
-            sendVerEmail(username, req, res, token);
+            helper.sendVerEmail(username, req, res, token);
         }
     } catch (err) {
         next(err);
@@ -62,7 +75,7 @@ router.post('/user', async (req: Request, res: Response, next: NextFunction) => 
 
 router.get('/confirmation', async (req: Request, res: Response, next: NextFunction) => {
     try {
-        let validToken = false;
+        let isValidToken = false;
         const currentTime = Date.now();
         console.log(typeof req.query.token, req.query.token);
         const checkToken = await db.Token.findOne({
@@ -72,15 +85,15 @@ router.get('/confirmation', async (req: Request, res: Response, next: NextFuncti
         const expiryTime = new Date(checkToken.expiresIn).getTime();
         console.log(expiryTime, currentTime);
         console.log(expiryTime <= currentTime);
-        if (checkToken.token) validToken = true;
+        if (checkToken.token) isValidToken = true;
         if (expiryTime <= currentTime) {
-            validToken = false;
+            isValidToken = false;
             console.log('Token expired');
             return res.status(400).send({
                 message: 'Token expired',
             });
         }
-        if (!validToken)
+        if (!isValidToken)
             return res.status(400).send({
                 message: 'Token not found',
             });
@@ -121,14 +134,14 @@ router.post('/resendConfirm', async (req: Request, res: Response, next: NextFunc
         token: newToken,
         expiresIn: Date.now() + 30 * 60 * 1000,
     });
-    sendVerEmail(username, req, res, newToken);
+    helper.sendVerEmail(username, req, res, newToken);
 });
 
 router.post('/login', async (req: Request, res: Response, next: NextFunction) => {
-    const username = req.body.email;
-    const password = req.body.password;
+    const userEmail = req.body.email;
+    const userPassword = req.body.password;
     const user = await db.User.findOne({
-        where: { email: username },
+        where: { email: userEmail },
         attributes: [
             'id',
             'firstName',
@@ -141,7 +154,7 @@ router.post('/login', async (req: Request, res: Response, next: NextFunction) =>
     });
     const checkedHash = crypto
         .createHash('rsa-sha256')
-        .update(password)
+        .update(userPassword)
         .update(user.salt)
         .digest('hex');
     if (checkedHash !== user.password) {
@@ -156,7 +169,6 @@ router.post('/login', async (req: Request, res: Response, next: NextFunction) =>
         });
     }
     console.log('Creating token');
-    const privateKey = fs.readFileSync('tjcschedule.pem');
     const token = jwt.sign(
         {
             iss: process.env.AUDIENCE,
@@ -165,7 +177,7 @@ router.post('/login', async (req: Request, res: Response, next: NextFunction) =>
         },
         {
             key: privateKey,
-            passphrase: 'houseonthehill',
+            passphrase: process.env.PRIVATEKEY_PASS,
         },
         { algorithm: 'RS256' },
     );
@@ -188,10 +200,10 @@ router.post(
             const decodedToken = jwt.decode(req.headers.authorization, { json: true });
             const requestId = decodedToken.sub.split('|')[1];
             if (requestId === req.body.userId) { */
-            const email = req.body.email;
+            const userEmail = req.body.email;
             const user = await db.User.findOne({
-                where: { email: email },
-                attributes: ['id', 'salt'],
+                where: { email: userEmail },
+                attributes: ['id', 'password', 'salt'],
             });
 
             user.update({
@@ -202,6 +214,7 @@ router.post(
             res.status(200).send({
                 message: 'Password change success.',
             });
+
             // }
         } catch (err) {
             next(err);
