@@ -56,7 +56,9 @@ router.post('/deleteUser', async (req: Request, res: Response, next) => {
             where: { id: req.body.userId },
         });
 
-        await user.destroy();
+        await user.destroy().then(function () {
+            res.status(200).send({ message: 'User deleted' });
+        });
     } catch (err) {
         next(err);
     }
