@@ -62,3 +62,33 @@ router.post('/createTask', async (req: Request, res: Response, next: NextFunctio
         next(err);
     }
 });
+
+router.post('/replaceTask', async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const task: any = await db.Task.findOne({
+            where: {
+                id: req.body.taskId,
+            },
+            attributes: ['id', 'UserId'],
+        });
+
+        const replacedByUser: any = await db.User.findOne({
+            where: { id: req.body.replacedById },
+            attributes: ['ChurchId'],
+        });
+
+        const belongsToUser: any = await db.User.findOne({
+            where: { id: task.UserId },
+            attributes: ['ChurchId'],
+        });
+
+        if (replacedByUser.ChurchId === belongsToUser.ChurchId) {
+            task.update({
+                id: task.id,
+                UserId: req.body.replacedById,
+            });
+        }
+    } catch (err) {
+        next(err);
+    }
+});
