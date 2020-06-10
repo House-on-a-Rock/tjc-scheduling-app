@@ -49,3 +49,15 @@ router.get('/getUser', async (req, res, next) => {
         next(err);
     }
 });
+
+router.post('/deleteUser', async (req: Request, res: Response, next) => {
+    try {
+        const user = await db.User.findOne({
+            where: { id: req.body.userId },
+        });
+
+        await user.destroy();
+    } catch (err) {
+        next(err);
+    }
+});
