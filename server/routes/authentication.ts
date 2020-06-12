@@ -152,6 +152,13 @@ router.post('/login', async (req: Request, res: Response, next: NextFunction) =>
             'isVerified',
         ],
     });
+    //checks if email returns a user, if not it will send error
+    if (!user) {
+        return res.status(401).send({
+            message: 'Invalid Username or Password',
+        });
+    }
+
     const checkedHash = crypto
         .createHash('rsa-sha256')
         .update(userPassword)
