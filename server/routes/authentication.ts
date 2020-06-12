@@ -2,7 +2,8 @@ import express, { Request, Response, NextFunction } from 'express';
 import Sequelize from 'sequelize';
 import crypto from 'crypto';
 import fs from 'fs';
-import jwt from 'jsonwebtoken';
+import jwt, { Algorithm } from 'jsonwebtoken';
+import request from 'request-promise';
 import { UserInstance } from 'shared/SequelizeTypings/models';
 import helper from '../helper_functions';
 import db from '../index';
@@ -13,13 +14,11 @@ let privateKey;
 fs.readFile('tjcschedule_pub.pem', function read(err, data) {
     if (err) throw err;
     cert = data;
-    // console.log(cert);
 });
 
 fs.readFile('tjcschedule.pem', function read(err, data) {
     if (err) throw err;
     privateKey = data;
-    // console.log(privateKey);
 });
 
 const { Op } = Sequelize;
@@ -35,7 +34,6 @@ router.post('/user', async (req: Request, res: Response, next: NextFunction) => 
     try {
         let doesUserExist = false;
         const username = req.body.email;
-        console.log(typeof username, username);
         const token = crypto.randomBytes(16).toString('hex');
         const checkIfUserExist = await db.User.findOne({
             where: { email: username },
@@ -47,6 +45,7 @@ router.post('/user', async (req: Request, res: Response, next: NextFunction) => 
                     message: 'User already exists',
                 });
             }
+            return true;
         });
         if (!doesUserExist) {
             const newUser: UserInstance = await db.User.create({
@@ -66,7 +65,7 @@ router.post('/user', async (req: Request, res: Response, next: NextFunction) => 
                 token: token,
             });
 
-            helper.sendVerEmail(username, req, res, token);
+            helper.sendVerEmail(username, req, res, token, 'confirmation');
         }
     } catch (err) {
         next(err);
@@ -116,25 +115,29 @@ router.get('/confirmation', async (req: Request, res: Response, next: NextFuncti
 });
 
 router.post('/resendConfirm', async (req: Request, res: Response, next: NextFunction) => {
-    const username = req.body.email;
-    const newToken = crypto.randomBytes(16).toString('hex');
-    // get user id associated with email
-    const user = await db.User.findOne({
-        where: { email: username },
-        attributes: ['id'],
-    });
-    // get token associated with user
-    const userToken = await db.Token.findOne({
-        where: { userId: user.id },
-        attributes: ['id', 'token', 'expiresIn'],
-    });
-    // update token entry with new token and extended expire time
-    userToken.update({
-        id: userToken.id,
-        token: newToken,
-        expiresIn: Date.now() + 30 * 60 * 1000,
-    });
-    helper.sendVerEmail(username, req, res, newToken);
+    try {
+        const username = req.body.email;
+        const newToken = crypto.randomBytes(16).toString('hex');
+        // get user id associated with email
+        const user = await db.User.findOne({
+            where: { email: username },
+            attributes: ['id'],
+        });
+        // get token associated with user
+        const userToken = await db.Token.findOne({
+            where: { userId: user.id },
+            attributes: ['id', 'token', 'expiresIn'],
+        });
+        // update token entry with new token and extended expire time
+        userToken.update({
+            id: userToken.id,
+            token: newToken,
+            expiresIn: Date.now() + 30 * 60 * 1000,
+        });
+        helper.sendVerEmail(username, req, res, newToken, 'confirmation');
+    } catch (err) {
+        next(err);
+    }
 });
 
 router.post('/login', async (req: Request, res: Response, next: NextFunction) => {
@@ -186,7 +189,7 @@ router.post('/login', async (req: Request, res: Response, next: NextFunction) =>
             key: privateKey,
             passphrase: process.env.PRIVATEKEY_PASS,
         },
-        { algorithm: 'RS256' },
+        { algorithm: process.env.JWT_ALGORITHM as Algorithm },
     );
 
     res.json({
@@ -199,6 +202,38 @@ router.post('/login', async (req: Request, res: Response, next: NextFunction) =>
 });
 
 router.post(
+    '/confirmPassword',
+    async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const user = await db.User.findOne({
+                where: { email: req.body.email },
+                attributes: ['salt', 'password'],
+            });
+
+            const checkedHash = crypto
+                .createHash('rsa-sha256')
+                .update(req.body.password)
+                .update(user.salt)
+                .digest('hex');
+
+            if (checkedHash !== user.password) {
+                res.status(400).send({
+                    message: 'Invalid credentials',
+                    verify: false,
+                });
+            } else {
+                res.status(200).send({
+                    message: 'Password confirmed',
+                    verify: true,
+                });
+            }
+        } catch (err) {
+            next(err);
+        }
+    },
+);
+
+router.post(
     '/changePassword',
     async (req: Request, res: Response, next: NextFunction) => {
         try {
@@ -208,21 +243,113 @@ router.post(
             const requestId = decodedToken.sub.split('|')[1];
             if (requestId === req.body.userId) { */
             const userEmail = req.body.email;
+            const options = {
+                method: 'POST',
+                uri: `http://${process.env.SECRET_IP}/api/authentication/confirmPassword`,
+                body: {
+                    email: userEmail,
+                    password: req.body.oldPass,
+                },
+                json: true,
+            };
+            const verifyOldPassword = await request(options);
+
+            console.log(verifyOldPassword);
             const user = await db.User.findOne({
                 where: { email: userEmail },
                 attributes: ['id', 'password', 'salt'],
             });
 
-            user.update({
-                id: user.id,
-                password: req.body.password,
-            });
+            if (verifyOldPassword.verify) {
+                user.update({
+                    id: user.id,
+                    password: req.body.password,
+                });
 
-            res.status(201).send({
-                message: 'Password change success.',
-            });
+                res.status(200).send({
+                    message: 'Password change success.',
+                });
+            }
 
             // }
+        } catch (err) {
+            next(err);
+        }
+    },
+);
+
+router.post(
+    '/sendRecoverEmail',
+    async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const expiryTime = helper.addMinutes(new Date(), 30);
+            const recovToken = crypto.randomBytes(16).toString('hex');
+            const user = await db.User.findOne({
+                where: { email: req.body.email },
+                attributes: ['id', 'isVerified'],
+            });
+
+            if (user && user.isVerified) {
+                user.update({
+                    id: user.id,
+                    token: `${recovToken}|${expiryTime.getTime().toString()}`,
+                });
+                // helper.sendVerEmail(
+                //     req.body.email,
+                //     req,
+                //     res,
+                //     recovToken,
+                //     'resetPasswordPage',
+                // );
+                res.status(200).send({
+                    message: 'Recovery token created',
+                    token: `${recovToken}|${expiryTime.getTime().toString()}`,
+                });
+            } else {
+                res.status(400).send({
+                    message: 'Invalid or unverified user',
+                });
+            }
+        } catch (err) {
+            next(err);
+        }
+    },
+);
+
+router.post(
+    '/recoverPassword',
+    async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const currentTime = Date.now();
+            const user = await db.User.findOne({
+                where: { token: req.body.token },
+                attributes: ['id', 'isVerified', 'token'],
+            });
+            const expiryTime = parseInt(user.token.split('|')[1], 10);
+            console.log(expiryTime, currentTime);
+            if (expiryTime > currentTime) {
+                console.log(user);
+                if (user.isVerified && req.body.password === req.body.confirmPassword) {
+                    user.update({
+                        id: user.id,
+                        password: req.body.password,
+                        token: null,
+                    });
+
+                    res.status(201).send({
+                        message: 'Password change success.',
+                    });
+                } else {
+                    res.status(400).send({
+                        message:
+                            'User does not exist or is not verified or passwords do not match',
+                    });
+                }
+            } else {
+                res.status(400).send({
+                    message: 'Recovery token invalid or expired',
+                });
+            }
         } catch (err) {
             next(err);
         }
