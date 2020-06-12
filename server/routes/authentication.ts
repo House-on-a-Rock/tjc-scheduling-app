@@ -2,7 +2,7 @@ import express, { Request, Response, NextFunction } from 'express';
 import Sequelize from 'sequelize';
 import crypto from 'crypto';
 import fs from 'fs';
-import jwt from 'jsonwebtoken';
+import jwt, { Algorithm } from 'jsonwebtoken';
 import request from 'request-promise';
 import { UserInstance } from 'shared/SequelizeTypings/models';
 import helper from '../helper_functions';
@@ -180,7 +180,7 @@ router.post('/login', async (req: Request, res: Response, next: NextFunction) =>
                 key: privateKey,
                 passphrase: process.env.PRIVATEKEY_PASS,
             },
-            { algorithm: 'RS256' },
+            { algorithm: process.env.JWT_ALGORITHM as Algorithm },
         );
 
         res.json({
@@ -237,7 +237,7 @@ router.post(
             const userEmail = req.body.email;
             const options = {
                 method: 'POST',
-                uri: 'http://10.10.150.50:8080/api/authentication/confirmPassword',
+                uri: `http://${process.env.SECRET_IP}/api/authentication/confirmPassword`,
                 body: {
                     email: userEmail,
                     password: req.body.oldPass,
@@ -274,7 +274,7 @@ router.post(
     '/sendRecoverEmail',
     async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const expiryTime = Date.now() + 30 * 60 * 1000;
+            const expiryTime = helper.addMinutes(new Date(), 30);
             const recovToken = crypto.randomBytes(16).toString('hex');
             const user = await db.User.findOne({
                 where: { email: req.body.email },
@@ -284,7 +284,7 @@ router.post(
             if (user && user.isVerified) {
                 user.update({
                     id: user.id,
-                    token: `${recovToken}|${expiryTime.toString()}`,
+                    token: `${recovToken}|${expiryTime.getTime().toString()}`,
                 });
                 // helper.sendVerEmail(
                 //     req.body.email,
@@ -295,7 +295,7 @@ router.post(
                 // );
                 res.status(200).send({
                     message: 'Recovery token created',
-                    token: `${recovToken}|${expiryTime.toString()}`,
+                    token: `${recovToken}|${expiryTime.getTime().toString()}`,
                 });
             } else {
                 res.status(400).send({
