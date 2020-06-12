@@ -43,7 +43,7 @@ router.post('/user', async (req: Request, res: Response, next: NextFunction) => 
         }).then(function (user) {
             if (user) {
                 doesUserExist = true;
-                return res.status(400).send({
+                return res.status(409).send({
                     message: 'User already exists',
                 });
             }
@@ -89,12 +89,12 @@ router.get('/confirmation', async (req: Request, res: Response, next: NextFuncti
         if (expiryTime <= currentTime) {
             isValidToken = false;
             console.log('Token expired');
-            return res.status(400).send({
+            return res.status(401).send({
                 message: 'Token expired',
             });
         }
         if (!isValidToken)
-            return res.status(400).send({
+            return res.status(401).send({
                 message: 'Token not found',
             });
         const tokenUser = await db.User.findOne({
@@ -107,7 +107,7 @@ router.get('/confirmation', async (req: Request, res: Response, next: NextFuncti
             isVerified: true,
         });
 
-        res.status(200).send({
+        res.status(201).send({
             message: 'The account has been verified. Please log in.',
         });
     } catch (err) {
@@ -158,13 +158,13 @@ router.post('/login', async (req: Request, res: Response, next: NextFunction) =>
         .update(user.salt)
         .digest('hex');
     if (checkedHash !== user.password) {
-        return res.status(400).send({
+        return res.status(401).send({
             message: 'Invalid Username or Password',
         });
     }
 
     if (!user.isVerified) {
-        return res.status(400).send({
+        return res.status(403).send({
             message: 'Please verify your email',
         });
     }
@@ -211,7 +211,7 @@ router.post(
                 password: req.body.password,
             });
 
-            res.status(200).send({
+            res.status(201).send({
                 message: 'Password change success.',
             });
 
