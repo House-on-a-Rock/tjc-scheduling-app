@@ -22,7 +22,6 @@ const createModels = (database, username, password, config): DbInterface => {
         Team: TeamFactory(sequelize, Sequelize),
         UserRole: UserRoleFactory(sequelize, Sequelize),
         Token: TokenFactory(sequelize, Sequelize),
-        RecovToken: RecovTokenFactory(sequelize, Sequelize),
     };
 
     Object.keys(db).forEach((modelName) => {

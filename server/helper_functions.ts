@@ -4,7 +4,7 @@ const funcs = {
     sendVerEmail(username, req, res, token, api) {
         console.log('Sending email..');
         let message;
-        if (api == 'confirmation') {
+        if (api === 'confirmation') {
             message = `A verification email has been sent to ${username}.`;
         } else {
             message = `A password recovery email has been sent to ${username}.`;

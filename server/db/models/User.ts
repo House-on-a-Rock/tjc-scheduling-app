@@ -41,6 +41,7 @@ const UserFactory = (
             type: DataTypes.DATE,
             allowNull: true,
         },
+        token: { type: DataTypes.STRING },
     };
 
     const User = sequelize.define<UserInstance, UserAttributes>(

@@ -2,7 +2,7 @@ import express, { Request, Response, NextFunction } from 'express';
 import Sequelize from 'sequelize';
 import crypto from 'crypto';
 import fs from 'fs';
-import jwt from 'jsonwebtoken';
+import jwt, { Algorithm } from 'jsonwebtoken';
 import request from 'request-promise';
 import { UserInstance } from 'shared/SequelizeTypings/models';
 import helper from '../helper_functions';
@@ -41,7 +41,7 @@ router.post('/user', async (req: Request, res: Response, next: NextFunction) => 
         }).then(function (user) {
             if (user) {
                 doesUserExist = true;
-                return res.status(400).send({
+                return res.status(409).send({
                     message: 'User already exists',
                 });
             }
@@ -88,12 +88,12 @@ router.get('/confirmation', async (req: Request, res: Response, next: NextFuncti
         if (expiryTime <= currentTime) {
             isValidToken = false;
             console.log('Token expired');
-            res.status(400).send({
+            return res.status(401).send({
                 message: 'Token expired',
             });
         }
         if (!isValidToken)
-            res.status(400).send({
+            return res.status(401).send({
                 message: 'Token not found',
             });
         const tokenUser = await db.User.findOne({
@@ -106,7 +106,7 @@ router.get('/confirmation', async (req: Request, res: Response, next: NextFuncti
             isVerified: true,
         });
 
-        res.status(200).send({
+        res.status(201).send({
             message: 'The account has been verified. Please log in.',
         });
     } catch (err) {
@@ -155,42 +155,50 @@ router.post('/login', async (req: Request, res: Response, next: NextFunction) =>
             'isVerified',
         ],
     });
+    //checks if email returns a user, if not it will send error
+    if (!user) {
+        return res.status(401).send({
+            message: 'Invalid Username or Password',
+        });
+    }
+
     const checkedHash = crypto
         .createHash('rsa-sha256')
         .update(userPassword)
         .update(user.salt)
         .digest('hex');
     if (checkedHash !== user.password) {
-        res.status(400).send({
+        return res.status(401).send({
             message: 'Invalid Username or Password',
         });
-    } else if (!user.isVerified) {
-        res.status(400).send({
+    }
+
+    if (!user.isVerified) {
+        return res.status(403).send({
             message: 'Please verify your email',
         });
-    } else {
-        console.log('Creating token');
-        const token = jwt.sign(
-            {
-                iss: process.env.AUDIENCE,
-                sub: `tjc-scheduling|${user.id}`,
-                exp: Math.floor(Date.now() / 1000) + 60 * 60,
-            },
-            {
-                key: privateKey,
-                passphrase: process.env.PRIVATEKEY_PASS,
-            },
-            { algorithm: 'RS256' },
-        );
-
-        res.json({
-            user_id: user.id,
-            firstName: user.firstName,
-            lastName: user.lastName,
-            email: user.email,
-            access_token: token,
-        });
     }
+    console.log('Creating token');
+    const token = jwt.sign(
+        {
+            iss: process.env.AUDIENCE,
+            sub: `tjc-scheduling|${user.id}`,
+            exp: Math.floor(Date.now() / 1000) + 60 * 60,
+        },
+        {
+            key: privateKey,
+            passphrase: process.env.PRIVATEKEY_PASS,
+        },
+        { algorithm: process.env.JWT_ALGORITHM as Algorithm },
+    );
+
+    res.json({
+        user_id: user.id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        access_token: token,
+    });
 });
 
 router.post(
@@ -237,7 +245,7 @@ router.post(
             const userEmail = req.body.email;
             const options = {
                 method: 'POST',
-                uri: 'http://10.10.150.50:8080/api/authentication/confirmPassword',
+                uri: `http://${process.env.SECRET_IP}/api/authentication/confirmPassword`,
                 body: {
                     email: userEmail,
                     password: req.body.oldPass,
@@ -274,6 +282,7 @@ router.post(
     '/sendRecoverEmail',
     async (req: Request, res: Response, next: NextFunction) => {
         try {
+            const expiryTime = helper.addMinutes(new Date(), 30);
             const recovToken = crypto.randomBytes(16).toString('hex');
             const user = await db.User.findOne({
                 where: { email: req.body.email },
@@ -281,9 +290,9 @@ router.post(
             });
 
             if (user && user.isVerified) {
-                db.RecovToken.create({
-                    userId: user.id,
-                    token: recovToken,
+                user.update({
+                    id: user.id,
+                    token: `${recovToken}|${expiryTime.getTime().toString()}`,
                 });
                 // helper.sendVerEmail(
                 //     req.body.email,
@@ -294,7 +303,7 @@ router.post(
                 // );
                 res.status(200).send({
                     message: 'Recovery token created',
-                    token: recovToken,
+                    token: `${recovToken}|${expiryTime.getTime().toString()}`,
                 });
             } else {
                 res.status(400).send({
@@ -312,24 +321,22 @@ router.post(
     async (req: Request, res: Response, next: NextFunction) => {
         try {
             const currentTime = Date.now();
-            const recovToken = await db.RecovToken.findOne({
+            const user = await db.User.findOne({
                 where: { token: req.body.token },
-                attributes: ['userId', 'expiresIn'],
+                attributes: ['id', 'isVerified', 'token'],
             });
-
-            if (recovToken.expiresIn.getTime() > currentTime) {
-                const user = await db.User.findOne({
-                    where: { id: recovToken.userId },
-                    attributes: ['id', 'isVerified'],
-                });
+            const expiryTime = parseInt(user.token.split('|')[1], 10);
+            console.log(expiryTime, currentTime);
+            if (expiryTime > currentTime) {
                 console.log(user);
                 if (user.isVerified && req.body.password === req.body.confirmPassword) {
                     user.update({
                         id: user.id,
                         password: req.body.password,
+                        token: null,
                     });
 
-                    res.status(200).send({
+                    res.status(201).send({
                         message: 'Password change success.',
                     });
                 } else {
