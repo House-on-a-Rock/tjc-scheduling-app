@@ -41,7 +41,7 @@ router.post('/user', async (req: Request, res: Response, next: NextFunction) => 
         }).then(function (user) {
             if (user) {
                 doesUserExist = true;
-                return res.status(400).send({
+                return res.status(409).send({
                     message: 'User already exists',
                 });
             }
@@ -88,12 +88,12 @@ router.get('/confirmation', async (req: Request, res: Response, next: NextFuncti
         if (expiryTime <= currentTime) {
             isValidToken = false;
             console.log('Token expired');
-            res.status(400).send({
+            return res.status(401).send({
                 message: 'Token expired',
             });
         }
         if (!isValidToken)
-            res.status(400).send({
+            return res.status(401).send({
                 message: 'Token not found',
             });
         const tokenUser = await db.User.findOne({
@@ -106,7 +106,7 @@ router.get('/confirmation', async (req: Request, res: Response, next: NextFuncti
             isVerified: true,
         });
 
-        res.status(200).send({
+        res.status(201).send({
             message: 'The account has been verified. Please log in.',
         });
     } catch (err) {
@@ -155,42 +155,50 @@ router.post('/login', async (req: Request, res: Response, next: NextFunction) =>
             'isVerified',
         ],
     });
+    //checks if email returns a user, if not it will send error
+    if (!user) {
+        return res.status(401).send({
+            message: 'Invalid Username or Password',
+        });
+    }
+
     const checkedHash = crypto
         .createHash('rsa-sha256')
         .update(userPassword)
         .update(user.salt)
         .digest('hex');
     if (checkedHash !== user.password) {
-        res.status(400).send({
+        return res.status(401).send({
             message: 'Invalid Username or Password',
         });
-    } else if (!user.isVerified) {
-        res.status(400).send({
+    }
+
+    if (!user.isVerified) {
+        return res.status(403).send({
             message: 'Please verify your email',
         });
-    } else {
-        console.log('Creating token');
-        const token = jwt.sign(
-            {
-                iss: process.env.AUDIENCE,
-                sub: `tjc-scheduling|${user.id}`,
-                exp: Math.floor(Date.now() / 1000) + 60 * 60,
-            },
-            {
-                key: privateKey,
-                passphrase: process.env.PRIVATEKEY_PASS,
-            },
-            { algorithm: process.env.JWT_ALGORITHM as Algorithm },
-        );
-
-        res.json({
-            user_id: user.id,
-            firstName: user.firstName,
-            lastName: user.lastName,
-            email: user.email,
-            access_token: token,
-        });
     }
+    console.log('Creating token');
+    const token = jwt.sign(
+        {
+            iss: process.env.AUDIENCE,
+            sub: `tjc-scheduling|${user.id}`,
+            exp: Math.floor(Date.now() / 1000) + 60 * 60,
+        },
+        {
+            key: privateKey,
+            passphrase: process.env.PRIVATEKEY_PASS,
+        },
+        { algorithm: process.env.JWT_ALGORITHM as Algorithm },
+    );
+
+    res.json({
+        user_id: user.id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        access_token: token,
+    });
 });
 
 router.post(
@@ -328,7 +336,7 @@ router.post(
                         token: null,
                     });
 
-                    res.status(200).send({
+                    res.status(201).send({
                         message: 'Password change success.',
                     });
                 } else {
