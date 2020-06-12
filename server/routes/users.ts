@@ -1,8 +1,10 @@
 import express, { Request, Response } from 'express';
 import fs from 'fs';
 import jwt from 'jsonwebtoken';
+import crypto from 'crypto';
 import { UserInstance } from 'shared/SequelizeTypings/models';
 import db from '../index';
+import helper from '../helper_functions';
 
 const router = express.Router();
 let cert;
@@ -45,6 +47,48 @@ router.get('/getUser', async (req, res, next) => {
             ],
         });
         res.json(user);
+    } catch (err) {
+        next(err);
+    }
+});
+
+router.post('/createUser', async (req: Request, res: Response, next) => {
+    try {
+        let doesUserExist = false;
+        const username = req.body.email;
+        const token = crypto.randomBytes(16).toString('hex');
+        const checkIfUserExist = await db.User.findOne({
+            where: { email: username },
+            attributes: ['id', 'email'],
+        }).then(function (user) {
+            if (user) {
+                doesUserExist = true;
+                return res.status(409).send({
+                    message: 'User already exists',
+                });
+            }
+            return true;
+        });
+        if (!doesUserExist) {
+            const newUser: UserInstance = await db.User.create({
+                firstName: req.body.firstName,
+                lastName: req.body.lastName,
+                email: req.body.email,
+                password: req.body.password,
+                isVerified: false,
+            });
+
+            const addedUser = await db.User.findOne({
+                where: { email: username },
+                attributes: ['id'],
+            });
+            db.Token.create({
+                userId: addedUser.id,
+                token: token,
+            });
+
+            helper.sendVerEmail(username, req, res, token, 'confirmation');
+        }
     } catch (err) {
         next(err);
     }

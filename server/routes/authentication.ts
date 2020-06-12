@@ -30,48 +30,6 @@ router.post(
     async (req: Request, res: Response, next: NextFunction) => {},
 );
 
-router.post('/user', async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        let doesUserExist = false;
-        const username = req.body.email;
-        const token = crypto.randomBytes(16).toString('hex');
-        const checkIfUserExist = await db.User.findOne({
-            where: { email: username },
-            attributes: ['id', 'email'],
-        }).then(function (user) {
-            if (user) {
-                doesUserExist = true;
-                return res.status(409).send({
-                    message: 'User already exists',
-                });
-            }
-            return true;
-        });
-        if (!doesUserExist) {
-            const newUser: UserInstance = await db.User.create({
-                firstName: req.body.firstName,
-                lastName: req.body.lastName,
-                email: req.body.email,
-                password: req.body.password,
-                isVerified: false,
-            });
-
-            const addedUser = await db.User.findOne({
-                where: { email: username },
-                attributes: ['id'],
-            });
-            db.Token.create({
-                userId: addedUser.id,
-                token: token,
-            });
-
-            helper.sendVerEmail(username, req, res, token, 'confirmation');
-        }
-    } catch (err) {
-        next(err);
-    }
-});
-
 router.get('/confirmation', async (req: Request, res: Response, next: NextFunction) => {
     try {
         let isValidToken = false;
@@ -142,6 +100,7 @@ router.post('/resendConfirm', async (req: Request, res: Response, next: NextFunc
 
 router.post('/login', async (req: Request, res: Response, next: NextFunction) => {
     const userEmail = req.body.email;
+    const currentTime = new Date();
     const userPassword = req.body.password;
     const user = await db.User.findOne({
         where: { email: userEmail },
@@ -152,14 +111,23 @@ router.post('/login', async (req: Request, res: Response, next: NextFunction) =>
             'email',
             'password',
             'salt',
+            'loginAttempts',
+            'loginTimeout',
             'isVerified',
         ],
     });
-    //checks if email returns a user, if not it will send error
+    // checks if email returns a user, if not it will send error
     if (!user) {
         return res.status(401).send({
             message: 'Invalid Username or Password',
         });
+    }
+    if (user.loginTimeout) {
+        if (user.loginTimeout.getTime() >= currentTime.getTime()) {
+            return res.status(400).send({
+                message: 'Too many login attempts',
+            });
+        }
     }
 
     const checkedHash = crypto
@@ -167,7 +135,20 @@ router.post('/login', async (req: Request, res: Response, next: NextFunction) =>
         .update(userPassword)
         .update(user.salt)
         .digest('hex');
+
     if (checkedHash !== user.password) {
+        if (user.loginAttempts >= 3) {
+            user.update({
+                id: user.id,
+                loginAttempts: 0,
+                loginTimeout: helper.addMinutes(new Date(), 5),
+            });
+        } else {
+            user.update({
+                id: user.id,
+                loginAttempts: user.loginAttempts + 1,
+            });
+        }
         return res.status(401).send({
             message: 'Invalid Username or Password',
         });
@@ -191,6 +172,13 @@ router.post('/login', async (req: Request, res: Response, next: NextFunction) =>
         },
         { algorithm: process.env.JWT_ALGORITHM as Algorithm },
     );
+
+    if (user.loginTimeout) {
+        user.update({
+            id: user.id,
+            loginTimeout: null,
+        });
+    }
 
     res.json({
         user_id: user.id,
@@ -292,7 +280,7 @@ router.post(
             if (user && user.isVerified) {
                 user.update({
                     id: user.id,
-                    token: `${recovToken}|${expiryTime.getTime().toString()}`,
+                    token: `${recovToken}_${expiryTime.getTime().toString()}`,
                 });
                 // helper.sendVerEmail(
                 //     req.body.email,
@@ -303,7 +291,7 @@ router.post(
                 // );
                 res.status(200).send({
                     message: 'Recovery token created',
-                    token: `${recovToken}|${expiryTime.getTime().toString()}`,
+                    token: `${recovToken}_${expiryTime.getTime().toString()}`,
                 });
             } else {
                 res.status(400).send({
@@ -325,7 +313,7 @@ router.post(
                 where: { token: req.body.token },
                 attributes: ['id', 'isVerified', 'token'],
             });
-            const expiryTime = parseInt(user.token.split('|')[1], 10);
+            const expiryTime = parseInt(user.token.split('_')[1], 10);
             console.log(expiryTime, currentTime);
             if (expiryTime > currentTime) {
                 console.log(user);
