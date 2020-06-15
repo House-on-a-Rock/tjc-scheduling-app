@@ -313,6 +313,22 @@ router.post(
     },
 );
 
+router.get(
+    '/checkResetToken',
+    async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const token: any = jwt.verify(req.headers.authorization, cert);
+            if (token.type === 'pwd_reset') {
+                res.status(200).send({ message: 'token valid' });
+            } else {
+                res.status(400).send({ message: 'token not valid' });
+            }
+        } catch (err) {
+            next(err);
+        }
+    },
+);
+
 router.post('/resetPassword', async (req: Request, res: Response, next: NextFunction) => {
     try {
         jwt.verify(req.headers.authorization, cert);
