@@ -217,7 +217,7 @@ router.post(
                 .digest('hex');
 
             if (checkedHash !== user.password) {
-                res.status(400).send({
+                res.status(401).send({
                     message: 'Invalid credentials',
                     verify: false,
                 });
