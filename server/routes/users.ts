@@ -44,9 +44,13 @@ router.get('/getUser', async (req, res, next) => {
                 },
             ],
         });
+        //
         res.json(user);
     } catch (err) {
-        next(err);
+        return res.status(403).send({
+            message: 'error retrieving profile',
+        });
+        // next(err);
     }
 });
 
