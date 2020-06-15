@@ -14,7 +14,6 @@ export interface UserAttributes {
     createdAt?: Date | null;
     updatedAt?: Date | null;
     duty?: RoleAttributes[] | RoleAttributes['id'];
-    token?: string;
 }
 
 export interface UserInstance

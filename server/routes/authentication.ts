@@ -267,21 +267,29 @@ router.post(
 );
 
 router.post(
-    '/sendRecoverEmail',
+    '/sendResetEmail',
     async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const expiryTime = helper.addMinutes(new Date(), 30);
-            const recovToken = crypto.randomBytes(16).toString('hex');
             const user = await db.User.findOne({
                 where: { email: req.body.email },
                 attributes: ['id', 'isVerified'],
             });
 
             if (user && user.isVerified) {
-                user.update({
-                    id: user.id,
-                    token: `${recovToken}_${expiryTime.getTime().toString()}`,
-                });
+                console.log('Creating token');
+                const token = jwt.sign(
+                    {
+                        iss: process.env.AUDIENCE,
+                        sub: `tjc-scheduling|${user.id}`,
+                        exp: Math.floor(Date.now() / 1000) + 15 * 60,
+                        type: 'pwd_reset',
+                    },
+                    {
+                        key: privateKey,
+                        passphrase: process.env.PRIVATEKEY_PASS,
+                    },
+                    { algorithm: process.env.JWT_ALGORITHM as Algorithm },
+                );
                 // helper.sendVerEmail(
                 //     req.body.email,
                 //     req,
@@ -291,10 +299,11 @@ router.post(
                 // );
                 res.status(200).send({
                     message: 'Recovery token created',
-                    token: `${recovToken}_${expiryTime.getTime().toString()}`,
+                    email: req.body.email,
+                    token: token,
                 });
             } else {
-                res.status(400).send({
+                res.status(200).send({
                     message: 'Invalid or unverified user',
                 });
             }
@@ -304,42 +313,39 @@ router.post(
     },
 );
 
-router.post(
-    '/recoverPassword',
-    async (req: Request, res: Response, next: NextFunction) => {
-        try {
-            const currentTime = Date.now();
-            const user = await db.User.findOne({
-                where: { token: req.body.token },
-                attributes: ['id', 'isVerified', 'token'],
-            });
-            const expiryTime = parseInt(user.token.split('_')[1], 10);
-            console.log(expiryTime, currentTime);
-            if (expiryTime > currentTime) {
-                console.log(user);
-                if (user.isVerified && req.body.password === req.body.confirmPassword) {
-                    user.update({
-                        id: user.id,
-                        password: req.body.password,
-                        token: null,
-                    });
+router.post('/resetPassword', async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        jwt.verify(req.headers.authorization, cert);
+        const decodedToken = jwt.decode(req.headers.authorization, { json: true });
+        console.log(decodedToken);
+        const requestId = decodedToken.sub.split('|')[1];
+        const user = await db.User.findOne({
+            where: { id: parseInt(requestId, 10) },
+            attributes: ['id', 'email', 'isVerified'],
+        });
+        if (user.email === req.body.email && decodedToken.type === 'pwd_reset') {
+            if (user.isVerified) {
+                user.update({
+                    id: user.id,
+                    password: req.body.password,
+                    token: null,
+                });
 
-                    res.status(201).send({
-                        message: 'Password change success.',
-                    });
-                } else {
-                    res.status(400).send({
-                        message:
-                            'User does not exist or is not verified or passwords do not match',
-                    });
-                }
+                res.status(201).send({
+                    message: 'Password change success.',
+                });
             } else {
                 res.status(400).send({
-                    message: 'Recovery token invalid or expired',
+                    message:
+                        'User does not exist or is not verified or passwords do not match',
                 });
             }
-        } catch (err) {
-            next(err);
+        } else {
+            res.status(400).send({
+                message: 'Invalid Request',
+            });
         }
-    },
-);
+    } catch (err) {
+        next(err);
+    }
+});
