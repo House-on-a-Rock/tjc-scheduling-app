@@ -324,7 +324,9 @@ router.get(
                 res.status(400).send({ message: 'token not valid' });
             }
         } catch (err) {
-            next(err);
+            if (err instanceof jwt.TokenExpiredError) {
+                return res.status(400).send({ message: 'token expired' });
+            }
         }
     },
 );
