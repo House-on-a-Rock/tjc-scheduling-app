@@ -4,7 +4,6 @@ import crypto from 'crypto';
 import fs from 'fs';
 import jwt, { Algorithm } from 'jsonwebtoken';
 import request from 'request-promise';
-import { UserInstance } from 'shared/SequelizeTypings/models';
 import helper from '../helper_functions';
 import db from '../index';
 
@@ -122,12 +121,12 @@ router.post('/login', async (req: Request, res: Response, next: NextFunction) =>
             message: 'Invalid Username or Password',
         });
     }
-    if (user.loginTimeout) {
-        if (user.loginTimeout.getTime() >= currentTime.getTime()) {
-            return res.status(400).send({
-                message: 'Too many login attempts',
-            });
-        }
+
+    // check login attempts and whether a timeout has initiated
+    if (user.loginTimeout && user.loginTimeout.getTime() >= currentTime.getTime()) {
+        return res.status(400).send({
+            message: 'Too many login attempts',
+        });
     }
 
     const checkedHash = crypto
@@ -173,9 +172,11 @@ router.post('/login', async (req: Request, res: Response, next: NextFunction) =>
         { algorithm: process.env.JWT_ALGORITHM as Algorithm },
     );
 
+    // if login is successful, reset login attempt information
     if (user.loginTimeout) {
         user.update({
             id: user.id,
+            loginAttempts: 0,
             loginTimeout: null,
         });
     }
@@ -281,7 +282,7 @@ router.post(
                     {
                         iss: process.env.AUDIENCE,
                         sub: `tjc-scheduling|${user.id}`,
-                        exp: Math.floor(Date.now() / 1000) + 15 * 60,
+                        exp: Math.floor(Date.now() / 1000) + 2 * 60 * 60,
                         type: 'pwd_reset',
                     },
                     {
@@ -303,9 +304,7 @@ router.post(
                     token: token,
                 });
             } else {
-                res.status(200).send({
-                    message: 'Invalid or unverified user',
-                });
+                res.status(200);
             }
         } catch (err) {
             next(err);
@@ -321,11 +320,11 @@ router.get(
             if (token.type === 'pwd_reset') {
                 res.status(200).send({ message: 'token valid' });
             } else {
-                res.status(400).send({ message: 'token not valid' });
+                res.status(401).send({ message: 'token not valid' });
             }
         } catch (err) {
             if (err instanceof jwt.TokenExpiredError) {
-                return res.status(400).send({ message: 'token expired' });
+                return res.status(401).send({ message: 'token expired' });
             }
         }
     },
@@ -353,13 +352,13 @@ router.post('/resetPassword', async (req: Request, res: Response, next: NextFunc
                     message: 'Password change success.',
                 });
             } else {
-                res.status(400).send({
+                res.status(401).send({
                     message:
                         'User does not exist or is not verified or passwords do not match',
                 });
             }
         } else {
-            res.status(400).send({
+            res.status(401).send({
                 message: 'Invalid Request',
             });
         }
