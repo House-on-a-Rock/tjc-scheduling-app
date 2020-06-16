@@ -132,16 +132,16 @@ router.post('/login', async (req: Request, res: Response, next: NextFunction) =>
         .digest('hex');
 
     if (checkedHash !== user.password) {
-        if (user.loginAttempts >= 3) {
+        user.update({
+            id: user.id,
+            loginAttempts: user.loginAttempts + 1,
+        });
+        console.log(user.loginAttempts);
+        if (user.loginAttempts === 3) {
             user.update({
                 id: user.id,
                 loginAttempts: 0,
                 loginTimeout: helper.addMinutes(new Date(), 5),
-            });
-        } else {
-            user.update({
-                id: user.id,
-                loginAttempts: user.loginAttempts + 1,
             });
         }
         return res.status(401).send({
