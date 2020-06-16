@@ -282,7 +282,7 @@ router.post(
                     {
                         iss: process.env.AUDIENCE,
                         sub: `tjc-scheduling|${user.id}`,
-                        exp: Math.floor(Date.now() / 1000) + 2 * 60 * 60,
+                        exp: Math.floor(Date.now() / 1000) + 15 * 60,
                         type: 'pwd_reset',
                     },
                     {
