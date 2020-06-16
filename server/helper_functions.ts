@@ -1,4 +1,18 @@
 import nodemailer from 'nodemailer';
+import jwt, { Algorithm } from 'jsonwebtoken';
+import fs from 'fs';
+
+let cert;
+let privateKey;
+fs.readFile('tjcschedule_pub.pem', function read(err, data) {
+    if (err) throw err;
+    cert = data;
+});
+
+fs.readFile('tjcschedule.pem', function read(err, data) {
+    if (err) throw err;
+    privateKey = data;
+});
 
 const funcs = {
     sendVerEmail(username, req, res, token, api) {
@@ -36,6 +50,25 @@ const funcs = {
 
     addMinutes(date: Date, minutes) {
         return new Date(date.getTime() + minutes * 60000);
+    },
+
+    createToken(tokenType, userId, expiresInMinutes) {
+        console.log('Creating token');
+        const token = jwt.sign(
+            {
+                iss: process.env.AUDIENCE,
+                sub: `tjc-scheduling|${userId}`,
+                exp: Math.floor(Date.now() / 1000) + expiresInMinutes * 60,
+                type: tokenType,
+            },
+            {
+                key: privateKey,
+                passphrase: process.env.PRIVATEKEY_PASS,
+            },
+            { algorithm: process.env.JWT_ALGORITHM as Algorithm },
+        );
+
+        return token;
     },
 };
 export default funcs;

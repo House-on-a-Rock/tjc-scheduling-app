@@ -154,19 +154,7 @@ router.post('/login', async (req: Request, res: Response, next: NextFunction) =>
             message: 'Please verify your email',
         });
     }
-    console.log('Creating token');
-    const token = jwt.sign(
-        {
-            iss: process.env.AUDIENCE,
-            sub: `tjc-scheduling|${user.id}`,
-            exp: Math.floor(Date.now() / 1000) + 60 * 60,
-        },
-        {
-            key: privateKey,
-            passphrase: process.env.PRIVATEKEY_PASS,
-        },
-        { algorithm: process.env.JWT_ALGORITHM as Algorithm },
-    );
+    const token = helper.createToken('reg', user.id, 60);
 
     // if login is successful, reset login attempt information
     user.update({
@@ -271,20 +259,7 @@ router.post(
             });
 
             if (user && user.isVerified) {
-                console.log('Creating token');
-                const token = jwt.sign(
-                    {
-                        iss: process.env.AUDIENCE,
-                        sub: `tjc-scheduling|${user.id}`,
-                        exp: Math.floor(Date.now() / 1000) + 15 * 60,
-                        type: 'pwd_reset',
-                    },
-                    {
-                        key: privateKey,
-                        passphrase: process.env.PRIVATEKEY_PASS,
-                    },
-                    { algorithm: process.env.JWT_ALGORITHM as Algorithm },
-                );
+                const token = helper.createToken('pwd_reset', user.id, 15);
                 // helper.sendVerEmail(
                 //     req.body.email,
                 //     req,
