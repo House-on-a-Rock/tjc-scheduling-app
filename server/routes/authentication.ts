@@ -116,11 +116,7 @@ router.post('/login', async (req: Request, res: Response, next: NextFunction) =>
         ],
     });
     // checks if email returns a user, if not it will send error
-    if (!user) {
-        return res.status(401).send({
-            message: 'Invalid Username or Password',
-        });
-    }
+    if (!user) return res.status(401).send({ message: 'Invalid Username or Password' });
 
     // check login attempts and whether a timeout has initiated
     if (user.loginTimeout && user.loginTimeout.getTime() >= currentTime.getTime()) {
@@ -173,13 +169,11 @@ router.post('/login', async (req: Request, res: Response, next: NextFunction) =>
     );
 
     // if login is successful, reset login attempt information
-    if (user.loginTimeout) {
-        user.update({
-            id: user.id,
-            loginAttempts: 0,
-            loginTimeout: null,
-        });
-    }
+    user.update({
+        id: user.id,
+        loginAttempts: 0,
+        loginTimeout: null,
+    });
 
     res.json({
         user_id: user.id,
