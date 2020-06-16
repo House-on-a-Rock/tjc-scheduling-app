@@ -295,6 +295,7 @@ router.get(
             if (err instanceof jwt.TokenExpiredError) {
                 return res.status(401).send({ message: 'token expired' });
             }
+            next(err);
         }
     },
 );
