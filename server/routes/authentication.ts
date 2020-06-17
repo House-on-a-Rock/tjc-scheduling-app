@@ -259,7 +259,7 @@ router.post(
             });
 
             if (user && user.isVerified) {
-                const token = helper.createToken('pwd_reset', user.id, 15);
+                const token = helper.createToken('pwd_reset', user.id, 24 * 60);
                 // helper.sendVerEmail(
                 //     req.body.email,
                 //     req,
@@ -310,7 +310,7 @@ router.post('/resetPassword', async (req: Request, res: Response, next: NextFunc
             where: { id: parseInt(requestId, 10) },
             attributes: ['id', 'email', 'isVerified'],
         });
-        if (user.email === req.body.email && decodedToken.type === 'pwd_reset') {
+        if (decodedToken.type === 'pwd_reset') {
             if (user.isVerified) {
                 user.update({
                     id: user.id,
