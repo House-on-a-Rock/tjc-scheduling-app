@@ -265,7 +265,7 @@ router.post(
                 const tokenPayload = tokenSegments[1];
                 const tokenSignature = tokenSegments[2];
                 helper.sendGenericEmail(
-                    user.email,
+                    req.body.email,
                     res,
                     `http://localhost:8081/auth/resetPassword/${tokenHeader}_${tokenPayload}_${tokenSignature}`,
                 );

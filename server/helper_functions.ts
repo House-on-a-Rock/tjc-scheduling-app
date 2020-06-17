@@ -33,7 +33,8 @@ const funcs = {
         };
         transporter.sendMail(mailOptions, function (err) {
             if (err) {
-                return res.status(500).send({ message: err.message });
+                console.log(err);
+                return false;
             }
             return true;
         });
