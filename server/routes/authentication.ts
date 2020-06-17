@@ -260,13 +260,15 @@ router.post(
 
             if (user && user.isVerified) {
                 const token = helper.createToken('pwd_reset', user.id, 24 * 60);
-                // helper.sendVerEmail(
-                //     req.body.email,
-                //     req,
-                //     res,
-                //     recovToken,
-                //     'resetPasswordPage',
-                // );
+                const tokenSegments = token.split('.');
+                const tokenHeader = tokenSegments[0];
+                const tokenPayload = tokenSegments[1];
+                const tokenSignature = tokenSegments[2];
+                helper.sendGenericEmail(
+                    user.email,
+                    res,
+                    `http://localhost:8081/auth/resetPassword/${tokenHeader}_${tokenPayload}_${tokenSignature}`,
+                );
                 res.status(200).send({
                     message: 'Recovery token created',
                     email: req.body.email,

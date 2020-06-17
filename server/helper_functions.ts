@@ -15,6 +15,30 @@ fs.readFile('tjcschedule.pem', function read(err, data) {
 });
 
 const funcs = {
+    sendGenericEmail(username, res, link) {
+        console.log('Sending email..');
+        const transporter = nodemailer.createTransport({
+            service: 'Sendgrid',
+            auth: {
+                user: process.env.VER_EMAIL,
+                pass: process.env.VER_PASS,
+            },
+        });
+        // send confirmation email
+        const mailOptions = {
+            from: 'alraneus@gmail.com',
+            to: username,
+            subject: 'Password Reset',
+            text: `Hello,\n\n Please reset your password to your account by clicking the link: \n${link}`,
+        };
+        transporter.sendMail(mailOptions, function (err) {
+            if (err) {
+                return res.status(500).send({ message: err.message });
+            }
+            return true;
+        });
+    },
+
     sendVerEmail(username, req, res, token, api) {
         console.log('Sending email..');
         let message;
