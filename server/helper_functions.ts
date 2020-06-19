@@ -95,5 +95,18 @@ const funcs = {
 
         return token;
     },
+    creatResetToken(userId, expiresInMinutes, secret) {
+        console.log('Creating token');
+        const token = jwt.sign(
+            {
+                iss: process.env.AUDIENCE,
+                sub: `tjc-scheduling|${userId}`,
+                exp: Math.floor(Date.now() / 1000) + expiresInMinutes * 60,
+            },
+            secret,
+        );
+
+        return token;
+    },
 };
 export default funcs;

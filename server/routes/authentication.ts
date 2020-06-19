@@ -2,12 +2,17 @@ import express, { Request, Response, NextFunction } from 'express';
 import Sequelize from 'sequelize';
 import crypto from 'crypto';
 import fs from 'fs';
+import path from 'path';
 import jwt, { Algorithm } from 'jsonwebtoken';
 import request from 'request-promise';
 import helper from '../helper_functions';
 import db from '../index';
 
 const router = express.Router();
+const projectPath = path.dirname(require.main.filename);
+
+console.log(projectPath);
+
 let cert;
 let privateKey;
 fs.readFile('tjcschedule_pub.pem', function read(err, data) {
@@ -255,11 +260,11 @@ router.post(
         try {
             const user = await db.User.findOne({
                 where: { email: req.body.email },
-                attributes: ['id', 'isVerified'],
+                attributes: ['id', 'password', 'isVerified'],
             });
 
             if (user && user.isVerified) {
-                const token = helper.createToken('pwd_reset', user.id, 24 * 60);
+                const token = helper.creatResetToken(user.id, 60, user.password);
                 const tokenSegments = token.split('.');
                 const tokenHeader = tokenSegments[0];
                 const tokenPayload = tokenSegments[1];
@@ -267,7 +272,7 @@ router.post(
                 helper.sendGenericEmail(
                     req.body.email,
                     res,
-                    `http://localhost:8081/auth/resetPassword/${tokenHeader}_${tokenPayload}_${tokenSignature}`,
+                    `http://localhost:8080/api/authentication/checkResetToken?header=${tokenHeader}&payload=${tokenPayload}&signature=${tokenSignature}`,
                 );
                 res.status(200).send({
                     message: 'Recovery token created',
@@ -287,15 +292,24 @@ router.get(
     '/checkResetToken',
     async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const token: any = jwt.verify(req.headers.authorization, cert);
-            if (token.type === 'pwd_reset') {
-                res.status(200).send({ message: 'token valid' });
-            } else {
-                res.status(401).send({ message: 'token not valid' });
-            }
+            const decodedToken = jwt.decode(
+                `${req.query.header}.${req.query.payload}.${req.query.signature}`,
+                { json: true },
+            );
+            console.log(decodedToken);
+            const requestId = decodedToken.sub.split('|')[1];
+            const user = await db.User.findOne({
+                where: { id: parseInt(requestId, 10) },
+                attributes: ['id', 'email', 'password', 'isVerified'],
+            });
+            jwt.verify(
+                `${req.query.header}.${req.query.payload}.${req.query.signature}`,
+                user.password,
+            );
+            res.status(200).send({ message: 'token valid' }); // replace with res.redirect
         } catch (err) {
-            if (err instanceof jwt.TokenExpiredError) {
-                return res.status(401).send({ message: 'token expired' });
+            if (err) {
+                return res.status(401).send({ message: 'Invalid Request' });
             }
             next(err);
         }
@@ -304,15 +318,16 @@ router.get(
 
 router.post('/resetPassword', async (req: Request, res: Response, next: NextFunction) => {
     try {
-        jwt.verify(req.headers.authorization, cert);
         const decodedToken = jwt.decode(req.headers.authorization, { json: true });
         console.log(decodedToken);
         const requestId = decodedToken.sub.split('|')[1];
         const user = await db.User.findOne({
             where: { id: parseInt(requestId, 10) },
-            attributes: ['id', 'email', 'isVerified'],
+            attributes: ['id', 'email', 'password', 'isVerified'],
         });
-        if (decodedToken.type === 'pwd_reset') {
+        jwt.verify(req.headers.authorization, user.password);
+
+        if (user.email === req.body.email) {
             if (user.isVerified) {
                 user.update({
                     id: user.id,
