@@ -307,7 +307,11 @@ router.get(
                 user.password,
             );
             // res.status(200).send({ message: 'token valid' }); // replace with res.redirect
+
+            // These commented out lines is what you need. I just dunno how the jwt works, but this is how it should work.
+            // (jwt === verified) ?
             res.redirect(`http://localhost:8081/auth/resetPassword?token=${jwt}`);
+            // : res.redirect(`http://localhost:8081/auth/resendAuthEmail`)
         } catch (err) {
             if (err) {
                 return res.status(401).send({ message: 'Invalid Request' });
