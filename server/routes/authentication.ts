@@ -306,7 +306,8 @@ router.get(
                 `${req.query.header}.${req.query.payload}.${req.query.signature}`,
                 user.password,
             );
-            res.status(200).send({ message: 'token valid' }); // replace with res.redirect
+            // res.status(200).send({ message: 'token valid' }); // replace with res.redirect
+            res.redirect(`http://localhost:8081/auth/resetPassword?token=${jwt}`);
         } catch (err) {
             if (err) {
                 return res.status(401).send({ message: 'Invalid Request' });
