@@ -311,7 +311,11 @@ router.get(
             // These commented out lines is what you need. I just dunno how the jwt works, but this is how it should work.
             // (jwt === verified) ?
             res.redirect(`http://localhost:8081/auth/resetPassword?token=${jwt}`);
-            // : res.redirect(`http://localhost:8081/auth/invalid`).send({ message: 'Token expired'})
+            // : res.redirect(`http://localhost:8081/auth/invalid?message='TokenExpired'`)
+            // also if you could change the way that "Token Expired" string is sent, I think you have to
+            // const querystring = require('querystring');
+            // const message = querystring.stringify({message:"TokenExpired"})
+            // : res.redirect(`http://localhost:8081/auth/invalid?message=${message}`)
         } catch (err) {
             if (err) {
                 return res.status(401).send({ message: 'Invalid Request' });
