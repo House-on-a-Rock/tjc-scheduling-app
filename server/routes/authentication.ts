@@ -314,7 +314,7 @@ router.get(
             // : res.redirect(`http://localhost:8081/auth/expiredAccess?message='TokenExpired'`)
             // also if you could change the way that "Token Expired" string is sent, I think you have to
             // const querystring = require('querystring');
-            // const message = querystring.stringify({message:"TokenExpired"})
+            // const message = querystring.stringify({message:"TokenExpired", status:401})
             // : res.redirect(`http://localhost:8081/auth/expiredAccess?message=${message}`)
         } catch (err) {
             if (err) {
