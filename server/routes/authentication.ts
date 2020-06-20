@@ -265,7 +265,7 @@ router.post(
             });
 
             if (user && user.isVerified) {
-                const token = helper.creatResetToken(user.id, 60, user.password);
+                const token = helper.creatResetToken(user.id, 0.5, user.password);
                 const tokenSegments = token.split('.');
                 const tokenHeader = tokenSegments[0];
                 const tokenPayload = tokenSegments[1];
@@ -321,12 +321,8 @@ router.get(
             // : res.redirect(`http://localhost:8081/auth/expiredAccess?message=${message}`)
         } catch (err) {
             if (err instanceof TokenExpiredError) {
-                const message = querystring.stringify({
-                    message: 'TokenExpired',
-                    status: 401,
-                });
                 return res.redirect(
-                    `http://localhost:8081/auth/expiredAccess?message=${message}`,
+                    `http://localhost:8081/auth/expiredAccess?message=TokenExpired&status=401`,
                 );
             }
             next(err);
