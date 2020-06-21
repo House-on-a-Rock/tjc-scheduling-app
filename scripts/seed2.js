@@ -64,7 +64,7 @@ const users = [
         lastName: 'Chen',
         email: 'ted.chen@gmail.com',
         password: 'password1',
-        isVerified: true,
+        isVerified: false,
         ChurchId: 1,
     },
     {
