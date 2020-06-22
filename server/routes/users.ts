@@ -31,11 +31,10 @@ router.get('/getAllUsers', async (req: Request, res: Response, next) => {
 router.get('/getUser', async (req, res, next) => {
     try {
         const verify = jwt.verify(req.headers.authorization, cert);
-        // const parsedId = req.query.id.toString();
+        const parsedId = req.query.id.toString();
         const user = await db.User.findOne({
             where: {
-                id: '1',
-                // req.query.id.toString(),
+                id: parsedId,
             },
             attributes: ['firstName', 'lastName', 'email', 'id'],
             include: [
@@ -46,9 +45,13 @@ router.get('/getUser', async (req, res, next) => {
                 },
             ],
         });
+
         res.json(user);
     } catch (err) {
-        next(err);
+        return res.status(404).send({
+            message: 'Server error, try again later',
+        });
+        // next(err);
     }
 });
 
