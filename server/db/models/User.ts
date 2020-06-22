@@ -30,6 +30,14 @@ const UserFactory = (
             type: DataTypes.BOOLEAN,
             defaultValue: false,
         },
+        loginAttempts: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            defaultValue: 0,
+        },
+        loginTimeout: {
+            type: DataTypes.DATE,
+        },
         salt: {
             type: DataTypes.STRING,
         },
@@ -41,7 +49,6 @@ const UserFactory = (
             type: DataTypes.DATE,
             allowNull: true,
         },
-        token: { type: DataTypes.STRING },
     };
 
     const User = sequelize.define<UserInstance, UserAttributes>(

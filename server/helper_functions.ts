@@ -1,6 +1,45 @@
 import nodemailer from 'nodemailer';
+import jwt, { Algorithm } from 'jsonwebtoken';
+import fs from 'fs';
+
+let cert;
+let privateKey;
+fs.readFile('tjcschedule_pub.pem', function read(err, data) {
+    if (err) throw err;
+    cert = data;
+});
+
+fs.readFile('tjcschedule.pem', function read(err, data) {
+    if (err) throw err;
+    privateKey = data;
+});
 
 const funcs = {
+    sendGenericEmail(username, res, link) {
+        console.log('Sending email..');
+        const transporter = nodemailer.createTransport({
+            service: 'Sendgrid',
+            auth: {
+                user: process.env.VER_EMAIL,
+                pass: process.env.VER_PASS,
+            },
+        });
+        // send confirmation email
+        const mailOptions = {
+            from: 'alraneus@gmail.com',
+            to: username,
+            subject: 'Password Reset',
+            text: `Hello,\n\n Please reset your password to your account by clicking the link: \n${link}`,
+        };
+        transporter.sendMail(mailOptions, function (err) {
+            if (err) {
+                console.log(err);
+                return false;
+            }
+            return true;
+        });
+    },
+
     sendVerEmail(username, req, res, token, api) {
         console.log('Sending email..');
         let message;
@@ -36,6 +75,38 @@ const funcs = {
 
     addMinutes(date: Date, minutes) {
         return new Date(date.getTime() + minutes * 60000);
+    },
+
+    createToken(tokenType, userId, expiresInMinutes) {
+        console.log('Creating token');
+        const token = jwt.sign(
+            {
+                iss: process.env.AUDIENCE,
+                sub: `tjc-scheduling|${userId}`,
+                exp: Math.floor(Date.now() / 1000) + expiresInMinutes * 60,
+                type: tokenType,
+            },
+            {
+                key: privateKey,
+                passphrase: process.env.PRIVATEKEY_PASS,
+            },
+            { algorithm: process.env.JWT_ALGORITHM as Algorithm },
+        );
+
+        return token;
+    },
+    creatResetToken(userId, expiresInMinutes, secret) {
+        console.log('Creating token');
+        const token = jwt.sign(
+            {
+                iss: process.env.AUDIENCE,
+                sub: `tjc-scheduling|${userId}`,
+                exp: Math.floor(Date.now() / 1000) + expiresInMinutes * 60,
+            },
+            secret,
+        );
+
+        return token;
     },
 };
 export default funcs;

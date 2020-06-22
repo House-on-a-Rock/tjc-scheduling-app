@@ -46,7 +46,11 @@ router.get(
             });
             res.json(tasks);
         } catch (err) {
-            next(err);
+            return res.status(404).send({
+                // message: 'error retrieving tasks',
+                message: 'Server error, try again later',
+            });
+            // next(err);
         }
     },
 );
