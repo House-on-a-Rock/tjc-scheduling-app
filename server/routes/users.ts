@@ -31,11 +31,10 @@ router.get('/users', async (req: Request, res: Response, next) => {
 router.get('/user/:userId', async (req, res, next) => {
     try {
         const verify = jwt.verify(req.headers.authorization, cert);
-        // const parsedId = req.query.id.toString();
+        const parsedId = req.query.id.toString();
         const user = await db.User.findOne({
             where: {
-                id: req.params.userId,
-                // req.query.id.toString(),
+                id: parsedId,
             },
             attributes: ['firstName', 'lastName', 'email', 'id'],
             include: [
@@ -50,7 +49,6 @@ router.get('/user/:userId', async (req, res, next) => {
         res.json(user);
     } catch (err) {
         return res.status(404).send({
-            // message: 'error retrieving tasks',
             message: 'Server error, try again later',
         });
         // next(err);
