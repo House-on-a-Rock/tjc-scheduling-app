@@ -264,7 +264,7 @@ router.post(
             });
 
             if (user && user.isVerified) {
-                const token = helper.creatResetToken(user.id, 0.5, user.password);
+                const token = helper.creatResetToken(user.id, 15, user.password);
                 const tokenSegments = token.split('.');
                 const tokenHeader = tokenSegments[0];
                 const tokenPayload = tokenSegments[1];
