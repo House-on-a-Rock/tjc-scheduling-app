@@ -16,7 +16,7 @@ fs.readFile('tjcschedule_pub.pem', function read(err, data) {
 
 module.exports = router;
 
-router.get('/getAllUsers', async (req: Request, res: Response, next) => {
+router.get('/users', async (req: Request, res: Response, next) => {
     try {
         const verify = jwt.verify(req.headers.authorization, cert);
         const users: UserInstance[] = await db.User.findAll({
@@ -28,13 +28,13 @@ router.get('/getAllUsers', async (req: Request, res: Response, next) => {
     }
 });
 
-router.get('/getUser', async (req, res, next) => {
+router.get('/user/:userId', async (req, res, next) => {
     try {
         const verify = jwt.verify(req.headers.authorization, cert);
         // const parsedId = req.query.id.toString();
         const user = await db.User.findOne({
             where: {
-                id: '1',
+                id: req.params.userId,
                 // req.query.id.toString(),
             },
             attributes: ['firstName', 'lastName', 'email', 'id'],
@@ -57,7 +57,7 @@ router.get('/getUser', async (req, res, next) => {
     }
 });
 
-router.post('/createUser', async (req: Request, res: Response, next) => {
+router.post('/user', async (req: Request, res: Response, next) => {
     try {
         let doesUserExist = false;
         const username = req.body.email;
@@ -99,7 +99,7 @@ router.post('/createUser', async (req: Request, res: Response, next) => {
     }
 });
 
-router.post('/deleteUser', async (req: Request, res: Response, next) => {
+router.delete('/user', async (req: Request, res: Response, next) => {
     try {
         const user = await db.User.findOne({
             where: { id: req.body.userId },
