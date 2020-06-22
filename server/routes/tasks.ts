@@ -24,6 +24,7 @@ router.get(
                     UserId: req.query.id.toString(),
                     // ChurchId: req.query.id.toString(),
                     date: {
+                        //TODO pass in dates dynamically based on current date
                         [Op.between]: [
                             '2020-03-07T00:00:00.000Z',
                             '2020-07-30T00:00:00.000Z',
@@ -47,7 +48,6 @@ router.get(
             res.json(tasks);
         } catch (err) {
             return res.status(404).send({
-                // message: 'error retrieving tasks',
                 message: 'Server error, try again later',
             });
             // next(err);
