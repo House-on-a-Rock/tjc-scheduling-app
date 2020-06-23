@@ -70,7 +70,7 @@ const users = [
     {
         firstName: 'Jonathan',
         lastName: 'Lee',
-        email: 'Jonathan.Lee@gmail.com',
+        email: 'jonathan.lee@gmail.com',
         password: 'password3',
         isVerified: true,
         ChurchId: 6,
@@ -78,7 +78,7 @@ const users = [
     {
         firstName: 'Geoff',
         lastName: 'Chu',
-        email: 'Geoff.Chu@gmail.com',
+        email: 'geoff.chu@gmail.com',
         password: 'password3',
         isVerified: true,
         ChurchId: 3,
@@ -94,7 +94,7 @@ const users = [
     {
         firstName: 'Alan',
         lastName: 'Lin',
-        email: 'Alan.Lin@gmail.com',
+        email: 'alan.lin@gmail.com',
         password: 'password5',
         isVerified: true,
         ChurchId: 2,
@@ -102,7 +102,7 @@ const users = [
     {
         firstName: 'Ian',
         lastName: 'Lin',
-        email: 'Ian.Lin@gmail.com',
+        email: 'ian.lin@gmail.com',
         password: 'password6',
         isVerified: true,
         ChurchId: 5,

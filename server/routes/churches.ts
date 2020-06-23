@@ -13,7 +13,7 @@ fs.readFile('tjcschedule_pub.pem', function read(err, data) {
 });
 module.exports = router;
 
-router.get('/getAll', (req: Request, res: Response, next: NextFunction) => {
+router.get('/churches', (req: Request, res: Response, next: NextFunction) => {
     try {
         const verify = jwt.verify(req.headers.authorization, cert);
         db.Church.findAll({
@@ -29,7 +29,7 @@ router.get('/getAll', (req: Request, res: Response, next: NextFunction) => {
     }
 });
 
-router.post('/createChurch', async (req: Request, res: Response, next: NextFunction) => {
+router.post('/church', async (req: Request, res: Response, next: NextFunction) => {
     try {
         const verify = jwt.verify(req.headers.authorization, cert);
         const church: ChurchInstance = await db.Church.create({
