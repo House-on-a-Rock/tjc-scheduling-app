@@ -14,43 +14,46 @@ fs.readFile('tjcschedule_pub.pem', function read(err, data) {
 });
 module.exports = router;
 
-router.get('/userTasks', async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        jwt.verify(req.headers.authorization, cert);
-        const tasks = await db.Task.findAll({
-            where: {
-                UserId: req.query.id.toString(),
-                // ChurchId: req.query.id.toString(),
-                date: {
-                    // TODO pass in dates dynamically based on current date
-                    [Op.between]: [
-                        '2020-03-07T00:00:00.000Z',
-                        '2020-07-30T00:00:00.000Z',
-                    ],
+router.get(
+    '/userTasks/:taskId',
+    async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            jwt.verify(req.headers.authorization, cert);
+            const tasks = await db.Task.findAll({
+                where: {
+                    UserId: req.params.taskId.toString(),
+                    // ChurchId: req.query.id.toString(),
+                    date: {
+                        // TODO pass in dates dynamically based on current date
+                        [Op.between]: [
+                            '2020-03-07T00:00:00.000Z',
+                            '2020-07-30T00:00:00.000Z',
+                        ],
+                    },
                 },
-            },
-            attributes: ['date'],
-            include: [
-                {
-                    model: db.Role,
-                    as: 'role',
-                    // attributes: ['name'],
-                },
-                {
-                    model: db.Church,
-                    as: 'church',
-                    attributes: ['name'],
-                },
-            ],
-        });
-        res.json(tasks);
-    } catch (err) {
-        return res.status(404).send({
-            message: 'Server error, try again later',
-        });
-        // next(err);
-    }
-});
+                attributes: ['date'],
+                include: [
+                    {
+                        model: db.Role,
+                        as: 'role',
+                        // attributes: ['name'],
+                    },
+                    {
+                        model: db.Church,
+                        as: 'church',
+                        attributes: ['name'],
+                    },
+                ],
+            });
+            res.json(tasks);
+        } catch (err) {
+            return res.status(404).send({
+                message: 'Server error, try again later',
+            });
+            // next(err);
+        }
+    },
+);
 
 router.post('/task', async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -59,6 +62,20 @@ router.post('/task', async (req: Request, res: Response, next: NextFunction) => 
             date: req.body.date,
         });
         res.send(task);
+    } catch (err) {
+        next(err);
+    }
+});
+
+router.delete('/task/:taskId', async (req: Request, res: Response, next) => {
+    try {
+        const task = await db.Task.findOne({
+            where: { id: req.params.taskId },
+        });
+
+        await task.destroy().then(function () {
+            res.status(200).send({ message: 'Task deleted' });
+        });
     } catch (err) {
         next(err);
     }

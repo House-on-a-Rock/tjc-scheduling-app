@@ -30,8 +30,8 @@ router.get('/users', async (req: Request, res: Response, next) => {
 
 router.get('/user/:userId', async (req, res, next) => {
     try {
-        const verify = jwt.verify(req.headers.authorization, cert);
-        const parsedId = req.query.id.toString();
+        jwt.verify(req.headers.authorization, cert);
+        const parsedId = req.params.userId.toString();
         const user = await db.User.findOne({
             where: {
                 id: parsedId,
