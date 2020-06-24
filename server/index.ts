@@ -30,6 +30,15 @@ app.get('/', (req: any, res) => {
 });
 
 app.use('/api', require('./routes'));
+app.use('/api', require('./routes/churches'));
+app.use('/api', require('./routes/users'));
+app.use('/api', require('./routes/tasks'));
+
+app.use((req, res, next) => {
+    const error = new Error('Not Found');
+    res.status(404);
+    next(error);
+});
 
 const syncDb = () =>
     db.sequelize.sync().then(() => {
