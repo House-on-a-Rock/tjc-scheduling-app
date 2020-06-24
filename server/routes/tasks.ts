@@ -16,7 +16,7 @@ module.exports = router;
 
 router.get('/tasks', async (req: Request, res: Response, next: NextFunction) => {
     try {
-        // jwt.verify(req.headers.authorization, cert);
+        jwt.verify(req.headers.authorization, cert);
         if (req.query.userId && !req.query.taskId) {
             const tasks = await db.Task.findAll({
                 where: {
@@ -76,7 +76,7 @@ router.get('/tasks', async (req: Request, res: Response, next: NextFunction) => 
 
 router.post('/tasks', async (req: Request, res: Response, next: NextFunction) => {
     try {
-        // jwt.verify(req.headers.authorization, cert);
+        jwt.verify(req.headers.authorization, cert);
         const task = await db.Task.create({
             date: req.body.date,
         });
@@ -88,7 +88,7 @@ router.post('/tasks', async (req: Request, res: Response, next: NextFunction) =>
 
 router.delete('/tasks/:taskId', async (req: Request, res: Response, next) => {
     try {
-        // jwt.verify(req.headers.authorization, cert);
+        jwt.verify(req.headers.authorization, cert);
         const task = await db.Task.findOne({
             where: { id: req.params.taskId },
         });
@@ -105,7 +105,7 @@ router.patch(
     '/tasks/switchTask/:targetTaskId/switchWith/:switchTaskId',
     async (req: Request, res: Response, next: NextFunction) => {
         try {
-            // jwt.verify(req.headers.authorization, cert);
+            jwt.verify(req.headers.authorization, cert);
             const targetTask: any = await db.Task.findOne({
                 where: { id: req.params.targetTaskId },
                 attributes: ['id', 'date', 'ChurchId', 'UserId', 'RoleId'],
@@ -140,7 +140,7 @@ router.patch(
     '/tasks/replaceTask/:taskId/replacedBy/:userId',
     async (req: Request, res: Response, next: NextFunction) => {
         try {
-            // jwt.verify(req.headers.authorization, cert);
+            jwt.verify(req.headers.authorization, cert);
             const task: any = await db.Task.findOne({
                 where: {
                     id: req.params.taskId.toString(),
