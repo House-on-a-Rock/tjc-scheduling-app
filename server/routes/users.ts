@@ -18,7 +18,7 @@ module.exports = router;
 
 router.get('/users', async (req: Request, res: Response, next) => {
     try {
-        const verify = jwt.verify(req.headers.authorization, cert);
+        jwt.verify(req.headers.authorization, cert);
         const users: UserInstance[] = await db.User.findAll({
             attributes: ['firstName', 'lastName', 'email', 'ChurchId'],
         });
@@ -28,10 +28,10 @@ router.get('/users', async (req: Request, res: Response, next) => {
     }
 });
 
-router.get('/user/:userId', async (req, res, next) => {
+router.get('/users/:userId', async (req, res, next) => {
     try {
-        const verify = jwt.verify(req.headers.authorization, cert);
-        const parsedId = req.query.id.toString();
+        jwt.verify(req.headers.authorization, cert);
+        const parsedId = req.params.userId.toString();
         const user = await db.User.findOne({
             where: {
                 id: parsedId,
@@ -48,14 +48,14 @@ router.get('/user/:userId', async (req, res, next) => {
 
         res.json(user);
     } catch (err) {
-        return res.status(404).send({
-            message: 'Server error, try again later',
-        });
-        // next(err);
+        // return res.status(404).send({
+        //     message: 'Server error, try again later',
+        // });
+        next(err);
     }
 });
 
-router.post('/user', async (req: Request, res: Response, next) => {
+router.post('/users', async (req: Request, res: Response, next) => {
     try {
         let doesUserExist = false;
         const username = req.body.email;
@@ -97,10 +97,10 @@ router.post('/user', async (req: Request, res: Response, next) => {
     }
 });
 
-router.delete('/user', async (req: Request, res: Response, next) => {
+router.delete('/users/:userId', async (req: Request, res: Response, next) => {
     try {
         const user = await db.User.findOne({
-            where: { id: req.body.userId },
+            where: { id: req.params.userId },
         });
 
         await user.destroy().then(function () {

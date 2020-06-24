@@ -15,7 +15,7 @@ module.exports = router;
 
 router.get('/churches', (req: Request, res: Response, next: NextFunction) => {
     try {
-        const verify = jwt.verify(req.headers.authorization, cert);
+        jwt.verify(req.headers.authorization, cert);
         db.Church.findAll({
             attributes: ['name', 'address', 'description'],
         })
@@ -29,9 +29,9 @@ router.get('/churches', (req: Request, res: Response, next: NextFunction) => {
     }
 });
 
-router.post('/church', async (req: Request, res: Response, next: NextFunction) => {
+router.post('/churches', async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const verify = jwt.verify(req.headers.authorization, cert);
+        jwt.verify(req.headers.authorization, cert);
         const church: ChurchInstance = await db.Church.create({
             name: req.body.name,
             address: req.body.address,
