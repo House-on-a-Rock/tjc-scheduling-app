@@ -3,7 +3,7 @@ import Sequelize from 'sequelize';
 import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
-import jwt, { TokenExpiredError } from 'jsonwebtoken';
+import jwt, { TokenExpiredError, JsonWebTokenError } from 'jsonwebtoken';
 import request from 'request-promise';
 import helper from '../helper_functions';
 import db from '../index';
@@ -72,6 +72,7 @@ router.get('/confirmation', async (req: Request, res: Response, next: NextFuncti
             message: 'The account has been verified. Please log in.',
         });
     } catch (err) {
+        res.status(503).send({ message: 'Server error, try again later' });
         next(err);
     }
 });
@@ -98,83 +99,90 @@ router.post('/resendConfirm', async (req: Request, res: Response, next: NextFunc
         });
         helper.sendVerEmail(username, req, res, newToken, 'confirmation');
     } catch (err) {
+        res.status(503).send({ message: 'Server error, try again later' });
         next(err);
     }
 });
 
 router.post('/login', async (req: Request, res: Response, next: NextFunction) => {
-    const userEmail = req.body.email;
-    const currentTime = new Date();
-    const userPassword = req.body.password;
-    const user = await db.User.findOne({
-        where: { email: userEmail },
-        attributes: [
-            'id',
-            'firstName',
-            'lastName',
-            'email',
-            'password',
-            'salt',
-            'loginAttempts',
-            'loginTimeout',
-            'isVerified',
-        ],
-    });
-    // checks if email returns a user, if not it will send error
-    if (!user) return res.status(401).send({ message: 'Invalid Username or Password' });
-
-    // check login attempts and whether a timeout has initiated
-    if (user.loginTimeout && user.loginTimeout.getTime() >= currentTime.getTime()) {
-        return res.status(400).send({
-            message: 'Too many login attempts',
+    try {
+        const userEmail = req.body.email;
+        const currentTime = new Date();
+        const userPassword = req.body.password;
+        const user = await db.User.findOne({
+            where: { email: userEmail },
+            attributes: [
+                'id',
+                'firstName',
+                'lastName',
+                'email',
+                'password',
+                'salt',
+                'loginAttempts',
+                'loginTimeout',
+                'isVerified',
+            ],
         });
-    }
+        // checks if email returns a user, if not it will send error
+        if (!user)
+            return res.status(401).send({ message: 'Invalid Username or Password' });
 
-    const checkedHash = crypto
-        .createHash('rsa-sha256')
-        .update(userPassword)
-        .update(user.salt)
-        .digest('hex');
-
-    if (checkedHash !== user.password) {
-        user.update({
-            id: user.id,
-            loginAttempts: user.loginAttempts + 1,
-        });
-        console.log(user.loginAttempts);
-        if (user.loginAttempts === 3) {
-            user.update({
-                id: user.id,
-                loginAttempts: 0,
-                loginTimeout: helper.addMinutes(new Date(), 5),
+        // check login attempts and whether a timeout has initiated
+        if (user.loginTimeout && user.loginTimeout.getTime() >= currentTime.getTime()) {
+            return res.status(400).send({
+                message: 'Too many login attempts',
             });
         }
-        return res.status(401).send({
-            message: 'Invalid Username or Password',
+
+        const checkedHash = crypto
+            .createHash('rsa-sha256')
+            .update(userPassword)
+            .update(user.salt)
+            .digest('hex');
+
+        if (checkedHash !== user.password) {
+            user.update({
+                id: user.id,
+                loginAttempts: user.loginAttempts + 1,
+            });
+            console.log(user.loginAttempts);
+            if (user.loginAttempts === 3) {
+                user.update({
+                    id: user.id,
+                    loginAttempts: 0,
+                    loginTimeout: helper.addMinutes(new Date(), 5),
+                });
+            }
+            return res.status(401).send({
+                message: 'Invalid Username or Password',
+            });
+        }
+
+        if (!user.isVerified) {
+            return res.status(403).send({
+                message: 'Please verify your email',
+            });
+        }
+        const token = helper.createToken('reg', user.id, 60);
+
+        // if login is successful, reset login attempt information
+        user.update({
+            id: user.id,
+            loginAttempts: 0,
+            loginTimeout: null,
         });
-    }
 
-    if (!user.isVerified) {
-        return res.status(403).send({
-            message: 'Please verify your email',
+        res.json({
+            user_id: user.id,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            email: user.email,
+            access_token: token,
         });
+    } catch (err) {
+        res.status(503).send({ message: 'Server error, try again later' });
+        next(err);
     }
-    const token = helper.createToken('reg', user.id, 60);
-
-    // if login is successful, reset login attempt information
-    user.update({
-        id: user.id,
-        loginAttempts: 0,
-        loginTimeout: null,
-    });
-
-    res.json({
-        user_id: user.id,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        email: user.email,
-        access_token: token,
-    });
 });
 
 router.post(
@@ -204,6 +212,7 @@ router.post(
                 });
             }
         } catch (err) {
+            res.status(503).send({ message: 'Server error, try again later' });
             next(err);
         }
     },
@@ -214,41 +223,45 @@ router.post(
     async (req: Request, res: Response, next: NextFunction) => {
         try {
             console.log('Entered');
-            /* const verify = jwt.verify(req.headers.authorization, cert);
+            jwt.verify(req.headers.authorization, cert);
             const decodedToken = jwt.decode(req.headers.authorization, { json: true });
             const requestId = decodedToken.sub.split('|')[1];
-            if (requestId === req.body.userId) { */
-            const userEmail = req.body.email;
-            const options = {
-                method: 'POST',
-                uri: `http://${process.env.SECRET_IP}/api/authentication/confirmPassword`,
-                body: {
-                    email: userEmail,
-                    password: req.body.oldPass,
-                },
-                json: true,
-            };
-            const verifyOldPassword = await request(options);
+            if (requestId === req.body.userId) {
+                const userEmail = req.body.email;
+                const options = {
+                    method: 'POST',
+                    uri: `http://${process.env.SECRET_IP}/api/authentication/confirmPassword`,
+                    body: {
+                        email: userEmail,
+                        password: req.body.oldPass,
+                    },
+                    json: true,
+                };
+                const verifyOldPassword = await request(options);
 
-            console.log(verifyOldPassword);
-            const user = await db.User.findOne({
-                where: { email: userEmail },
-                attributes: ['id', 'password', 'salt'],
-            });
-
-            if (verifyOldPassword.verify) {
-                user.update({
-                    id: user.id,
-                    password: req.body.password,
+                console.log(verifyOldPassword);
+                const user = await db.User.findOne({
+                    where: { email: userEmail },
+                    attributes: ['id', 'password', 'salt'],
                 });
 
-                res.status(200).send({
-                    message: 'Password change success.',
-                });
+                if (verifyOldPassword.verify) {
+                    user.update({
+                        id: user.id,
+                        password: req.body.password,
+                    });
+
+                    res.status(200).send({
+                        message: 'Password change success.',
+                    });
+                }
             }
-
-            // }
         } catch (err) {
+            if (err instanceof TokenExpiredError || err instanceof JsonWebTokenError) {
+                res.status(401).send({ message: 'Unauthorized' });
+            } else {
+                res.status(503).send({ message: 'Server error, try again later' });
+            }
             next(err);
         }
     },
@@ -283,6 +296,7 @@ router.post(
                 res.status(200);
             }
         } catch (err) {
+            res.status(503).send({ message: 'Server error, try again later' });
             next(err);
         }
     },
@@ -324,6 +338,10 @@ router.get(
                     `http://localhost:8081/auth/expiredAccess?message=TokenExpired&status=401`,
                 );
             }
+            if (err instanceof JsonWebTokenError) {
+                return res.status(400).send({ message: 'No token found' });
+            }
+            res.status(503).send({ message: 'Server error, try again later' });
             next(err);
         }
     },
@@ -363,6 +381,7 @@ router.post('/resetPassword', async (req: Request, res: Response, next: NextFunc
             });
         }
     } catch (err) {
+        res.status(503).send({ message: 'Server error, try again later' });
         next(err);
     }
 });

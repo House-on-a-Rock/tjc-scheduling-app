@@ -1,6 +1,6 @@
+import dotenv from 'dotenv';
 import configJson from './config';
 import createModels from './models';
-import dotenv from 'dotenv';
 
 dotenv.config();
 
