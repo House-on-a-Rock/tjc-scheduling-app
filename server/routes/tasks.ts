@@ -1,7 +1,7 @@
 import express, { Request, Response, NextFunction } from 'express';
 import Sequelize from 'sequelize';
 import fs from 'fs';
-import jwt from 'jsonwebtoken';
+import jwt, { TokenExpiredError, JsonWebTokenError } from 'jsonwebtoken';
 import db from '../index';
 
 const router = express.Router();
@@ -44,7 +44,11 @@ router.get('/tasks', async (req: Request, res: Response, next: NextFunction) => 
                     },
                 ],
             });
-            res.status(200).json(tasks);
+            if (tasks) {
+                res.status(200).json(tasks);
+            } else {
+                res.status(404).send({ message: 'Not found' });
+            }
         } else if (req.query.taskId && !req.query.userId) {
             const task = await db.Task.findOne({
                 where: { id: req.query.taskId.toString() },
@@ -62,13 +66,17 @@ router.get('/tasks', async (req: Request, res: Response, next: NextFunction) => 
                     },
                 ],
             });
-            res.status(200).json(task);
+            if (task) {
+                res.status(200).json(task);
+            } else {
+                res.status(404).send({ message: 'Not found' });
+            }
         }
     } catch (err) {
-        if (err) {
-            return res.status(404).send({
-                message: 'Server error, try again later',
-            });
+        if (err instanceof TokenExpiredError || err instanceof JsonWebTokenError) {
+            res.status(401).send({ message: 'Unauthorized' });
+        } else {
+            res.status(503).send({ message: 'Server error, try again later' });
         }
         next(err);
     }
@@ -80,8 +88,13 @@ router.post('/tasks', async (req: Request, res: Response, next: NextFunction) =>
         const task = await db.Task.create({
             date: req.body.date,
         });
-        res.send(task);
+        res.status(201).send(task);
     } catch (err) {
+        if (err instanceof TokenExpiredError || err instanceof JsonWebTokenError) {
+            res.status(401).send({ message: 'Unauthorized' });
+        } else {
+            res.status(503).send({ message: 'Server error, try again later' });
+        }
         next(err);
     }
 });
@@ -92,11 +105,19 @@ router.delete('/tasks/:taskId', async (req: Request, res: Response, next) => {
         const task = await db.Task.findOne({
             where: { id: req.params.taskId },
         });
-
-        await task.destroy().then(function () {
-            res.status(200).send({ message: 'Task deleted' });
-        });
+        if (task) {
+            await task.destroy().then(function () {
+                res.status(200).send({ message: 'Task deleted' });
+            });
+        } else {
+            res.status(404).send({ message: 'Task not found' });
+        }
     } catch (err) {
+        if (err instanceof TokenExpiredError || err instanceof JsonWebTokenError) {
+            res.status(401).send({ message: 'Unauthorized' });
+        } else {
+            res.status(503).send({ message: 'Server error, try again later' });
+        }
         next(err);
     }
 });
@@ -115,7 +136,9 @@ router.patch(
                 where: { id: req.params.switchTaskId },
                 attributes: ['id', 'date', 'ChurchId', 'UserId', 'RoleId'],
             });
-
+            if (!targetTask || !switchTask) {
+                return res.status(404).send({ message: 'Not found' });
+            }
             // if (targetTask.ChurchId === switchTask.ChurchId) {
             const targetTaskId = targetTask.UserId;
             const switchTaskId = switchTask.UserId;
@@ -131,6 +154,11 @@ router.patch(
             res.status(200).send({ message: 'Task switch successful' });
             // }
         } catch (err) {
+            if (err instanceof TokenExpiredError || err instanceof JsonWebTokenError) {
+                res.status(401).send({ message: 'Unauthorized' });
+            } else {
+                res.status(503).send({ message: 'Server error, try again later' });
+            }
             next(err);
         }
     },
@@ -150,22 +178,29 @@ router.patch(
 
             const replacedByUser: any = await db.User.findOne({
                 where: { id: req.params.userId.toString() },
-                attributes: ['ChurchId'],
+                attributes: ['id', 'ChurchId'],
             });
 
             const belongsToUser: any = await db.User.findOne({
                 where: { id: task.UserId },
-                attributes: ['ChurchId'],
+                attributes: ['id', 'ChurchId'],
             });
-
+            if (!task || !replacedByUser || !belongsToUser) {
+                return res.status(404).send({ message: 'Not found' });
+            }
             // if (replacedByUser.ChurchId === belongsToUser.ChurchId) {
-            task.update({
+            await task.update({
                 id: task.id,
-                UserId: req.params.userId.toString(),
+                UserId: replacedByUser.id,
             });
             res.status(200).send({ message: 'Task replacement successful.' });
             // }
         } catch (err) {
+            if (err instanceof TokenExpiredError || err instanceof JsonWebTokenError) {
+                res.status(401).send({ message: 'Unauthorized' });
+            } else {
+                res.status(503).send({ message: 'Server error, try again later' });
+            }
             next(err);
         }
     },

@@ -1,6 +1,6 @@
 import express, { Request, Response } from 'express';
 import fs from 'fs';
-import jwt from 'jsonwebtoken';
+import jwt, { TokenExpiredError, JsonWebTokenError } from 'jsonwebtoken';
 import crypto from 'crypto';
 import { UserInstance } from 'shared/SequelizeTypings/models';
 import db from '../index';
@@ -22,8 +22,14 @@ router.get('/users', async (req: Request, res: Response, next) => {
         const users: UserInstance[] = await db.User.findAll({
             attributes: ['firstName', 'lastName', 'email', 'ChurchId'],
         });
-        res.status(200).json(users);
+        if (users) res.status(200).json(users);
+        else res.status(404).send({ message: 'Not found' });
     } catch (err) {
+        if (err instanceof TokenExpiredError || err instanceof JsonWebTokenError) {
+            res.status(401).send({ message: 'Unauthorized' });
+        } else {
+            res.status(503).send({ message: 'Server error, try again later' });
+        }
         next(err);
     }
 });
@@ -46,17 +52,21 @@ router.get('/users/:userId', async (req, res, next) => {
             ],
         });
 
-        res.json(user);
+        if (user) res.json(user);
+        else res.status(404).send({ message: 'Not found' });
     } catch (err) {
-        // return res.status(404).send({
-        //     message: 'Server error, try again later',
-        // });
+        if (err instanceof TokenExpiredError || err instanceof JsonWebTokenError) {
+            res.status(401).send({ message: 'Unauthorized' });
+        } else {
+            res.status(503).send({ message: 'Server error, try again later' });
+        }
         next(err);
     }
 });
 
 router.post('/users', async (req: Request, res: Response, next) => {
     try {
+        jwt.verify(req.headers.authorization, cert);
         let doesUserExist = false;
         const username = req.body.email;
         const token = crypto.randomBytes(16).toString('hex');
@@ -91,22 +101,36 @@ router.post('/users', async (req: Request, res: Response, next) => {
             });
 
             helper.sendVerEmail(username, req, res, token, 'confirmation');
+
+            res.status(201).send({ message: 'User created' });
         }
     } catch (err) {
+        if (err instanceof TokenExpiredError || err instanceof JsonWebTokenError) {
+            res.status(401).send({ message: 'Unauthorized' });
+        } else {
+            res.status(503).send({ message: 'Server error, try again later' });
+        }
         next(err);
     }
 });
 
 router.delete('/users/:userId', async (req: Request, res: Response, next) => {
     try {
+        jwt.verify(req.headers.authorization, cert);
         const user = await db.User.findOne({
             where: { id: req.params.userId },
         });
-
-        await user.destroy().then(function () {
-            res.status(200).send({ message: 'User deleted' });
-        });
+        if (user) {
+            await user.destroy().then(function () {
+                res.status(200).send({ message: 'User deleted' });
+            });
+        } else res.status(404).send({ message: 'User not found' });
     } catch (err) {
+        if (err instanceof TokenExpiredError || err instanceof JsonWebTokenError) {
+            res.status(401).send({ message: 'Unauthorized' });
+        } else {
+            res.status(503).send({ message: 'Server error, try again later' });
+        }
         next(err);
     }
 });
