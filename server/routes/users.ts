@@ -11,7 +11,6 @@ let cert;
 fs.readFile('tjcschedule_pub.pem', function read(err, data) {
     if (err) throw err;
     cert = data;
-    console.log(cert);
 });
 
 module.exports = router;
@@ -66,7 +65,7 @@ router.get('/users/:userId', async (req, res, next) => {
 
 router.post('/users', async (req: Request, res: Response, next) => {
     try {
-        jwt.verify(req.headers.authorization, cert);
+        // jwt.verify(req.headers.authorization, cert);
         let doesUserExist = false;
         const username = req.body.email;
         const token = crypto.randomBytes(16).toString('hex');
@@ -100,7 +99,7 @@ router.post('/users', async (req: Request, res: Response, next) => {
                 token: token,
             });
 
-            helper.sendVerEmail(username, req, res, token, 'confirmation');
+            helper.sendVerEmail(username, req, token, 'confirmation');
 
             res.status(201).send({ message: 'User created' });
         }
@@ -116,7 +115,7 @@ router.post('/users', async (req: Request, res: Response, next) => {
 
 router.delete('/users/:userId', async (req: Request, res: Response, next) => {
     try {
-        jwt.verify(req.headers.authorization, cert);
+        // jwt.verify(req.headers.authorization, cert);
         const user = await db.User.findOne({
             where: { id: req.params.userId },
         });

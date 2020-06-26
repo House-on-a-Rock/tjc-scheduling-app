@@ -10,7 +10,6 @@ let cert;
 fs.readFile('tjcschedule_pub.pem', function read(err, data) {
     if (err) throw err;
     cert = data;
-    console.log(cert);
 });
 module.exports = router;
 
