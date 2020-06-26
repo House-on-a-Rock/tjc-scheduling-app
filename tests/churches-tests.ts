@@ -3,7 +3,6 @@ import { expect } from 'chai';
 import request, { Options } from 'request-promise';
 import jwt, { Algorithm } from 'jsonwebtoken';
 import fs from 'fs';
-import { exit } from 'process';
 import db from '../server/index';
 
 dotenv.config();
