@@ -3,29 +3,17 @@ import { expect } from 'chai';
 import request, { Options } from 'request-promise';
 import jwt, { Algorithm } from 'jsonwebtoken';
 import fs from 'fs';
-import { exit } from 'process';
 import db from '../server/index';
+import helper from '../server/helper_functions';
 
 dotenv.config();
 
 let queryId;
 const userIdString = '1';
 
-const privateKey = fs.readFileSync('tjcschedule.pem');
+// const privateKey = fs.readFileSync('tjcschedule.pem');
 
-const token = jwt.sign(
-    {
-        iss: process.env.AUDIENCE,
-        sub: `tjc-scheduling|${userIdString}`,
-        exp: Math.floor(Date.now() / 1000) + 60 * 60,
-        type: 'test',
-    },
-    {
-        key: privateKey,
-        passphrase: process.env.PRIVATEKEY_PASS,
-    },
-    { algorithm: process.env.JWT_ALGORITHM as Algorithm },
-);
+const token = helper.createToken('test', userIdString, 60);
 
 describe('Users', function () {
     describe('GET /', function () {

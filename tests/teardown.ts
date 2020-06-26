@@ -1,5 +1,5 @@
 import { exit } from 'process';
 
-after(function () {
-    exit();
-});
+// after(function () {
+//     exit();
+// });

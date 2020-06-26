@@ -2,7 +2,7 @@
     "name": "tjc-scheduling-app",
     "main": "node_modules/expo/AppEntry.js",
     "scripts": {
-        "test": "mocha -r ts-node/register tests/*.ts --reporter spec",
+        "test": "mocha -r ts-node/register tests/*.ts --reporter spec --exit",
         "start": "expo start",
         "android": "expo start --android",
         "ios": "expo start --ios",

@@ -1,18 +1,9 @@
 import nodemailer from 'nodemailer';
 import jwt, { Algorithm } from 'jsonwebtoken';
 import fs from 'fs';
+import { privateEncrypt } from 'crypto';
 
-let cert;
-let privateKey;
-fs.readFile('tjcschedule_pub.pem', function read(err, data) {
-    if (err) throw err;
-    cert = data;
-});
-
-fs.readFile('tjcschedule.pem', function read(err, data) {
-    if (err) throw err;
-    privateKey = data;
-});
+const privateKey = fs.readFileSync('tjcschedule.pem');
 
 const funcs = {
     sendGenericEmail(username, link) {
