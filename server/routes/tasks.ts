@@ -34,7 +34,7 @@ router.get('/tasks', async (req: Request, res: Response, next: NextFunction) => 
                     {
                         model: db.Role,
                         as: 'role',
-                        // attributes: ['name'],
+                        attributes: ['name'],
                     },
                     {
                         model: db.Church,
@@ -56,7 +56,7 @@ router.get('/tasks', async (req: Request, res: Response, next: NextFunction) => 
                     {
                         model: db.Role,
                         as: 'role',
-                        // attributes: ['name'],
+                        attributes: ['name'],
                     },
                     {
                         model: db.Church,

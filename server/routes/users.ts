@@ -19,7 +19,14 @@ router.get('/users', async (req: Request, res: Response, next) => {
     try {
         jwt.verify(req.headers.authorization, cert);
         const users: UserInstance[] = await db.User.findAll({
-            attributes: ['firstName', 'lastName', 'email', 'ChurchId'],
+            attributes: ['id', 'firstName', 'lastName', 'email', 'ChurchId'],
+            include: [
+                {
+                    model: db.Church,
+                    as: 'church',
+                    attributes: ['name'],
+                },
+            ],
         });
         if (users) res.status(200).json(users);
         else res.status(404).send({ message: 'Not found' });
@@ -65,7 +72,7 @@ router.get('/users/:userId', async (req, res, next) => {
 
 router.post('/users', async (req: Request, res: Response, next) => {
     try {
-        // jwt.verify(req.headers.authorization, cert);
+        jwt.verify(req.headers.authorization, cert);
         let doesUserExist = false;
         const username = req.body.email;
         const token = crypto.randomBytes(16).toString('hex');
@@ -115,7 +122,7 @@ router.post('/users', async (req: Request, res: Response, next) => {
 
 router.delete('/users/:userId', async (req: Request, res: Response, next) => {
     try {
-        // jwt.verify(req.headers.authorization, cert);
+        jwt.verify(req.headers.authorization, cert);
         const user = await db.User.findOne({
             where: { id: req.params.userId },
         });
