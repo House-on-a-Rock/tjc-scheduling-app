@@ -120,12 +120,16 @@ router.post('/users', async (req: Request, res: Response, next) => {
             }
             return true;
         });
+        if (!helper.validateEmail(req.body.email)) {
+            return res.status(406).send({ message: 'Invalid email' });
+        }
         if (!doesUserExist) {
             const newUser: UserInstance = await db.User.create({
                 firstName: req.body.firstName,
                 lastName: req.body.lastName,
                 email: req.body.email,
                 password: req.body.password,
+                ChurchId: req.body.churchId,
                 isVerified: false,
                 disabled: false,
             });
