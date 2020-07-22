@@ -30,7 +30,7 @@ router.get('/tasks', async (req: Request, res: Response, next: NextFunction) => 
                         ],
                     },
                 },
-                attributes: ['date'],
+                attributes: ['date', 'id'],
                 include: [
                     {
                         model: db.Role,
