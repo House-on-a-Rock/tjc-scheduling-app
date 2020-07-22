@@ -11,6 +11,7 @@ export interface UserAttributes {
     isVerified: boolean;
     loginAttempts?: number;
     loginTimeout?: Date;
+    disabled: boolean;
     createdAt?: Date | null;
     updatedAt?: Date | null;
     duty?: RoleAttributes[] | RoleAttributes['id'];

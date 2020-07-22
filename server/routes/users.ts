@@ -18,18 +18,50 @@ module.exports = router;
 router.get('/users', async (req: Request, res: Response, next) => {
     try {
         jwt.verify(req.headers.authorization, cert);
-        const users: UserInstance[] = await db.User.findAll({
-            attributes: ['id', 'firstName', 'lastName', 'email', 'ChurchId'],
-            include: [
-                {
-                    model: db.Church,
-                    as: 'church',
-                    attributes: ['name'],
+        if (req.query.churchId) {
+            const users: UserInstance[] = await db.User.findAll({
+                where: {
+                    ChurchId: req.query.churchId.toString(),
                 },
-            ],
-        });
-        if (users) res.status(200).json(users);
-        else res.status(404).send({ message: 'Not found' });
+                attributes: [
+                    'id',
+                    'firstName',
+                    'lastName',
+                    'email',
+                    'ChurchId',
+                    'disabled',
+                ],
+                include: [
+                    {
+                        model: db.Church,
+                        as: 'church',
+                        attributes: ['name'],
+                    },
+                ],
+            });
+            if (users) res.status(200).json(users);
+            else res.status(404).send({ message: 'Not found' });
+        } else {
+            const users: UserInstance[] = await db.User.findAll({
+                attributes: [
+                    'id',
+                    'firstName',
+                    'lastName',
+                    'email',
+                    'ChurchId',
+                    'disabled',
+                ],
+                include: [
+                    {
+                        model: db.Church,
+                        as: 'church',
+                        attributes: ['name'],
+                    },
+                ],
+            });
+            if (users) res.status(200).json(users);
+            else res.status(404).send({ message: 'Not found' });
+        }
     } catch (err) {
         if (err instanceof TokenExpiredError || err instanceof JsonWebTokenError) {
             res.status(401).send({ message: 'Unauthorized' });
@@ -48,7 +80,7 @@ router.get('/users/:userId', async (req, res, next) => {
             where: {
                 id: parsedId,
             },
-            attributes: ['firstName', 'lastName', 'email', 'id'],
+            attributes: ['firstName', 'lastName', 'email', 'id', 'ChurchId'],
             include: [
                 {
                     model: db.Church,
@@ -95,6 +127,7 @@ router.post('/users', async (req: Request, res: Response, next) => {
                 email: req.body.email,
                 password: req.body.password,
                 isVerified: false,
+                disabled: false,
             });
 
             const addedUser = await db.User.findOne({
