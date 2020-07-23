@@ -136,7 +136,14 @@ router.post('/users', async (req: Request, res: Response, next) => {
 
             const addedUser = await db.User.findOne({
                 where: { email: username },
-                attributes: ['id'],
+                attributes: ['id', 'firstName', 'lastName', 'email', 'disabled'],
+                include: [
+                    {
+                        model: db.Church,
+                        as: 'church',
+                        attributes: ['name'],
+                    },
+                ],
             });
             db.Token.create({
                 userId: addedUser.id,
@@ -145,7 +152,7 @@ router.post('/users', async (req: Request, res: Response, next) => {
 
             helper.sendVerEmail(username, req, token, 'confirmation');
 
-            res.status(201).send({ message: 'User created' });
+            res.status(201).json(addedUser);
         }
     } catch (err) {
         if (err instanceof TokenExpiredError || err instanceof JsonWebTokenError) {
@@ -162,10 +169,11 @@ router.delete('/users/:userId', async (req: Request, res: Response, next) => {
         jwt.verify(req.headers.authorization, cert);
         const user = await db.User.findOne({
             where: { id: req.params.userId },
+            attributes: ['id'],
         });
         if (user) {
             await user.destroy().then(function () {
-                res.status(200).send({ message: 'User deleted' });
+                res.status(200).json(user);
             });
         } else res.status(404).send({ message: 'User not found' });
     } catch (err) {
