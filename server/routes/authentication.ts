@@ -97,8 +97,9 @@ router.post('/resendConfirm', async (req: Request, res: Response, next: NextFunc
             token: newToken,
             expiresIn: Date.now() + 30 * 60 * 1000,
         });
-        helper.sendVerEmail(username, req, res, newToken, 'confirmation');
+        helper.sendVerEmail(username, req, newToken, 'confirmation');
     } catch (err) {
+        console.log(err);
         res.status(503).send({ message: 'Server error, try again later' });
         next(err);
     }
@@ -284,7 +285,6 @@ router.post(
                 const tokenSignature = tokenSegments[2];
                 helper.sendGenericEmail(
                     req.body.email,
-                    res,
                     `http://localhost:8080/api/authentication/checkResetToken?header=${tokenHeader}&payload=${tokenPayload}&signature=${tokenSignature}`,
                 );
                 res.status(200).send({

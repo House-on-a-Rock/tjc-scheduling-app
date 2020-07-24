@@ -9,7 +9,6 @@ let cert;
 fs.readFile('tjcschedule_pub.pem', function read(err, data) {
     if (err) throw err;
     cert = data;
-    console.log(cert);
 });
 module.exports = router;
 
@@ -55,3 +54,11 @@ router.post('/churches', async (req: Request, res: Response, next: NextFunction)
         next(err);
     }
 });
+
+// router.delete('/churches', async (req: Request, res: Response, next: NextFunction) => {
+//     try {
+
+//     }catch (err) {
+//         next(err);
+//     }
+// })

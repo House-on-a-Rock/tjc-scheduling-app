@@ -11,7 +11,6 @@ let cert;
 fs.readFile('tjcschedule_pub.pem', function read(err, data) {
     if (err) throw err;
     cert = data;
-    console.log(cert);
 });
 
 module.exports = router;
@@ -19,11 +18,50 @@ module.exports = router;
 router.get('/users', async (req: Request, res: Response, next) => {
     try {
         jwt.verify(req.headers.authorization, cert);
-        const users: UserInstance[] = await db.User.findAll({
-            attributes: ['firstName', 'lastName', 'email', 'ChurchId'],
-        });
-        if (users) res.status(200).json(users);
-        else res.status(404).send({ message: 'Not found' });
+        if (req.query.churchId) {
+            const users: UserInstance[] = await db.User.findAll({
+                where: {
+                    ChurchId: req.query.churchId.toString(),
+                },
+                attributes: [
+                    'id',
+                    'firstName',
+                    'lastName',
+                    'email',
+                    'ChurchId',
+                    'disabled',
+                ],
+                include: [
+                    {
+                        model: db.Church,
+                        as: 'church',
+                        attributes: ['name'],
+                    },
+                ],
+            });
+            if (users) res.status(200).json(users);
+            else res.status(404).send({ message: 'Not found' });
+        } else {
+            const users: UserInstance[] = await db.User.findAll({
+                attributes: [
+                    'id',
+                    'firstName',
+                    'lastName',
+                    'email',
+                    'ChurchId',
+                    'disabled',
+                ],
+                include: [
+                    {
+                        model: db.Church,
+                        as: 'church',
+                        attributes: ['name'],
+                    },
+                ],
+            });
+            if (users) res.status(200).json(users);
+            else res.status(404).send({ message: 'Not found' });
+        }
     } catch (err) {
         if (err instanceof TokenExpiredError || err instanceof JsonWebTokenError) {
             res.status(401).send({ message: 'Unauthorized' });
@@ -42,7 +80,7 @@ router.get('/users/:userId', async (req, res, next) => {
             where: {
                 id: parsedId,
             },
-            attributes: ['firstName', 'lastName', 'email', 'id'],
+            attributes: ['firstName', 'lastName', 'email', 'id', 'ChurchId'],
             include: [
                 {
                     model: db.Church,
@@ -82,27 +120,39 @@ router.post('/users', async (req: Request, res: Response, next) => {
             }
             return true;
         });
+        if (!helper.validateEmail(req.body.email)) {
+            return res.status(406).send({ message: 'Invalid email' });
+        }
         if (!doesUserExist) {
             const newUser: UserInstance = await db.User.create({
                 firstName: req.body.firstName,
                 lastName: req.body.lastName,
                 email: req.body.email,
                 password: req.body.password,
+                ChurchId: req.body.churchId,
                 isVerified: false,
+                disabled: false,
             });
 
             const addedUser = await db.User.findOne({
                 where: { email: username },
-                attributes: ['id'],
+                attributes: ['id', 'firstName', 'lastName', 'email', 'disabled'],
+                include: [
+                    {
+                        model: db.Church,
+                        as: 'church',
+                        attributes: ['name'],
+                    },
+                ],
             });
             db.Token.create({
                 userId: addedUser.id,
                 token: token,
             });
 
-            helper.sendVerEmail(username, req, res, token, 'confirmation');
+            helper.sendVerEmail(username, req, token, 'confirmation');
 
-            res.status(201).send({ message: 'User created' });
+            res.status(201).json(addedUser);
         }
     } catch (err) {
         if (err instanceof TokenExpiredError || err instanceof JsonWebTokenError) {
@@ -119,10 +169,11 @@ router.delete('/users/:userId', async (req: Request, res: Response, next) => {
         jwt.verify(req.headers.authorization, cert);
         const user = await db.User.findOne({
             where: { id: req.params.userId },
+            attributes: ['id'],
         });
         if (user) {
             await user.destroy().then(function () {
-                res.status(200).send({ message: 'User deleted' });
+                res.status(200).json(user);
             });
         } else res.status(404).send({ message: 'User not found' });
     } catch (err) {

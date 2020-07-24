@@ -1,76 +1,72 @@
 import nodemailer from 'nodemailer';
 import jwt, { Algorithm } from 'jsonwebtoken';
 import fs from 'fs';
+import { privateEncrypt } from 'crypto';
 
-let cert;
-let privateKey;
-fs.readFile('tjcschedule_pub.pem', function read(err, data) {
-    if (err) throw err;
-    cert = data;
-});
-
-fs.readFile('tjcschedule.pem', function read(err, data) {
-    if (err) throw err;
-    privateKey = data;
-});
+const privateKey = fs.readFileSync('tjcschedule.pem');
 
 const funcs = {
-    sendGenericEmail(username, res, link) {
-        console.log('Sending email..');
-        const transporter = nodemailer.createTransport({
-            service: 'Sendgrid',
-            auth: {
-                user: process.env.VER_EMAIL,
-                pass: process.env.VER_PASS,
-            },
-        });
-        // send confirmation email
-        const mailOptions = {
-            from: 'alraneus@gmail.com',
-            to: username,
-            subject: 'Password Reset',
-            text: `Hello,\n\n Please reset your password to your account by clicking the link: \n${link}`,
-        };
-        transporter.sendMail(mailOptions, function (err) {
-            if (err) {
-                console.log(err);
-                return false;
-            }
-            return true;
-        });
+    sendGenericEmail(username, link) {
+        try {
+            console.log('Sending email..');
+            const transporter = nodemailer.createTransport({
+                service: 'Sendgrid',
+                auth: {
+                    user: process.env.VER_EMAIL,
+                    pass: process.env.VER_PASS,
+                },
+            });
+            // send confirmation email
+            const mailOptions = {
+                from: 'alraneus@gmail.com',
+                to: username,
+                subject: 'Password Reset',
+                text: `Hello,\n\n Please reset your password to your account by clicking the link: \n${link}`,
+            };
+            transporter.sendMail(mailOptions, function (err) {
+                if (err) {
+                    console.log(err);
+                    return false;
+                }
+                return true;
+            });
+        } catch (err) {
+            console.log(err);
+        }
     },
 
-    sendVerEmail(username, req, res, token, api) {
-        console.log('Sending email..');
-        let message;
-        if (api === 'confirmation') {
-            message = `A verification email has been sent to ${username}.`;
-        } else {
-            message = `A password recovery email has been sent to ${username}.`;
-        }
-        const transporter = nodemailer.createTransport({
-            service: 'Sendgrid',
-            auth: {
-                user: process.env.VER_EMAIL,
-                pass: process.env.VER_PASS,
-            },
-        });
-        // send confirmation email
-        const mailOptions = {
-            from: 'alraneus@gmail.com',
-            to: username,
-            subject: 'Account Verification Token',
-            text: `Hello,\n\n Please verify your account by clicking the link: \nhttp://${req.headers.host}/api/authentication/${api}?token=${token}`,
-        };
-        transporter.sendMail(mailOptions, function (err) {
-            if (err) {
-                return res.status(500).send({ message: err.message });
+    sendVerEmail(username, req, token, api) {
+        try {
+            console.log('Sending email..');
+            let message;
+            if (api === 'confirmation') {
+                message = `A verification email has been sent to ${username}.`;
+            } else {
+                message = `A password recovery email has been sent to ${username}.`;
             }
-            res.status(200).send({
-                message: message,
+            const transporter = nodemailer.createTransport({
+                service: 'Sendgrid',
+                auth: {
+                    user: process.env.VER_EMAIL,
+                    pass: process.env.VER_PASS,
+                },
             });
-            return true;
-        });
+            // send confirmation email
+            const mailOptions = {
+                from: 'alraneus@gmail.com',
+                to: username,
+                subject: 'Account Verification Token',
+                text: `Hello,\n\n Please verify your account by clicking the link: \nhttp://${req.headers.host}/api/authentication/${api}?token=${token}`,
+            };
+            transporter.sendMail(mailOptions, function (err) {
+                if (err) {
+                    console.log(err.message);
+                }
+                return true;
+            });
+        } catch (err) {
+            console.log(err);
+        }
     },
 
     addMinutes(date: Date, minutes) {
@@ -107,6 +103,12 @@ const funcs = {
         );
 
         return token;
+    },
+    validateEmail(email: string) {
+        if (/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email)) {
+            return true;
+        }
+        return false;
     },
 };
 export default funcs;

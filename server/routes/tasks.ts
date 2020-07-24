@@ -10,7 +10,6 @@ let cert;
 fs.readFile('tjcschedule_pub.pem', function read(err, data) {
     if (err) throw err;
     cert = data;
-    console.log(cert);
 });
 module.exports = router;
 
@@ -35,7 +34,7 @@ router.get('/tasks', async (req: Request, res: Response, next: NextFunction) => 
                     {
                         model: db.Role,
                         as: 'role',
-                        // attributes: ['name'],
+                        attributes: ['name'],
                     },
                     {
                         model: db.Church,
@@ -57,7 +56,7 @@ router.get('/tasks', async (req: Request, res: Response, next: NextFunction) => 
                     {
                         model: db.Role,
                         as: 'role',
-                        // attributes: ['name'],
+                        attributes: ['name'],
                     },
                     {
                         model: db.Church,

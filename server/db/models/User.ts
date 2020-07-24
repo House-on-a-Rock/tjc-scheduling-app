@@ -30,6 +30,10 @@ const UserFactory = (
             type: DataTypes.BOOLEAN,
             defaultValue: false,
         },
+        disabled: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: false,
+        },
         loginAttempts: {
             type: DataTypes.INTEGER,
             allowNull: false,
