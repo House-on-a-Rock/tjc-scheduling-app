@@ -42,7 +42,7 @@ router.post('/swap-request', async (req: Request, res: Response, next: NextFunct
         let requesteeUserId: number = null;
         let type = 'requestAll';
         if (req.body.switchWithId) {
-            requesteeUserId = parseInt(req.body.switchWithId, 10);
+            requesteeUserId = req.body.switchWithId;
             type = 'requestOne';
         }
         const doesTaskExist = await db.Task.findOne({
@@ -52,7 +52,7 @@ router.post('/swap-request', async (req: Request, res: Response, next: NextFunct
             const newRequest = await db.SwapRequest.create({
                 requesteeUserId: requesteeUserId,
                 type: type,
-                taskId: req.body.taskId,
+                TaskId: req.body.taskId,
             });
             res.status(201).json(newRequest);
         } else {
@@ -102,7 +102,7 @@ router.patch(
                 !swapRequest.accepted &&
                 !swapRequest.approved &&
                 swapRequest.type === 'requestOne' &&
-                requesterId === swapRequest.requesteeUserId
+                requesterId === swapRequest.requesteeUserId.toString()
             ) {
                 swapRequest.update({
                     id: swapRequest.id,
@@ -146,6 +146,7 @@ router.patch(
                     id: swapRequest.id,
                     approved: true,
                 });
+                res.status(200).json(swapRequest);
             } else {
                 res.status(400).send({ message: 'Invalid Request' });
             }

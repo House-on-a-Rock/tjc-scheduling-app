@@ -139,8 +139,8 @@ router.patch(
                 return res.status(404).send({ message: 'Not found' });
             }
             // if (targetTask.ChurchId === switchTask.ChurchId) {
-            const targetTaskId = targetTask.userId;
-            const switchTaskId = switchTask.userId;
+            const targetTaskId = targetTask.UserId;
+            const switchTaskId = switchTask.UserId;
             targetTask.update({
                 id: targetTask.id,
                 UserId: switchTaskId,
@@ -181,7 +181,7 @@ router.patch(
             });
 
             const belongsToUser = await db.User.findOne({
-                where: { id: task.userId },
+                where: { id: task.UserId },
                 attributes: ['id', 'ChurchId'],
             });
             if (!task || !replacedByUser || !belongsToUser) {

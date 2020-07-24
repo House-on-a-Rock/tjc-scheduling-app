@@ -4,7 +4,7 @@ export interface SwapRequestAttributes {
     id?: number;
     requesteeUserId: number;
     type: string;
-    taskId?: number;
+    TaskId?: number;
     accepted?: boolean;
     approved?: boolean;
     createdAt?: Date;

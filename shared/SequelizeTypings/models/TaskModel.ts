@@ -2,8 +2,8 @@ import * as Sequelize from 'sequelize';
 
 export interface TaskAttributes {
     id?: number;
-    churchId?: number;
-    userId?: number;
+    ChurchId?: number;
+    UserId?: number;
     date: string;
     createdAt?: Date;
     updatedAt?: Date;
