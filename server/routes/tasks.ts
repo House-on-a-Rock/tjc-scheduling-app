@@ -126,12 +126,12 @@ router.patch(
     async (req: Request, res: Response, next: NextFunction) => {
         try {
             jwt.verify(req.headers.authorization, cert);
-            const targetTask: any = await db.Task.findOne({
+            const targetTask = await db.Task.findOne({
                 where: { id: req.params.targetTaskId },
                 attributes: ['id', 'date', 'ChurchId', 'UserId', 'RoleId'],
             });
 
-            const switchTask: any = await db.Task.findOne({
+            const switchTask = await db.Task.findOne({
                 where: { id: req.params.switchTaskId },
                 attributes: ['id', 'date', 'ChurchId', 'UserId', 'RoleId'],
             });
@@ -139,8 +139,8 @@ router.patch(
                 return res.status(404).send({ message: 'Not found' });
             }
             // if (targetTask.ChurchId === switchTask.ChurchId) {
-            const targetTaskId = targetTask.UserId;
-            const switchTaskId = switchTask.UserId;
+            const targetTaskId = targetTask.userId;
+            const switchTaskId = switchTask.userId;
             targetTask.update({
                 id: targetTask.id,
                 UserId: switchTaskId,
@@ -168,20 +168,20 @@ router.patch(
     async (req: Request, res: Response, next: NextFunction) => {
         try {
             jwt.verify(req.headers.authorization, cert);
-            const task: any = await db.Task.findOne({
+            const task = await db.Task.findOne({
                 where: {
                     id: req.params.taskId.toString(),
                 },
                 attributes: ['id', 'UserId'],
             });
 
-            const replacedByUser: any = await db.User.findOne({
+            const replacedByUser = await db.User.findOne({
                 where: { id: req.params.userId.toString() },
                 attributes: ['id', 'ChurchId'],
             });
 
-            const belongsToUser: any = await db.User.findOne({
-                where: { id: task.UserId },
+            const belongsToUser = await db.User.findOne({
+                where: { id: task.userId },
                 attributes: ['id', 'ChurchId'],
             });
             if (!task || !replacedByUser || !belongsToUser) {
