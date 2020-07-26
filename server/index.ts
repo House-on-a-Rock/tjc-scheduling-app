@@ -33,6 +33,7 @@ app.use('/api', require('./routes'));
 app.use('/api', require('./routes/churches'));
 app.use('/api', require('./routes/users'));
 app.use('/api', require('./routes/tasks'));
+app.use('/api', require('./routes/swap-requests'));
 
 app.use((req, res, next) => {
     const error = new Error('Not Found');
