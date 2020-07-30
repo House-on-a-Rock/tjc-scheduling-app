@@ -24,6 +24,7 @@ router.get('/swap-requests', async (req: Request, res: Response, next: NextFunct
                 TaskId: {
                     [Op.or]: searchParams,
                 },
+                approved: false,
             },
             attributes: [
                 'id',
