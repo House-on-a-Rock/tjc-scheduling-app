@@ -15,10 +15,15 @@ module.exports = router;
 
 router.get('/swap-requests', async (req: Request, res: Response, next: NextFunction) => {
     try {
-        jwt.verify(req.headers.authorization, cert);
-        let searchParams: object = [];
-        if (typeof req.query.taskId === 'string') searchParams = [req.query.taskId];
-        else searchParams = req.query.taskId;
+        // jwt.verify(req.headers.authorization, cert);
+        const searchParams: number[] = [];
+        req.query.taskId
+            .toString()
+            .split(',')
+            .map((taskId) => {
+                searchParams.push(parseInt(taskId, 10));
+            });
+        console.log(searchParams);
         const swapRequests = await db.SwapRequest.findAll({
             where: {
                 TaskId: {
