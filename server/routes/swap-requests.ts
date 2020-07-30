@@ -209,6 +209,44 @@ router.patch(
     },
 );
 
+router.patch(
+    '/swap-requests/reject/:requestId',
+    async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            jwt.verify(req.headers.authorization, cert);
+            // const decodedToken = jwt.decode(req.headers.authorization, { json: true });
+            const swapRequest = await db.SwapRequest.findOne({
+                where: { id: req.params.requestId },
+                attributes: [
+                    'id',
+                    'requesteeUserId',
+                    'type',
+                    'accepted',
+                    'approved',
+                    'TaskId',
+                ],
+            });
+            if (!swapRequest) res.status(404).send({ message: 'Swap request not found' });
+            if (!swapRequest.approved && !swapRequest.accepted) {
+                swapRequest.update({
+                    id: swapRequest.id,
+                    rejected: true,
+                });
+                res.status(200).json(swapRequest);
+            } else {
+                res.status(400).send({ message: 'Invalid Request' });
+            }
+        } catch (err) {
+            if (err instanceof TokenExpiredError || err instanceof JsonWebTokenError) {
+                res.status(401).send({ message: 'Unauthorized' });
+            } else {
+                res.status(503).send({ message: 'Server error, try again later' });
+            }
+            next(err);
+        }
+    },
+);
+
 router.delete(
     '/swap-requests/:requestId',
     async (req: Request, res: Response, next: NextFunction) => {
