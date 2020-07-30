@@ -130,19 +130,6 @@ router.post(
     },
 );
 
-// router.post('/swap-notifications/receivingUsers', async (req: Request, res: Response, next: NextFunction) => {
-//     try {
-
-//     }catch (err) {
-//         if (err instanceof TokenExpiredError || err instanceof JsonWebTokenError) {
-//             res.status(401).send({ message: 'Unauthorized' });
-//         } else {
-//             res.status(503).send({ message: 'Server error, try again later' });
-//         }
-//         next(err);
-//     }
-// })
-
 router.delete(
     '/swap-notifications/:notificationId',
     async (req: Request, res: Response, next: NextFunction) => {
