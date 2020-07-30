@@ -15,7 +15,7 @@ module.exports = router;
 
 router.get('/swap-requests', async (req: Request, res: Response, next: NextFunction) => {
     try {
-        // jwt.verify(req.headers.authorization, cert);
+        jwt.verify(req.headers.authorization, cert);
         let searchParams: object = [];
         if (typeof req.query.taskId === 'string') searchParams = [req.query.taskId];
         else searchParams = req.query.taskId;
