@@ -4,6 +4,7 @@ export interface TaskAttributes {
     id?: number;
     ChurchId?: number;
     UserId?: number;
+    RoleId?: number;
     date: Date;
     createdAt?: Date;
     updatedAt?: Date;

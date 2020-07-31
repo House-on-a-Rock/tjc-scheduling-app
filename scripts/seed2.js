@@ -137,89 +137,67 @@ const roles = [
 ];
 const tasks = [
     {
-        date: helper
-            .setDate('2020', '05', '06', '10', '30', '00', 'America/New_York')
-            .toString(),
+        date: helper.setDate('2020-05-06', '10:30:00', 'America/New_York').toString(),
         UserId: 1,
         RoleId: 2,
         ChurchId: 3,
     },
     {
-        date: helper
-            .setDate('2020', '05', '06', '10', '30', '00', 'America/New_York')
-            .toString(),
+        date: helper.setDate('2020-05-06', '10:30:00', 'America/New_York').toString(),
         UserId: 2,
         RoleId: 2,
         ChurchId: 4,
     },
     {
-        date: helper
-            .setDate('2020', '05', '06', '10', '30', '00', 'America/New_York')
-            .toString(),
+        date: helper.setDate('2020-05-06', '10:30:00', 'America/New_York').toString(),
         UserId: 3,
         RoleId: 3,
         ChurchId: 1,
     },
     {
-        date: helper
-            .setDate('2020', '04', '06', '10', '30', '00', 'America/New_York')
-            .toString(),
+        date: helper.setDate('2020-04-06', '10:30:00', 'America/New_York').toString(),
         UserId: 2,
         RoleId: 3,
         ChurchId: 4,
     },
     {
-        date: helper
-            .setDate('2020', '05', '12', '10', '30', '00', 'America/New_York')
-            .toString(),
+        date: helper.setDate('2020-05-12', '10:30:00', 'America/New_York').toString(),
         UserId: 2,
         RoleId: 2,
         ChurchId: 4,
     },
     {
-        date: helper
-            .setDate('2020', '05', '16', '10', '30', '00', 'America/New_York')
-            .toString(),
+        date: helper.setDate('2020-05-16', '10:30:00', 'America/New_York').toString(),
         UserId: 1,
         RoleId: 1,
         ChurchId: 3,
     },
     {
-        date: helper
-            .setDate('2020', '05', '16', '10', '30', '00', 'America/New_York')
-            .toString(),
+        date: helper.setDate('2020-05-16', '10:30:00', 'America/New_York').toString(),
         UserId: 1,
         RoleId: 2,
         ChurchId: 3,
     },
     {
-        date: helper
-            .setDate('2020', '05', '16', '10', '30', '00', 'America/New_York')
-            .toString(),
+        date: helper.setDate('2020-05-16', '10:30:00', 'America/New_York').toString(),
         UserId: 1,
         RoleId: 3,
         ChurchId: 3,
     },
     {
-        date: helper
-            .setDate('2020', '05', '16', '10', '30', '00', 'America/New_York')
-            .toString(),
+        date: helper.setDate('2020-05-16', '10:30:00', 'America/New_York').toString(),
         UserId: 1,
         RoleId: 1,
         ChurchId: 3,
     },
     {
-        date: helper
-            .setDate('2020', '06', '01', '10', '30', '00', 'America/New_York')
-            .toString(),
+        date: helper.setDate('2020-06-01', '10:30:00', 'America/New_York').toString(),
         UserId: 1,
         RoleId: 3,
         ChurchId: 3,
     },
     {
-        date: helper
-            .setDate('2020', '05', '21', '10', '30', '00', 'America/New_York')
-            .toString(),
+        date: helper.setDate('2020-05-21', '10:30:00', 'America/New_York').toString(),
         UserId: 1,
         RoleId: 4,
         ChurchId: 3,

@@ -3,6 +3,7 @@ import Sequelize from 'sequelize';
 import fs from 'fs';
 import jwt, { TokenExpiredError, JsonWebTokenError } from 'jsonwebtoken';
 import db from '../index';
+import helper from '../helper_functions';
 
 const router = express.Router();
 const { Op } = Sequelize;
@@ -80,8 +81,29 @@ router.get('/tasks/:taskId', async (req: Request, res: Response, next: NextFunct
 router.post('/tasks', async (req: Request, res: Response, next: NextFunction) => {
     try {
         jwt.verify(req.headers.authorization, cert);
+        const userId = jwt
+            .decode(req.headers.authorization, { json: true })
+            .sub.split('|')[1];
+        const userData = await db.User.findOne({
+            where: { id: userId },
+            include: [
+                {
+                    model: db.Church,
+                    as: 'church',
+                    attributes: ['id', 'name', 'address', 'timeZone'],
+                },
+            ],
+        });
+        const date = helper.setDate(
+            req.body.date,
+            req.body.time,
+            userData.church.timeZone,
+        );
         const task = await db.Task.create({
-            date: req.body.date,
+            date: new Date(date.toString()),
+            ChurchId: userData.church.id,
+            RoleId: req.body.roleId,
+            UserId: parseInt(userId, 10),
         });
         res.status(201).send(task);
     } catch (err) {
