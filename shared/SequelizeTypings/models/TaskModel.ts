@@ -4,7 +4,7 @@ export interface TaskAttributes {
     id?: number;
     ChurchId?: number;
     UserId?: number;
-    date: string;
+    date: Date;
     createdAt?: Date;
     updatedAt?: Date;
 }

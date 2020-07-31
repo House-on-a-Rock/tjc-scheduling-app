@@ -5,6 +5,7 @@ export interface ChurchAttributes {
     name: string;
     address: string;
     description: string;
+    timeZone: string;
     createdAt?: Date;
     updatedAt?: Date;
 }
