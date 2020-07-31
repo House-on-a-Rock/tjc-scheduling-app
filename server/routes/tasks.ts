@@ -16,7 +16,7 @@ module.exports = router;
 
 router.get('/tasks', async (req: Request, res: Response, next: NextFunction) => {
     try {
-        jwt.verify(req.headers.authorization, cert);
+        // jwt.verify(req.headers.authorization, cert);
         const searchArray = [];
         if (req.query.userId) {
             searchArray.push({ UserId: req.query.userId });
@@ -43,6 +43,7 @@ router.get('/tasks', async (req: Request, res: Response, next: NextFunction) => 
                     attributes: ['name'],
                 },
             ],
+            order: [['date', 'ASC']],
         });
         if (tasks) {
             res.status(200).json(tasks);
