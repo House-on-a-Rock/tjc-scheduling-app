@@ -1,5 +1,6 @@
 import express, { Request, Response, NextFunction } from 'express';
 import Sequelize from 'sequelize';
+import axios from 'axios';
 import fs from 'fs';
 import jwt, { TokenExpiredError, JsonWebTokenError } from 'jsonwebtoken';
 import db from '../index';
@@ -97,10 +98,30 @@ router.post('/swap-requests', async (req: Request, res: Response, next: NextFunc
             where: { id: req.body.taskId },
         });
         if (doesTaskExist) {
-            const newRequest = await db.SwapRequest.create({
+            const createRequest = await db.SwapRequest.create({
                 requesteeUserId: requesteeUserId,
                 type: type,
                 TaskId: req.body.taskId,
+            });
+            const newRequest = await db.SwapRequest.findOne({
+                where: { id: createRequest.id },
+                include: [
+                    {
+                        model: db.Task,
+                        as: 'task',
+                        attributes: ['id', 'UserId'],
+                    },
+                ],
+            }).then((request) => {
+                axios.post(
+                    `http://${process.env.SECRET_IP}/api/swap-notifications`,
+                    {
+                        requestId: request.id,
+                        userId: request.task.UserId,
+                        notification: 'created',
+                    },
+                    { headers: { authorization: req.headers.authorization } },
+                );
             });
             res.status(201).json(newRequest);
         } else {
@@ -122,16 +143,16 @@ router.patch(
         try {
             jwt.verify(req.headers.authorization, cert);
             const decodedToken = jwt.decode(req.headers.authorization, { json: true });
-            const requesterId = decodedToken.sub.split('|')[1];
+            const acceptingUserId = decodedToken.sub.split('|')[1];
             const swapRequest = await db.SwapRequest.findOne({
                 where: { id: req.params.requestId },
-                attributes: [
-                    'id',
-                    'requesteeUserId',
-                    'type',
-                    'accepted',
-                    'approved',
-                    'TaskId',
+                attributes: ['id', 'requesteeUserId', 'type', 'accepted', 'approved'],
+                include: [
+                    {
+                        model: db.Task,
+                        as: 'task',
+                        attributes: ['id', 'UserId'],
+                    },
                 ],
             });
             if (!swapRequest) res.status(404).send({ message: 'Swap request not found' });
@@ -140,22 +161,47 @@ router.patch(
                 !swapRequest.approved &&
                 swapRequest.type === 'requestAll'
             ) {
-                swapRequest.update({
-                    id: swapRequest.id,
-                    accepted: true,
-                    requesteeUserId: requesterId,
-                });
+                swapRequest
+                    .update({
+                        id: swapRequest.id,
+                        accepted: true,
+                        requesteeUserId: acceptingUserId,
+                    })
+                    .then(() => {
+                        axios.post(
+                            `http://${process.env.SECRET_IP}/api/swap-notifications`,
+                            {
+                                requestId: swapRequest.id,
+                                userId: swapRequest.task.UserId,
+                                notification: 'accepted',
+                            },
+                            { headers: { authorization: req.headers.authorization } },
+                        );
+                    });
+
                 res.status(202).json(swapRequest);
             } else if (
                 !swapRequest.accepted &&
                 !swapRequest.approved &&
                 swapRequest.type === 'requestOne' &&
-                requesterId === swapRequest.requesteeUserId.toString()
+                acceptingUserId === swapRequest.requesteeUserId.toString()
             ) {
-                swapRequest.update({
-                    id: swapRequest.id,
-                    accepted: true,
-                });
+                swapRequest
+                    .update({
+                        id: swapRequest.id,
+                        accepted: true,
+                    })
+                    .then(() => {
+                        axios.post(
+                            `http://${process.env.SECRET_IP}/api/swap-notifications`,
+                            {
+                                requestId: swapRequest.id,
+                                userId: swapRequest.task.UserId,
+                                notification: 'accepted',
+                            },
+                            { headers: { authorization: req.headers.authorization } },
+                        );
+                    });
                 res.status(202).json(swapRequest);
             } else {
                 res.status(400).send({ message: 'Invalid Request' });
@@ -179,21 +225,33 @@ router.patch(
             // const decodedToken = jwt.decode(req.headers.authorization, { json: true });
             const swapRequest = await db.SwapRequest.findOne({
                 where: { id: req.params.requestId },
-                attributes: [
-                    'id',
-                    'requesteeUserId',
-                    'type',
-                    'accepted',
-                    'approved',
-                    'TaskId',
+                attributes: ['id', 'requesteeUserId', 'type', 'accepted', 'approved'],
+                include: [
+                    {
+                        model: db.Task,
+                        as: 'task',
+                        attributes: ['id', 'UserId'],
+                    },
                 ],
             });
             if (!swapRequest) res.status(404).send({ message: 'Swap request not found' });
             if (!swapRequest.approved && swapRequest.accepted) {
-                swapRequest.update({
-                    id: swapRequest.id,
-                    approved: true,
-                });
+                swapRequest
+                    .update({
+                        id: swapRequest.id,
+                        approved: true,
+                    })
+                    .then(() => {
+                        axios.post(
+                            `http://${process.env.SECRET_IP}/api/swap-notifications`,
+                            {
+                                requestId: swapRequest.id,
+                                userId: swapRequest.task.UserId,
+                                notification: 'approved',
+                            },
+                            { headers: { authorization: req.headers.authorization } },
+                        );
+                    });
                 res.status(200).json(swapRequest);
             } else {
                 res.status(400).send({ message: 'Invalid Request' });
@@ -217,21 +275,33 @@ router.patch(
             // const decodedToken = jwt.decode(req.headers.authorization, { json: true });
             const swapRequest = await db.SwapRequest.findOne({
                 where: { id: req.params.requestId },
-                attributes: [
-                    'id',
-                    'requesteeUserId',
-                    'type',
-                    'accepted',
-                    'approved',
-                    'TaskId',
+                attributes: ['id', 'requesteeUserId', 'type', 'accepted', 'approved'],
+                include: [
+                    {
+                        model: db.Task,
+                        as: 'task',
+                        attributes: ['id', 'UserId'],
+                    },
                 ],
             });
             if (!swapRequest) res.status(404).send({ message: 'Swap request not found' });
             if (!swapRequest.approved && !swapRequest.accepted) {
-                swapRequest.update({
-                    id: swapRequest.id,
-                    rejected: true,
-                });
+                swapRequest
+                    .update({
+                        id: swapRequest.id,
+                        rejected: true,
+                    })
+                    .then(() => {
+                        axios.post(
+                            `http://${process.env.SECRET_IP}/api/swap-notifications`,
+                            {
+                                requestId: swapRequest.id,
+                                userId: swapRequest.task.UserId,
+                                notification: 'cancelled',
+                            },
+                            { headers: { authorization: req.headers.authorization } },
+                        );
+                    });
                 res.status(200).json(swapRequest);
             } else {
                 res.status(400).send({ message: 'Invalid Request' });

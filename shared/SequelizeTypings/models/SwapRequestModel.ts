@@ -1,4 +1,5 @@
 import * as Sequelize from 'sequelize';
+import { TaskAttributes } from './TaskModel';
 
 export interface SwapRequestAttributes {
     id?: number;
@@ -8,6 +9,7 @@ export interface SwapRequestAttributes {
     accepted?: boolean;
     approved?: boolean;
     rejected?: boolean;
+    task?: TaskAttributes;
     createdAt?: Date;
     updatedAt?: Date;
 }

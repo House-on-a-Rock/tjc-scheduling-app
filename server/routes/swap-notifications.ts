@@ -57,13 +57,13 @@ router.post(
             let message = '';
             const swapRequest = await db.SwapRequest.findOne({
                 where: { id: req.body.requestId },
-                attributes: [
-                    'id',
-                    'requesteeUserId',
-                    'type',
-                    'accepted',
-                    'approved',
-                    'TaskId',
+                attributes: ['id', 'requesteeUserId', 'type', 'accepted', 'approved'],
+                include: [
+                    {
+                        model: db.Task,
+                        as: 'task',
+                        attributes: ['id', 'UserId'],
+                    },
                 ],
             });
             const requesteeUser = await db.User.findOne({
