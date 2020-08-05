@@ -112,9 +112,9 @@ router.post('/swap-requests', async (req: Request, res: Response, next: NextFunc
                         attributes: ['id', 'UserId'],
                     },
                 ],
-            }).then((request) => {
-                axios.post(
-                    `http://${process.env.SECRET_IP}/api/swap-notifications`,
+            }).then(async (request) => {
+                await axios.post(
+                    `${process.env.SECRET_IP}api/swap-notifications`,
                     {
                         requestId: request.id,
                         userId: request.task.UserId,
@@ -169,7 +169,7 @@ router.patch(
                     })
                     .then(() => {
                         axios.post(
-                            `http://${process.env.SECRET_IP}/api/swap-notifications`,
+                            `${process.env.SECRET_IP}api/swap-notifications`,
                             {
                                 requestId: swapRequest.id,
                                 userId: swapRequest.task.UserId,
@@ -193,7 +193,7 @@ router.patch(
                     })
                     .then(() => {
                         axios.post(
-                            `http://${process.env.SECRET_IP}/api/swap-notifications`,
+                            `${process.env.SECRET_IP}api/swap-notifications`,
                             {
                                 requestId: swapRequest.id,
                                 userId: swapRequest.task.UserId,
@@ -243,7 +243,7 @@ router.patch(
                     })
                     .then(() => {
                         axios.post(
-                            `http://${process.env.SECRET_IP}/api/swap-notifications`,
+                            `${process.env.SECRET_IP}api/swap-notifications`,
                             {
                                 requestId: swapRequest.id,
                                 userId: swapRequest.task.UserId,
@@ -293,7 +293,7 @@ router.patch(
                     })
                     .then(() => {
                         axios.post(
-                            `http://${process.env.SECRET_IP}/api/swap-notifications`,
+                            `${process.env.SECRET_IP}api/swap-notifications`,
                             {
                                 requestId: swapRequest.id,
                                 userId: swapRequest.task.UserId,

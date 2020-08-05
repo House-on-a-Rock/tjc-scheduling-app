@@ -91,14 +91,15 @@ router.post(
                     message = `Your request to switch has been cancelled`;
                     break;
                 case 'created':
-                    message = `Request sent to ${requesteeUser.firstName}`;
                     if (swapRequest.type === 'requestOne') {
+                        message = `Request sent to ${requesteeUser.firstName}`;
                         await db.SwapNotification.create({
                             userId: requesteeUser.id,
                             message: `${requestingUser.firstName} wants to switch with you`,
                             RequestId: req.body.requestId,
                         });
                     } else {
+                        message = `Request sent to all local church members`;
                         localChurchUsers.map(async (user) => {
                             await db.SwapNotification.create({
                                 userId: user.id,
