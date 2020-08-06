@@ -30,7 +30,7 @@ router.get('/tasks', async (req: Request, res: Response, next: NextFunction) => 
         };
         const tasks = await db.Task.findAll({
             where: searchParams,
-            attributes: ['id', 'UserId', 'RoleId', 'date', 'createdAt'],
+            attributes: [['id', 'taskId'], 'UserId', 'RoleId', 'date', 'createdAt'],
             include: [
                 {
                     model: db.Role,
