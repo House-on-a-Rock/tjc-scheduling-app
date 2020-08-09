@@ -54,7 +54,6 @@ router.post(
     async (req: Request, res: Response, next: NextFunction) => {
         try {
             jwt.verify(req.headers.authorization, cert);
-            let message = '';
             const swapRequest = await db.SwapRequest.findOne({
                 where: { id: req.body.requestId },
                 attributes: [
@@ -80,6 +79,7 @@ router.post(
             });
             if (!swapRequest)
                 return res.status(404).send({ message: 'Swap request not found' });
+            let message = '';
             switch (req.body.notification) {
                 case 'accepted':
                     message = `Your requested has been accepted by ${requesteeUser.firstName}`;
@@ -92,6 +92,8 @@ router.post(
                     break;
                 case 'created':
                     message = `Request sent to ${requesteeUser.firstName}`;
+                    // if it is a single request, send a notifications to the person asked to switch
+                    // if it is a broadcast request, send a notification to all local church members
                     if (swapRequest.type === 'requestOne') {
                         await db.SwapNotification.create({
                             userId: requesteeUser.id,
