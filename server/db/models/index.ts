@@ -8,6 +8,7 @@ import TeamFactory from './Team';
 import UserRoleFactory from './User_Role';
 import TokenFactory from './Token';
 import SwapRequestFactory from './SwapRequest';
+import SwapNotificationFactory from './SwapNotification';
 
 const createModels = (database, username, password, config): DbInterface => {
     const sequelize = new Sequelize(database, username, password, config);
@@ -23,6 +24,7 @@ const createModels = (database, username, password, config): DbInterface => {
         UserRole: UserRoleFactory(sequelize, Sequelize),
         Token: TokenFactory(sequelize, Sequelize),
         SwapRequest: SwapRequestFactory(sequelize, Sequelize),
+        SwapNotification: SwapNotificationFactory(sequelize, Sequelize),
     };
 
     Object.keys(db).forEach((modelName) => {

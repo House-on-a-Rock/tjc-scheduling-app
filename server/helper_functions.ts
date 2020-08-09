@@ -1,6 +1,7 @@
 import nodemailer from 'nodemailer';
 import jwt, { Algorithm } from 'jsonwebtoken';
 import fs from 'fs';
+import { DateTime } from 'luxon';
 import { privateEncrypt } from 'crypto';
 
 const privateKey = fs.readFileSync('tjcschedule.pem');
@@ -109,6 +110,9 @@ const funcs = {
             return true;
         }
         return false;
+    },
+    setDate(date: string, time: string, timeZone: string) {
+        return DateTime.fromISO(`${date}T${time}`, { zone: timeZone });
     },
 };
 export default funcs;

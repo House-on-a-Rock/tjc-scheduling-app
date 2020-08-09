@@ -14,6 +14,8 @@ import {
     TokenAttributes,
     SwapRequestInstance,
     SwapRequestAttributes,
+    SwapNotificationAttributes,
+    SwapNotificationInstance,
 } from 'shared/SequelizeTypings/models';
 import { TeamInstance, TeamAttributes } from 'shared/SequelizeTypings/models/TeamModel';
 
@@ -28,4 +30,8 @@ export interface DbInterface {
     UserRole: Sequelize.Model<UserRoleInstance, UserRoleAttributes>;
     Token: Sequelize.Model<TokenInstance, TokenAttributes>;
     SwapRequest: Sequelize.Model<SwapRequestInstance, SwapRequestAttributes>;
+    SwapNotification: Sequelize.Model<
+        SwapNotificationInstance,
+        SwapNotificationAttributes
+    >;
 }

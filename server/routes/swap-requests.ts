@@ -13,8 +13,56 @@ fs.readFile('tjcschedule_pub.pem', function read(err, data) {
 });
 module.exports = router;
 
+router.get('/swap-requests', async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        jwt.verify(req.headers.authorization, cert);
+        const searchParams: number[] = [];
+        req.query.taskId
+            .toString()
+            .split(',')
+            .map((taskId) => {
+                searchParams.push(parseInt(taskId, 10));
+            });
+        console.log(searchParams);
+        const swapRequests = await db.SwapRequest.findAll({
+            where: {
+                TaskId: {
+                    [Op.or]: searchParams,
+                },
+                approved: false,
+            },
+            attributes: [
+                'id',
+                'requesteeUserId',
+                'type',
+                'accepted',
+                'approved',
+                'createdAt',
+                'TaskId',
+            ],
+        });
+        switch (swapRequests.length) {
+            case 0:
+                res.status(404).send({ message: 'Swap requests not found' });
+                break;
+            case 1:
+                res.status(200).json(swapRequests[0]);
+                break;
+            default:
+                res.status(200).json(swapRequests);
+        }
+    } catch (err) {
+        if (err instanceof TokenExpiredError || err instanceof JsonWebTokenError) {
+            res.status(401).send({ message: 'Unauthorized' });
+        } else {
+            res.status(503).send({ message: 'Server error, try again later' });
+        }
+        next(err);
+    }
+});
+
 router.get(
-    '/swap-request/:requestId',
+    '/swap-requests/:requestId',
     async (req: Request, res: Response, next: NextFunction) => {
         try {
             jwt.verify(req.headers.authorization, cert);
@@ -36,7 +84,7 @@ router.get(
     },
 );
 
-router.post('/swap-request', async (req: Request, res: Response, next: NextFunction) => {
+router.post('/swap-requests', async (req: Request, res: Response, next: NextFunction) => {
     try {
         jwt.verify(req.headers.authorization, cert);
         let requesteeUserId: number = null;
@@ -69,7 +117,7 @@ router.post('/swap-request', async (req: Request, res: Response, next: NextFunct
 });
 
 router.patch(
-    '/swap-request/accept/:requestId',
+    '/swap-requests/accept/:requestId',
     async (req: Request, res: Response, next: NextFunction) => {
         try {
             jwt.verify(req.headers.authorization, cert);
@@ -124,7 +172,7 @@ router.patch(
 );
 
 router.patch(
-    '/swap-request/approve/:requestId',
+    '/swap-requests/approve/:requestId',
     async (req: Request, res: Response, next: NextFunction) => {
         try {
             jwt.verify(req.headers.authorization, cert);
@@ -161,8 +209,46 @@ router.patch(
     },
 );
 
+router.patch(
+    '/swap-requests/reject/:requestId',
+    async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            jwt.verify(req.headers.authorization, cert);
+            // const decodedToken = jwt.decode(req.headers.authorization, { json: true });
+            const swapRequest = await db.SwapRequest.findOne({
+                where: { id: req.params.requestId },
+                attributes: [
+                    'id',
+                    'requesteeUserId',
+                    'type',
+                    'accepted',
+                    'approved',
+                    'TaskId',
+                ],
+            });
+            if (!swapRequest) res.status(404).send({ message: 'Swap request not found' });
+            if (!swapRequest.approved && !swapRequest.accepted) {
+                swapRequest.update({
+                    id: swapRequest.id,
+                    rejected: true,
+                });
+                res.status(200).json(swapRequest);
+            } else {
+                res.status(400).send({ message: 'Invalid Request' });
+            }
+        } catch (err) {
+            if (err instanceof TokenExpiredError || err instanceof JsonWebTokenError) {
+                res.status(401).send({ message: 'Unauthorized' });
+            } else {
+                res.status(503).send({ message: 'Server error, try again later' });
+            }
+            next(err);
+        }
+    },
+);
+
 router.delete(
-    '/swap-request/:requestId',
+    '/swap-requests/:requestId',
     async (req: Request, res: Response, next: NextFunction) => {
         try {
             jwt.verify(req.headers.authorization, cert);

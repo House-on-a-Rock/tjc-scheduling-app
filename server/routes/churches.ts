@@ -43,6 +43,7 @@ router.post('/churches', async (req: Request, res: Response, next: NextFunction)
             name: req.body.name,
             address: req.body.address,
             description: req.body.description,
+            timezone: req.body.timeZone,
         });
         res.status(201).send(church);
     } catch (err) {

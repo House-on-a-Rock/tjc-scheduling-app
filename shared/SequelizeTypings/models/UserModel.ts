@@ -1,5 +1,6 @@
 import * as Sequelize from 'sequelize';
 import { RoleAttributes } from './RoleModel';
+import { ChurchAttributes } from './ChurchModel';
 
 export interface UserAttributes {
     id?: number;
@@ -16,6 +17,7 @@ export interface UserAttributes {
     createdAt?: Date | null;
     updatedAt?: Date | null;
     duty?: RoleAttributes[] | RoleAttributes['id'];
+    church?: ChurchAttributes;
 }
 
 export interface UserInstance

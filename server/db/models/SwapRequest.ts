@@ -20,6 +20,10 @@ const SwapRequestFactory = (
             type: DataTypes.BOOLEAN,
             defaultValue: false,
         },
+        rejected: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: false,
+        },
     };
 
     const SwapRequest = sequelize.define<SwapRequestInstance, SwapRequestAttributes>(

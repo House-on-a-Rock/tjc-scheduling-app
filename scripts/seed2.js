@@ -1,3 +1,5 @@
+import helper from '../server/helper_functions';
+
 const { green, red, blue } = require('chalk');
 const createModels = require('../server/db/models').default;
 
@@ -22,31 +24,37 @@ const churches = [
         name: 'Hillsborough',
         address: '335 Amwell Road, Hillsborough NJ 08844',
         description: 'A church in New Jersey',
+        timeZone: 'America/New_York',
     },
     {
         name: 'Philadelphia',
         address: '660 E Township Line Road, Havertown PA 19083',
         description: 'A church in Philly',
+        timeZone: 'America/New_York',
     },
     {
         name: 'Elizabeth',
         address: '339 Elmora Ave, Elizabeth NJ 07208',
         description: 'Another church in New Jersey',
+        timeZone: 'America/New_York',
     },
     {
         name: 'Adams Road',
         address: '17D Adam Rd, Singapore 289890',
         description: 'Biggest church in Singapore',
+        timeZone: 'Asia/Singapore',
     },
     {
         name: 'Toronto',
         address: '69 Sunrise Ave, North York, ON M4A 1A9, Canada',
         description: 'Biggest church in East Canada',
+        timeZone: 'America/Toronto',
     },
     {
         name: 'San Diego',
         address: '8081 Mira Mesa Blvd, San Diego, CA 92126',
         description: 'House of Prayer in SD',
+        timeZone: 'America/Los_Angeles',
     },
 ];
 
@@ -129,67 +137,67 @@ const roles = [
 ];
 const tasks = [
     {
-        date: '2020-05-06',
+        date: helper.setDate('2020-05-06', '10:30:00', 'America/New_York').toString(),
         UserId: 1,
         RoleId: 2,
         ChurchId: 3,
     },
     {
-        date: '2020-05-06',
+        date: helper.setDate('2020-05-06', '10:30:00', 'America/New_York').toString(),
         UserId: 2,
         RoleId: 2,
         ChurchId: 4,
     },
     {
-        date: '2020-05-06',
+        date: helper.setDate('2020-05-06', '10:30:00', 'America/New_York').toString(),
         UserId: 3,
         RoleId: 3,
         ChurchId: 1,
     },
     {
-        date: '2020-04-06',
+        date: helper.setDate('2020-04-06', '10:30:00', 'America/New_York').toString(),
         UserId: 2,
         RoleId: 3,
         ChurchId: 4,
     },
     {
-        date: '2020-05-12',
+        date: helper.setDate('2020-05-12', '10:30:00', 'America/New_York').toString(),
         UserId: 2,
         RoleId: 2,
         ChurchId: 4,
     },
     {
-        date: '2020-05-16',
+        date: helper.setDate('2020-05-16', '10:30:00', 'America/New_York').toString(),
         UserId: 1,
         RoleId: 1,
         ChurchId: 3,
     },
     {
-        date: '2020-05-16',
+        date: helper.setDate('2020-05-16', '10:30:00', 'America/New_York').toString(),
         UserId: 1,
         RoleId: 2,
         ChurchId: 3,
     },
     {
-        date: '2020-05-16',
+        date: helper.setDate('2020-05-16', '10:30:00', 'America/New_York').toString(),
         UserId: 1,
         RoleId: 3,
         ChurchId: 3,
     },
     {
-        date: '2020-05-16',
+        date: helper.setDate('2020-05-16', '10:30:00', 'America/New_York').toString(),
         UserId: 1,
         RoleId: 1,
         ChurchId: 3,
     },
     {
-        date: '2020-06-01',
+        date: helper.setDate('2020-06-01', '10:30:00', 'America/New_York').toString(),
         UserId: 1,
         RoleId: 3,
         ChurchId: 3,
     },
     {
-        date: '2020-05-21',
+        date: helper.setDate('2020-05-21', '10:30:00', 'America/New_York').toString(),
         UserId: 1,
         RoleId: 4,
         ChurchId: 3,

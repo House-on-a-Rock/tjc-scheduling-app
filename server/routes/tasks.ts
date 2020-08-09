@@ -3,6 +3,7 @@ import Sequelize from 'sequelize';
 import fs from 'fs';
 import jwt, { TokenExpiredError, JsonWebTokenError } from 'jsonwebtoken';
 import db from '../index';
+import helper from '../helper_functions';
 
 const router = express.Router();
 const { Op } = Sequelize;
@@ -15,62 +16,59 @@ module.exports = router;
 
 router.get('/tasks', async (req: Request, res: Response, next: NextFunction) => {
     try {
-        jwt.verify(req.headers.authorization, cert);
-        if (req.query.userId && !req.query.taskId) {
-            const tasks = await db.Task.findAll({
-                where: {
-                    UserId: req.query.userId.toString(),
-                    // ChurchId: req.query.id.toString(),
-                    date: {
-                        // TODO pass in dates dynamically based on current date
-                        [Op.between]: [
-                            '2020-03-07T00:00:00.000Z',
-                            '2020-07-30T00:00:00.000Z',
-                        ],
-                    },
-                },
-                attributes: ['date', 'id'],
-                include: [
-                    {
-                        model: db.Role,
-                        as: 'role',
-                        attributes: ['name'],
-                    },
-                    {
-                        model: db.Church,
-                        as: 'church',
-                        attributes: ['name'],
-                    },
-                ],
-            });
-            if (tasks) {
-                res.status(200).json(tasks);
-            } else {
-                res.status(404).send({ message: 'Not found' });
-            }
-        } else if (req.query.taskId && !req.query.userId) {
-            const task = await db.Task.findOne({
-                where: { id: req.query.taskId.toString() },
-                attributes: ['UserId', 'date'],
-                include: [
-                    {
-                        model: db.Role,
-                        as: 'role',
-                        attributes: ['name'],
-                    },
-                    {
-                        model: db.Church,
-                        as: 'church',
-                        attributes: ['name'],
-                    },
-                ],
-            });
-            if (task) {
-                res.status(200).json(task);
-            } else {
-                res.status(404).send({ message: 'Not found' });
-            }
+        // jwt.verify(req.headers.authorization, cert);
+        const searchArray = [];
+        if (req.query.userId) {
+            searchArray.push({ UserId: req.query.userId });
+        } else if (req.query.churchId) {
+            searchArray.push({ ChurchId: req.query.churchId });
+        } else if (req.query.roleId) {
+            searchArray.push({ RoleId: req.query.roleId });
         }
+        const searchParams = {
+            [Op.and]: searchArray,
+        };
+        const tasks = await db.Task.findAll({
+            where: searchParams,
+            attributes: [['id', 'taskId'], 'UserId', 'RoleId', 'date', 'createdAt'],
+            include: [
+                {
+                    model: db.Role,
+                    as: 'role',
+                    attributes: ['name'],
+                },
+                {
+                    model: db.Church,
+                    as: 'church',
+                    attributes: ['name'],
+                },
+            ],
+            order: [['date', 'ASC']],
+        });
+        if (tasks) {
+            res.status(200).json(tasks);
+        } else {
+            res.status(404).send({ message: 'Not found' });
+        }
+    } catch (err) {
+        if (err instanceof TokenExpiredError || err instanceof JsonWebTokenError) {
+            res.status(401).send({ message: 'Unauthorized' });
+        } else {
+            res.status(503).send({ message: 'Server error, try again later' });
+        }
+        next(err);
+    }
+});
+
+router.get('/tasks/:taskId', async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        jwt.verify(req.headers.authorization, cert);
+        const task = await db.Task.findOne({
+            where: { taskId: req.params.taskId },
+            attributes: ['id', 'date', 'ChurchId', 'UserId', 'RoleId'],
+        });
+        if (task) res.status(200).json(task);
+        else res.status(404).send({ message: 'Task not found' });
     } catch (err) {
         if (err instanceof TokenExpiredError || err instanceof JsonWebTokenError) {
             res.status(401).send({ message: 'Unauthorized' });
@@ -84,8 +82,29 @@ router.get('/tasks', async (req: Request, res: Response, next: NextFunction) => 
 router.post('/tasks', async (req: Request, res: Response, next: NextFunction) => {
     try {
         jwt.verify(req.headers.authorization, cert);
+        const userId = jwt
+            .decode(req.headers.authorization, { json: true })
+            .sub.split('|')[1];
+        const userData = await db.User.findOne({
+            where: { id: userId },
+            include: [
+                {
+                    model: db.Church,
+                    as: 'church',
+                    attributes: ['id', 'name', 'address', 'timeZone'],
+                },
+            ],
+        });
+        const date = helper.setDate(
+            req.body.date,
+            req.body.time,
+            userData.church.timeZone,
+        );
         const task = await db.Task.create({
-            date: req.body.date,
+            date: new Date(date.toString()),
+            ChurchId: userData.church.id,
+            RoleId: req.body.roleId,
+            UserId: parseInt(userId, 10),
         });
         res.status(201).send(task);
     } catch (err) {

@@ -7,7 +7,7 @@ const TaskFactory = (
     DataTypes: Sequelize.DataTypes,
 ): Sequelize.Model<TaskInstance, TaskAttributes> => {
     const attributes: SequelizeAttributes<TaskAttributes> = {
-        date: { type: DataTypes.STRING },
+        date: { type: DataTypes.DATE },
     };
 
     const Task = sequelize.define<TaskInstance, TaskAttributes>('Task', attributes);
