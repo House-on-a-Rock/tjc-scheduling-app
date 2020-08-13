@@ -18,6 +18,7 @@ export interface UserAttributes {
     updatedAt?: Date | null;
     duty?: RoleAttributes[] | RoleAttributes['id'];
     church?: ChurchAttributes;
+    expoPushToken?: string;
 }
 
 export interface UserInstance

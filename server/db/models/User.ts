@@ -53,6 +53,10 @@ const UserFactory = (
             type: DataTypes.DATE,
             allowNull: true,
         },
+        expoPushToken: {
+            type: DataTypes.STRING,
+            allowNull: true,
+        },
     };
 
     const User = sequelize.define<UserInstance, UserAttributes>(
