@@ -194,22 +194,24 @@ router.delete('/users/:userId', async (req: Request, res: Response, next) => {
 });
 
 //updates expoPushToken on login, may need cleanup or be moved around
-router.post('/users/expoPushToken', async (req: Request, res: Response, next) => {
-    try {
-        jwt.verify(req.headers.authorization, cert);
-        const user = await db.User.findOne({
-            where: { id: req.body.userId },
-            attributes: ['id'],
-        });
-        if (user) {
-            user.update({ expoPushToken: req.body.pushToken });
-        } else res.status(404).send({ message: 'User not found' });
-    } catch (err) {
-        if (err instanceof TokenExpiredError || err instanceof JsonWebTokenError) {
-            res.status(401).send({ message: 'Unauthorized' });
-        } else {
-            res.status(503).send({ message: 'Server error, try again later' });
+router.patch(
+    '/users/expoPushToken/:userId',
+    async (req: Request, res: Response, next) => {
+        try {
+            jwt.verify(req.headers.authorization, cert);
+            const user = await db.User.findOne({
+                where: { id: req.params.userId },
+            });
+            if (user) {
+                user.update({ expoPushToken: req.body.pushToken });
+            } else res.status(404).send({ message: 'User not found' });
+        } catch (err) {
+            if (err instanceof TokenExpiredError || err instanceof JsonWebTokenError) {
+                res.status(401).send({ message: 'Unauthorized' });
+            } else {
+                res.status(503).send({ message: 'Server error, try again later' });
+            }
+            next(err);
         }
-        next(err);
-    }
-});
+    },
+);
