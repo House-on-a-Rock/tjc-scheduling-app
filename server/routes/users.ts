@@ -204,6 +204,7 @@ router.patch(
             });
             if (user) {
                 user.update({ expoPushToken: req.body.pushToken });
+                res.status(200).send({ messageg: 'Push Token updated' });
             } else res.status(404).send({ message: 'User not found' });
         } catch (err) {
             if (err instanceof TokenExpiredError || err instanceof JsonWebTokenError) {
