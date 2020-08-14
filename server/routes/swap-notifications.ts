@@ -13,6 +13,25 @@ fs.readFile('tjcschedule_pub.pem', function read(err, data) {
 });
 module.exports = router;
 
+/* use this to communicate to expo push server, which will send notification to device
+fetch('https://exp.host/--/api/v2/push/send', {
+            method: 'POST',
+            headers: {
+                Accept: 'application/json',
+                'Accept-Encoding': 'gzip, deflate',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                to: userPushToken,
+                data: {
+                    extraData: 'tsm sucks',
+                },
+                title: 'wow title',
+                body: 'uhhuhhuhuhuhhuhuhuhuh',
+            }),
+        });
+*/
+
 router.get(
     '/swap-notifications/:userId',
     async (req: Request, res: Response, next: NextFunction) => {

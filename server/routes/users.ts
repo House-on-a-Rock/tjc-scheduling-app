@@ -80,7 +80,14 @@ router.get('/users/:userId', async (req, res, next) => {
             where: {
                 id: parsedId,
             },
-            attributes: ['firstName', 'lastName', 'email', 'id', 'ChurchId'],
+            attributes: [
+                'firstName',
+                'lastName',
+                'email',
+                'id',
+                'ChurchId',
+                'expoPushToken',
+            ],
             include: [
                 {
                     model: db.Church,
@@ -175,6 +182,27 @@ router.delete('/users/:userId', async (req: Request, res: Response, next) => {
             await user.destroy().then(function () {
                 res.status(200).json(user);
             });
+        } else res.status(404).send({ message: 'User not found' });
+    } catch (err) {
+        if (err instanceof TokenExpiredError || err instanceof JsonWebTokenError) {
+            res.status(401).send({ message: 'Unauthorized' });
+        } else {
+            res.status(503).send({ message: 'Server error, try again later' });
+        }
+        next(err);
+    }
+});
+
+//updates expoPushToken on login, may need cleanup or be moved around
+router.post('/users/expoPushToken', async (req: Request, res: Response, next) => {
+    try {
+        jwt.verify(req.headers.authorization, cert);
+        const user = await db.User.findOne({
+            where: { id: req.body.userId },
+            attributes: ['id'],
+        });
+        if (user) {
+            user.update({ expoPushToken: req.body.pushToken });
         } else res.status(404).send({ message: 'User not found' });
     } catch (err) {
         if (err instanceof TokenExpiredError || err instanceof JsonWebTokenError) {

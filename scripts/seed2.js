@@ -66,6 +66,7 @@ const users = [
         password: 'password',
         isVerified: true,
         ChurchId: 2,
+        expoPushToken: null,
     },
     {
         firstName: 'Ted',
@@ -82,6 +83,7 @@ const users = [
         password: 'password3',
         isVerified: true,
         ChurchId: 6,
+        expoPushToken: 'ExponentPushToken[2CkbA5CQcxyiSNWT1oGvhC]',
     },
     {
         firstName: 'Geoff',
