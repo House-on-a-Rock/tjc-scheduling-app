@@ -114,5 +114,23 @@ const funcs = {
     setDate(date: string, time: string, timeZone: string) {
         return DateTime.fromISO(`${date}T${time}`, { zone: timeZone });
     },
+    sendPushNotification(userPushToken: string) {
+        fetch('https://exp.host/--/api/v2/push/send', {
+            method: 'POST',
+            headers: {
+                Accept: 'application/json',
+                'Accept-Encoding': 'gzip, deflate',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                to: userPushToken,
+                data: {
+                    extraData: 'tsm sucks',
+                },
+                title: 'wow title',
+                body: 'uhhuhhuhuhuhhuhuhuhuh',
+            }),
+        });
+    },
 };
 export default funcs;

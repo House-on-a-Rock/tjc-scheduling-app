@@ -3,6 +3,7 @@ import Sequelize from 'sequelize';
 import fs from 'fs';
 import jwt, { TokenExpiredError, JsonWebTokenError } from 'jsonwebtoken';
 import db from '../index';
+import helper from '../helper_functions';
 
 const router = express.Router();
 const { Op } = Sequelize;
@@ -12,25 +13,6 @@ fs.readFile('tjcschedule_pub.pem', function read(err, data) {
     cert = data;
 });
 module.exports = router;
-
-/* use this to communicate to expo push server, which will send notification to device
-fetch('https://exp.host/--/api/v2/push/send', {
-            method: 'POST',
-            headers: {
-                Accept: 'application/json',
-                'Accept-Encoding': 'gzip, deflate',
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                to: userPushToken,
-                data: {
-                    extraData: 'tsm sucks',
-                },
-                title: 'wow title',
-                body: 'uhhuhhuhuhuhhuhuhuhuh',
-            }),
-        });
-*/
 
 router.get(
     '/swap-notifications/:userId',
@@ -87,15 +69,15 @@ router.post(
             });
             const requesteeUser = await db.User.findOne({
                 where: { id: swapRequest.requesteeUserId },
-                attributes: ['id', 'firstName'],
+                attributes: ['id', 'firstName', 'expoPushToken'],
             });
             const requestingUser = await db.User.findOne({
                 where: { id: req.body.userId },
-                attributes: ['id', 'firstName', 'ChurchId'],
+                attributes: ['id', 'firstName', 'ChurchId', 'expoPushToken'],
             });
             const localChurchUsers = await db.User.findAll({
                 where: { ChurchId: requestingUser.ChurchId },
-                attributes: ['id', 'firstName'],
+                attributes: ['id', 'firstName', 'expoPushToken'],
             });
             if (!swapRequest)
                 return res.status(404).send({ message: 'Swap request not found' });
@@ -117,6 +99,7 @@ router.post(
                             message: `${requestingUser.firstName} wants to switch with you`,
                             RequestId: req.body.requestId,
                         });
+                        helper.sendPushNotification(requesteeUser.expoPushToken);
                     } else {
                         message = `Request sent to all local church members`;
                         localChurchUsers.map(async (user) => {
@@ -125,6 +108,7 @@ router.post(
                                 message: `${requestingUser.firstName} requested to switch with someone. An open request has been sent out.`,
                                 RequestId: req.body.requestId,
                             });
+                            helper.sendPushNotification(user.expoPushToken);
                         });
                     }
                     break;
@@ -138,6 +122,7 @@ router.post(
                 message: message,
                 RequestId: req.body.requestId,
             });
+            helper.sendPushNotification(requestingUser.expoPushToken);
             res.status(201).send({ message: 'Notifications created' });
         } catch (err) {
             if (err instanceof TokenExpiredError || err instanceof JsonWebTokenError) {
