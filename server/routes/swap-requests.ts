@@ -4,6 +4,7 @@ import axios from 'axios';
 import fs from 'fs';
 import jwt, { TokenExpiredError, JsonWebTokenError } from 'jsonwebtoken';
 import db from '../index';
+import helper from '../helper_functions';
 
 const router = express.Router();
 const { Op } = Sequelize;
@@ -124,6 +125,7 @@ router.post('/swap-requests', async (req: Request, res: Response, next: NextFunc
                 );
             });
             res.status(201).json(newRequest);
+            helper.sendPushNotification('ExponentPushToken[VnGlKQPuA7M9hiHTT8sX-G]');
         } else {
             res.status(404).send({ message: 'Task not found' });
         }

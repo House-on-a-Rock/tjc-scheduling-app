@@ -2,6 +2,7 @@ import nodemailer from 'nodemailer';
 import jwt, { Algorithm } from 'jsonwebtoken';
 import fs from 'fs';
 import { DateTime } from 'luxon';
+import fetch from 'node-fetch';
 import { privateEncrypt } from 'crypto';
 
 const privateKey = fs.readFileSync('tjcschedule.pem');
