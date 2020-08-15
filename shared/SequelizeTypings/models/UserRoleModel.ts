@@ -7,7 +7,7 @@ export interface UserRoleAttributes {
     id?: number;
     createdAt?: Date;
     updatedAt?: Date;
-    users?: UserAttributes['id'][];
+    UserId?: UserAttributes['id'];
     role?: RoleAttributes | RoleAttributes['id'];
     team?: TeamAttributes | TeamAttributes['id'];
     team_lead: boolean;

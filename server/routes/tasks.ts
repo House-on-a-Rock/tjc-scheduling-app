@@ -18,13 +18,10 @@ router.get('/tasks', async (req: Request, res: Response, next: NextFunction) => 
     try {
         // jwt.verify(req.headers.authorization, cert);
         const searchArray = [];
-        if (req.query.userId) {
-            searchArray.push({ UserId: req.query.userId });
-        } else if (req.query.churchId) {
-            searchArray.push({ ChurchId: req.query.churchId });
-        } else if (req.query.roleId) {
-            searchArray.push({ RoleId: req.query.roleId });
-        }
+        if (req.query.userId) searchArray.push({ UserId: req.query.userId });
+        if (req.query.churchId) searchArray.push({ ChurchId: req.query.churchId });
+        if (req.query.roleId) searchArray.push({ RoleId: req.query.roleId });
+
         const searchParams = {
             [Op.and]: searchArray,
         };

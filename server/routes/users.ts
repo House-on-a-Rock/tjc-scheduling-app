@@ -1,5 +1,6 @@
 import express, { Request, Response } from 'express';
 import fs from 'fs';
+import Sequelize from 'sequelize';
 import jwt, { TokenExpiredError, JsonWebTokenError } from 'jsonwebtoken';
 import crypto from 'crypto';
 import { UserInstance } from 'shared/SequelizeTypings/models';
@@ -7,6 +8,7 @@ import db from '../index';
 import helper from '../helper_functions';
 
 const router = express.Router();
+const { Op } = Sequelize;
 let cert;
 fs.readFile('tjcschedule_pub.pem', function read(err, data) {
     if (err) throw err;
@@ -17,51 +19,40 @@ module.exports = router;
 
 router.get('/users', async (req: Request, res: Response, next) => {
     try {
-        jwt.verify(req.headers.authorization, cert);
-        if (req.query.churchId) {
-            const users: UserInstance[] = await db.User.findAll({
-                where: {
-                    ChurchId: req.query.churchId.toString(),
-                },
-                attributes: [
-                    'id',
-                    'firstName',
-                    'lastName',
-                    'email',
-                    'ChurchId',
-                    'disabled',
-                ],
-                include: [
-                    {
-                        model: db.Church,
-                        as: 'church',
-                        attributes: ['name'],
-                    },
-                ],
+        // jwt.verify(req.headers.authorization, cert);
+        const searchArray = [];
+        if (req.query.churchId) searchArray.push({ ChurchId: req.query.churchId });
+        if (req.query.roleId) {
+            const userRoles = await db.UserRole.findAll({
+                where: { RoleId: req.query.roleId },
+                attributes: ['UserId'],
             });
-            if (users) res.status(200).json(users);
-            else res.status(404).send({ message: 'Not found' });
-        } else {
-            const users: UserInstance[] = await db.User.findAll({
-                attributes: [
-                    'id',
-                    'firstName',
-                    'lastName',
-                    'email',
-                    'ChurchId',
-                    'disabled',
-                ],
-                include: [
-                    {
-                        model: db.Church,
-                        as: 'church',
-                        attributes: ['name'],
-                    },
-                ],
+            if (userRoles.length === 0)
+                return res
+                    .status(404)
+                    .send({ message: 'No users found with that role id' });
+            const userIds = userRoles.map((userRole) => {
+                return userRole.UserId;
             });
-            if (users) res.status(200).json(users);
-            else res.status(404).send({ message: 'Not found' });
+            searchArray.push({ id: userIds });
         }
+        const searchParams = {
+            [Op.and]: searchArray,
+        };
+        console.log(searchParams);
+        const users: UserInstance[] = await db.User.findAll({
+            where: searchParams,
+            attributes: ['id', 'firstName', 'lastName', 'email', 'ChurchId', 'disabled'],
+            include: [
+                {
+                    model: db.Church,
+                    as: 'church',
+                    attributes: ['name'],
+                },
+            ],
+        });
+        if (users.length > 0) res.status(200).json(users);
+        else res.status(404).send({ message: 'Not found' });
     } catch (err) {
         if (err instanceof TokenExpiredError || err instanceof JsonWebTokenError) {
             res.status(401).send({ message: 'Unauthorized' });
