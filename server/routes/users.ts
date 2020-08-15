@@ -19,7 +19,7 @@ module.exports = router;
 
 router.get('/users', async (req: Request, res: Response, next) => {
     try {
-        // jwt.verify(req.headers.authorization, cert);
+        jwt.verify(req.headers.authorization, cert);
         const searchArray = [];
         if (req.query.churchId) searchArray.push({ ChurchId: req.query.churchId });
         if (req.query.roleId) {
