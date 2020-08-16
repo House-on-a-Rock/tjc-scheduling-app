@@ -99,7 +99,11 @@ router.post(
                             message: `${requestingUser.firstName} wants to switch with you`,
                             RequestId: req.body.requestId,
                         });
-                        helper.sendPushNotification(requesteeUser.expoPushToken);
+                        helper.sendPushNotification(
+                            requesteeUser.expoPushToken,
+                            'Request Notification',
+                            message,
+                        );
                     } else {
                         message = `Request sent to all local church members`;
                         localChurchUsers.map(async (user) => {
@@ -108,7 +112,11 @@ router.post(
                                 message: `${requestingUser.firstName} requested to switch with someone. An open request has been sent out.`,
                                 RequestId: req.body.requestId,
                             });
-                            helper.sendPushNotification(user.expoPushToken);
+                            helper.sendPushNotification(
+                                user.expoPushToken,
+                                'Request Notification',
+                                `${requestingUser.firstName} requested to switch with someone. An open request has been sent out.`,
+                            );
                         });
                     }
                     break;
@@ -122,7 +130,11 @@ router.post(
                 message: message,
                 RequestId: req.body.requestId,
             });
-            helper.sendPushNotification(requestingUser.expoPushToken);
+            helper.sendPushNotification(
+                requestingUser.expoPushToken,
+                'Request Notification',
+                message,
+            );
             res.status(201).send({ message: 'Notifications created' });
         } catch (err) {
             if (err instanceof TokenExpiredError || err instanceof JsonWebTokenError) {
