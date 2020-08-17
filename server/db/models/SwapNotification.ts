@@ -12,6 +12,7 @@ const SwapNotificationFactory = (
     const attributes: SequelizeAttributes<SwapNotificationAttributes> = {
         userId: { type: DataTypes.INTEGER },
         message: { type: DataTypes.STRING },
+        isRead: { type: DataTypes.BOOLEAN, defaultValue: false },
     };
 
     const SwapNotification = sequelize.define<

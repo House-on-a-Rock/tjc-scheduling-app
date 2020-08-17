@@ -100,6 +100,7 @@ router.post(
                             RequestId: req.body.requestId,
                         });
                         helper.sendPushNotification(
+                            requesteeUser.id,
                             requesteeUser.expoPushToken,
                             'Request Notification',
                             message,
@@ -113,6 +114,7 @@ router.post(
                                 RequestId: req.body.requestId,
                             });
                             helper.sendPushNotification(
+                                user.id,
                                 user.expoPushToken,
                                 'Request Notification',
                                 `${requestingUser.firstName} requested to switch with someone. An open request has been sent out.`,
@@ -131,11 +133,43 @@ router.post(
                 RequestId: req.body.requestId,
             });
             helper.sendPushNotification(
+                req.body.userId,
                 requestingUser.expoPushToken,
                 'Request Notification',
                 message,
             );
             res.status(201).send({ message: 'Notifications created' });
+        } catch (err) {
+            if (err instanceof TokenExpiredError || err instanceof JsonWebTokenError) {
+                res.status(401).send({ message: 'Unauthorized' });
+            } else {
+                res.status(503).send({ message: 'Server error, try again later' });
+            }
+            next(err);
+        }
+    },
+);
+
+router.patch(
+    '/swap-notifications/:notificationId',
+    async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            jwt.verify(req.headers.authorization, cert);
+            const swapNotification = await db.SwapNotification.findOne({
+                where: { id: req.params.notificationId },
+                attributes: [
+                    'id',
+                    'userId',
+                    'createdAt',
+                    'isRead',
+                    'updatedAt',
+                    'RequestId',
+                ],
+            });
+            swapNotification.update({
+                id: swapNotification.id,
+                isRead: true,
+            });
         } catch (err) {
             if (err instanceof TokenExpiredError || err instanceof JsonWebTokenError) {
                 res.status(401).send({ message: 'Unauthorized' });
@@ -154,7 +188,7 @@ router.delete(
             jwt.verify(req.headers.authorization, cert);
             const swapNotification = await db.SwapNotification.findOne({
                 where: { id: req.params.notificationId },
-                attributes: ['id', 'userId', 'created', 'updatedAt', 'RequestId'],
+                attributes: ['id', 'userId', 'createdAt', 'updatedAt', 'RequestId'],
             });
             if (swapNotification) {
                 await swapNotification.destroy().then(function () {

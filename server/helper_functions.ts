@@ -4,6 +4,7 @@ import fs from 'fs';
 import { DateTime } from 'luxon';
 import fetch from 'node-fetch';
 import { privateEncrypt } from 'crypto';
+import db from './db/index';
 
 const privateKey = fs.readFileSync('tjcschedule.pem');
 
@@ -115,7 +116,17 @@ const funcs = {
     setDate(date: string, time: string, timeZone: string) {
         return DateTime.fromISO(`${date}T${time}`, { zone: timeZone });
     },
-    sendPushNotification(userPushToken: string, title: string, body: string) {
+    async sendPushNotification(
+        userId: number,
+        userPushToken: string,
+        title: string,
+        body: string,
+    ) {
+        const user = await db.SwapNotification.findAll({
+            where: { id: userId, isRead: false },
+            attributes: ['isRead'],
+        });
+        const badgeNumber = user.length + 1;
         fetch('https://exp.host/--/api/v2/push/send', {
             method: 'POST',
             headers: {
@@ -130,6 +141,7 @@ const funcs = {
                 },
                 title: title,
                 body: body,
+                badge: badgeNumber,
             }),
         });
     },

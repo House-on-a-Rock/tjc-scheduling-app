@@ -5,6 +5,7 @@ export interface SwapNotificationAttributes {
     userId: number;
     message: string;
     RequestId?: number;
+    isRead?: boolean;
     createdAt?: Date;
     updatedAt?: Date;
 }

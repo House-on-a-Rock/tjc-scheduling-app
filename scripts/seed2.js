@@ -221,7 +221,7 @@ const teams = [
     },
 ];
 
-const user_role = [
+const userRoles = [
     {
         UserId: 3,
         RoleId: 1,
@@ -231,6 +231,30 @@ const user_role = [
     {
         UserId: 3,
         RoleId: 2,
+        TeamId: 1,
+        team_lead: false,
+    },
+    {
+        UserId: 2,
+        RoleId: 3,
+        TeamId: 1,
+        team_lead: false,
+    },
+    {
+        UserId: 4,
+        RoleId: 1,
+        TeamId: 1,
+        team_lead: false,
+    },
+    {
+        UserId: 1,
+        RoleId: 2,
+        TeamId: 1,
+        team_lead: false,
+    },
+    {
+        UserId: 1,
+        RoleId: 3,
         TeamId: 1,
         team_lead: false,
     },
@@ -271,7 +295,7 @@ async function seed() {
     );
     await new Promise((r) => setTimeout(r, 2000));
     const seedUserRole = await Promise.all(
-        user_role.map((userRole) => {
+        userRoles.map((userRole) => {
             db.UserRole.create(userRole);
         }),
     );
