@@ -181,6 +181,37 @@ router.patch(
     },
 );
 
+router.patch(
+    '/swap-notifications/read-all/:userId',
+    async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            jwt.verify(req.headers.authorization, cert);
+            const swapNotifications = await db.SwapNotification.findAll({
+                where: { userId: req.params.userId },
+                attributes: [
+                    'id',
+                    'userId',
+                    'createdAt',
+                    'isRead',
+                    'updatedAt',
+                    'RequestId',
+                ],
+            });
+            swapNotifications.map((swapNotification) => {
+                swapNotification.update({
+                    isRead: true,
+                });
+            });
+        } catch (err) {
+            if (err instanceof TokenExpiredError || err instanceof JsonWebTokenError) {
+                res.status(401).send({ message: 'Unauthorized' });
+            } else {
+                res.status(503).send({ message: 'Server error, try again later' });
+            }
+            next(err);
+        }
+    },
+);
 router.delete(
     '/swap-notifications/:notificationId',
     async (req: Request, res: Response, next: NextFunction) => {
