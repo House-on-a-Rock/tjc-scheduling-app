@@ -25,7 +25,7 @@ router.get('/users', async (req: Request, res: Response, next) => {
         if (req.query.roleId) {
             const userRoles = await db.UserRole.findAll({
                 where: { roleId: req.query.roleId },
-                attributes: ['UserId'],
+                attributes: ['userId'],
             });
             if (userRoles.length === 0)
                 return res
