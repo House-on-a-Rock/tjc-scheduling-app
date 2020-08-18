@@ -42,7 +42,14 @@ router.get('/users', async (req: Request, res: Response, next) => {
         console.log(searchParams);
         const users: UserInstance[] = await db.User.findAll({
             where: searchParams,
-            attributes: ['id', 'firstName', 'lastName', 'email', 'churchId', 'disabled'],
+            attributes: [
+                ['id', 'userId'],
+                'firstName',
+                'lastName',
+                'email',
+                'churchId',
+                'disabled',
+            ],
             include: [
                 {
                     model: db.Church,

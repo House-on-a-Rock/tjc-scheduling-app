@@ -34,7 +34,7 @@ router.get('/swap-requests', async (req: Request, res: Response, next: NextFunct
                 approved: false,
             },
             attributes: [
-                'id',
+                ['id', 'requestId'],
                 'requesteeUserId',
                 'type',
                 'accepted',
