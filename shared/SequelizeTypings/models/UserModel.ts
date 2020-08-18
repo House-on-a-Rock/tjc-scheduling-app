@@ -12,7 +12,7 @@ export interface UserAttributes {
     isVerified: boolean;
     loginAttempts?: number;
     loginTimeout?: Date;
-    ChurchId?: number;
+    churchId?: number;
     disabled: boolean;
     createdAt?: Date | null;
     updatedAt?: Date | null;

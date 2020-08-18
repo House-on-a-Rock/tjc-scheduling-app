@@ -18,16 +18,16 @@ router.get('/tasks', async (req: Request, res: Response, next: NextFunction) => 
     try {
         jwt.verify(req.headers.authorization, cert);
         const searchArray = [];
-        if (req.query.userId) searchArray.push({ UserId: req.query.userId });
-        if (req.query.churchId) searchArray.push({ ChurchId: req.query.churchId });
-        if (req.query.roleId) searchArray.push({ RoleId: req.query.roleId });
+        if (req.query.userId) searchArray.push({ userId: req.query.userId });
+        if (req.query.churchId) searchArray.push({ churchId: req.query.churchId });
+        if (req.query.roleId) searchArray.push({ roleId: req.query.roleId });
 
         const searchParams = {
             [Op.and]: searchArray,
         };
         const tasks = await db.Task.findAll({
             where: searchParams,
-            attributes: [['id', 'taskId'], 'UserId', 'RoleId', 'date', 'createdAt'],
+            attributes: [['id', 'taskId'], 'userId', 'roleId', 'date', 'createdAt'],
             include: [
                 {
                     model: db.Role,
@@ -62,7 +62,7 @@ router.get('/tasks/:taskId', async (req: Request, res: Response, next: NextFunct
         jwt.verify(req.headers.authorization, cert);
         const task = await db.Task.findOne({
             where: { taskId: req.params.taskId },
-            attributes: ['id', 'date', 'ChurchId', 'UserId', 'RoleId'],
+            attributes: ['id', 'date', 'churchId', 'userId', 'roleId'],
         });
         if (task) res.status(200).json(task);
         else res.status(404).send({ message: 'Task not found' });
@@ -99,9 +99,9 @@ router.post('/tasks', async (req: Request, res: Response, next: NextFunction) =>
         );
         const task = await db.Task.create({
             date: new Date(date.toString()),
-            ChurchId: userData.church.id,
-            RoleId: req.body.roleId,
-            UserId: parseInt(userId, 10),
+            churchId: userData.church.id,
+            roleId: req.body.roleId,
+            userId: parseInt(userId, 10),
         });
         res.status(201).send(task);
     } catch (err) {
@@ -144,27 +144,27 @@ router.patch(
             jwt.verify(req.headers.authorization, cert);
             const targetTask = await db.Task.findOne({
                 where: { id: req.params.targetTaskId },
-                attributes: ['id', 'date', 'ChurchId', 'UserId', 'RoleId'],
+                attributes: ['id', 'date', 'churchId', 'userId', 'roleId'],
             });
 
             const switchTask = await db.Task.findOne({
                 where: { id: req.params.switchTaskId },
-                attributes: ['id', 'date', 'ChurchId', 'UserId', 'RoleId'],
+                attributes: ['id', 'date', 'churchId', 'userId', 'roleId'],
             });
             if (!targetTask || !switchTask) {
                 return res.status(404).send({ message: 'Not found' });
             }
             // if (targetTask.ChurchId === switchTask.ChurchId) {
-            const targetTaskId = targetTask.UserId;
-            const switchTaskId = switchTask.UserId;
+            const targetTaskId = targetTask.userId;
+            const switchTaskId = switchTask.userId;
             targetTask.update({
                 id: targetTask.id,
-                UserId: switchTaskId,
+                userId: switchTaskId,
             });
 
             switchTask.update({
                 id: switchTask.id,
-                UserId: targetTaskId,
+                userId: targetTaskId,
             });
             res.status(200).send({ message: 'Task switch successful' });
             // }
@@ -188,17 +188,17 @@ router.patch(
                 where: {
                     id: req.params.taskId.toString(),
                 },
-                attributes: ['id', 'UserId'],
+                attributes: ['id', 'userId'],
             });
 
             const replacedByUser = await db.User.findOne({
                 where: { id: req.params.userId.toString() },
-                attributes: ['id', 'ChurchId'],
+                attributes: ['id', 'churchId'],
             });
 
             const belongsToUser = await db.User.findOne({
-                where: { id: task.UserId },
-                attributes: ['id', 'ChurchId'],
+                where: { id: task.userId },
+                attributes: ['id', 'churchId'],
             });
             if (!task || !replacedByUser || !belongsToUser) {
                 return res.status(404).send({ message: 'Not found' });
@@ -206,7 +206,7 @@ router.patch(
             // if (replacedByUser.ChurchId === belongsToUser.ChurchId) {
             await task.update({
                 id: task.id,
-                UserId: replacedByUser.id,
+                userId: replacedByUser.id,
             });
             res.status(200).send({ message: 'Task replacement successful.' });
             // }

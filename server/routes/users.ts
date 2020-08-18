@@ -21,10 +21,10 @@ router.get('/users', async (req: Request, res: Response, next) => {
     try {
         jwt.verify(req.headers.authorization, cert);
         const searchArray = [];
-        if (req.query.churchId) searchArray.push({ ChurchId: req.query.churchId });
+        if (req.query.churchId) searchArray.push({ churchId: req.query.churchId });
         if (req.query.roleId) {
             const userRoles = await db.UserRole.findAll({
-                where: { RoleId: req.query.roleId },
+                where: { roleId: req.query.roleId },
                 attributes: ['UserId'],
             });
             if (userRoles.length === 0)
@@ -32,7 +32,7 @@ router.get('/users', async (req: Request, res: Response, next) => {
                     .status(404)
                     .send({ message: 'No users found with that role id' });
             const userIds = userRoles.map((userRole) => {
-                return userRole.UserId;
+                return userRole.userId;
             });
             searchArray.push({ id: userIds });
         }
@@ -42,7 +42,7 @@ router.get('/users', async (req: Request, res: Response, next) => {
         console.log(searchParams);
         const users: UserInstance[] = await db.User.findAll({
             where: searchParams,
-            attributes: ['id', 'firstName', 'lastName', 'email', 'ChurchId', 'disabled'],
+            attributes: ['id', 'firstName', 'lastName', 'email', 'churchId', 'disabled'],
             include: [
                 {
                     model: db.Church,
@@ -76,7 +76,7 @@ router.get('/users/:userId', async (req, res, next) => {
                 'lastName',
                 'email',
                 'id',
-                'ChurchId',
+                'churchId',
                 'expoPushToken',
             ],
             include: [
@@ -127,7 +127,7 @@ router.post('/users', async (req: Request, res: Response, next) => {
                 lastName: req.body.lastName,
                 email: req.body.email,
                 password: req.body.password,
-                ChurchId: req.body.churchId,
+                churchId: req.body.churchId,
                 isVerified: false,
                 disabled: false,
             });

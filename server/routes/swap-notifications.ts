@@ -21,7 +21,7 @@ router.get(
             jwt.verify(req.headers.authorization, cert);
             const swapNotifications = await db.SwapNotification.findAll({
                 where: { userId: req.params.userId },
-                attributes: ['id', 'userId', 'message', 'createdAt', 'RequestId'],
+                attributes: ['id', 'userId', 'message', 'createdAt', 'requestId'],
                 include: [
                     {
                         model: db.SwapRequest,
@@ -32,7 +32,7 @@ router.get(
                             'accepted',
                             'approved',
                             'createdAt',
-                            'TaskId',
+                            'taskId',
                         ],
                     },
                 ],
@@ -63,7 +63,7 @@ router.post(
                     {
                         model: db.Task,
                         as: 'task',
-                        attributes: ['id', 'UserId'],
+                        attributes: ['id', 'userId'],
                     },
                 ],
             });
@@ -76,7 +76,7 @@ router.post(
                 attributes: ['id', 'firstName', 'ChurchId', 'expoPushToken'],
             });
             const localChurchUsers = await db.User.findAll({
-                where: { ChurchId: requestingUser.ChurchId },
+                where: { ChurchId: requestingUser.churchId },
                 attributes: ['id', 'firstName', 'expoPushToken'],
             });
             if (!swapRequest)
@@ -97,7 +97,7 @@ router.post(
                         await db.SwapNotification.create({
                             userId: requesteeUser.id,
                             message: `${requestingUser.firstName} wants to switch with you`,
-                            RequestId: req.body.requestId,
+                            requestId: req.body.requestId,
                         });
                         helper.sendPushNotification(
                             requesteeUser.id,
@@ -111,7 +111,7 @@ router.post(
                             await db.SwapNotification.create({
                                 userId: user.id,
                                 message: `${requestingUser.firstName} requested to switch with someone. An open request has been sent out.`,
-                                RequestId: req.body.requestId,
+                                requestId: req.body.requestId,
                             });
                             helper.sendPushNotification(
                                 user.id,
@@ -130,7 +130,7 @@ router.post(
             await db.SwapNotification.create({
                 userId: req.body.userId,
                 message: message,
-                RequestId: req.body.requestId,
+                requestId: req.body.requestId,
             });
             helper.sendPushNotification(
                 req.body.userId,
@@ -163,7 +163,7 @@ router.patch(
                     'createdAt',
                     'isRead',
                     'updatedAt',
-                    'RequestId',
+                    'requestId',
                 ],
             });
             swapNotification.update({
@@ -194,7 +194,7 @@ router.patch(
                     'createdAt',
                     'isRead',
                     'updatedAt',
-                    'RequestId',
+                    'requestId',
                 ],
             });
             swapNotifications.map((swapNotification) => {
@@ -212,6 +212,7 @@ router.patch(
         }
     },
 );
+
 router.delete(
     '/swap-notifications/:notificationId',
     async (req: Request, res: Response, next: NextFunction) => {
@@ -219,7 +220,7 @@ router.delete(
             jwt.verify(req.headers.authorization, cert);
             const swapNotification = await db.SwapNotification.findOne({
                 where: { id: req.params.notificationId },
-                attributes: ['id', 'userId', 'createdAt', 'updatedAt', 'RequestId'],
+                attributes: ['id', 'userId', 'createdAt', 'updatedAt', 'requestId'],
             });
             if (swapNotification) {
                 await swapNotification.destroy().then(function () {

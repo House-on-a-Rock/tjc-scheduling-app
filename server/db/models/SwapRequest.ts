@@ -32,7 +32,7 @@ const SwapRequestFactory = (
     );
 
     SwapRequest.associate = (models) => {
-        SwapRequest.belongsTo(models.Task, { as: 'task', foreignKey: 'TaskId' });
+        SwapRequest.belongsTo(models.Task, { as: 'task', foreignKey: 'taskId' });
     };
     return SwapRequest;
 };

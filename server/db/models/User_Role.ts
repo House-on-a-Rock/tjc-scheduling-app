@@ -21,8 +21,8 @@ const UserRoleFactory = (
     );
 
     UserRole.associate = (models) => {
-        UserRole.belongsTo(models.Team, { as: 'church', foreignKey: 'TeamId' });
-        UserRole.belongsTo(models.Role, { as: 'role', foreignKey: 'RoleId' });
+        UserRole.belongsTo(models.Team, { as: 'church', foreignKey: 'teamId' });
+        UserRole.belongsTo(models.Role, { as: 'role', foreignKey: 'roleId' });
     };
 
     return UserRole;

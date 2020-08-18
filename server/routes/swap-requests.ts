@@ -40,7 +40,7 @@ router.get('/swap-requests', async (req: Request, res: Response, next: NextFunct
                 'accepted',
                 'approved',
                 'createdAt',
-                'TaskId',
+                'taskId',
             ],
         });
         switch (swapRequests.length) {
@@ -70,7 +70,7 @@ router.get(
             jwt.verify(req.headers.authorization, cert);
             const swapRequest = await db.SwapRequest.findOne({
                 where: { id: req.params.requestId },
-                attributes: ['id', 'requesteeUserId', 'type', 'accepted', 'TaskId'],
+                attributes: ['id', 'requesteeUserId', 'type', 'accepted', 'taskId'],
             });
 
             if (swapRequest) res.json(swapRequest);
@@ -102,7 +102,7 @@ router.post('/swap-requests', async (req: Request, res: Response, next: NextFunc
             const createRequest = await db.SwapRequest.create({
                 requesteeUserId: requesteeUserId,
                 type: type,
-                TaskId: req.body.taskId,
+                taskId: req.body.taskId,
             });
             const newRequest = await db.SwapRequest.findOne({
                 where: { id: createRequest.id },
@@ -118,7 +118,7 @@ router.post('/swap-requests', async (req: Request, res: Response, next: NextFunc
                     `${process.env.SECRET_IP}api/swap-notifications`,
                     {
                         requestId: request.id,
-                        userId: request.task.UserId,
+                        userId: request.task.userId,
                         notification: 'created',
                     },
                     { headers: { authorization: req.headers.authorization } },
@@ -152,7 +152,7 @@ router.patch(
                     {
                         model: db.Task,
                         as: 'task',
-                        attributes: ['id', 'UserId'],
+                        attributes: ['id', 'userId'],
                     },
                 ],
             });
@@ -173,7 +173,7 @@ router.patch(
                             `${process.env.SECRET_IP}api/swap-notifications`,
                             {
                                 requestId: swapRequest.id,
-                                userId: swapRequest.task.UserId,
+                                userId: swapRequest.task.userId,
                                 notification: 'accepted',
                             },
                             { headers: { authorization: req.headers.authorization } },
@@ -197,7 +197,7 @@ router.patch(
                             `${process.env.SECRET_IP}api/swap-notifications`,
                             {
                                 requestId: swapRequest.id,
-                                userId: swapRequest.task.UserId,
+                                userId: swapRequest.task.userId,
                                 notification: 'accepted',
                             },
                             { headers: { authorization: req.headers.authorization } },
@@ -231,7 +231,7 @@ router.patch(
                     {
                         model: db.Task,
                         as: 'task',
-                        attributes: ['id', 'UserId'],
+                        attributes: ['id', 'userId'],
                     },
                 ],
             });
@@ -247,7 +247,7 @@ router.patch(
                             `${process.env.SECRET_IP}api/swap-notifications`,
                             {
                                 requestId: swapRequest.id,
-                                userId: swapRequest.task.UserId,
+                                userId: swapRequest.task.userId,
                                 notification: 'approved',
                             },
                             { headers: { authorization: req.headers.authorization } },
@@ -281,7 +281,7 @@ router.patch(
                     {
                         model: db.Task,
                         as: 'task',
-                        attributes: ['id', 'UserId'],
+                        attributes: ['id', 'userId'],
                     },
                 ],
             });
@@ -297,7 +297,7 @@ router.patch(
                             `${process.env.SECRET_IP}api/swap-notifications`,
                             {
                                 requestId: swapRequest.id,
-                                userId: swapRequest.task.UserId,
+                                userId: swapRequest.task.userId,
                                 notification: 'cancelled',
                             },
                             { headers: { authorization: req.headers.authorization } },
@@ -331,7 +331,7 @@ router.delete(
                     'type',
                     'accepted',
                     'approved',
-                    'TaskId',
+                    'taskId',
                 ],
             });
             if (swapRequest) {

@@ -23,7 +23,7 @@ const SwapNotificationFactory = (
     SwapNotification.associate = (models) => {
         SwapNotification.belongsTo(models.SwapRequest, {
             as: 'request',
-            foreignKey: 'RequestId',
+            foreignKey: 'requestId',
         });
     };
     return SwapNotification;

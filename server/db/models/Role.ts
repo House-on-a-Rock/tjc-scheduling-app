@@ -18,7 +18,7 @@ const RoleFactory = (
     const Role = sequelize.define<RoleInstance, RoleAttributes>('Role', attributes);
 
     Role.associate = (models) => {
-        Role.belongsTo(models.Church, { as: 'church', foreignKey: 'ChurchId' });
+        Role.belongsTo(models.Church, { as: 'church', foreignKey: 'churchId' });
         Role.belongsToMany(models.User, { through: models.UserRole, as: 'member' });
     };
 
