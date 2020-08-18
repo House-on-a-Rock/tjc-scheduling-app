@@ -1,6 +1,7 @@
 import * as Sequelize from 'sequelize';
 import { SequelizeAttributes } from 'shared/SequelizeTypings/typings/SequelizeAttributes';
 import { TokenInstance, TokenAttributes } from 'shared/SequelizeTypings/models';
+// eslint-disable-next-line import/no-cycle
 import helper from '../../helper_functions';
 
 const TokenFactory = (
