@@ -37,7 +37,7 @@ router.get('/tasks', async (req: Request, res: Response, next: NextFunction) => 
                 {
                     model: db.Church,
                     as: 'church',
-                    attributes: ['name'],
+                    attributes: ['name', ['id', 'churchId']],
                 },
             ],
             order: [['date', 'ASC']],
