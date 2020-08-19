@@ -1,5 +1,4 @@
 import helper from '../server/helper_functions';
-
 const { green, red, blue } = require('chalk');
 const createModels = require('../server/db/models').default;
 
@@ -65,58 +64,59 @@ const users = [
         email: 'shaun.tung@gmail.com',
         password: 'password',
         isVerified: true,
-        churchId: 2,
-        expoPushToken: null,
+        churchId: 1,
+        expoPushToken: 'ExponentPushToken[-uuepvN27WLr5fHqJoK3y8]',
     },
     {
         firstName: 'Ted',
         lastName: 'Chen',
         email: 'ted.chen@gmail.com',
-        password: 'password1',
+        password: 'password',
         isVerified: false,
         churchId: 1,
+        expoPushToken: 'ExponentPushToken[F-BJ4-BkJXff6Lbp9SbI4K]',
     },
     {
         firstName: 'Jonathan',
         lastName: 'Lee',
         email: 'jonathan.lee@gmail.com',
-        password: 'password3',
+        password: 'password',
         isVerified: true,
-        churchId: 6,
+        churchId: 1,
         expoPushToken: 'ExponentPushToken[2CkbA5CQcxyiSNWT1oGvhC]',
     },
-    {
-        firstName: 'Geoff',
-        lastName: 'Chu',
-        email: 'geoff.chu@gmail.com',
-        password: 'password3',
-        isVerified: true,
-        churchId: 3,
-    },
-    {
-        firstName: 'Amanda',
-        lastName: 'Chin',
-        email: 'amanda.chin@gmail.com',
-        password: 'password4',
-        isVerified: true,
-        churchId: 4,
-    },
-    {
-        firstName: 'Alan',
-        lastName: 'Lin',
-        email: 'alan.lin@gmail.com',
-        password: 'password5',
-        isVerified: true,
-        churchId: 2,
-    },
-    {
-        firstName: 'Ian',
-        lastName: 'Lin',
-        email: 'ian.lin@gmail.com',
-        password: 'password6',
-        isVerified: true,
-        churchId: 5,
-    },
+    // {
+    //     firstName: 'Geoff',
+    //     lastName: 'Chu',
+    //     email: 'geoff.chu@gmail.com',
+    //     password: 'password',
+    //     isVerified: true,
+    //     churchId: 1,
+    // },
+    // {
+    //     firstName: 'Amanda',
+    //     lastName: 'Chin',
+    //     email: 'amanda.chin@gmail.com',
+    //     password: 'password',
+    //     isVerified: true,
+    //     churchId: 1,
+    // },
+    // {
+    //     firstName: 'Alan',
+    //     lastName: 'Lin',
+    //     email: 'alan.lin@gmail.com',
+    //     password: 'password',
+    //     isVerified: true,
+    //     churchId: 1,
+    // },
+    // {
+    //     firstName: 'Ian',
+    //     lastName: 'Lin',
+    //     email: 'ian.lin@gmail.com',
+    //     password: 'password',
+    //     isVerified: true,
+    //     churchId: 2,
+    // },
 ];
 
 const roles = [
@@ -136,73 +136,99 @@ const roles = [
         name: 'RE',
         churchId: 1,
     },
+    {
+        name: 'AV',
+        churchId: 2,
+    },
+    {
+        name: 'Speaker',
+        churchId: 2,
+    },
+    {
+        name: 'Interpreting',
+        churchId: 2,
+    },
+    {
+        name: 'RE',
+        churchId: 2,
+    },
+    {
+        name: 'AV3',
+        churchId: 3,
+    },
+    {
+        name: 'Speaker3',
+        churchId: 3,
+    },
+    {
+        name: 'Interpreting3',
+        churchId: 3,
+    },
+    {
+        name: 'RE3',
+        churchId: 3,
+    },
 ];
 const tasks = [
-    {
-        date: helper.setDate('2020-05-06', '10:30:00', 'America/New_York').toString(),
-        userId: 1,
-        roleId: 2,
-        churchId: 3,
-    },
-    {
-        date: helper.setDate('2020-05-06', '10:30:00', 'America/New_York').toString(),
-        userId: 2,
-        roleId: 2,
-        churchId: 4,
-    },
-    {
-        date: helper.setDate('2020-05-06', '10:30:00', 'America/New_York').toString(),
-        userId: 3,
-        roleId: 3,
-        churchId: 1,
-    },
-    {
-        date: helper.setDate('2020-04-06', '10:30:00', 'America/New_York').toString(),
-        userId: 2,
-        roleId: 3,
-        churchId: 4,
-    },
-    {
-        date: helper.setDate('2020-05-12', '10:30:00', 'America/New_York').toString(),
-        userId: 2,
-        roleId: 2,
-        churchId: 4,
-    },
-    {
-        date: helper.setDate('2020-05-16', '10:30:00', 'America/New_York').toString(),
-        userId: 1,
-        roleId: 1,
-        churchId: 3,
-    },
-    {
-        date: helper.setDate('2020-05-16', '10:30:00', 'America/New_York').toString(),
-        userId: 1,
-        roleId: 2,
-        churchId: 3,
-    },
-    {
-        date: helper.setDate('2020-05-16', '10:30:00', 'America/New_York').toString(),
-        userId: 1,
-        roleId: 3,
-        churchId: 3,
-    },
-    {
-        date: helper.setDate('2020-05-16', '10:30:00', 'America/New_York').toString(),
-        userId: 1,
-        roleId: 1,
-        churchId: 3,
-    },
-    {
-        date: helper.setDate('2020-06-01', '10:30:00', 'America/New_York').toString(),
-        userId: 1,
-        roleId: 3,
-        churchId: 3,
-    },
     {
         date: helper.setDate('2020-05-21', '10:30:00', 'America/New_York').toString(),
         userId: 1,
         roleId: 4,
         churchId: 3,
+    },
+    {
+        date: helper.setDate('2020-08-21', '10:30:00', 'America/New_York').toString(),
+        userId: 1,
+        roleId: 1,
+        churchId: 1,
+    },
+    {
+        date: helper.setDate('2020-08-22', '10:30:00', 'America/New_York').toString(),
+        userId: 1,
+        roleId: 1,
+        churchId: 1,
+    },
+    {
+        date: helper.setDate('2020-08-23', '10:30:00', 'America/New_York').toString(),
+        userId: 1,
+        roleId: 1,
+        churchId: 1,
+    },
+    {
+        date: helper.setDate('2020-08-24', '10:30:00', 'America/New_York').toString(),
+        userId: 2,
+        roleId: 1,
+        churchId: 1,
+    },
+    {
+        date: helper.setDate('2020-08-25', '10:30:00', 'America/New_York').toString(),
+        userId: 2,
+        roleId: 1,
+        churchId: 1,
+    },
+    {
+        date: helper.setDate('2020-08-26', '10:30:00', 'America/New_York').toString(),
+        userId: 2,
+        roleId: 1,
+        churchId: 1,
+    },
+    {
+        date: helper.setDate('2020-08-27', '10:30:00', 'America/New_York').toString(),
+        userId: 3,
+        roleId: 1,
+        churchId: 1,
+    },
+    {
+        date: helper.setDate('2020-08-28', '10:30:00', 'America/New_York').toString(),
+        userId: 3,
+        roleId: 1,
+        churchId: 1,
+    },
+    {
+        date: helper.setDate('2020-08-29', '10:30:00', 'America/New_York').toString(),
+        userId: 3,
+        roleId: 1,
+        churchId: 1,
     },
 ];
 
@@ -223,13 +249,31 @@ const teams = [
 
 const userRoles = [
     {
-        userId: 3,
+        userId: 1,
         roleId: 1,
-        teamId: 2,
+        teamId: 1,
         team_lead: false,
     },
     {
-        userId: 3,
+        userId: 1,
+        roleId: 2,
+        teamId: 1,
+        team_lead: false,
+    },
+    {
+        userId: 1,
+        roleId: 3,
+        teamId: 1,
+        team_lead: false,
+    },
+    {
+        userId: 2,
+        roleId: 1,
+        teamId: 1,
+        team_lead: false,
+    },
+    {
+        userId: 2,
         roleId: 2,
         teamId: 1,
         team_lead: false,
@@ -240,20 +284,21 @@ const userRoles = [
         teamId: 1,
         team_lead: false,
     },
+
     {
-        userId: 4,
+        userId: 3,
         roleId: 1,
         teamId: 1,
         team_lead: false,
     },
     {
-        userId: 1,
+        userId: 3,
         roleId: 2,
         teamId: 1,
         team_lead: false,
     },
     {
-        userId: 1,
+        userId: 3,
         roleId: 3,
         teamId: 1,
         team_lead: false,

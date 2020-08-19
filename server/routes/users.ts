@@ -54,7 +54,7 @@ router.get('/users', async (req: Request, res: Response, next) => {
                 {
                     model: db.Church,
                     as: 'church',
-                    attributes: ['name'],
+                    attributes: ['name', ['id', 'churchId']],
                 },
             ],
         });
