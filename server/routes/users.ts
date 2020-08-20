@@ -20,6 +20,8 @@ module.exports = router;
 router.get('/users', async (req: Request, res: Response, next) => {
     try {
         jwt.verify(req.headers.authorization, cert);
+        const decodedToken = jwt.decode(req.headers.authorization, { json: true });
+        const loggedInId = decodedToken.sub.split('|')[1];
         const searchArray = [];
         if (req.query.churchId) searchArray.push({ churchId: req.query.churchId });
         if (req.query.roleId) {
@@ -38,6 +40,7 @@ router.get('/users', async (req: Request, res: Response, next) => {
         }
         const searchParams = {
             [Op.and]: searchArray,
+            [Op.not]: { id: loggedInId },
         };
         console.log(searchParams);
         const users: UserInstance[] = await db.User.findAll({

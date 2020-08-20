@@ -1,8 +1,7 @@
 import * as Sequelize from 'sequelize';
 import { SequelizeAttributes } from 'shared/SequelizeTypings/typings/SequelizeAttributes';
 import { TokenInstance, TokenAttributes } from 'shared/SequelizeTypings/models';
-// eslint-disable-next-line import/no-cycle
-// import helper from '../../helper_functions';
+import helper from '../../helper_functions';
 
 const TokenFactory = (
     sequelize: Sequelize.Sequelize,
@@ -13,7 +12,7 @@ const TokenFactory = (
         token: { type: DataTypes.STRING },
         expiresIn: {
             type: DataTypes.DATE,
-            // defaultValue: helper.addMinutes(new Date(), 30),
+            defaultValue: helper.addMinutes(new Date(), 30),
         },
         createdAt: {
             type: DataTypes.DATE,
