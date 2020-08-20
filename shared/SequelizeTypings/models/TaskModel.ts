@@ -6,6 +6,7 @@ export interface TaskAttributes {
     userId?: number;
     roleId?: number;
     date: Date;
+    status?: string;
     createdAt?: Date;
     updatedAt?: Date;
 }

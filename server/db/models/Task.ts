@@ -8,6 +8,7 @@ const TaskFactory = (
 ): Sequelize.Model<TaskInstance, TaskAttributes> => {
     const attributes: SequelizeAttributes<TaskAttributes> = {
         date: { type: DataTypes.DATE },
+        status: { type: DataTypes.STRING, defaultValue: 'active' },
     };
 
     const Task = sequelize.define<TaskInstance, TaskAttributes>('Task', attributes);
