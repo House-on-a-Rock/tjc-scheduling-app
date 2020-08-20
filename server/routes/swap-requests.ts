@@ -100,15 +100,18 @@ router.post('/swap-requests', async (req: Request, res: Response, next: NextFunc
             });
             requesteeUserId = targetTask.userId;
         }
-        const doesMyTaskExist = await db.Task.findOne({
+        const myTask = await db.Task.findOne({
             where: { id: req.body.myTaskId },
         });
-        if (doesMyTaskExist) {
+        if (myTask) {
             const createRequest = await db.SwapRequest.create({
                 requesteeUserId: requesteeUserId,
                 type: type,
                 taskId: req.body.myTaskId,
                 message: req.body.message,
+            });
+            myTask.update({
+                status: 'changeRequested',
             });
             const newRequest = await db.SwapRequest.findOne({
                 where: { id: createRequest.id },
