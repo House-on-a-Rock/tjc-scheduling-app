@@ -24,6 +24,7 @@ const SwapRequestFactory = (
             type: DataTypes.BOOLEAN,
             defaultValue: false,
         },
+        message: { type: DataTypes.STRING },
     };
 
     const SwapRequest = sequelize.define<SwapRequestInstance, SwapRequestAttributes>(

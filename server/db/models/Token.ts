@@ -12,7 +12,7 @@ const TokenFactory = (
         token: { type: DataTypes.STRING },
         expiresIn: {
             type: DataTypes.DATE,
-            defaultValue: helper.addMinutes(new Date(), 30),
+            // defaultValue: helper.addMinutes(new Date(), 30),
         },
         createdAt: {
             type: DataTypes.DATE,

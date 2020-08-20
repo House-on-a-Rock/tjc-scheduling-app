@@ -10,6 +10,7 @@ export interface SwapRequestAttributes {
     approved?: boolean;
     rejected?: boolean;
     task?: TaskAttributes;
+    message?: string;
     createdAt?: Date;
     updatedAt?: Date;
 }

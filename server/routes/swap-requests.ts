@@ -41,6 +41,7 @@ router.get('/swap-requests', async (req: Request, res: Response, next: NextFunct
                 'approved',
                 'createdAt',
                 'taskId',
+                'message',
             ],
         });
         switch (swapRequests.length) {
@@ -107,6 +108,7 @@ router.post('/swap-requests', async (req: Request, res: Response, next: NextFunc
                 requesteeUserId: requesteeUserId,
                 type: type,
                 taskId: req.body.myTaskId,
+                message: req.body.message,
             });
             const newRequest = await db.SwapRequest.findOne({
                 where: { id: createRequest.id },
