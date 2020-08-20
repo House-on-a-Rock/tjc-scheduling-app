@@ -39,6 +39,11 @@ router.get('/tasks', async (req: Request, res: Response, next: NextFunction) => 
                     as: 'church',
                     attributes: ['name', ['id', 'churchId']],
                 },
+                {
+                    model: db.User,
+                    as: 'user',
+                    attributes: ['firstName', 'lastName'],
+                },
             ],
             order: [['date', 'ASC']],
         });
