@@ -129,6 +129,7 @@ router.post('/swap-requests', async (req: Request, res: Response, next: NextFunc
                         requestId: request.id,
                         userId: request.task.userId,
                         notification: 'created',
+                        message: req.body.message,
                     },
                     { headers: { authorization: req.headers.authorization } },
                 );

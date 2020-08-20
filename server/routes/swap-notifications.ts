@@ -55,6 +55,8 @@ router.post(
     async (req: Request, res: Response, next: NextFunction) => {
         try {
             jwt.verify(req.headers.authorization, cert);
+            const decodedToken = jwt.decode(req.headers.authorization, { json: true });
+            const loggedInId: number = parseInt(decodedToken.sub.split('|')[1], 10);
             let message = '';
             const swapRequest = await db.SwapRequest.findOne({
                 where: { id: req.body.requestId },
@@ -72,7 +74,7 @@ router.post(
                 attributes: ['id', 'firstName', 'expoPushToken'],
             });
             const requestingUser = await db.User.findOne({
-                where: { id: req.body.userId },
+                where: { id: loggedInId },
                 attributes: ['id', 'firstName', 'churchId', 'expoPushToken'],
             });
             const localChurchUsers = await db.User.findAll({
@@ -108,17 +110,19 @@ router.post(
                     } else {
                         message = `Request sent to all local church members`;
                         localChurchUsers.map(async (user) => {
-                            await db.SwapNotification.create({
-                                userId: user.id,
-                                message: `${requestingUser.firstName} requested to switch with someone. An open request has been sent out.`,
-                                requestId: req.body.requestId,
-                            });
-                            helper.sendPushNotification(
-                                user.id,
-                                user.expoPushToken,
-                                'Request Notification',
-                                `${requestingUser.firstName} requested to switch with someone. An open request has been sent out.`,
-                            );
+                            if (user.id !== loggedInId) {
+                                await db.SwapNotification.create({
+                                    userId: user.id,
+                                    message: `${requestingUser.firstName} requested to switch with someone. An open request has been sent out.`,
+                                    requestId: req.body.requestId,
+                                });
+                                helper.sendPushNotification(
+                                    user.id,
+                                    user.expoPushToken,
+                                    'Request Notification',
+                                    `${requestingUser.firstName} requested to switch with someone. An open request has been sent out.`,
+                                );
+                            }
                         });
                     }
                     break;
@@ -133,7 +137,7 @@ router.post(
                 requestId: req.body.requestId,
             });
             helper.sendPushNotification(
-                req.body.userId,
+                loggedInId,
                 requestingUser.expoPushToken,
                 'Request Notification',
                 message,
