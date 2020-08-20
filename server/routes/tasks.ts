@@ -84,6 +84,7 @@ router.get('/tasks/:taskId', async (req: Request, res: Response, next: NextFunct
 router.post('/tasks', async (req: Request, res: Response, next: NextFunction) => {
     try {
         jwt.verify(req.headers.authorization, cert);
+        const now = new Date();
         const userId = jwt
             .decode(req.headers.authorization, { json: true })
             .sub.split('|')[1];
@@ -108,6 +109,12 @@ router.post('/tasks', async (req: Request, res: Response, next: NextFunction) =>
             roleId: req.body.roleId,
             userId: parseInt(userId, 10),
         });
+        const millisTillDate = new Date(date.toString()).getTime() - now.getTime();
+        setTimeout(function () {
+            task.update({
+                status: 'archived',
+            });
+        }, millisTillDate);
         res.status(201).send(task);
     } catch (err) {
         if (err instanceof TokenExpiredError || err instanceof JsonWebTokenError) {
