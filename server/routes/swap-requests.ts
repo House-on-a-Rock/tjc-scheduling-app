@@ -91,18 +91,22 @@ router.post('/swap-requests', async (req: Request, res: Response, next: NextFunc
         jwt.verify(req.headers.authorization, cert);
         let requesteeUserId: number = null;
         let type = 'requestAll';
-        if (req.body.switchWithId) {
-            requesteeUserId = req.body.switchWithId;
+        if (req.body.targetTaskId) {
             type = 'requestOne';
+            const targetTask = await db.Task.findOne({
+                where: { id: req.body.targetTaskId },
+                attributes: ['userId'],
+            });
+            requesteeUserId = targetTask.userId;
         }
-        const doesTaskExist = await db.Task.findOne({
-            where: { id: req.body.taskId },
+        const doesMyTaskExist = await db.Task.findOne({
+            where: { id: req.body.myTaskId },
         });
-        if (doesTaskExist) {
+        if (doesMyTaskExist) {
             const createRequest = await db.SwapRequest.create({
                 requesteeUserId: requesteeUserId,
                 type: type,
-                taskId: req.body.taskId,
+                taskId: req.body.myTaskId,
             });
             const newRequest = await db.SwapRequest.findOne({
                 where: { id: createRequest.id },
