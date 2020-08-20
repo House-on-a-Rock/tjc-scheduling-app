@@ -73,10 +73,10 @@ router.post(
             });
             const requestingUser = await db.User.findOne({
                 where: { id: req.body.userId },
-                attributes: ['id', 'firstName', 'ChurchId', 'expoPushToken'],
+                attributes: ['id', 'firstName', 'churchId', 'expoPushToken'],
             });
             const localChurchUsers = await db.User.findAll({
-                where: { ChurchId: requestingUser.churchId },
+                where: { churchId: requestingUser.churchId },
                 attributes: ['id', 'firstName', 'expoPushToken'],
             });
             if (!swapRequest)

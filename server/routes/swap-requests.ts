@@ -116,7 +116,7 @@ router.post('/swap-requests', async (req: Request, res: Response, next: NextFunc
                     {
                         model: db.Task,
                         as: 'task',
-                        attributes: ['id', 'UserId'],
+                        attributes: ['id', 'userId'],
                     },
                 ],
             }).then(async (request) => {
