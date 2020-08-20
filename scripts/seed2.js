@@ -72,7 +72,7 @@ const users = [
         lastName: 'Chen',
         email: 'ted.chen@gmail.com',
         password: 'password',
-        isVerified: false,
+        isVerified: true,
         churchId: 1,
         expoPushToken: 'ExponentPushToken[F-BJ4-BkJXff6Lbp9SbI4K]',
     },
