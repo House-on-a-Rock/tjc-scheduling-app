@@ -74,7 +74,7 @@ router.post(
                 attributes: ['id', 'firstName', 'expoPushToken'],
             });
             const requestingUser = await db.User.findOne({
-                where: { id: loggedInId },
+                where: { id: swapRequest.task.userId },
                 attributes: ['id', 'firstName', 'churchId', 'expoPushToken'],
             });
             const localChurchUsers = await db.User.findAll({
@@ -105,7 +105,7 @@ router.post(
                             requesteeUser.id,
                             requesteeUser.expoPushToken,
                             'Request Notification',
-                            message,
+                            `${requestingUser.firstName} wants to switch with you`,
                         );
                     } else {
                         message = `Request sent to all local church members`;
@@ -132,12 +132,12 @@ router.post(
                         .send({ message: 'Invalid notification type.' });
             }
             await db.SwapNotification.create({
-                userId: req.body.userId,
+                userId: requestingUser.id,
                 message: message,
                 requestId: req.body.requestId,
             });
             helper.sendPushNotification(
-                loggedInId,
+                requestingUser.id,
                 requestingUser.expoPushToken,
                 'Request Notification',
                 message,
