@@ -24,6 +24,7 @@ router.get('/tasks', async (req: Request, res: Response, next: NextFunction) => 
 
         const searchParams = {
             [Op.and]: searchArray,
+            [Op.gt]: { date: new Date() },
         };
         const tasks = await db.Task.findAll({
             where: searchParams,
