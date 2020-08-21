@@ -1,4 +1,9 @@
 import helper from '../server/helper_functions';
+
+// function setDate(date, time, timeZone) {
+//     return DateTime.fromISO(`${date}T${time}`, { zone: timeZone });
+// }
+
 const { green, red, blue } = require('chalk');
 const createModels = require('../server/db/models').default;
 

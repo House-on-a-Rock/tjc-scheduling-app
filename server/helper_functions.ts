@@ -3,8 +3,7 @@ import jwt, { Algorithm } from 'jsonwebtoken';
 import fs from 'fs';
 import { DateTime } from 'luxon';
 import fetch from 'node-fetch';
-import { privateEncrypt } from 'crypto';
-import db from './db/index';
+import db from './index';
 
 const privateKey = fs.readFileSync('tjcschedule.pem');
 
@@ -108,7 +107,7 @@ const funcs = {
         return token;
     },
     validateEmail(email: string) {
-        if (/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email)) {
+        if (/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(email)) {
             return true;
         }
         return false;
