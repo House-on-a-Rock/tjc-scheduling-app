@@ -16,7 +16,7 @@ module.exports = router;
 
 router.get('/tasks', async (req: Request, res: Response, next: NextFunction) => {
     try {
-        jwt.verify(req.headers.authorization, cert);
+        // jwt.verify(req.headers.authorization, cert);
         const searchArray = [];
         if (req.query.userId) searchArray.push({ userId: req.query.userId });
         if (req.query.churchId) searchArray.push({ churchId: req.query.churchId });
@@ -24,7 +24,7 @@ router.get('/tasks', async (req: Request, res: Response, next: NextFunction) => 
 
         const searchParams = {
             [Op.and]: searchArray,
-            [Op.gt]: { date: new Date() },
+            date: { [Op.gt]: new Date() },
         };
         const tasks = await db.Task.findAll({
             where: searchParams,
