@@ -102,7 +102,7 @@ router.post('/tasks', async (req: Request, res: Response, next: NextFunction) =>
         const date = helper.setDate(
             req.body.date,
             req.body.time,
-            userData.church.timeZone,
+            userData.church.timezone,
         );
         const task = await db.Task.create({
             date: new Date(date.toString()),

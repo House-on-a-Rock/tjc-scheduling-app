@@ -13,7 +13,7 @@ const ChurchFactory = (
         name: { type: DataTypes.STRING },
         address: { type: DataTypes.TEXT },
         description: { type: DataTypes.TEXT },
-        timeZone: { type: DataTypes.STRING },
+        timezone: { type: DataTypes.STRING },
     };
 
     const Church = sequelize.define<ChurchInstance, ChurchAttributes>(
