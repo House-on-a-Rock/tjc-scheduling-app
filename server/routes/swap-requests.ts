@@ -124,7 +124,7 @@ router.post('/swap-requests', async (req: Request, res: Response, next: NextFunc
                 ],
             }).then(async (request) => {
                 await axios.post(
-                    `${process.env.SECRET_IP}api/swap-notifications`,
+                    `${process.env.SECRET_IP}api/notifications`,
                     {
                         requestId: request.id,
                         userId: request.task.userId,
@@ -180,7 +180,7 @@ router.patch(
                     })
                     .then(() => {
                         axios.post(
-                            `${process.env.SECRET_IP}api/swap-notifications`,
+                            `${process.env.SECRET_IP}api/notifications`,
                             {
                                 requestId: swapRequest.id,
                                 userId: swapRequest.task.userId,
@@ -204,7 +204,7 @@ router.patch(
                     })
                     .then(() => {
                         axios.post(
-                            `${process.env.SECRET_IP}api/swap-notifications`,
+                            `${process.env.SECRET_IP}api/notifications`,
                             {
                                 requestId: swapRequest.id,
                                 userId: swapRequest.task.userId,
@@ -254,7 +254,7 @@ router.patch(
                     })
                     .then(() => {
                         axios.post(
-                            `${process.env.SECRET_IP}api/swap-notifications`,
+                            `${process.env.SECRET_IP}api/notifications`,
                             {
                                 requestId: swapRequest.id,
                                 userId: swapRequest.task.userId,
@@ -304,7 +304,7 @@ router.patch(
                     })
                     .then(() => {
                         axios.post(
-                            `${process.env.SECRET_IP}api/swap-notifications`,
+                            `${process.env.SECRET_IP}api/notifications`,
                             {
                                 requestId: swapRequest.id,
                                 userId: swapRequest.task.userId,

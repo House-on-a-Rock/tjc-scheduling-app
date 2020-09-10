@@ -6,4 +6,4 @@ export * from './TeamModel';
 export * from './UserRoleModel';
 export * from './TokenModel';
 export * from './SwapRequestModel';
-export * from './SwapNotificationModel';
+export * from './NotificationModel';

@@ -35,7 +35,7 @@ app.use('/api', require('./routes/users'));
 app.use('/api', require('./routes/tasks'));
 app.use('/api', require('./routes/swap-requests'));
 app.use('/api', require('./routes/user-roles'));
-app.use('/api', require('./routes/swap-notifications'));
+app.use('/api', require('./routes/notifications'));
 
 app.use((req, res, next) => {
     const error = new Error('Not Found');

@@ -121,7 +121,7 @@ const funcs = {
         title: string,
         body: string,
     ) {
-        const user = await db.SwapNotification.findAll({
+        const user = await db.Notification.findAll({
             where: { id: userId, isRead: false },
             attributes: ['isRead'],
         });
