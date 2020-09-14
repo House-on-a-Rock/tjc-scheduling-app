@@ -94,11 +94,11 @@ const UserFactory = (
     User.associate = (models) => {
         User.hasMany(models.Task, { foreignKey: 'userId' });
         User.belongsTo(models.Church, { as: 'church', foreignKey: 'churchId' });
-        User.belongsToMany(models.Role, {
-            through: models.UserRole,
-            as: 'user',
-            foreignKey: 'userId',
-        });
+        // User.belongsToMany(models.Role, {
+        //     through: models.UserRole,
+        //     as: 'user',
+        //     foreignKey: 'userId',
+        // });
     };
 
     return User;

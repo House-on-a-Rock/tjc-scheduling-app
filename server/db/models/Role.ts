@@ -19,11 +19,11 @@ const RoleFactory = (
 
     Role.associate = (models) => {
         Role.belongsTo(models.Church, { as: 'church', foreignKey: 'churchId' });
-        Role.belongsToMany(models.User, {
-            through: models.UserRole,
-            as: 'member',
-            foreignKey: 'roleId',
-        });
+        // Role.belongsToMany(models.User, {
+        //     through: models.UserRole,
+        //     as: 'member',
+        //     foreignKey: 'roleId',
+        // });
     };
 
     return Role;
