@@ -35,6 +35,11 @@ router.get(
                             'taskId',
                         ],
                     },
+                    {
+                        model: db.Task,
+                        as: 'task',
+                        attributes: ['date', 'status', 'churchId', 'userId', 'roleId'],
+                    },
                 ],
             });
             if (swapNotifications.length > 0) res.status(200).json(swapNotifications);
