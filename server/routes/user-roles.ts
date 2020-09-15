@@ -19,7 +19,7 @@ router.get(
         try {
             jwt.verify(req.headers.authorization, cert);
             const userRoles = await db.UserRole.findAll({
-                where: { UserId: req.params.userId.toString() },
+                where: { userId: req.params.userId.toString() },
                 attributes: ['roleId'],
                 include: [
                     {

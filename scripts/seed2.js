@@ -124,6 +124,81 @@ const users = [
     // },
 ];
 
+const notifications = [
+    {
+        userId: 1,
+        message: 'Some notification',
+        isRead: false,
+        taskId: 1,
+    },
+    {
+        userId: 1,
+        message: 'Some notification',
+        isRead: false,
+        taskId: 2,
+    },
+    {
+        userId: 1,
+        message: 'Some notification',
+        isRead: false,
+        taskId: 3,
+    },
+    {
+        userId: 1,
+        message: 'Some notification',
+        isRead: false,
+        taskId: 1,
+    },
+    {
+        userId: 2,
+        message: 'Some notification',
+        isRead: false,
+        taskId: 1,
+    },
+    {
+        userId: 2,
+        message: 'Some notification',
+        isRead: false,
+        taskId: 2,
+    },
+    {
+        userId: 2,
+        message: 'Some notification',
+        isRead: false,
+        taskId: 3,
+    },
+    {
+        userId: 2,
+        message: 'Some notification',
+        isRead: false,
+        taskId: 1,
+    },
+    {
+        userId: 3,
+        message: 'Some notification',
+        isRead: false,
+        taskId: 1,
+    },
+    {
+        userId: 3,
+        message: 'Some notification',
+        isRead: false,
+        taskId: 2,
+    },
+    {
+        userId: 3,
+        message: 'Some notification',
+        isRead: false,
+        taskId: 3,
+    },
+    {
+        userId: 3,
+        message: 'Some notification',
+        isRead: false,
+        taskId: 1,
+    },
+];
+
 const roles = [
     {
         name: 'AV',
@@ -349,6 +424,12 @@ async function seed() {
             db.UserRole.create(userRole);
         }),
     );
+    await new Promise((r) => setTimeout(r, 2000));
+    const seedNotifications = await Promise.all(
+        notifications.map((notification) => {
+            db.Notification.create(notification);
+        }),
+    );
 
     console.log(blue(`seeded ${seedChurches.length} churches`));
     console.log(blue(`seeded ${seedUsers.length} users`));
@@ -356,6 +437,7 @@ async function seed() {
     console.log(blue(`seeded ${seedTasks.length} tasks`));
     console.log(blue(`seeded ${seedTeams.length} teams`));
     console.log(blue(`seeded ${seedUserRole.length} user roles`));
+    console.log(blue(`seeded ${seedNotifications.length} notifications`));
     console.log(blue(`seeded succesfully`));
 }
 
