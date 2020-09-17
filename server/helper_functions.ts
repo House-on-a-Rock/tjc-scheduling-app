@@ -111,8 +111,8 @@ const funcs = {
         }
         return false;
     },
-    setDate(date: string, time: string, timeZone: string) {
-        return DateTime.fromISO(`${date}T${time}`, { zone: timeZone });
+    setDate(date: string, time: string, timezone: string) {
+        return DateTime.fromISO(`${date}T${time}`, { zone: timezone });
     },
 };
 export default funcs;
