@@ -92,6 +92,8 @@ router.post('/requests', async (req: Request, res: Response, next: NextFunction)
         jwt.verify(req.headers.authorization, cert);
         let requesteeUserId: number = null;
         let type = 'requestAll';
+        let isReplace = false;
+        if (req.query.replace === 'true') isReplace = true;
         if (req.body.targetTaskId) {
             type = 'requestOne';
             const targetTask = await db.Task.findOne({
@@ -109,6 +111,7 @@ router.post('/requests', async (req: Request, res: Response, next: NextFunction)
                 type: type,
                 taskId: req.body.myTaskId,
                 message: req.body.message,
+                replace: isReplace,
             });
             myTask.update({
                 status: 'changeRequested',
@@ -157,7 +160,14 @@ router.patch(
             const acceptingUserId = decodedToken.sub.split('|')[1];
             const request = await db.Request.findOne({
                 where: { id: req.params.requestId },
-                attributes: ['id', 'requesteeUserId', 'type', 'accepted', 'approved'],
+                attributes: [
+                    'id',
+                    'requesteeUserId',
+                    'type',
+                    'accepted',
+                    'approved',
+                    'replace',
+                ],
                 include: [
                     {
                         model: db.Task,
@@ -232,7 +242,14 @@ router.patch(
             // const decodedToken = jwt.decode(req.headers.authorization, { json: true });
             const request = await db.Request.findOne({
                 where: { id: req.params.requestId },
-                attributes: ['id', 'requesteeUserId', 'type', 'accepted', 'approved'],
+                attributes: [
+                    'id',
+                    'requesteeUserId',
+                    'type',
+                    'accepted',
+                    'approved',
+                    'replace',
+                ],
                 include: [
                     {
                         model: db.Task,

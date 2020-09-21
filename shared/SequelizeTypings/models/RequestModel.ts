@@ -11,6 +11,7 @@ export interface RequestAttributes {
     rejected?: boolean;
     task?: TaskAttributes;
     message?: string;
+    replace?: boolean;
     createdAt?: Date;
     updatedAt?: Date;
 }

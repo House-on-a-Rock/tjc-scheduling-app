@@ -22,6 +22,7 @@ const RequestFactory = (
             defaultValue: false,
         },
         message: { type: DataTypes.STRING },
+        replace: { type: DataTypes.BOOLEAN },
     };
 
     const Request = sequelize.define<RequestInstance, RequestAttributes>(
