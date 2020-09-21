@@ -1,7 +1,7 @@
 import * as Sequelize from 'sequelize';
 import { TaskAttributes } from './TaskModel';
 
-export interface SwapRequestAttributes {
+export interface RequestAttributes {
     id?: number;
     requesteeUserId: number;
     type: string;
@@ -15,6 +15,6 @@ export interface SwapRequestAttributes {
     updatedAt?: Date;
 }
 
-export interface SwapRequestInstance
-    extends Sequelize.Instance<SwapRequestAttributes>,
-        SwapRequestAttributes {}
+export interface RequestInstance
+    extends Sequelize.Instance<RequestAttributes>,
+        RequestAttributes {}

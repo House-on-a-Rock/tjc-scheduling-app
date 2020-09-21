@@ -1,15 +1,12 @@
 import * as Sequelize from 'sequelize';
 import { SequelizeAttributes } from 'shared/SequelizeTypings/typings/SequelizeAttributes';
-import {
-    SwapRequestInstance,
-    SwapRequestAttributes,
-} from 'shared/SequelizeTypings/models';
+import { RequestInstance, RequestAttributes } from 'shared/SequelizeTypings/models';
 
-const SwapRequestFactory = (
+const RequestFactory = (
     sequelize: Sequelize.Sequelize,
     DataTypes: Sequelize.DataTypes,
-): Sequelize.Model<SwapRequestInstance, SwapRequestAttributes> => {
-    const attributes: SequelizeAttributes<SwapRequestAttributes> = {
+): Sequelize.Model<RequestInstance, RequestAttributes> => {
+    const attributes: SequelizeAttributes<RequestAttributes> = {
         requesteeUserId: { type: DataTypes.INTEGER },
         type: { type: DataTypes.STRING },
         accepted: {
@@ -27,15 +24,15 @@ const SwapRequestFactory = (
         message: { type: DataTypes.STRING },
     };
 
-    const SwapRequest = sequelize.define<SwapRequestInstance, SwapRequestAttributes>(
-        'SwapRequest',
+    const Request = sequelize.define<RequestInstance, RequestAttributes>(
+        'Request',
         attributes,
     );
 
-    SwapRequest.associate = (models) => {
-        SwapRequest.belongsTo(models.Task, { as: 'task', foreignKey: 'taskId' });
+    Request.associate = (models) => {
+        Request.belongsTo(models.Task, { as: 'task', foreignKey: 'taskId' });
     };
-    return SwapRequest;
+    return Request;
 };
 
-export default SwapRequestFactory;
+export default RequestFactory;

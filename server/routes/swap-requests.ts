@@ -26,7 +26,7 @@ router.get('/swap-requests', async (req: Request, res: Response, next: NextFunct
                 searchParams.push(parseInt(taskId, 10));
             });
         console.log(searchParams);
-        const swapRequests = await db.SwapRequest.findAll({
+        const swapRequests = await db.Request.findAll({
             where: {
                 TaskId: {
                     [Op.or]: searchParams,
@@ -69,7 +69,7 @@ router.get(
     async (req: Request, res: Response, next: NextFunction) => {
         try {
             jwt.verify(req.headers.authorization, cert);
-            const swapRequest = await db.SwapRequest.findOne({
+            const swapRequest = await db.Request.findOne({
                 where: { id: req.params.requestId },
                 attributes: ['id', 'requesteeUserId', 'type', 'accepted', 'taskId'],
             });
@@ -104,7 +104,7 @@ router.post('/swap-requests', async (req: Request, res: Response, next: NextFunc
             where: { id: req.body.myTaskId },
         });
         if (myTask) {
-            const createRequest = await db.SwapRequest.create({
+            const createRequest = await db.Request.create({
                 requesteeUserId: requesteeUserId,
                 type: type,
                 taskId: req.body.myTaskId,
@@ -113,7 +113,7 @@ router.post('/swap-requests', async (req: Request, res: Response, next: NextFunc
             myTask.update({
                 status: 'changeRequested',
             });
-            const newRequest = await db.SwapRequest.findOne({
+            const newRequest = await db.Request.findOne({
                 where: { id: createRequest.id },
                 include: [
                     {
@@ -155,7 +155,7 @@ router.patch(
             jwt.verify(req.headers.authorization, cert);
             const decodedToken = jwt.decode(req.headers.authorization, { json: true });
             const acceptingUserId = decodedToken.sub.split('|')[1];
-            const swapRequest = await db.SwapRequest.findOne({
+            const swapRequest = await db.Request.findOne({
                 where: { id: req.params.requestId },
                 attributes: ['id', 'requesteeUserId', 'type', 'accepted', 'approved'],
                 include: [
@@ -234,7 +234,7 @@ router.patch(
         try {
             jwt.verify(req.headers.authorization, cert);
             // const decodedToken = jwt.decode(req.headers.authorization, { json: true });
-            const swapRequest = await db.SwapRequest.findOne({
+            const swapRequest = await db.Request.findOne({
                 where: { id: req.params.requestId },
                 attributes: ['id', 'requesteeUserId', 'type', 'accepted', 'approved'],
                 include: [
@@ -284,7 +284,7 @@ router.patch(
         try {
             jwt.verify(req.headers.authorization, cert);
             // const decodedToken = jwt.decode(req.headers.authorization, { json: true });
-            const swapRequest = await db.SwapRequest.findOne({
+            const swapRequest = await db.Request.findOne({
                 where: { id: req.params.requestId },
                 attributes: ['id', 'requesteeUserId', 'type', 'accepted', 'approved'],
                 include: [
@@ -333,7 +333,7 @@ router.delete(
     async (req: Request, res: Response, next: NextFunction) => {
         try {
             jwt.verify(req.headers.authorization, cert);
-            const swapRequest = await db.SwapRequest.findOne({
+            const swapRequest = await db.Request.findOne({
                 where: { id: req.params.requestId },
                 attributes: [
                     'id',

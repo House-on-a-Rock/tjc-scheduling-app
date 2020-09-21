@@ -7,7 +7,7 @@ import RoleFactory from './Role';
 import TeamFactory from './Team';
 import UserRoleFactory from './User_Role';
 import TokenFactory from './Token';
-import SwapRequestFactory from './SwapRequest';
+import RequestFactory from './Request';
 import NotificationFactory from './Notification';
 
 const createModels = (database, username, password, config): DbInterface => {
@@ -23,7 +23,7 @@ const createModels = (database, username, password, config): DbInterface => {
         Team: TeamFactory(sequelize, Sequelize),
         UserRole: UserRoleFactory(sequelize, Sequelize),
         Token: TokenFactory(sequelize, Sequelize),
-        SwapRequest: SwapRequestFactory(sequelize, Sequelize),
+        Request: RequestFactory(sequelize, Sequelize),
         Notification: NotificationFactory(sequelize, Sequelize),
     };
 
