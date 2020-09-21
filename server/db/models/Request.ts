@@ -32,6 +32,7 @@ const RequestFactory = (
 
     Request.associate = (models) => {
         Request.belongsTo(models.Task, { as: 'task', foreignKey: 'taskId' });
+        Request.belongsTo(models.User, { as: 'user', foreignKey: 'userId' });
     };
     return Request;
 };

@@ -18,19 +18,11 @@ module.exports = router;
 router.get('/requests', async (req: Request, res: Response, next: NextFunction) => {
     try {
         jwt.verify(req.headers.authorization, cert);
-        const searchParams: number[] = [];
-        req.query.taskId
-            .toString()
-            .split(',')
-            .map((taskId) => {
-                searchParams.push(parseInt(taskId, 10));
-            });
-        console.log(searchParams);
+        const decodedToken = jwt.decode(req.headers.authorization, { json: true });
+        const loggedInId: number = parseInt(decodedToken.sub.split('|')[1], 10);
         const requests = await db.Request.findAll({
             where: {
-                TaskId: {
-                    [Op.or]: searchParams,
-                },
+                userId: loggedInId,
                 approved: false,
             },
             attributes: [
@@ -42,6 +34,7 @@ router.get('/requests', async (req: Request, res: Response, next: NextFunction) 
                 'createdAt',
                 'taskId',
                 'message',
+                'replace',
             ],
         });
         switch (requests.length) {

@@ -1,5 +1,6 @@
 import * as Sequelize from 'sequelize';
 import { TaskAttributes } from './TaskModel';
+import { UserAttributes } from './UserModel';
 
 export interface RequestAttributes {
     id?: number;
@@ -12,6 +13,8 @@ export interface RequestAttributes {
     task?: TaskAttributes;
     message?: string;
     replace?: boolean;
+    userId?: number;
+    user?: UserAttributes;
     createdAt?: Date;
     updatedAt?: Date;
 }
