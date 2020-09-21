@@ -83,6 +83,8 @@ router.get(
 router.post('/requests', async (req: Request, res: Response, next: NextFunction) => {
     try {
         jwt.verify(req.headers.authorization, cert);
+        const decodedToken = jwt.decode(req.headers.authorization, { json: true });
+        const loggedInId: number = parseInt(decodedToken.sub.split('|')[1], 10);
         let requesteeUserId: number = null;
         let type = 'requestAll';
         let isReplace = false;
@@ -105,6 +107,7 @@ router.post('/requests', async (req: Request, res: Response, next: NextFunction)
                 taskId: req.body.myTaskId,
                 message: req.body.message,
                 replace: isReplace,
+                userId: loggedInId,
             });
             myTask.update({
                 status: 'changeRequested',
