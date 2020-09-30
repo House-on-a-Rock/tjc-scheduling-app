@@ -51,9 +51,9 @@ router.post('/notifications', async (req: Request, res: Response, next: NextFunc
         const { authorization } = req.headers;
         jwt.verify(authorization, cert);
         const decodedToken = jwt.decode(authorization, { json: true });
+        const loggedInId: number = parseInt(decodedToken.sub.split('|')[1], 10);
 
         const { requestId, notification } = req.body;
-        const loggedInId: number = parseInt(decodedToken.sub.split('|')[1], 10);
 
         const request: RequestInstance = await db.Request.findOne({
             where: { id: requestId },

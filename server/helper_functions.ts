@@ -178,5 +178,10 @@ const funcs = {
                   });
         return [message, receivers];
     },
+    abstractLoginId(auth, cert) {
+        jwt.verify(auth, cert);
+        const decodedToken = jwt.decode(auth, { json: true });
+        return parseInt(decodedToken.sub.split('|')[1], 10);
+    },
 };
 export default funcs;

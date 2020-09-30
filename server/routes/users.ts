@@ -29,10 +29,7 @@ router.get('/users', async (req: Request, res: Response, next) => {
                 where: { roleId: req.query.roleId },
                 attributes: ['userId'],
             });
-            if (userRoles.length === 0)
-                return res
-                    .status(404)
-                    .send({ message: 'No users found with that role id' });
+            if (userRoles.length === 0) return res.status(404).send({ message: 'No users found with that role id' });
             const userIds = userRoles.map((userRole) => {
                 return userRole.userId;
             });
@@ -45,14 +42,7 @@ router.get('/users', async (req: Request, res: Response, next) => {
         console.log(searchParams);
         const users: UserInstance[] = await db.User.findAll({
             where: searchParams,
-            attributes: [
-                ['id', 'userId'],
-                'firstName',
-                'lastName',
-                'email',
-                'churchId',
-                'disabled',
-            ],
+            attributes: [['id', 'userId'], 'firstName', 'lastName', 'email', 'churchId', 'disabled'],
             include: [
                 {
                     model: db.Church,
@@ -81,14 +71,7 @@ router.get('/users/:userId', async (req, res, next) => {
             where: {
                 id: parsedId,
             },
-            attributes: [
-                'firstName',
-                'lastName',
-                'email',
-                'id',
-                'churchId',
-                'expoPushToken',
-            ],
+            attributes: ['firstName', 'lastName', 'email', 'id', 'churchId', 'expoPushToken'],
             include: [
                 {
                     model: db.Church,
@@ -158,12 +141,7 @@ router.post('/users', async (req: Request, res: Response, next) => {
                 token: token,
             });
 
-            const [message, status] = helper.sendVerEmail(
-                username,
-                req.headers,
-                token,
-                'confirmation',
-            );
+            const [message, status] = helper.sendVerEmail(username, req.headers, token, 'confirmation');
 
             res.status(status).json(addedUser);
         }
@@ -200,25 +178,22 @@ router.delete('/users/:userId', async (req: Request, res: Response, next) => {
 });
 
 //updates expoPushToken on login, may need cleanup or be moved around
-router.patch(
-    '/users/expoPushToken/:userId',
-    async (req: Request, res: Response, next) => {
-        try {
-            jwt.verify(req.headers.authorization, cert);
-            const user = await db.User.findOne({
-                where: { id: req.params.userId },
-            });
-            if (user) {
-                user.update({ expoPushToken: req.body.pushToken });
-                res.status(200).send({ messageg: 'Push Token updated' });
-            } else res.status(404).send({ message: 'User not found' });
-        } catch (err) {
-            if (err instanceof TokenExpiredError || err instanceof JsonWebTokenError) {
-                res.status(401).send({ message: 'Unauthorized' });
-            } else {
-                res.status(503).send({ message: 'Server error, try again later' });
-            }
-            next(err);
+router.patch('/users/expoPushToken/:userId', async (req: Request, res: Response, next) => {
+    try {
+        jwt.verify(req.headers.authorization, cert);
+        const user = await db.User.findOne({
+            where: { id: req.params.userId },
+        });
+        if (user) {
+            user.update({ expoPushToken: req.body.pushToken });
+            res.status(200).send({ messageg: 'Push Token updated' });
+        } else res.status(404).send({ message: 'User not found' });
+    } catch (err) {
+        if (err instanceof TokenExpiredError || err instanceof JsonWebTokenError) {
+            res.status(401).send({ message: 'Unauthorized' });
+        } else {
+            res.status(503).send({ message: 'Server error, try again later' });
         }
-    },
-);
+        next(err);
+    }
+});

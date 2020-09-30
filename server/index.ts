@@ -2,8 +2,15 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import cors from 'cors';
 import session from 'express-session';
+import fs from 'fs';
+import jwt from 'jsonwebtoken';
 import db from './db';
 
+let cert;
+fs.readFile('tjcschedule_pub.pem', function read(err, data) {
+    if (err) throw err;
+    cert = data;
+});
 const port = process.env.PORT || 8080;
 const app: express.Application = express();
 
@@ -28,7 +35,14 @@ app.get('/', (req: any, res) => {
         message: msg,
     });
 });
-
+// app.get('/api', (req, res, next) => {
+//     try {
+//         jwt.verify(req.headers.authorization, cert);
+//         next();
+//     } catch (error) {
+//         console.log(error);
+//     }
+// });
 app.use('/api', require('./routes'));
 app.use('/api', require('./routes/churches'));
 app.use('/api', require('./routes/users'));
