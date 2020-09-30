@@ -132,7 +132,7 @@ router.post('/users', async (req: Request, res: Response, next) => {
             return res.status(406).send({ message: 'Invalid email' });
         }
         if (!doesUserExist) {
-            const newUser: UserInstance = await db.User.create({
+            await db.User.create({
                 firstName: req.body.firstName,
                 lastName: req.body.lastName,
                 email: req.body.email,
@@ -158,9 +158,14 @@ router.post('/users', async (req: Request, res: Response, next) => {
                 token: token,
             });
 
-            helper.sendVerEmail(username, req, token, 'confirmation');
+            const [message, status] = helper.sendVerEmail(
+                username,
+                req.headers,
+                token,
+                'confirmation',
+            );
 
-            res.status(201).json(addedUser);
+            res.status(status).json(addedUser);
         }
     } catch (err) {
         if (err instanceof TokenExpiredError || err instanceof JsonWebTokenError) {

@@ -1,4 +1,5 @@
 import nodemailer from 'nodemailer';
+import crypto from 'crypto';
 import jwt, { Algorithm } from 'jsonwebtoken';
 import fs from 'fs';
 import { DateTime } from 'luxon';
@@ -37,7 +38,7 @@ const funcs = {
         }
     },
 
-    sendVerEmail(username, req, token, api) {
+    sendVerEmail(username, headers, token, api) {
         try {
             console.log('Sending email..');
             let message;
@@ -58,16 +59,15 @@ const funcs = {
                 from: 'alraneus@gmail.com',
                 to: username,
                 subject: 'Account Verification Token',
-                text: `Hello,\n\n Please verify your account by clicking the link: \nhttp://${req.headers.host}/api/authentication/${api}?token=${token}`,
+                text: `Hello,\n\n Please verify your account by clicking the link: \nhttp://${headers.host}/api/authentication/${api}?token=${token}`,
             };
             transporter.sendMail(mailOptions, function (err) {
-                if (err) {
-                    console.log(err.message);
-                }
-                return true;
+                return err ? console.log(err.message) : console.log('success');
             });
+            return [message, 201];
         } catch (err) {
             console.log(err);
+            return ['error', 401];
         }
     },
 
@@ -144,5 +144,75 @@ const funcs = {
             }),
         });
     },
+    hashPassword(password: string, salt: string) {
+        return crypto
+            .createHash(process.env.SECRET_HASH)
+            .update(password)
+            .update(salt)
+            .digest('hex');
+    },
+    makeMyNotificationMessage(notification: string, type: string, firstName: string) {
+        switch (notification) {
+            case 'accepted':
+                return `Your requested has been accepted by ${firstName}`;
+            case 'approved':
+                return `Your request to switch with ${firstName} has been approved`;
+            case 'cancelled':
+                return `Your request to switch has been cancelled`;
+            case 'created':
+                return type === 'requestOne'
+                    ? `Request sent to ${firstName}`
+                    : `Request sent to all local church members`;
+            default:
+                return 'Invalid notification type.';
+        }
+    },
 };
 export default funcs;
+
+// switch (notification) {
+//     case 'accepted':
+//         message = `Your requested has been accepted by ${theirFirstName}`;
+//         break;
+//     case 'approved':
+//         message = `Your request to switch with ${theirFirstName} has been approved`;
+//         break;
+//     case 'cancelled':
+//         message = `Your request to switch has been cancelled`;
+//         break;
+//     case 'created':
+//         if (swapRequestType === 'requestOne') {
+//             message = `Request sent to ${theirFirstName}`;
+//             await db.Notification.create({
+//                 userId: theirUserId,
+//                 message: `${myFirstName} wants to switch with you`,
+//                 requestId,
+//             });
+//             helper.sendPushNotification(
+//                 theirUserId,
+//                 theirPushToken,
+//                 'Request Notification',
+//                 `${myFirstName} wants to switch with you`,
+//             );
+//         } else {
+//             message = `Request sent to all local church members`;
+//             localChurchUsers.map(async ({ id: userId, expoPushToken }) => {
+//                 if (userId !== loggedInId) {
+//                     await db.Notification.create({
+//                         userId,
+//                         message: `${myFirstName} requested to switch with someone. An open request has been sent out.`,
+//                         requestId,
+//                     });
+//                     helper.sendPushNotification(
+//                         userId,
+//                         expoPushToken,
+//                         'Request Notification',
+//                         `${myFirstName} requested to switch with someone. An open request has been sent out.`,
+//                     );
+//                 }
+//             });
+//         }
+//         break;
+//     default:
+//         return res.status(400).send({ message: 'Invalid notification type.' });
+// }
