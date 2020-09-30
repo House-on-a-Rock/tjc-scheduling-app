@@ -5,6 +5,7 @@ import fs from 'fs';
 import { DateTime } from 'luxon';
 import fetch from 'node-fetch';
 import db from './index';
+import { UserInstance } from 'shared/SequelizeTypings/models';
 
 const privateKey = fs.readFileSync('tjcschedule.pem');
 
@@ -151,7 +152,7 @@ const funcs = {
             .update(salt)
             .digest('hex');
     },
-    makeMyNotificationMessage(notification: string, type: string, firstName: string) {
+    makeMyNotification(notification: string, type: string, firstName: string) {
         switch (notification) {
             case 'accepted':
                 return `Your requested has been accepted by ${firstName}`;
@@ -166,6 +167,29 @@ const funcs = {
             default:
                 return 'Invalid notification type.';
         }
+    },
+    async makeTheirNotifications(
+        type: string,
+        name: string,
+        id: number,
+    ): Promise<[string, UserInstance[]]> {
+        const message =
+            type === 'requestOne'
+                ? `${name} wants to switch with you`
+                : `${name} requested to switch with someone. An open request has been sent out.`;
+        const receivers: UserInstance[] =
+            type === 'requestOne'
+                ? [
+                      await db.User.findOne({
+                          where: { id: id },
+                          attributes: ['id', 'firstName', 'expoPushToken'],
+                      }),
+                  ]
+                : await db.User.findAll({
+                      where: { churchId: id },
+                      attributes: ['id', 'firstName', 'expoPushToken'],
+                  });
+        return [message, receivers];
     },
 };
 export default funcs;

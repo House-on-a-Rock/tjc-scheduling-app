@@ -1,7 +1,7 @@
 import express, { Request, Response, NextFunction } from 'express';
 import fs from 'fs';
 import jwt, { TokenExpiredError, JsonWebTokenError } from 'jsonwebtoken';
-import { UserInstance } from 'shared/SequelizeTypings/models';
+import { RequestInstance, UserInstance } from 'shared/SequelizeTypings/models';
 import db from '../index';
 import helper from '../helper_functions';
 
@@ -20,7 +20,7 @@ router.get(
             const { authorization } = req.headers;
             const { userId } = req.params;
             jwt.verify(authorization, cert);
-            const swapNotifications = await db.Notification.findAll({
+            const notifications = await db.Notification.findAll({
                 where: { userId },
                 attributes: ['id', 'userId', 'message', 'createdAt', 'requestId'],
                 include: [
@@ -43,16 +43,16 @@ router.get(
                     },
                 ],
             });
-            if (swapNotifications.length > 0)
-                return res.status(200).json(swapNotifications);
-            return res.status(404).send({ message: 'Not found' });
+            if (notifications.length === 0)
+                return res.status(404).send({ message: 'No notifications found' });
+            return res.status(200).json(notifications);
         } catch (err) {
             next(err);
             const [message, status] =
                 err instanceof TokenExpiredError || err instanceof JsonWebTokenError
                     ? ['Unauthorized', 401]
                     : ['Server error, try again later', 503];
-            return res.send(message).status(status);
+            return res.send({ message }).status(status);
         }
     },
 );
@@ -60,12 +60,13 @@ router.get(
 router.post('/notifications', async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { authorization } = req.headers;
-        const { requestId, notification } = req.body;
         jwt.verify(authorization, cert);
         const decodedToken = jwt.decode(authorization, { json: true });
+
+        const { requestId, notification } = req.body;
         const loggedInId: number = parseInt(decodedToken.sub.split('|')[1], 10);
 
-        const request = await db.Request.findOne({
+        const request: RequestInstance = await db.Request.findOne({
             where: { id: requestId },
             attributes: ['id', 'requesteeUserId', 'type', 'accepted', 'approved'],
             include: [
@@ -76,15 +77,18 @@ router.post('/notifications', async (req: Request, res: Response, next: NextFunc
                 },
             ],
         });
-        const { requesteeUserId, task, type: swapRequestType } = request;
-
-        if (!notification)
-            return res.status(400).send({ message: 'Invalid notification type.' });
-        if (!request) return res.status(404).send({ message: 'Swap request not found' });
+        const { requesteeUserId, task, type: requestType } = request;
+        // eslint-disable-next-line no-nested-ternary
+        const [message, status] = !notification
+            ? ['Invalid notification type.', 400]
+            : !request
+            ? ['Swap request not found', 404]
+            : ['Notifications created', 200];
+        if (status > 399) return res.status(status).send({ message });
 
         // whoami
         const {
-            firstName: myFirstName,
+            firstName: myName,
             churchId: myChurchId,
             id: myUserId,
             expoPushToken: myPushToken,
@@ -94,74 +98,67 @@ router.post('/notifications', async (req: Request, res: Response, next: NextFunc
         });
 
         // whoareyou
-        const { firstName: theirFirstName } = await db.User.findOne({
-            where: { id: requesteeUserId },
-            attributes: ['id', 'firstName', 'expoPushToken'],
-        });
+        const { firstName: theirName } =
+            requesteeUserId &&
+            (await db.User.findOne({
+                where: { id: requesteeUserId },
+                attributes: ['id', 'firstName', 'expoPushToken'],
+            }));
 
-        const receivers: UserInstance[] =
-            notification === 'created' &&
-            swapRequestType === 'requestOne' &&
-            requesteeUserId
-                ? [
-                      await db.User.findOne({
-                          where: { id: requesteeUserId },
-                          attributes: ['id', 'firstName', 'expoPushToken'],
-                      }),
-                  ]
-                : await db.User.findAll({
-                      where: { churchId: myChurchId },
-                      attributes: ['id', 'firstName', 'expoPushToken'],
-                  });
-
-        // creates notification for them
+        // creates notification for receivers
         if (notification === 'created') {
-            const theirNotificationMessage =
-                swapRequestType === 'requestOne'
-                    ? `${myFirstName} wants to switch with you`
-                    : `${myFirstName} requested to switch with someone. An open request has been sent out.`;
-            receivers.map(async ({ id: theirId, expoPushToken }) => {
+            const [theirNotifMessage, receivers]: [
+                string,
+                UserInstance[],
+            ] = await helper.makeTheirNotifications(
+                requestType,
+                myName,
+                requesteeUserId ?? myChurchId,
+            );
+
+            receivers.map(async ({ id: theirId, expoPushToken: theirPushToken }) => {
+                // won't send to myself
                 if (theirId !== loggedInId) {
                     await db.Notification.create({
                         userId: theirId,
-                        message: theirNotificationMessage,
+                        message: theirNotifMessage,
                         requestId,
                     });
                     helper.sendPushNotification(
                         theirId,
-                        expoPushToken,
+                        theirPushToken,
                         'Request Notification',
-                        theirNotificationMessage,
+                        theirNotifMessage,
                     );
                 }
             });
         }
-        // is made if requesteeUser
-        const myNotificationMessage = helper.makeMyNotificationMessage(
-            notification,
-            swapRequestType,
-            theirFirstName,
-        );
         // creates notification for me
+        const myNotifMessage: string = helper.makeMyNotification(
+            notification,
+            requestType,
+            theirName,
+        );
         await db.Notification.create({
             userId: myUserId,
-            message: myNotificationMessage,
+            message: myNotifMessage,
             requestId,
         });
         helper.sendPushNotification(
             myUserId,
             myPushToken,
             'Request Notification',
-            myNotificationMessage,
+            myNotifMessage,
         );
-        res.status(201).send({ message: 'Notifications created' });
+
+        return res.status(status).send({ message });
     } catch (err) {
         next(err);
         const [message, status] =
             err instanceof TokenExpiredError || err instanceof JsonWebTokenError
                 ? ['Unauthorized', 401]
                 : ['Server error, try again later', 503];
-        return res.send(message).status(status);
+        return res.send({ message }).status(status);
     }
 });
 
@@ -170,7 +167,7 @@ router.patch(
     async (req: Request, res: Response, next: NextFunction) => {
         try {
             jwt.verify(req.headers.authorization, cert);
-            const swapNotification = await db.Notification.findOne({
+            const notification = await db.Notification.findOne({
                 where: { id: req.params.notificationId },
                 attributes: [
                     'id',
@@ -181,17 +178,21 @@ router.patch(
                     'requestId',
                 ],
             });
-            swapNotification.update({
-                id: swapNotification.id,
+            notification.update({
+                id: notification.id,
                 isRead: true,
             });
+            const [message, status] = !notification
+                ? ['Invalid notification.', 400]
+                : ['Notifications patched', 200];
+            return res.status(status).send({ message });
         } catch (err) {
             next(err);
             const [message, status] =
                 err instanceof TokenExpiredError || err instanceof JsonWebTokenError
                     ? ['Unauthorized', 401]
                     : ['Server error, try again later', 503];
-            return res.send(message).status(status);
+            return res.send({ message }).status(status);
         }
     },
 );
@@ -201,7 +202,7 @@ router.patch(
     async (req: Request, res: Response, next: NextFunction) => {
         try {
             jwt.verify(req.headers.authorization, cert);
-            const swapNotifications = await db.Notification.findAll({
+            const notifications = await db.Notification.findAll({
                 where: { userId: req.params.userId },
                 attributes: [
                     'id',
@@ -212,18 +213,18 @@ router.patch(
                     'requestId',
                 ],
             });
-            swapNotifications.map((swapNotification) => {
-                swapNotification.update({
-                    isRead: true,
-                });
-            });
+            notifications.map((notification) => notification.update({ isRead: true }));
+            const [message, status] = !notifications
+                ? ['Invalid notification.', 400]
+                : ['All notifications read', 200];
+            return res.status(status).send({ message });
         } catch (err) {
             next(err);
             const [message, status] =
                 err instanceof TokenExpiredError || err instanceof JsonWebTokenError
                     ? ['Unauthorized', 401]
                     : ['Server error, try again later', 503];
-            return res.send(message).status(status);
+            return res.send({ message }).status(status);
         }
     },
 );
@@ -233,24 +234,22 @@ router.delete(
     async (req: Request, res: Response, next: NextFunction) => {
         try {
             jwt.verify(req.headers.authorization, cert);
-            const swapNotification = await db.Notification.findOne({
+            const notification = await db.Notification.findOne({
                 where: { id: req.params.notificationId },
                 attributes: ['id', 'userId', 'createdAt', 'updatedAt', 'requestId'],
             });
-            if (swapNotification) {
-                await swapNotification.destroy().then(function () {
-                    res.status(200).json(swapNotification);
-                });
-            } else {
-                res.status(404).send({ message: 'Notification not found' });
-            }
+            if (notification) await notification.destroy();
+            const [message, status] = notification
+                ? ['Notification destroyed', 200]
+                : ['Notification not found', 404];
+            return res.status(status).send({ message });
         } catch (err) {
             next(err);
             const [message, status] =
                 err instanceof TokenExpiredError || err instanceof JsonWebTokenError
                     ? ['Unauthorized', 401]
                     : ['Server error, try again later', 503];
-            return res.send(message).status(status);
+            return res.send({ message }).status(status);
         }
     },
 );

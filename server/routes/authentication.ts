@@ -80,7 +80,7 @@ router.post('/resendConfirm', async (req: Request, res: Response, next: NextFunc
             newToken,
             'confirmation',
         );
-        return res.status(status).send(message);
+        return res.status(status).send({ message });
     } catch (err) {
         next(err);
         return res.status(503).send({ message: 'Server error, try again later' });
@@ -144,12 +144,12 @@ router.post('/login', async (req: Request, res: Response, next: NextFunction) =>
             user.update(updatedAttempts);
         }
 
-        if (status > 299) return res.status(status).send(message);
+        if (status > 299) return res.status(status).send({ message });
 
         // if login is successful, reset login attempt information
         user.update({ id, loginAttempts: 0, loginTimeout: null });
         const token = helper.createToken('reg', id, 60);
-        return res.status(status).send(message).json({
+        return res.status(status).send({ message }).json({
             user_id: id,
             firstName,
             lastName,
@@ -333,7 +333,7 @@ router.post('/resetPassword', async (req: Request, res: Response, next: NextFunc
                 password: newPassword,
                 token: null,
             });
-        return res.status(status).send(message);
+        return res.status(status).send({ message });
     } catch (err) {
         next(err);
         return res.status(503).send({ message: 'Server error, try again later' });

@@ -24,14 +24,14 @@ router.get('/churches', async (req: Request, res: Response, next: NextFunction) 
             ? ['Here is your church', 200]
             : ['Not Found', 404];
 
-        return res.send(message).status(status);
+        return res.send({ message }).status(status);
     } catch (err) {
         next(err);
         const [message, status] =
             err instanceof TokenExpiredError || err instanceof JsonWebTokenError
                 ? ['Unauthorized', 401]
                 : ['Server error, try again later', 503];
-        return res.send(message).status(status);
+        return res.send({ message }).status(status);
     }
 });
 
@@ -52,7 +52,7 @@ router.post('/churches', async (req: Request, res: Response, next: NextFunction)
             err instanceof TokenExpiredError || err instanceof JsonWebTokenError
                 ? ['Unauthorized', 401]
                 : ['Server error, try again later', 503];
-        return res.send(message).status(status);
+        return res.send({ message }).status(status);
     }
 });
 
