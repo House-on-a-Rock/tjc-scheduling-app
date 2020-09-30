@@ -2,58 +2,52 @@ import express, { Request, Response, NextFunction } from 'express';
 import crypto from 'crypto';
 import fs from 'fs';
 import jwt, { TokenExpiredError, JsonWebTokenError } from 'jsonwebtoken';
-import request from 'request-promise';
 import helper from '../helper_functions';
 import db from '../index';
 // to destructure db into { Token, User}, cannot use default exports
 const router = express.Router();
 
-let cert;
 fs.readFile('tjcschedule_pub.pem', function read(err, data) {
     if (err) throw err;
-    cert = data;
 });
 
 module.exports = router;
 
-router.get(
-    '/confirmation',
-    async ({ query }: Request, res: Response, next: NextFunction) => {
-        try {
-            const { expiresIn, token, userId } = await db.Token.findOne({
-                where: { token: query.token.toString() },
-                attributes: ['userId', 'token', 'expiresIn'],
-            });
-            const [current, expiration] = [Date.now(), new Date(expiresIn).getTime()];
-            const determineMessageStatus: () => [string, number] = () => {
-                switch (true) {
-                    case !token:
-                        return ['Token not found', 401];
-                    case expiration <= current:
-                        return ['Token expired', 401];
-                    default:
-                        return ['The account has been verified. Please log in.', 201];
-                }
-            };
-            const [message, status] = determineMessageStatus();
-
-            if (status === 201) {
-                const user = await db.User.findOne({
-                    where: { id: userId },
-                    attributes: ['isVerified'],
-                });
-                user.update({
-                    id: userId,
-                    isVerified: true,
-                });
+router.get('/confirmation', async ({ query }: Request, res: Response, next: NextFunction) => {
+    try {
+        const { expiresIn, token, userId } = await db.Token.findOne({
+            where: { token: query.token.toString() },
+            attributes: ['userId', 'token', 'expiresIn'],
+        });
+        const [current, expiration] = [Date.now(), new Date(expiresIn).getTime()];
+        const determineMessageStatus: () => [string, number] = () => {
+            switch (true) {
+                case !token:
+                    return ['Token not found', 401];
+                case expiration <= current:
+                    return ['Token expired', 401];
+                default:
+                    return ['The account has been verified. Please log in.', 201];
             }
-            return res.status(status).send({ message });
-        } catch (err) {
-            next(err);
-            return res.status(503).send({ message: 'Server error, try again later' });
+        };
+        const [message, status] = determineMessageStatus();
+
+        if (status === 201) {
+            const user = await db.User.findOne({
+                where: { id: userId },
+                attributes: ['isVerified'],
+            });
+            user.update({
+                id: userId,
+                isVerified: true,
+            });
         }
-    },
-);
+        return res.status(status).send({ message });
+    } catch (err) {
+        next(err);
+        return res.status(503).send({ message: 'Server error, try again later' });
+    }
+});
 
 router.post('/resendConfirm', async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -74,12 +68,7 @@ router.post('/resendConfirm', async (req: Request, res: Response, next: NextFunc
             token: newToken,
             expiresIn: Date.now() + 30 * 60 * 1000,
         });
-        const [message, status] = helper.sendVerEmail(
-            email,
-            headers,
-            newToken,
-            'confirmation',
-        );
+        const [message, status] = helper.sendVerEmail(email, headers, newToken, 'confirmation');
         return res.status(status).send({ message });
     } catch (err) {
         next(err);
@@ -104,17 +93,7 @@ router.post('/login', async (req: Request, res: Response, next: NextFunction) =>
                 'isVerified',
             ],
         });
-        const {
-            password,
-            salt,
-            loginTimeout,
-            loginAttempts,
-            id,
-            isVerified,
-            firstName,
-            lastName,
-            email,
-        } = user;
+        const { password, salt, loginTimeout, loginAttempts, id, isVerified, firstName, lastName, email } = user;
         const hashedLoginPassword = helper.hashPassword(loginPassword, salt);
         const determineMessageStatus: () => [string, number] = () => {
             const currentTime = new Date();
@@ -162,28 +141,23 @@ router.post('/login', async (req: Request, res: Response, next: NextFunction) =>
     }
 });
 
-router.post(
-    '/confirmPassword',
-    async (req: Request, res: Response, next: NextFunction) => {
-        try {
-            const { email, password: loginPassword } = req.body;
-            const { salt, password } = await db.User.findOne({
-                where: { email },
-                attributes: ['salt', 'password'],
-            });
+router.post('/confirmPassword', async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { email, password: loginPassword } = req.body;
+        const { salt, password } = await db.User.findOne({
+            where: { email },
+            attributes: ['salt', 'password'],
+        });
 
-            const checkedHash = helper.hashPassword(loginPassword, salt);
-            const [message, status, verify] =
-                checkedHash !== password
-                    ? ['Invalid credentials', 401, false]
-                    : ['Password confirmed', 200, true];
-            return res.status(status).send({ message, verify });
-        } catch (err) {
-            next(err);
-            return res.status(503).send({ message: 'Server error, try again later' });
-        }
-    },
-);
+        const checkedHash = helper.hashPassword(loginPassword, salt);
+        const [message, status, verify] =
+            checkedHash !== password ? ['Invalid credentials', 401, false] : ['Password confirmed', 200, true];
+        return res.status(status).send({ message, verify });
+    } catch (err) {
+        next(err);
+        return res.status(503).send({ message: 'Server error, try again later' });
+    }
+});
 
 // router.post(
 //     '/changePassword',
@@ -234,78 +208,68 @@ router.post(
 //     },
 // );
 
-router.post(
-    '/sendResetEmail',
-    async (req: Request, res: Response, next: NextFunction) => {
-        try {
-            const { email } = req.body;
-            const user = await db.User.findOne({
-                where: { email },
-                attributes: ['id', 'password', 'isVerified'],
-            });
-            const { isVerified, id, password } = user;
+router.post('/sendResetEmail', async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { email } = req.body;
+        const user = await db.User.findOne({
+            where: { email },
+            attributes: ['id', 'password', 'isVerified'],
+        });
+        const { isVerified, id, password } = user;
 
-            if (user && isVerified) {
-                const token = helper.creatResetToken(id, 15, password);
-                const [tokenHeader, tokenPayload, tokenSignature] = token.split('.');
-                helper.sendGenericEmail(
-                    email,
-                    `http://localhost:8080/api/authentication/checkResetToken?header=${tokenHeader}&payload=${tokenPayload}&signature=${tokenSignature}`,
-                );
-                return res.status(200).send({
-                    message: 'Recovery token created',
-                    email,
-                    token: token,
-                });
-            }
-            return res.status(200);
-        } catch (err) {
-            next(err);
-            return res.status(503).send({ message: 'Server error, try again later' });
-        }
-    },
-);
-
-router.get(
-    '/checkResetToken',
-    async (req: Request, res: Response, next: NextFunction) => {
-        try {
-            const { header, payload, signature } = req.query;
-            const decodedToken = jwt.decode(`${header}.${payload}.${signature}`, {
-                json: true,
-            });
-            const requestId = decodedToken.sub.split('|')[1];
-            const { password } = await db.User.findOne({
-                where: { id: parseInt(requestId, 10) },
-                attributes: ['id', 'email', 'password', 'isVerified'],
-            });
-            jwt.verify(`${header}.${payload}.${signature}`, password);
-            // res.status(200).send({ message: 'token valid' }); // replace with res.redirect
-
-            // These commented out lines is what you need. I just dunno how the jwt works, but this is how it should work.
-            // (jwt === verified) ?
-            return res.redirect(
-                `http://localhost:8081/auth/resetPassword?token=${header}.${payload}.${signature}`,
+        if (user && isVerified) {
+            const token = helper.creatResetToken(id, 15, password);
+            const [tokenHeader, tokenPayload, tokenSignature] = token.split('.');
+            helper.sendGenericEmail(
+                email,
+                `http://localhost:8080/api/authentication/checkResetToken?header=${tokenHeader}&payload=${tokenPayload}&signature=${tokenSignature}`,
             );
-            // : res.redirect(`http://localhost:8081/auth/expiredAccess?message='TokenExpired'`)
-            // also if you could change the way that "Token Expired" string is sent, I think you have to
-            // const querystring = require('querystring');
-            // const message = querystring.stringify({message:"TokenExpired", status:401})
-            // : res.redirect(`http://localhost:8081/auth/expiredAccess?message=${message}`)
-        } catch (err) {
-            if (err instanceof TokenExpiredError) {
-                return res.redirect(
-                    `http://localhost:8081/auth/expiredAccess?message=TokenExpired&status=401`,
-                );
-            }
-            if (err instanceof JsonWebTokenError) {
-                return res.status(400).send({ message: 'No token found' });
-            }
-            next(err);
-            return res.status(503).send({ message: 'Server error, try again later' });
+            return res.status(200).send({
+                message: 'Recovery token created',
+                email,
+                token: token,
+            });
         }
-    },
-);
+        return res.status(200);
+    } catch (err) {
+        next(err);
+        return res.status(503).send({ message: 'Server error, try again later' });
+    }
+});
+
+router.get('/checkResetToken', async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { header, payload, signature } = req.query;
+        const decodedToken = jwt.decode(`${header}.${payload}.${signature}`, {
+            json: true,
+        });
+        const requestId = decodedToken.sub.split('|')[1];
+        const { password } = await db.User.findOne({
+            where: { id: parseInt(requestId, 10) },
+            attributes: ['id', 'email', 'password', 'isVerified'],
+        });
+        jwt.verify(`${header}.${payload}.${signature}`, password);
+        // res.status(200).send({ message: 'token valid' }); // replace with res.redirect
+
+        // These commented out lines is what you need. I just dunno how the jwt works, but this is how it should work.
+        // (jwt === verified) ?
+        return res.redirect(`http://localhost:8081/auth/resetPassword?token=${header}.${payload}.${signature}`);
+        // : res.redirect(`http://localhost:8081/auth/expiredAccess?message='TokenExpired'`)
+        // also if you could change the way that "Token Expired" string is sent, I think you have to
+        // const querystring = require('querystring');
+        // const message = querystring.stringify({message:"TokenExpired", status:401})
+        // : res.redirect(`http://localhost:8081/auth/expiredAccess?message=${message}`)
+    } catch (err) {
+        if (err instanceof TokenExpiredError) {
+            return res.redirect(`http://localhost:8081/auth/expiredAccess?message=TokenExpired&status=401`);
+        }
+        if (err instanceof JsonWebTokenError) {
+            return res.status(400).send({ message: 'No token found' });
+        }
+        next(err);
+        return res.status(503).send({ message: 'Server error, try again later' });
+    }
+});
 
 router.post('/resetPassword', async (req: Request, res: Response, next: NextFunction) => {
     try {

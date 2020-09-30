@@ -4,8 +4,8 @@ import jwt, { Algorithm } from 'jsonwebtoken';
 import fs from 'fs';
 import { DateTime } from 'luxon';
 import fetch from 'node-fetch';
-import db from './index';
 import { UserInstance } from 'shared/SequelizeTypings/models';
+import db from './index';
 
 const privateKey = fs.readFileSync('tjcschedule.pem');
 
@@ -116,12 +116,7 @@ const funcs = {
     setDate(date: string, time: string, timeZone: string) {
         return DateTime.fromISO(`${date}T${time}`, { zone: timeZone });
     },
-    async sendPushNotification(
-        userId: number,
-        userPushToken: string,
-        title: string,
-        body: string,
-    ) {
+    async sendPushNotification(userId: number, userPushToken: string, title: string, body: string) {
         const user = await db.Notification.findAll({
             where: { id: userId, isRead: false },
             attributes: ['isRead'],
@@ -146,11 +141,7 @@ const funcs = {
         });
     },
     hashPassword(password: string, salt: string) {
-        return crypto
-            .createHash(process.env.SECRET_HASH)
-            .update(password)
-            .update(salt)
-            .digest('hex');
+        return crypto.createHash(process.env.SECRET_HASH).update(password).update(salt).digest('hex');
     },
     makeMyNotification(notification: string, type: string, firstName: string) {
         switch (notification) {
@@ -168,11 +159,7 @@ const funcs = {
                 return 'Invalid notification type.';
         }
     },
-    async makeTheirNotifications(
-        type: string,
-        name: string,
-        id: number,
-    ): Promise<[string, UserInstance[]]> {
+    async makeTheirNotifications(type: string, name: string, id: number): Promise<[string, UserInstance[]]> {
         const message =
             type === 'requestOne'
                 ? `${name} wants to switch with you`
@@ -193,50 +180,3 @@ const funcs = {
     },
 };
 export default funcs;
-
-// switch (notification) {
-//     case 'accepted':
-//         message = `Your requested has been accepted by ${theirFirstName}`;
-//         break;
-//     case 'approved':
-//         message = `Your request to switch with ${theirFirstName} has been approved`;
-//         break;
-//     case 'cancelled':
-//         message = `Your request to switch has been cancelled`;
-//         break;
-//     case 'created':
-//         if (swapRequestType === 'requestOne') {
-//             message = `Request sent to ${theirFirstName}`;
-//             await db.Notification.create({
-//                 userId: theirUserId,
-//                 message: `${myFirstName} wants to switch with you`,
-//                 requestId,
-//             });
-//             helper.sendPushNotification(
-//                 theirUserId,
-//                 theirPushToken,
-//                 'Request Notification',
-//                 `${myFirstName} wants to switch with you`,
-//             );
-//         } else {
-//             message = `Request sent to all local church members`;
-//             localChurchUsers.map(async ({ id: userId, expoPushToken }) => {
-//                 if (userId !== loggedInId) {
-//                     await db.Notification.create({
-//                         userId,
-//                         message: `${myFirstName} requested to switch with someone. An open request has been sent out.`,
-//                         requestId,
-//                     });
-//                     helper.sendPushNotification(
-//                         userId,
-//                         expoPushToken,
-//                         'Request Notification',
-//                         `${myFirstName} requested to switch with someone. An open request has been sent out.`,
-//                     );
-//                 }
-//             });
-//         }
-//         break;
-//     default:
-//         return res.status(400).send({ message: 'Invalid notification type.' });
-// }

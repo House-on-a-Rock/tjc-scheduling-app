@@ -13,49 +13,38 @@ fs.readFile('tjcschedule_pub.pem', function read(err, data) {
 });
 module.exports = router;
 
-router.get(
-    '/notifications/:userId',
-    async (req: Request, res: Response, next: NextFunction) => {
-        try {
-            const { authorization } = req.headers;
-            const { userId } = req.params;
-            jwt.verify(authorization, cert);
-            const notifications = await db.Notification.findAll({
-                where: { userId },
-                attributes: ['id', 'userId', 'message', 'createdAt', 'requestId'],
-                include: [
-                    {
-                        model: db.Request,
-                        as: 'request',
-                        attributes: [
-                            'requesteeUserId',
-                            'type',
-                            'accepted',
-                            'approved',
-                            'createdAt',
-                            'taskId',
-                        ],
-                    },
-                    {
-                        model: db.Task,
-                        as: 'task',
-                        attributes: ['date', 'status', 'churchId', 'userId', 'roleId'],
-                    },
-                ],
-            });
-            if (notifications.length === 0)
-                return res.status(404).send({ message: 'No notifications found' });
-            return res.status(200).json(notifications);
-        } catch (err) {
-            next(err);
-            const [message, status] =
-                err instanceof TokenExpiredError || err instanceof JsonWebTokenError
-                    ? ['Unauthorized', 401]
-                    : ['Server error, try again later', 503];
-            return res.send({ message }).status(status);
-        }
-    },
-);
+router.get('/notifications/:userId', async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { authorization } = req.headers;
+        const { userId } = req.params;
+        jwt.verify(authorization, cert);
+        const notifications = await db.Notification.findAll({
+            where: { userId },
+            attributes: ['id', 'userId', 'message', 'createdAt', 'requestId'],
+            include: [
+                {
+                    model: db.Request,
+                    as: 'request',
+                    attributes: ['requesteeUserId', 'type', 'accepted', 'approved', 'createdAt', 'taskId'],
+                },
+                {
+                    model: db.Task,
+                    as: 'task',
+                    attributes: ['date', 'status', 'churchId', 'userId', 'roleId'],
+                },
+            ],
+        });
+        if (notifications.length === 0) return res.status(404).send({ message: 'No notifications found' });
+        return res.status(200).json(notifications);
+    } catch (err) {
+        next(err);
+        const [message, status] =
+            err instanceof TokenExpiredError || err instanceof JsonWebTokenError
+                ? ['Unauthorized', 401]
+                : ['Server error, try again later', 503];
+        return res.send({ message }).status(status);
+    }
+});
 
 router.post('/notifications', async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -107,10 +96,7 @@ router.post('/notifications', async (req: Request, res: Response, next: NextFunc
 
         // creates notification for receivers
         if (notification === 'created') {
-            const [theirNotifMessage, receivers]: [
-                string,
-                UserInstance[],
-            ] = await helper.makeTheirNotifications(
+            const [theirNotifMessage, receivers]: [string, UserInstance[]] = await helper.makeTheirNotifications(
                 requestType,
                 myName,
                 requesteeUserId ?? myChurchId,
@@ -124,32 +110,18 @@ router.post('/notifications', async (req: Request, res: Response, next: NextFunc
                         message: theirNotifMessage,
                         requestId,
                     });
-                    helper.sendPushNotification(
-                        theirId,
-                        theirPushToken,
-                        'Request Notification',
-                        theirNotifMessage,
-                    );
+                    helper.sendPushNotification(theirId, theirPushToken, 'Request Notification', theirNotifMessage);
                 }
             });
         }
         // creates notification for me
-        const myNotifMessage: string = helper.makeMyNotification(
-            notification,
-            requestType,
-            theirName,
-        );
+        const myNotifMessage: string = helper.makeMyNotification(notification, requestType, theirName);
         await db.Notification.create({
             userId: myUserId,
             message: myNotifMessage,
             requestId,
         });
-        helper.sendPushNotification(
-            myUserId,
-            myPushToken,
-            'Request Notification',
-            myNotifMessage,
-        );
+        helper.sendPushNotification(myUserId, myPushToken, 'Request Notification', myNotifMessage);
 
         return res.status(status).send({ message });
     } catch (err) {
@@ -162,94 +134,65 @@ router.post('/notifications', async (req: Request, res: Response, next: NextFunc
     }
 });
 
-router.patch(
-    '/notifications/:notificationId',
-    async (req: Request, res: Response, next: NextFunction) => {
-        try {
-            jwt.verify(req.headers.authorization, cert);
-            const notification = await db.Notification.findOne({
-                where: { id: req.params.notificationId },
-                attributes: [
-                    'id',
-                    'userId',
-                    'createdAt',
-                    'isRead',
-                    'updatedAt',
-                    'requestId',
-                ],
-            });
-            notification.update({
-                id: notification.id,
-                isRead: true,
-            });
-            const [message, status] = !notification
-                ? ['Invalid notification.', 400]
-                : ['Notifications patched', 200];
-            return res.status(status).send({ message });
-        } catch (err) {
-            next(err);
-            const [message, status] =
-                err instanceof TokenExpiredError || err instanceof JsonWebTokenError
-                    ? ['Unauthorized', 401]
-                    : ['Server error, try again later', 503];
-            return res.send({ message }).status(status);
-        }
-    },
-);
+router.patch('/notifications/:notificationId', async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        jwt.verify(req.headers.authorization, cert);
+        const notification = await db.Notification.findOne({
+            where: { id: req.params.notificationId },
+            attributes: ['id', 'userId', 'createdAt', 'isRead', 'updatedAt', 'requestId'],
+        });
+        notification.update({
+            id: notification.id,
+            isRead: true,
+        });
+        const [message, status] = !notification ? ['Invalid notification.', 400] : ['Notifications patched', 200];
+        return res.status(status).send({ message });
+    } catch (err) {
+        next(err);
+        const [message, status] =
+            err instanceof TokenExpiredError || err instanceof JsonWebTokenError
+                ? ['Unauthorized', 401]
+                : ['Server error, try again later', 503];
+        return res.send({ message }).status(status);
+    }
+});
 
-router.patch(
-    '/notifications/read-all/:userId',
-    async (req: Request, res: Response, next: NextFunction) => {
-        try {
-            jwt.verify(req.headers.authorization, cert);
-            const notifications = await db.Notification.findAll({
-                where: { userId: req.params.userId },
-                attributes: [
-                    'id',
-                    'userId',
-                    'createdAt',
-                    'isRead',
-                    'updatedAt',
-                    'requestId',
-                ],
-            });
-            notifications.map((notification) => notification.update({ isRead: true }));
-            const [message, status] = !notifications
-                ? ['Invalid notification.', 400]
-                : ['All notifications read', 200];
-            return res.status(status).send({ message });
-        } catch (err) {
-            next(err);
-            const [message, status] =
-                err instanceof TokenExpiredError || err instanceof JsonWebTokenError
-                    ? ['Unauthorized', 401]
-                    : ['Server error, try again later', 503];
-            return res.send({ message }).status(status);
-        }
-    },
-);
+router.patch('/notifications/read-all/:userId', async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        jwt.verify(req.headers.authorization, cert);
+        const notifications = await db.Notification.findAll({
+            where: { userId: req.params.userId },
+            attributes: ['id', 'userId', 'createdAt', 'isRead', 'updatedAt', 'requestId'],
+        });
+        notifications.map((notification) => notification.update({ isRead: true }));
+        const [message, status] = !notifications ? ['Invalid notification.', 400] : ['All notifications read', 200];
+        return res.status(status).send({ message });
+    } catch (err) {
+        next(err);
+        const [message, status] =
+            err instanceof TokenExpiredError || err instanceof JsonWebTokenError
+                ? ['Unauthorized', 401]
+                : ['Server error, try again later', 503];
+        return res.send({ message }).status(status);
+    }
+});
 
-router.delete(
-    '/notifications/:notificationId',
-    async (req: Request, res: Response, next: NextFunction) => {
-        try {
-            jwt.verify(req.headers.authorization, cert);
-            const notification = await db.Notification.findOne({
-                where: { id: req.params.notificationId },
-                attributes: ['id', 'userId', 'createdAt', 'updatedAt', 'requestId'],
-            });
-            if (notification) await notification.destroy();
-            const [message, status] = notification
-                ? ['Notification destroyed', 200]
-                : ['Notification not found', 404];
-            return res.status(status).send({ message });
-        } catch (err) {
-            next(err);
-            const [message, status] =
-                err instanceof TokenExpiredError || err instanceof JsonWebTokenError
-                    ? ['Unauthorized', 401]
-                    : ['Server error, try again later', 503];
-            return res.send({ message }).status(status);
-        }
-    },
-);
+router.delete('/notifications/:notificationId', async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        jwt.verify(req.headers.authorization, cert);
+        const notification = await db.Notification.findOne({
+            where: { id: req.params.notificationId },
+            attributes: ['id', 'userId', 'createdAt', 'updatedAt', 'requestId'],
+        });
+        if (notification) await notification.destroy();
+        const [message, status] = notification ? ['Notification destroyed', 200] : ['Notification not found', 404];
+        return res.status(status).send({ message });
+    } catch (err) {
+        next(err);
+        const [message, status] =
+            err instanceof TokenExpiredError || err instanceof JsonWebTokenError
+                ? ['Unauthorized', 401]
+                : ['Server error, try again later', 503];
+        return res.send({ message }).status(status);
+    }
+});
