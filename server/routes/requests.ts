@@ -15,22 +15,14 @@ fs.readFile('tjcschedule_pub.pem', function read(err, data) {
 });
 module.exports = router;
 
-router.get('/swap-requests', async (req: Request, res: Response, next: NextFunction) => {
+router.get('/requests', async (req: Request, res: Response, next: NextFunction) => {
     try {
         jwt.verify(req.headers.authorization, cert);
-        const searchParams: number[] = [];
-        req.query.taskId
-            .toString()
-            .split(',')
-            .map((taskId) => {
-                searchParams.push(parseInt(taskId, 10));
-            });
-        console.log(searchParams);
-        const swapRequests = await db.SwapRequest.findAll({
+        const decodedToken = jwt.decode(req.headers.authorization, { json: true });
+        const loggedInId: number = parseInt(decodedToken.sub.split('|')[1], 10);
+        const requests = await db.Request.findAll({
             where: {
-                TaskId: {
-                    [Op.or]: searchParams,
-                },
+                userId: loggedInId,
                 approved: false,
             },
             attributes: [
@@ -42,17 +34,18 @@ router.get('/swap-requests', async (req: Request, res: Response, next: NextFunct
                 'createdAt',
                 'taskId',
                 'message',
+                'replace',
             ],
         });
-        switch (swapRequests.length) {
+        switch (requests.length) {
             case 0:
                 res.status(404).send({ message: 'Swap requests not found' });
                 break;
             case 1:
-                res.status(200).json(swapRequests[0]);
+                res.status(200).json(requests[0]);
                 break;
             default:
-                res.status(200).json(swapRequests);
+                res.status(200).json(requests);
         }
     } catch (err) {
         if (err instanceof TokenExpiredError || err instanceof JsonWebTokenError) {
@@ -65,16 +58,16 @@ router.get('/swap-requests', async (req: Request, res: Response, next: NextFunct
 });
 
 router.get(
-    '/swap-requests/:requestId',
+    '/requests/:requestId',
     async (req: Request, res: Response, next: NextFunction) => {
         try {
             jwt.verify(req.headers.authorization, cert);
-            const swapRequest = await db.SwapRequest.findOne({
+            const request = await db.Request.findOne({
                 where: { id: req.params.requestId },
                 attributes: ['id', 'requesteeUserId', 'type', 'accepted', 'taskId'],
             });
 
-            if (swapRequest) res.json(swapRequest);
+            if (request) res.json(request);
             else res.status(404).send({ message: 'Not found' });
         } catch (err) {
             if (err instanceof TokenExpiredError || err instanceof JsonWebTokenError) {
@@ -87,11 +80,15 @@ router.get(
     },
 );
 
-router.post('/swap-requests', async (req: Request, res: Response, next: NextFunction) => {
+router.post('/requests', async (req: Request, res: Response, next: NextFunction) => {
     try {
         jwt.verify(req.headers.authorization, cert);
+        const decodedToken = jwt.decode(req.headers.authorization, { json: true });
+        const loggedInId: number = parseInt(decodedToken.sub.split('|')[1], 10);
         let requesteeUserId: number = null;
         let type = 'requestAll';
+        let isReplace = false;
+        if (req.query.replace === 'true') isReplace = true;
         if (req.body.targetTaskId) {
             type = 'requestOne';
             const targetTask = await db.Task.findOne({
@@ -104,16 +101,18 @@ router.post('/swap-requests', async (req: Request, res: Response, next: NextFunc
             where: { id: req.body.myTaskId },
         });
         if (myTask) {
-            const createRequest = await db.SwapRequest.create({
+            const createRequest = await db.Request.create({
                 requesteeUserId: requesteeUserId,
                 type: type,
                 taskId: req.body.myTaskId,
                 message: req.body.message,
+                replace: isReplace,
+                userId: loggedInId,
             });
             myTask.update({
                 status: 'changeRequested',
             });
-            const newRequest = await db.SwapRequest.findOne({
+            const newRequest = await db.Request.findOne({
                 where: { id: createRequest.id },
                 include: [
                     {
@@ -149,15 +148,22 @@ router.post('/swap-requests', async (req: Request, res: Response, next: NextFunc
 });
 
 router.patch(
-    '/swap-requests/accept/:requestId',
+    '/requests/accept/:requestId',
     async (req: Request, res: Response, next: NextFunction) => {
         try {
             jwt.verify(req.headers.authorization, cert);
             const decodedToken = jwt.decode(req.headers.authorization, { json: true });
             const acceptingUserId = decodedToken.sub.split('|')[1];
-            const swapRequest = await db.SwapRequest.findOne({
+            const request = await db.Request.findOne({
                 where: { id: req.params.requestId },
-                attributes: ['id', 'requesteeUserId', 'type', 'accepted', 'approved'],
+                attributes: [
+                    'id',
+                    'requesteeUserId',
+                    'type',
+                    'accepted',
+                    'approved',
+                    'replace',
+                ],
                 include: [
                     {
                         model: db.Task,
@@ -166,15 +172,11 @@ router.patch(
                     },
                 ],
             });
-            if (!swapRequest) res.status(404).send({ message: 'Swap request not found' });
-            if (
-                !swapRequest.accepted &&
-                !swapRequest.approved &&
-                swapRequest.type === 'requestAll'
-            ) {
-                swapRequest
+            if (!request) res.status(404).send({ message: 'Swap request not found' });
+            if (!request.accepted && !request.approved && request.type === 'requestAll') {
+                request
                     .update({
-                        id: swapRequest.id,
+                        id: request.id,
                         accepted: true,
                         requesteeUserId: acceptingUserId,
                     })
@@ -182,38 +184,38 @@ router.patch(
                         axios.post(
                             `${process.env.SECRET_IP}api/notifications`,
                             {
-                                requestId: swapRequest.id,
-                                userId: swapRequest.task.userId,
+                                requestId: request.id,
+                                userId: request.task.userId,
                                 notification: 'accepted',
                             },
                             { headers: { authorization: req.headers.authorization } },
                         );
                     });
 
-                res.status(202).json(swapRequest);
+                res.status(202).json(request);
             } else if (
-                !swapRequest.accepted &&
-                !swapRequest.approved &&
-                swapRequest.type === 'requestOne' &&
-                acceptingUserId === swapRequest.requesteeUserId.toString()
+                !request.accepted &&
+                !request.approved &&
+                request.type === 'requestOne' &&
+                acceptingUserId === request.requesteeUserId.toString()
             ) {
-                swapRequest
+                request
                     .update({
-                        id: swapRequest.id,
+                        id: request.id,
                         accepted: true,
                     })
                     .then(() => {
                         axios.post(
                             `${process.env.SECRET_IP}api/notifications`,
                             {
-                                requestId: swapRequest.id,
-                                userId: swapRequest.task.userId,
+                                requestId: request.id,
+                                userId: request.task.userId,
                                 notification: 'accepted',
                             },
                             { headers: { authorization: req.headers.authorization } },
                         );
                     });
-                res.status(202).json(swapRequest);
+                res.status(202).json(request);
             } else {
                 res.status(400).send({ message: 'Invalid Request' });
             }
@@ -229,14 +231,21 @@ router.patch(
 );
 
 router.patch(
-    '/swap-requests/approve/:requestId',
+    '/requests/approve/:requestId',
     async (req: Request, res: Response, next: NextFunction) => {
         try {
             jwt.verify(req.headers.authorization, cert);
             // const decodedToken = jwt.decode(req.headers.authorization, { json: true });
-            const swapRequest = await db.SwapRequest.findOne({
+            const request = await db.Request.findOne({
                 where: { id: req.params.requestId },
-                attributes: ['id', 'requesteeUserId', 'type', 'accepted', 'approved'],
+                attributes: [
+                    'id',
+                    'requesteeUserId',
+                    'type',
+                    'accepted',
+                    'approved',
+                    'replace',
+                ],
                 include: [
                     {
                         model: db.Task,
@@ -245,25 +254,25 @@ router.patch(
                     },
                 ],
             });
-            if (!swapRequest) res.status(404).send({ message: 'Swap request not found' });
-            if (!swapRequest.approved && swapRequest.accepted) {
-                swapRequest
+            if (!request) res.status(404).send({ message: 'Swap request not found' });
+            if (!request.approved && request.accepted) {
+                request
                     .update({
-                        id: swapRequest.id,
+                        id: request.id,
                         approved: true,
                     })
                     .then(() => {
                         axios.post(
                             `${process.env.SECRET_IP}api/notifications`,
                             {
-                                requestId: swapRequest.id,
-                                userId: swapRequest.task.userId,
+                                requestId: request.id,
+                                userId: request.task.userId,
                                 notification: 'approved',
                             },
                             { headers: { authorization: req.headers.authorization } },
                         );
                     });
-                res.status(200).json(swapRequest);
+                res.status(200).json(request);
             } else {
                 res.status(400).send({ message: 'Invalid Request' });
             }
@@ -279,12 +288,12 @@ router.patch(
 );
 
 router.patch(
-    '/swap-requests/reject/:requestId',
+    '/requests/reject/:requestId',
     async (req: Request, res: Response, next: NextFunction) => {
         try {
             jwt.verify(req.headers.authorization, cert);
             // const decodedToken = jwt.decode(req.headers.authorization, { json: true });
-            const swapRequest = await db.SwapRequest.findOne({
+            const request = await db.Request.findOne({
                 where: { id: req.params.requestId },
                 attributes: ['id', 'requesteeUserId', 'type', 'accepted', 'approved'],
                 include: [
@@ -295,25 +304,25 @@ router.patch(
                     },
                 ],
             });
-            if (!swapRequest) res.status(404).send({ message: 'Swap request not found' });
-            if (!swapRequest.approved && !swapRequest.accepted) {
-                swapRequest
+            if (!request) res.status(404).send({ message: 'Swap request not found' });
+            if (!request.approved && !request.accepted) {
+                request
                     .update({
-                        id: swapRequest.id,
+                        id: request.id,
                         rejected: true,
                     })
                     .then(() => {
                         axios.post(
                             `${process.env.SECRET_IP}api/notifications`,
                             {
-                                requestId: swapRequest.id,
-                                userId: swapRequest.task.userId,
+                                requestId: request.id,
+                                userId: request.task.userId,
                                 notification: 'cancelled',
                             },
                             { headers: { authorization: req.headers.authorization } },
                         );
                     });
-                res.status(200).json(swapRequest);
+                res.status(200).json(request);
             } else {
                 res.status(400).send({ message: 'Invalid Request' });
             }
@@ -329,11 +338,11 @@ router.patch(
 );
 
 router.delete(
-    '/swap-requests/:requestId',
+    '/requests/:requestId',
     async (req: Request, res: Response, next: NextFunction) => {
         try {
             jwt.verify(req.headers.authorization, cert);
-            const swapRequest = await db.SwapRequest.findOne({
+            const swapRequest = await db.Request.findOne({
                 where: { id: req.params.requestId },
                 attributes: [
                     'id',

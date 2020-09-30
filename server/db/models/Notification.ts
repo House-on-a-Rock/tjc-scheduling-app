@@ -21,7 +21,7 @@ const NotificationFactory = (
     );
 
     Notification.associate = (models) => {
-        Notification.belongsTo(models.SwapRequest, {
+        Notification.belongsTo(models.Request, {
             as: 'request',
             foreignKey: 'requestId',
         });

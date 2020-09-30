@@ -25,7 +25,7 @@ router.get(
                 attributes: ['id', 'userId', 'message', 'createdAt', 'requestId'],
                 include: [
                     {
-                        model: db.SwapRequest,
+                        model: db.Request,
                         as: 'request',
                         attributes: [
                             'requesteeUserId',
@@ -65,7 +65,7 @@ router.post('/notifications', async (req: Request, res: Response, next: NextFunc
         const decodedToken = jwt.decode(authorization, { json: true });
         const loggedInId: number = parseInt(decodedToken.sub.split('|')[1], 10);
 
-        const request = await db.SwapRequest.findOne({
+        const request = await db.Request.findOne({
             where: { id: requestId },
             attributes: ['id', 'requesteeUserId', 'type', 'accepted', 'approved'],
             include: [

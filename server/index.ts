@@ -33,7 +33,7 @@ app.use('/api', require('./routes'));
 app.use('/api', require('./routes/churches'));
 app.use('/api', require('./routes/users'));
 app.use('/api', require('./routes/tasks'));
-app.use('/api', require('./routes/swap-requests'));
+app.use('/api', require('./routes/requests'));
 app.use('/api', require('./routes/user-roles'));
 app.use('/api', require('./routes/notifications'));
 
