@@ -1,4 +1,4 @@
-import helper from '../server/helper_functions';
+import { setDate } from '../server/utilities/helperFunctions';
 
 // function setDate(date, time, timeZone) {
 //     return DateTime.fromISO(`${date}T${time}`, { zone: timeZone });

@@ -1,67 +1,63 @@
 import express, { Request, Response, NextFunction } from 'express';
-import Sequelize from 'sequelize';
 import axios from 'axios';
-import fs from 'fs';
 import jwt, { TokenExpiredError, JsonWebTokenError } from 'jsonwebtoken';
+import { certify } from '../utilities/helperFunctions';
 import db from '../index';
-import helper from '../helper_functions';
 
 const router = express.Router();
-const { Op } = Sequelize;
-let cert;
-fs.readFile('tjcschedule_pub.pem', function read(err, data) {
-    if (err) throw err;
-    cert = data;
-});
+
 module.exports = router;
 
-router.get('/requests', async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        jwt.verify(req.headers.authorization, cert);
-        const decodedToken = jwt.decode(req.headers.authorization, { json: true });
-        const loggedInId: number = parseInt(decodedToken.sub.split('|')[1], 10);
-        const requests = await db.Request.findAll({
-            where: {
-                userId: loggedInId,
-                approved: false,
-            },
-            attributes: [
-                ['id', 'requestId'],
-                'requesteeUserId',
-                'type',
-                'accepted',
-                'approved',
-                'createdAt',
-                'taskId',
-                'message',
-                'replace',
-            ],
-        });
-        switch (requests.length) {
-            case 0:
-                res.status(404).send({ message: 'Swap requests not found' });
-                break;
-            case 1:
-                res.status(200).json(requests[0]);
-                break;
-            default:
-                res.status(200).json(requests);
+router.get(
+    '/requests',
+    certify,
+    async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const decodedToken = jwt.decode(req.headers.authorization, { json: true });
+            const loggedInId: number = parseInt(decodedToken.sub.split('|')[1], 10);
+            const requests = await db.Request.findAll({
+                where: {
+                    userId: loggedInId,
+                    approved: false,
+                },
+                attributes: [
+                    ['id', 'requestId'],
+                    'requesteeUserId',
+                    'type',
+                    'accepted',
+                    'approved',
+                    'createdAt',
+                    'taskId',
+                    'message',
+                    'replace',
+                ],
+            });
+            switch (requests.length) {
+                case 0:
+                    res.status(404).send({ message: 'Swap requests not found' });
+                    break;
+                case 1:
+                    res.status(200).json(requests[0]);
+                    break;
+                default:
+                    res.status(200).json(requests);
+            }
+        } catch (err) {
+            if (err instanceof TokenExpiredError || err instanceof JsonWebTokenError) {
+                res.status(401).send({ message: 'Unauthorized' });
+            } else {
+                res.status(503).send({ message: 'Server error, try again later' });
+            }
+            next(err);
         }
-    } catch (err) {
-        if (err instanceof TokenExpiredError || err instanceof JsonWebTokenError) {
-            res.status(401).send({ message: 'Unauthorized' });
-        } else {
-            res.status(503).send({ message: 'Server error, try again later' });
-        }
-        next(err);
-    }
-});
+    },
+);
 
 router.get(
     '/requests/:requestId',
+    certify,
     async (req: Request, res: Response, next: NextFunction) => {
         try {
-            jwt.verify(req.headers.authorization, cert);
             const request = await db.Request.findOne({
                 where: { id: req.params.requestId },
                 attributes: ['id', 'requesteeUserId', 'type', 'accepted', 'taskId'],
@@ -80,78 +76,81 @@ router.get(
     },
 );
 
-router.post('/requests', async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        jwt.verify(req.headers.authorization, cert);
-        const decodedToken = jwt.decode(req.headers.authorization, { json: true });
-        const loggedInId: number = parseInt(decodedToken.sub.split('|')[1], 10);
-        let requesteeUserId: number = null;
-        let type = 'requestAll';
-        let isReplace = false;
-        if (req.query.replace === 'true') isReplace = true;
-        if (req.body.targetTaskId) {
-            type = 'requestOne';
-            const targetTask = await db.Task.findOne({
-                where: { id: req.body.targetTaskId },
-                attributes: ['userId'],
+router.post(
+    '/requests',
+    certify,
+    async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const decodedToken = jwt.decode(req.headers.authorization, { json: true });
+            const loggedInId: number = parseInt(decodedToken.sub.split('|')[1], 10);
+            let requesteeUserId: number = null;
+            let type = 'requestAll';
+            let isReplace = false;
+            if (req.query.replace === 'true') isReplace = true;
+            if (req.body.targetTaskId) {
+                type = 'requestOne';
+                const targetTask = await db.Task.findOne({
+                    where: { id: req.body.targetTaskId },
+                    attributes: ['userId'],
+                });
+                requesteeUserId = targetTask.userId;
+            }
+            const myTask = await db.Task.findOne({
+                where: { id: req.body.myTaskId },
             });
-            requesteeUserId = targetTask.userId;
+            if (myTask) {
+                const createRequest = await db.Request.create({
+                    requesteeUserId: requesteeUserId,
+                    type: type,
+                    taskId: req.body.myTaskId,
+                    message: req.body.message,
+                    replace: isReplace,
+                    userId: loggedInId,
+                });
+                myTask.update({
+                    status: 'changeRequested',
+                });
+                const newRequest = await db.Request.findOne({
+                    where: { id: createRequest.id },
+                    include: [
+                        {
+                            model: db.Task,
+                            as: 'task',
+                            attributes: ['id', 'userId'],
+                        },
+                    ],
+                }).then(async (request) => {
+                    await axios.post(
+                        `${process.env.SECRET_IP}api/notifications`,
+                        {
+                            requestId: request.id,
+                            userId: request.task.userId,
+                            notification: 'created',
+                            message: req.body.message,
+                        },
+                        { headers: { authorization: req.headers.authorization } },
+                    );
+                });
+                res.status(201).json(newRequest);
+            } else {
+                res.status(404).send({ message: 'Task not found' });
+            }
+        } catch (err) {
+            if (err instanceof TokenExpiredError || err instanceof JsonWebTokenError) {
+                res.status(401).send({ message: 'Unauthorized' });
+            } else {
+                res.status(503).send({ message: 'Server error, try again later' });
+            }
+            next(err);
         }
-        const myTask = await db.Task.findOne({
-            where: { id: req.body.myTaskId },
-        });
-        if (myTask) {
-            const createRequest = await db.Request.create({
-                requesteeUserId: requesteeUserId,
-                type: type,
-                taskId: req.body.myTaskId,
-                message: req.body.message,
-                replace: isReplace,
-                userId: loggedInId,
-            });
-            myTask.update({
-                status: 'changeRequested',
-            });
-            const newRequest = await db.Request.findOne({
-                where: { id: createRequest.id },
-                include: [
-                    {
-                        model: db.Task,
-                        as: 'task',
-                        attributes: ['id', 'userId'],
-                    },
-                ],
-            }).then(async (request) => {
-                await axios.post(
-                    `${process.env.SECRET_IP}api/notifications`,
-                    {
-                        requestId: request.id,
-                        userId: request.task.userId,
-                        notification: 'created',
-                        message: req.body.message,
-                    },
-                    { headers: { authorization: req.headers.authorization } },
-                );
-            });
-            res.status(201).json(newRequest);
-        } else {
-            res.status(404).send({ message: 'Task not found' });
-        }
-    } catch (err) {
-        if (err instanceof TokenExpiredError || err instanceof JsonWebTokenError) {
-            res.status(401).send({ message: 'Unauthorized' });
-        } else {
-            res.status(503).send({ message: 'Server error, try again later' });
-        }
-        next(err);
-    }
-});
+    },
+);
 
 router.patch(
     '/requests/accept/:requestId',
+    certify,
     async (req: Request, res: Response, next: NextFunction) => {
         try {
-            jwt.verify(req.headers.authorization, cert);
             const decodedToken = jwt.decode(req.headers.authorization, { json: true });
             const acceptingUserId = decodedToken.sub.split('|')[1];
             const request = await db.Request.findOne({
@@ -232,9 +231,9 @@ router.patch(
 
 router.patch(
     '/requests/approve/:requestId',
+    certify,
     async (req: Request, res: Response, next: NextFunction) => {
         try {
-            jwt.verify(req.headers.authorization, cert);
             // const decodedToken = jwt.decode(req.headers.authorization, { json: true });
             const request = await db.Request.findOne({
                 where: { id: req.params.requestId },
@@ -289,9 +288,9 @@ router.patch(
 
 router.patch(
     '/requests/reject/:requestId',
+    certify,
     async (req: Request, res: Response, next: NextFunction) => {
         try {
-            jwt.verify(req.headers.authorization, cert);
             // const decodedToken = jwt.decode(req.headers.authorization, { json: true });
             const request = await db.Request.findOne({
                 where: { id: req.params.requestId },
@@ -339,9 +338,9 @@ router.patch(
 
 router.delete(
     '/requests/:requestId',
+    certify,
     async (req: Request, res: Response, next: NextFunction) => {
         try {
-            jwt.verify(req.headers.authorization, cert);
             const swapRequest = await db.Request.findOne({
                 where: { id: req.params.requestId },
                 attributes: [

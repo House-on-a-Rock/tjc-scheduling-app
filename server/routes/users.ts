@@ -5,7 +5,7 @@ import jwt, { TokenExpiredError, JsonWebTokenError } from 'jsonwebtoken';
 import crypto from 'crypto';
 import { UserInstance } from 'shared/SequelizeTypings/models';
 import db from '../index';
-import helper from '../helper_functions';
+import { certify, sendVerEmail, validateEmail } from '../utilities/helperFunctions';
 
 const router = express.Router();
 const { Op } = Sequelize;
@@ -17,9 +17,8 @@ fs.readFile('tjcschedule_pub.pem', function read(err, data) {
 
 module.exports = router;
 
-router.get('/users', async (req: Request, res: Response, next) => {
+router.get('/users', certify, async (req: Request, res: Response, next) => {
     try {
-        jwt.verify(req.headers.authorization, cert);
         const decodedToken = jwt.decode(req.headers.authorization, { json: true });
         const loggedInId = decodedToken.sub.split('|')[1];
         const searchArray = [];
@@ -73,9 +72,8 @@ router.get('/users', async (req: Request, res: Response, next) => {
     }
 });
 
-router.get('/users/:userId', async (req, res, next) => {
+router.get('/users/:userId', certify, async (req, res, next) => {
     try {
-        jwt.verify(req.headers.authorization, cert);
         const parsedId = req.params.userId.toString();
         const user = await db.User.findOne({
             where: {
@@ -110,9 +108,8 @@ router.get('/users/:userId', async (req, res, next) => {
     }
 });
 
-router.post('/users', async (req: Request, res: Response, next) => {
+router.post('/users', certify, async (req: Request, res: Response, next) => {
     try {
-        jwt.verify(req.headers.authorization, cert);
         let doesUserExist = false;
         const username = req.body.email;
         const token = crypto.randomBytes(16).toString('hex');
@@ -128,7 +125,7 @@ router.post('/users', async (req: Request, res: Response, next) => {
             }
             return true;
         });
-        if (!helper.validateEmail(req.body.email)) {
+        if (!validateEmail(req.body.email)) {
             return res.status(406).send({ message: 'Invalid email' });
         }
         if (!doesUserExist) {
@@ -158,7 +155,7 @@ router.post('/users', async (req: Request, res: Response, next) => {
                 token: token,
             });
 
-            const [message, status] = helper.sendVerEmail(
+            const [message, status] = sendVerEmail(
                 username,
                 req.headers,
                 token,
@@ -177,9 +174,8 @@ router.post('/users', async (req: Request, res: Response, next) => {
     }
 });
 
-router.delete('/users/:userId', async (req: Request, res: Response, next) => {
+router.delete('/users/:userId', certify, async (req: Request, res: Response, next) => {
     try {
-        jwt.verify(req.headers.authorization, cert);
         const user = await db.User.findOne({
             where: { id: req.params.userId },
             attributes: ['id'],
@@ -199,12 +195,12 @@ router.delete('/users/:userId', async (req: Request, res: Response, next) => {
     }
 });
 
-//updates expoPushToken on login, may need cleanup or be moved around
+// updates expoPushToken on login, may need cleanup or be moved around
 router.patch(
     '/users/expoPushToken/:userId',
+    certify,
     async (req: Request, res: Response, next) => {
         try {
-            jwt.verify(req.headers.authorization, cert);
             const user = await db.User.findOne({
                 where: { id: req.params.userId },
             });

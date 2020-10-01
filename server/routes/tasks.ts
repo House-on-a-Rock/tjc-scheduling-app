@@ -1,22 +1,16 @@
 import express, { Request, Response, NextFunction } from 'express';
 import Sequelize from 'sequelize';
-import fs from 'fs';
 import jwt, { TokenExpiredError, JsonWebTokenError } from 'jsonwebtoken';
 import db from '../index';
-import helper from '../helper_functions';
+import { certify, setDate } from '../utilities/helperFunctions';
 
 const router = express.Router();
 const { Op } = Sequelize;
-let cert;
-fs.readFile('tjcschedule_pub.pem', function read(err, data) {
-    if (err) throw err;
-    cert = data;
-});
+
 module.exports = router;
 
-router.get('/tasks', async (req: Request, res: Response, next: NextFunction) => {
+router.get('/tasks', certify, async (req: Request, res: Response, next: NextFunction) => {
     try {
-        jwt.verify(req.headers.authorization, cert);
         const searchArray = [];
         if (req.query.userId) searchArray.push({ userId: req.query.userId });
         if (req.query.churchId) searchArray.push({ churchId: req.query.churchId });
@@ -63,98 +57,103 @@ router.get('/tasks', async (req: Request, res: Response, next: NextFunction) => 
     }
 });
 
-router.get('/tasks/:taskId', async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        jwt.verify(req.headers.authorization, cert);
-        const task = await db.Task.findOne({
-            where: { taskId: req.params.taskId },
-            attributes: ['id', 'date', 'churchId', 'userId', 'roleId'],
-        });
-        if (task) res.status(200).json(task);
-        else res.status(404).send({ message: 'Task not found' });
-    } catch (err) {
-        if (err instanceof TokenExpiredError || err instanceof JsonWebTokenError) {
-            res.status(401).send({ message: 'Unauthorized' });
-        } else {
-            res.status(503).send({ message: 'Server error, try again later' });
-        }
-        next(err);
-    }
-});
-
-router.post('/tasks', async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        jwt.verify(req.headers.authorization, cert);
-        const now = new Date();
-        const userId = jwt
-            .decode(req.headers.authorization, { json: true })
-            .sub.split('|')[1];
-        const userData = await db.User.findOne({
-            where: { id: userId },
-            include: [
-                {
-                    model: db.Church,
-                    as: 'church',
-                    attributes: ['id', 'name', 'address', 'timeZone'],
-                },
-            ],
-        });
-        const date = helper.setDate(
-            req.body.date,
-            req.body.time,
-            userData.church.timezone,
-        );
-        const task = await db.Task.create({
-            date: new Date(date.toString()),
-            churchId: userData.church.id,
-            roleId: req.body.roleId,
-            userId: parseInt(userId, 10),
-        });
-        const millisTillDate = new Date(date.toString()).getTime() - now.getTime();
-        setTimeout(function () {
-            task.update({
-                status: 'archived',
+router.get(
+    '/tasks/:taskId',
+    certify,
+    async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const task = await db.Task.findOne({
+                where: { taskId: req.params.taskId },
+                attributes: ['id', 'date', 'churchId', 'userId', 'roleId'],
             });
-        }, millisTillDate);
-        res.status(201).send(task);
-    } catch (err) {
-        if (err instanceof TokenExpiredError || err instanceof JsonWebTokenError) {
-            res.status(401).send({ message: 'Unauthorized' });
-        } else {
-            res.status(503).send({ message: 'Server error, try again later' });
+            if (task) res.status(200).json(task);
+            else res.status(404).send({ message: 'Task not found' });
+        } catch (err) {
+            if (err instanceof TokenExpiredError || err instanceof JsonWebTokenError) {
+                res.status(401).send({ message: 'Unauthorized' });
+            } else {
+                res.status(503).send({ message: 'Server error, try again later' });
+            }
+            next(err);
         }
-        next(err);
-    }
-});
+    },
+);
 
-router.delete('/tasks/:taskId', async (req: Request, res: Response, next) => {
-    try {
-        jwt.verify(req.headers.authorization, cert);
-        const task = await db.Task.findOne({
-            where: { id: req.params.taskId },
-        });
-        if (task) {
-            await task.destroy().then(function () {
-                res.status(200).send({ message: 'Task deleted' });
+router.post(
+    '/tasks',
+    certify,
+    async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const now = new Date();
+            const userId = jwt
+                .decode(req.headers.authorization, { json: true })
+                .sub.split('|')[1];
+            const userData = await db.User.findOne({
+                where: { id: userId },
+                include: [
+                    {
+                        model: db.Church,
+                        as: 'church',
+                        attributes: ['id', 'name', 'address', 'timeZone'],
+                    },
+                ],
             });
-        } else {
-            res.status(404).send({ message: 'Task not found' });
+            const date = setDate(req.body.date, req.body.time, userData.church.timezone);
+            const task = await db.Task.create({
+                date: new Date(date.toString()),
+                churchId: userData.church.id,
+                roleId: req.body.roleId,
+                userId: parseInt(userId, 10),
+            });
+            const millisTillDate = new Date(date.toString()).getTime() - now.getTime();
+            setTimeout(function () {
+                task.update({
+                    status: 'archived',
+                });
+            }, millisTillDate);
+            res.status(201).send(task);
+        } catch (err) {
+            if (err instanceof TokenExpiredError || err instanceof JsonWebTokenError) {
+                res.status(401).send({ message: 'Unauthorized' });
+            } else {
+                res.status(503).send({ message: 'Server error, try again later' });
+            }
+            next(err);
         }
-    } catch (err) {
-        if (err instanceof TokenExpiredError || err instanceof JsonWebTokenError) {
-            res.status(401).send({ message: 'Unauthorized' });
-        } else {
-            res.status(503).send({ message: 'Server error, try again later' });
+    },
+);
+
+router.delete(
+    '/tasks/:taskId',
+    certify,
+    async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const task = await db.Task.findOne({
+                where: { id: req.params.taskId },
+            });
+            if (task) {
+                await task.destroy().then(function () {
+                    res.status(200).send({ message: 'Task deleted' });
+                });
+            } else {
+                res.status(404).send({ message: 'Task not found' });
+            }
+        } catch (err) {
+            if (err instanceof TokenExpiredError || err instanceof JsonWebTokenError) {
+                res.status(401).send({ message: 'Unauthorized' });
+            } else {
+                res.status(503).send({ message: 'Server error, try again later' });
+            }
+            next(err);
         }
-        next(err);
-    }
-});
+    },
+);
 
 router.patch(
     '/tasks/switchTask/:targetTaskId/switchWith/:switchTaskId',
+    certify,
     async (req: Request, res: Response, next: NextFunction) => {
         try {
-            jwt.verify(req.headers.authorization, cert);
             const targetTask = await db.Task.findOne({
                 where: { id: req.params.targetTaskId },
                 attributes: ['id', 'date', 'churchId', 'userId', 'roleId'],
@@ -194,9 +193,9 @@ router.patch(
 
 router.patch(
     '/tasks/replaceTask/:taskId/replacedBy/:userId',
+    certify,
     async (req: Request, res: Response, next: NextFunction) => {
         try {
-            jwt.verify(req.headers.authorization, cert);
             const task = await db.Task.findOne({
                 where: {
                     id: req.params.taskId.toString(),
