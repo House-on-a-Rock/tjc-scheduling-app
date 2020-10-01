@@ -1,8 +1,8 @@
 import express, { Request, Response, NextFunction } from 'express';
 import { TokenExpiredError, JsonWebTokenError } from 'jsonwebtoken';
+import { ChurchInstance } from 'shared/SequelizeTypings/models';
 import { certify } from '../utilities/helperFunctions';
-import { ChurchInstance } from '../../shared/SequelizeTypings/models';
-// import { ChurchInstance } from '../../shared/SequelizeTypings/models';
+
 import db from '../index';
 
 const router = express.Router();

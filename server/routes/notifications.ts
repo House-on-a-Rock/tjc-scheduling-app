@@ -1,6 +1,6 @@
 import express, { Request, Response, NextFunction } from 'express';
 import jwt, { TokenExpiredError, JsonWebTokenError } from 'jsonwebtoken';
-import { RequestInstance, UserInstance } from 'shared/SequelizeTypings/models';
+import { UserInstance } from 'shared/SequelizeTypings/models';
 import db from '../index';
 import { makeMyNotificationMessage, sendPushNotification, certify } from '../utilities/helperFunctions';
 

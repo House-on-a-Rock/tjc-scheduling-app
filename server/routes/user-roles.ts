@@ -1,11 +1,9 @@
 import express, { Request, Response, NextFunction } from 'express';
-import Sequelize from 'sequelize';
 import { TokenExpiredError, JsonWebTokenError } from 'jsonwebtoken';
 import { certify } from '../utilities/helperFunctions';
 import db from '../index';
 
 const router = express.Router();
-const { Op } = Sequelize;
 
 module.exports = router;
 

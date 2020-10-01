@@ -1,9 +1,6 @@
 import * as Sequelize from 'sequelize';
 import { SequelizeAttributes } from 'shared/SequelizeTypings/typings/SequelizeAttributes';
-import {
-    NotificationInstance,
-    NotificationAttributes,
-} from 'shared/SequelizeTypings/models';
+import { NotificationInstance, NotificationAttributes } from 'shared/SequelizeTypings/models';
 
 const NotificationFactory = (
     sequelize: Sequelize.Sequelize,
@@ -15,10 +12,7 @@ const NotificationFactory = (
         isRead: { type: DataTypes.BOOLEAN, defaultValue: false },
     };
 
-    const Notification = sequelize.define<NotificationInstance, NotificationAttributes>(
-        'Notification',
-        attributes,
-    );
+    const Notification = sequelize.define<NotificationInstance, NotificationAttributes>('Notification', attributes);
 
     Notification.associate = (models) => {
         Notification.belongsTo(models.Request, {

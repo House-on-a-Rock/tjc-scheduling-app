@@ -1,5 +1,4 @@
 import express, { Request, Response } from 'express';
-import fs from 'fs';
 import Sequelize from 'sequelize';
 import jwt, { TokenExpiredError, JsonWebTokenError } from 'jsonwebtoken';
 import crypto from 'crypto';
@@ -9,11 +8,6 @@ import { certify, sendVerEmail, validateEmail } from '../utilities/helperFunctio
 
 const router = express.Router();
 const { Op } = Sequelize;
-let cert;
-fs.readFile('tjcschedule_pub.pem', function read(err, data) {
-    if (err) throw err;
-    cert = data;
-});
 
 module.exports = router;
 

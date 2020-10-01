@@ -161,7 +161,8 @@ export function makeMyNotificationMessage(notification: string, type: string, fi
 
 export function certify(req, res, next) {
     try {
-        jwt.verify(req.headers.authorization, cert);
+        const { authorization } = req.headers;
+        jwt.verify(authorization, cert);
     } catch (err) {
         next(err);
         const [message, status] =

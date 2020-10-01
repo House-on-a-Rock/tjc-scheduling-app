@@ -25,10 +25,7 @@ const RequestFactory = (
         replace: { type: DataTypes.BOOLEAN },
     };
 
-    const Request = sequelize.define<RequestInstance, RequestAttributes>(
-        'Request',
-        attributes,
-    );
+    const Request = sequelize.define<RequestInstance, RequestAttributes>('Request', attributes);
 
     Request.associate = (models) => {
         Request.belongsTo(models.Task, { as: 'task', foreignKey: 'taskId' });

@@ -168,7 +168,6 @@ router.post('/confirmPassword', async (req: Request, res: Response, next: NextFu
 //         try {
 //             const { authorization } = req.headers;
 //             const { userId, email } = req.body;
-//             jwt.verify(authorization, cert);
 //             const decodedToken = jwt.decode(authorization, { json: true });
 //             const requestId = decodedToken.sub.split('|')[1];
 //             if (requestId === userId) {

@@ -59,10 +59,7 @@ const UserFactory = (
         },
     };
 
-    const User = sequelize.define<UserInstance, UserAttributes>(
-        'User',
-        attributes,
-    ) as UserModel;
+    const User = sequelize.define<UserInstance, UserAttributes>('User', attributes) as UserModel;
 
     User.prototype.verifyPassword = function (candidatePwd: string): boolean {
         return User.encryptPassword(candidatePwd, this.salt) === this.password;
@@ -73,11 +70,7 @@ const UserFactory = (
     };
 
     User.encryptPassword = function (plainText, salt) {
-        return crypto
-            .createHash(process.env.SECRET_HASH)
-            .update(plainText)
-            .update(salt)
-            .digest('hex');
+        return crypto.createHash(process.env.SECRET_HASH).update(plainText).update(salt).digest('hex');
     };
 
     const createSaltyPassword = (user: UserInstance) => {
