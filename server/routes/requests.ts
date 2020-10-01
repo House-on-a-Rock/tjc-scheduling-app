@@ -1,6 +1,5 @@
 import express, { Request, Response, NextFunction } from 'express';
 import axios from 'axios';
-import jwt, { TokenExpiredError, JsonWebTokenError } from 'jsonwebtoken';
 import { certify, determineLoginId } from '../utilities/helperFunctions';
 import db from '../index';
 
@@ -39,12 +38,8 @@ router.get('/requests', certify, async (req: Request, res: Response, next: NextF
                 res.status(200).json(requests);
         }
     } catch (err) {
-        if (err instanceof TokenExpiredError || err instanceof JsonWebTokenError) {
-            res.status(401).send({ message: 'Unauthorized' });
-        } else {
-            res.status(503).send({ message: 'Server error, try again later' });
-        }
         next(err);
+        return res.status(503).send({ message: 'Server error, try again later' });
     }
 });
 
@@ -58,12 +53,8 @@ router.get('/requests/:requestId', certify, async (req: Request, res: Response, 
         if (request) res.json(request);
         else res.status(404).send({ message: 'Not found' });
     } catch (err) {
-        if (err instanceof TokenExpiredError || err instanceof JsonWebTokenError) {
-            res.status(401).send({ message: 'Unauthorized' });
-        } else {
-            res.status(503).send({ message: 'Server error, try again later' });
-        }
         next(err);
+        return res.status(503).send({ message: 'Server error, try again later' });
     }
 });
 
@@ -123,12 +114,8 @@ router.post('/requests', certify, async (req: Request, res: Response, next: Next
             res.status(404).send({ message: 'Task not found' });
         }
     } catch (err) {
-        if (err instanceof TokenExpiredError || err instanceof JsonWebTokenError) {
-            res.status(401).send({ message: 'Unauthorized' });
-        } else {
-            res.status(503).send({ message: 'Server error, try again later' });
-        }
         next(err);
+        return res.status(503).send({ message: 'Server error, try again later' });
     }
 });
 
@@ -195,12 +182,8 @@ router.patch('/requests/accept/:requestId', certify, async (req: Request, res: R
             res.status(400).send({ message: 'Invalid Request' });
         }
     } catch (err) {
-        if (err instanceof TokenExpiredError || err instanceof JsonWebTokenError) {
-            res.status(401).send({ message: 'Unauthorized' });
-        } else {
-            res.status(503).send({ message: 'Server error, try again later' });
-        }
         next(err);
+        return res.status(503).send({ message: 'Server error, try again later' });
     }
 });
 
@@ -241,12 +224,8 @@ router.patch('/requests/approve/:requestId', certify, async (req: Request, res: 
             res.status(400).send({ message: 'Invalid Request' });
         }
     } catch (err) {
-        if (err instanceof TokenExpiredError || err instanceof JsonWebTokenError) {
-            res.status(401).send({ message: 'Unauthorized' });
-        } else {
-            res.status(503).send({ message: 'Server error, try again later' });
-        }
         next(err);
+        return res.status(503).send({ message: 'Server error, try again later' });
     }
 });
 
@@ -313,12 +292,8 @@ router.patch('/requests/accept/:requestId', certify, async (req: Request, res: R
             res.status(400).send({ message: 'Invalid Request' });
         }
     } catch (err) {
-        if (err instanceof TokenExpiredError || err instanceof JsonWebTokenError) {
-            res.status(401).send({ message: 'Unauthorized' });
-        } else {
-            res.status(503).send({ message: 'Server error, try again later' });
-        }
         next(err);
+        return res.status(503).send({ message: 'Server error, try again later' });
     }
 });
 router.delete('/requests/:requestId', certify, async (req: Request, res: Response, next: NextFunction) => {
@@ -329,11 +304,7 @@ router.delete('/requests/:requestId', certify, async (req: Request, res: Respons
         });
         return request ? res.status(200) : res.status(404).send({ message: 'Swap request not found' });
     } catch (err) {
-        if (err instanceof TokenExpiredError || err instanceof JsonWebTokenError) {
-            res.status(401).send({ message: 'Unauthorized' });
-        } else {
-            res.status(503).send({ message: 'Server error, try again later' });
-        }
         next(err);
+        return res.status(503).send({ message: 'Server error, try again later' });
     }
 });

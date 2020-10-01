@@ -139,7 +139,7 @@ router.post('/login', async (req: Request, res: Response, next: NextFunction) =>
             access_token: token,
         });
     } catch (err) {
-        // next(err);
+        next(err);
         return res.status(503).send({ message: 'Server error, try again later' });
     }
 });
@@ -157,8 +157,8 @@ router.post('/confirmPassword', async (req: Request, res: Response, next: NextFu
             checkedHash !== password ? ['Invalid credentials', 401, false] : ['Password confirmed', 200, true];
         return res.status(status).send({ message, verify });
     } catch (err) {
-        res.status(503).send({ message: 'Server error, try again later' });
-        return next(err);
+        next(err);
+        return res.status(503).send({ message: 'Server error, try again later' });
     }
 });
 

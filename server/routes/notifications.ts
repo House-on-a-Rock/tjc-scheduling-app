@@ -1,5 +1,4 @@
 import express, { Request, Response, NextFunction } from 'express';
-import { TokenExpiredError, JsonWebTokenError } from 'jsonwebtoken';
 import { UserInstance } from 'shared/SequelizeTypings/models';
 import db from '../index';
 import {
@@ -36,11 +35,7 @@ router.get('/notifications/:userId', certify, async (req: Request, res: Response
         return res.status(404).send({ message: 'Not found' });
     } catch (err) {
         next(err);
-        const [message, status] =
-            err instanceof TokenExpiredError || err instanceof JsonWebTokenError
-                ? ['Unauthorized', 401]
-                : ['Server error, try again later', 503];
-        return res.send({ message }).status(status);
+        return res.status(503).send({ message: 'Server error, try again later' });
     }
 });
 
@@ -120,77 +115,54 @@ router.post('/notifications', certify, async (req: Request, res: Response, next:
             requestId,
         });
         sendPushNotification(myUserId, myPushToken, 'Request Notification', myNotificationMessage);
-        res.status(201).send({ message: 'Notifications created' });
+        return res.status(201).send({ message: 'Notifications created' });
     } catch (err) {
         next(err);
-        const [message, status] =
-            err instanceof TokenExpiredError || err instanceof JsonWebTokenError
-                ? ['Unauthorized', 401]
-                : ['Server error, try again later', 503];
-        return res.send({ message }).status(status);
+        return res.status(503).send({ message: 'Server error, try again later' });
     }
 });
 
 router.patch('/notifications/:notificationId', certify, async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const swapNotification = await db.Notification.findOne({
+        const notification = await db.Notification.findOne({
             where: { id: req.params.notificationId },
             attributes: ['id', 'userId', 'createdAt', 'isRead', 'updatedAt', 'requestId'],
         });
-        swapNotification.update({
-            id: swapNotification.id,
-            isRead: true,
-        });
+        if (!notification) return res.status(404).send({ message: 'Notification not found' });
+        const data = notification.update({ id: notification.id, isRead: true });
+        return res.status(200).json(data);
     } catch (err) {
         next(err);
-        const [message, status] =
-            err instanceof TokenExpiredError || err instanceof JsonWebTokenError
-                ? ['Unauthorized', 401]
-                : ['Server error, try again later', 503];
-        return res.send({ message }).status(status);
+        return res.status(503).send({ message: 'Server error, try again later' });
     }
 });
 
 router.patch('/notifications/read-all/:userId', certify, async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const swapNotifications = await db.Notification.findAll({
+        const notifications = await db.Notification.findAll({
             where: { userId: req.params.userId },
             attributes: ['id', 'userId', 'createdAt', 'isRead', 'updatedAt', 'requestId'],
         });
-        swapNotifications.map((swapNotification) => {
-            swapNotification.update({
-                isRead: true,
-            });
-        });
+        if (!notifications) return res.status(404).send({ message: 'Notifications not found' });
+        const data = notifications.map((notification) => notification.update({ isRead: true }));
+        return res.status(200).json(data);
     } catch (err) {
         next(err);
-        const [message, status] =
-            err instanceof TokenExpiredError || err instanceof JsonWebTokenError
-                ? ['Unauthorized', 401]
-                : ['Server error, try again later', 503];
-        return res.send({ message }).status(status);
+        return res.status(503).send({ message: 'Server error, try again later' });
     }
 });
 
 router.delete('/notifications/:notificationId', certify, async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const swapNotification = await db.Notification.findOne({
+        const notification = await db.Notification.findOne({
             where: { id: req.params.notificationId },
             attributes: ['id', 'userId', 'createdAt', 'updatedAt', 'requestId'],
         });
-        if (swapNotification) {
-            await swapNotification.destroy().then(function () {
-                res.status(200).json(swapNotification);
-            });
-        } else {
-            res.status(404).send({ message: 'Notification not found' });
-        }
+        if (!notification) return res.status(404).send({ message: 'Notification not found' });
+        const data = await notification.destroy();
+        return res.status(200).json(data);
     } catch (err) {
         next(err);
-        const [message, status] =
-            err instanceof TokenExpiredError || err instanceof JsonWebTokenError
-                ? ['Unauthorized', 401]
-                : ['Server error, try again later', 503];
-        return res.send({ message }).status(status);
+        return res.status(503).send({ message: 'Server error, try again later' });
     }
 });

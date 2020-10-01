@@ -1,6 +1,5 @@
 import express, { Request, Response } from 'express';
 import Sequelize from 'sequelize';
-import { TokenExpiredError, JsonWebTokenError } from 'jsonwebtoken';
 import crypto from 'crypto';
 import { UserInstance } from 'shared/SequelizeTypings/models';
 import db from '../index';
@@ -46,12 +45,8 @@ router.get('/users', certify, async (req: Request, res: Response, next) => {
         if (users.length > 0) res.status(200).json(users);
         else res.status(404).send({ message: 'Not found' });
     } catch (err) {
-        if (err instanceof TokenExpiredError || err instanceof JsonWebTokenError) {
-            res.status(401).send({ message: 'Unauthorized' });
-        } else {
-            res.status(503).send({ message: 'Server error, try again later' });
-        }
         next(err);
+        return res.status(503).send({ message: 'Server error, try again later' });
     }
 });
 
@@ -75,12 +70,8 @@ router.get('/users/:userId', certify, async (req, res, next) => {
         if (user) res.json(user);
         else res.status(404).send({ message: 'Not found' });
     } catch (err) {
-        if (err instanceof TokenExpiredError || err instanceof JsonWebTokenError) {
-            res.status(401).send({ message: 'Unauthorized' });
-        } else {
-            res.status(503).send({ message: 'Server error, try again later' });
-        }
         next(err);
+        return res.status(503).send({ message: 'Server error, try again later' });
     }
 });
 
@@ -136,12 +127,8 @@ router.post('/users', certify, async (req: Request, res: Response, next) => {
             res.status(status).json(addedUser);
         }
     } catch (err) {
-        if (err instanceof TokenExpiredError || err instanceof JsonWebTokenError) {
-            res.status(401).send({ message: 'Unauthorized' });
-        } else {
-            res.status(503).send({ message: 'Server error, try again later' });
-        }
         next(err);
+        return res.status(503).send({ message: 'Server error, try again later' });
     }
 });
 
@@ -157,12 +144,8 @@ router.delete('/users/:userId', certify, async (req: Request, res: Response, nex
             });
         } else res.status(404).send({ message: 'User not found' });
     } catch (err) {
-        if (err instanceof TokenExpiredError || err instanceof JsonWebTokenError) {
-            res.status(401).send({ message: 'Unauthorized' });
-        } else {
-            res.status(503).send({ message: 'Server error, try again later' });
-        }
         next(err);
+        return res.status(503).send({ message: 'Server error, try again later' });
     }
 });
 
@@ -177,11 +160,7 @@ router.patch('/users/expoPushToken/:userId', certify, async (req: Request, res: 
             res.status(200).send({ messageg: 'Push Token updated' });
         } else res.status(404).send({ message: 'User not found' });
     } catch (err) {
-        if (err instanceof TokenExpiredError || err instanceof JsonWebTokenError) {
-            res.status(401).send({ message: 'Unauthorized' });
-        } else {
-            res.status(503).send({ message: 'Server error, try again later' });
-        }
         next(err);
+        return res.status(503).send({ message: 'Server error, try again later' });
     }
 });

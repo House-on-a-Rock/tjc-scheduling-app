@@ -1,5 +1,4 @@
 import express, { Request, Response, NextFunction } from 'express';
-import { TokenExpiredError, JsonWebTokenError } from 'jsonwebtoken';
 import { certify } from '../utilities/helperFunctions';
 import db from '../index';
 
@@ -23,11 +22,7 @@ router.get('/user-roles/:userId', certify, async (req: Request, res: Response, n
         if (userRoles) res.status(200).json(userRoles);
         else res.status(404).send({ message: 'Not found' });
     } catch (err) {
-        if (err instanceof TokenExpiredError || err instanceof JsonWebTokenError) {
-            res.status(401).send({ message: 'Unauthorized' });
-        } else {
-            res.status(503).send({ message: 'Server error, try again later' });
-        }
         next(err);
+        return res.status(503).send({ message: 'Server error, try again later' });
     }
 });

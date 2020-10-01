@@ -1,6 +1,6 @@
 import express, { Request, Response, NextFunction } from 'express';
 import Sequelize from 'sequelize';
-import jwt, { TokenExpiredError, JsonWebTokenError } from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
 import db from '../index';
 import { certify, setDate } from '../utilities/helperFunctions';
 
@@ -48,12 +48,8 @@ router.get('/tasks', certify, async (req: Request, res: Response, next: NextFunc
             res.status(404).send({ message: 'Not found' });
         }
     } catch (err) {
-        if (err instanceof TokenExpiredError || err instanceof JsonWebTokenError) {
-            res.status(401).send({ message: 'Unauthorized' });
-        } else {
-            res.status(503).send({ message: 'Server error, try again later' });
-        }
         next(err);
+        return res.status(503).send({ message: 'Server error, try again later' });
     }
 });
 
@@ -66,12 +62,8 @@ router.get('/tasks/:taskId', certify, async (req: Request, res: Response, next: 
         if (task) res.status(200).json(task);
         else res.status(404).send({ message: 'Task not found' });
     } catch (err) {
-        if (err instanceof TokenExpiredError || err instanceof JsonWebTokenError) {
-            res.status(401).send({ message: 'Unauthorized' });
-        } else {
-            res.status(503).send({ message: 'Server error, try again later' });
-        }
         next(err);
+        return res.status(503).send({ message: 'Server error, try again later' });
     }
 });
 
@@ -104,12 +96,8 @@ router.post('/tasks', certify, async (req: Request, res: Response, next: NextFun
         }, millisTillDate);
         res.status(201).send(task);
     } catch (err) {
-        if (err instanceof TokenExpiredError || err instanceof JsonWebTokenError) {
-            res.status(401).send({ message: 'Unauthorized' });
-        } else {
-            res.status(503).send({ message: 'Server error, try again later' });
-        }
         next(err);
+        return res.status(503).send({ message: 'Server error, try again later' });
     }
 });
 
@@ -126,12 +114,8 @@ router.delete('/tasks/:taskId', certify, async (req: Request, res: Response, nex
             res.status(404).send({ message: 'Task not found' });
         }
     } catch (err) {
-        if (err instanceof TokenExpiredError || err instanceof JsonWebTokenError) {
-            res.status(401).send({ message: 'Unauthorized' });
-        } else {
-            res.status(503).send({ message: 'Server error, try again later' });
-        }
         next(err);
+        return res.status(503).send({ message: 'Server error, try again later' });
     }
 });
 
@@ -167,12 +151,8 @@ router.patch(
             res.status(200).send({ message: 'Task switch successful' });
             // }
         } catch (err) {
-            if (err instanceof TokenExpiredError || err instanceof JsonWebTokenError) {
-                res.status(401).send({ message: 'Unauthorized' });
-            } else {
-                res.status(503).send({ message: 'Server error, try again later' });
-            }
             next(err);
+            return res.status(503).send({ message: 'Server error, try again later' });
         }
     },
 );
@@ -209,12 +189,8 @@ router.patch(
             res.status(200).send({ message: 'Task replacement successful.' });
             // }
         } catch (err) {
-            if (err instanceof TokenExpiredError || err instanceof JsonWebTokenError) {
-                res.status(401).send({ message: 'Unauthorized' });
-            } else {
-                res.status(503).send({ message: 'Server error, try again later' });
-            }
             next(err);
+            return res.status(503).send({ message: 'Server error, try again later' });
         }
     },
 );

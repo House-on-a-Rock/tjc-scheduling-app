@@ -1,5 +1,4 @@
 import express, { Request, Response, NextFunction } from 'express';
-import { TokenExpiredError, JsonWebTokenError } from 'jsonwebtoken';
 import { ChurchInstance } from 'shared/SequelizeTypings/models';
 import { certify } from '../utilities/helperFunctions';
 
@@ -20,11 +19,7 @@ router.get('/churches', certify, async (req: Request, res: Response, next: NextF
         return res.send({ message }).status(status);
     } catch (err) {
         next(err);
-        const [message, status] =
-            err instanceof TokenExpiredError || err instanceof JsonWebTokenError
-                ? ['Unauthorized', 401]
-                : ['Server error, try again later', 503];
-        return res.send({ message }).status(status);
+        return res.status(503).send({ message: 'Server error, try again later' });
     }
 });
 
@@ -39,11 +34,7 @@ router.post('/churches', certify, async (req: Request, res: Response, next: Next
         res.status(201).send(church);
     } catch (err) {
         next(err);
-        const [message, status] =
-            err instanceof TokenExpiredError || err instanceof JsonWebTokenError
-                ? ['Unauthorized', 401]
-                : ['Server error, try again later', 503];
-        return res.send({ message }).status(status);
+        return res.status(503).send({ message: 'Server error, try again later' });
     }
 });
 
