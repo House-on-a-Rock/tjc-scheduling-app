@@ -11,6 +11,4 @@ export interface TaskAttributes {
     updatedAt?: Date;
 }
 
-export interface TaskInstance
-    extends Sequelize.Instance<TaskAttributes>,
-        TaskAttributes {}
+export interface TaskInstance extends Sequelize.Instance<TaskAttributes>, TaskAttributes {}

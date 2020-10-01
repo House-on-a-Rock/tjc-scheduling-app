@@ -11,6 +11,4 @@ export interface NotificationAttributes {
     updatedAt?: Date;
 }
 
-export interface NotificationInstance
-    extends Sequelize.Instance<NotificationAttributes>,
-        NotificationAttributes {}
+export interface NotificationInstance extends Sequelize.Instance<NotificationAttributes>, NotificationAttributes {}

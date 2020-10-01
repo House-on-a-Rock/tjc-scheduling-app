@@ -11,6 +11,4 @@ export interface RoleAttributes {
     member?: UserAttributes[] | UserAttributes['id'];
 }
 
-export interface RoleInstance
-    extends Sequelize.Instance<RoleAttributes>,
-        RoleAttributes {}
+export interface RoleInstance extends Sequelize.Instance<RoleAttributes>, RoleAttributes {}

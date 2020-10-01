@@ -19,6 +19,4 @@ export interface RequestAttributes {
     updatedAt?: Date;
 }
 
-export interface RequestInstance
-    extends Sequelize.Instance<RequestAttributes>,
-        RequestAttributes {}
+export interface RequestInstance extends Sequelize.Instance<RequestAttributes>, RequestAttributes {}
