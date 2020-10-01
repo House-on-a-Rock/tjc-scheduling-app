@@ -1,10 +1,10 @@
 import express, { Request, Response } from 'express';
 import Sequelize from 'sequelize';
-import jwt, { TokenExpiredError, JsonWebTokenError } from 'jsonwebtoken';
+import { TokenExpiredError, JsonWebTokenError } from 'jsonwebtoken';
 import crypto from 'crypto';
 import { UserInstance } from 'shared/SequelizeTypings/models';
 import db from '../index';
-import { certify, sendVerEmail, validateEmail } from '../utilities/helperFunctions';
+import { certify, determineLoginId, sendVerEmail, validateEmail } from '../utilities/helperFunctions';
 
 const router = express.Router();
 const { Op } = Sequelize;
@@ -13,8 +13,7 @@ module.exports = router;
 
 router.get('/users', certify, async (req: Request, res: Response, next) => {
     try {
-        const decodedToken = jwt.decode(req.headers.authorization, { json: true });
-        const loggedInId = decodedToken.sub.split('|')[1];
+        const loggedInId: number = determineLoginId(req.headers.authorization);
         const searchArray = [];
         if (req.query.churchId) searchArray.push({ churchId: req.query.churchId });
         if (req.query.roleId) {

@@ -1,8 +1,13 @@
 import express, { Request, Response, NextFunction } from 'express';
-import jwt, { TokenExpiredError, JsonWebTokenError } from 'jsonwebtoken';
+import { TokenExpiredError, JsonWebTokenError } from 'jsonwebtoken';
 import { UserInstance } from 'shared/SequelizeTypings/models';
 import db from '../index';
-import { makeMyNotificationMessage, sendPushNotification, certify } from '../utilities/helperFunctions';
+import {
+    makeMyNotificationMessage,
+    sendPushNotification,
+    certify,
+    determineLoginId,
+} from '../utilities/helperFunctions';
 
 const router = express.Router();
 
@@ -41,11 +46,8 @@ router.get('/notifications/:userId', certify, async (req: Request, res: Response
 
 router.post('/notifications', certify, async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { authorization } = req.headers;
+        const loggedInId: number = determineLoginId(req.headers.authorization);
         const { requestId, notification } = req.body;
-        const decodedToken = jwt.decode(authorization, { json: true });
-        const loggedInId: number = parseInt(decodedToken.sub.split('|')[1], 10);
-
         const request = await db.Request.findOne({
             where: { id: requestId },
             attributes: ['id', 'requesteeUserId', 'type', 'accepted', 'approved'],

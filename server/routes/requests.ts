@@ -1,7 +1,7 @@
 import express, { Request, Response, NextFunction } from 'express';
 import axios from 'axios';
 import jwt, { TokenExpiredError, JsonWebTokenError } from 'jsonwebtoken';
-import { certify } from '../utilities/helperFunctions';
+import { certify, determineLoginId } from '../utilities/helperFunctions';
 import db from '../index';
 
 const router = express.Router();
@@ -10,8 +10,7 @@ module.exports = router;
 
 router.get('/requests', certify, async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const decodedToken = jwt.decode(req.headers.authorization, { json: true });
-        const loggedInId: number = parseInt(decodedToken.sub.split('|')[1], 10);
+        const loggedInId: number = determineLoginId(req.headers.authorization);
         const requests = await db.Request.findAll({
             where: {
                 userId: loggedInId,
@@ -70,8 +69,7 @@ router.get('/requests/:requestId', certify, async (req: Request, res: Response, 
 
 router.post('/requests', certify, async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const decodedToken = jwt.decode(req.headers.authorization, { json: true });
-        const loggedInId: number = parseInt(decodedToken.sub.split('|')[1], 10);
+        const loggedInId: number = determineLoginId(req.headers.authorization);
         let requesteeUserId: number = null;
         let type = 'requestAll';
         let isReplace = false;

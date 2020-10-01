@@ -13,6 +13,20 @@ fs.readFile('tjcschedule_pub.pem', function read(err, data) {
     cert = data;
 });
 
+export function certify(req, res, next) {
+    try {
+        const { authorization } = req.headers;
+        jwt.verify(authorization, cert);
+    } catch (err) {
+        next(err);
+        const [message, status] =
+            err instanceof TokenExpiredError || err instanceof JsonWebTokenError
+                ? ['Unauthorized', 401]
+                : ['Server error, try again later', 503];
+        res.send({ message }).status(status);
+    }
+}
+
 export function sendGenericEmail(username, link) {
     try {
         console.log('Sending email..');
@@ -159,16 +173,7 @@ export function makeMyNotificationMessage(notification: string, type: string, fi
     }
 }
 
-export function certify(req, res, next) {
-    try {
-        const { authorization } = req.headers;
-        jwt.verify(authorization, cert);
-    } catch (err) {
-        next(err);
-        const [message, status] =
-            err instanceof TokenExpiredError || err instanceof JsonWebTokenError
-                ? ['Unauthorized', 401]
-                : ['Server error, try again later', 503];
-        res.send({ message }).status(status);
-    }
+export function determineLoginId(auth) {
+    const decodedToken = jwt.decode(auth, { json: true });
+    return parseInt(decodedToken.sub.split('|')[1], 10);
 }
