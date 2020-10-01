@@ -1,21 +1,17 @@
 import express, { Request, Response, NextFunction } from 'express';
 import axios from 'axios';
-import fs from 'fs';
 import jwt, { TokenExpiredError, JsonWebTokenError } from 'jsonwebtoken';
+import { certify } from '../utilities/helperFunctions';
 import db from '../index';
-import helper from '../helper_functions';
 
 const router = express.Router();
-let cert;
-fs.readFile('tjcschedule_pub.pem', function read(err, data) {
-    if (err) throw err;
-    cert = data;
-});
+
 module.exports = router;
 
-router.get('/requests', async (req: Request, res: Response, next: NextFunction) => {
+router.get('/requests', certify, async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const loggedInId: number = helper.abstractLoginId(req.headers.authorization, cert);
+        const decodedToken = jwt.decode(req.headers.authorization, { json: true });
+        const loggedInId: number = parseInt(decodedToken.sub.split('|')[1], 10);
         const requests = await db.Request.findAll({
             where: {
                 userId: loggedInId,
@@ -53,9 +49,8 @@ router.get('/requests', async (req: Request, res: Response, next: NextFunction) 
     }
 });
 
-router.get('/requests/:requestId', async (req: Request, res: Response, next: NextFunction) => {
+router.get('/requests/:requestId', certify, async (req: Request, res: Response, next: NextFunction) => {
     try {
-        jwt.verify(req.headers.authorization, cert);
         const request = await db.Request.findOne({
             where: { id: req.params.requestId },
             attributes: ['id', 'requesteeUserId', 'type', 'accepted', 'taskId'],
@@ -73,9 +68,8 @@ router.get('/requests/:requestId', async (req: Request, res: Response, next: Nex
     }
 });
 
-router.post('/requests', async (req: Request, res: Response, next: NextFunction) => {
+router.post('/requests', certify, async (req: Request, res: Response, next: NextFunction) => {
     try {
-        jwt.verify(req.headers.authorization, cert);
         const decodedToken = jwt.decode(req.headers.authorization, { json: true });
         const loggedInId: number = parseInt(decodedToken.sub.split('|')[1], 10);
         let requesteeUserId: number = null;
@@ -140,9 +134,8 @@ router.post('/requests', async (req: Request, res: Response, next: NextFunction)
     }
 });
 
-router.patch('/requests/accept/:requestId', async (req: Request, res: Response, next: NextFunction) => {
+router.patch('/requests/accept/:requestId', certify, async (req: Request, res: Response, next: NextFunction) => {
     try {
-        jwt.verify(req.headers.authorization, cert);
         const decodedToken = jwt.decode(req.headers.authorization, { json: true });
         const acceptingUserId = decodedToken.sub.split('|')[1];
         const request = await db.Request.findOne({
@@ -213,9 +206,8 @@ router.patch('/requests/accept/:requestId', async (req: Request, res: Response, 
     }
 });
 
-router.patch('/requests/approve/:requestId', async (req: Request, res: Response, next: NextFunction) => {
+router.patch('/requests/approve/:requestId', certify, async (req: Request, res: Response, next: NextFunction) => {
     try {
-        jwt.verify(req.headers.authorization, cert);
         // const decodedToken = jwt.decode(req.headers.authorization, { json: true });
         const request = await db.Request.findOne({
             where: { id: req.params.requestId },
@@ -260,13 +252,13 @@ router.patch('/requests/approve/:requestId', async (req: Request, res: Response,
     }
 });
 
-router.patch('/requests/reject/:requestId', async (req: Request, res: Response, next: NextFunction) => {
+router.patch('/requests/accept/:requestId', certify, async (req: Request, res: Response, next: NextFunction) => {
     try {
-        jwt.verify(req.headers.authorization, cert);
-        // const decodedToken = jwt.decode(req.headers.authorization, { json: true });
+        const decodedToken = jwt.decode(req.headers.authorization, { json: true });
+        const acceptingUserId = decodedToken.sub.split('|')[1];
         const request = await db.Request.findOne({
             where: { id: req.params.requestId },
-            attributes: ['id', 'requesteeUserId', 'type', 'accepted', 'approved'],
+            attributes: ['id', 'requesteeUserId', 'type', 'accepted', 'approved', 'replace'],
             include: [
                 {
                     model: db.Task,
@@ -276,11 +268,12 @@ router.patch('/requests/reject/:requestId', async (req: Request, res: Response, 
             ],
         });
         if (!request) res.status(404).send({ message: 'Swap request not found' });
-        if (!request.approved && !request.accepted) {
+        if (!request.accepted && !request.approved && request.type === 'requestAll') {
             request
                 .update({
                     id: request.id,
-                    rejected: true,
+                    accepted: true,
+                    requesteeUserId: acceptingUserId,
                 })
                 .then(() => {
                     axios.post(
@@ -288,12 +281,36 @@ router.patch('/requests/reject/:requestId', async (req: Request, res: Response, 
                         {
                             requestId: request.id,
                             userId: request.task.userId,
-                            notification: 'cancelled',
+                            notification: 'accepted',
                         },
                         { headers: { authorization: req.headers.authorization } },
                     );
                 });
-            res.status(200).json(request);
+
+            res.status(202).json(request);
+        } else if (
+            !request.accepted &&
+            !request.approved &&
+            request.type === 'requestOne' &&
+            acceptingUserId === request.requesteeUserId.toString()
+        ) {
+            request
+                .update({
+                    id: request.id,
+                    accepted: true,
+                })
+                .then(() => {
+                    axios.post(
+                        `${process.env.SECRET_IP}api/notifications`,
+                        {
+                            requestId: request.id,
+                            userId: request.task.userId,
+                            notification: 'accepted',
+                        },
+                        { headers: { authorization: req.headers.authorization } },
+                    );
+                });
+            res.status(202).json(request);
         } else {
             res.status(400).send({ message: 'Invalid Request' });
         }
@@ -306,21 +323,13 @@ router.patch('/requests/reject/:requestId', async (req: Request, res: Response, 
         next(err);
     }
 });
-
-router.delete('/requests/:requestId', async (req: Request, res: Response, next: NextFunction) => {
+router.delete('/requests/:requestId', certify, async (req: Request, res: Response, next: NextFunction) => {
     try {
-        jwt.verify(req.headers.authorization, cert);
-        const swapRequest = await db.Request.findOne({
+        const request = await db.Request.findOne({
             where: { id: req.params.requestId },
             attributes: ['id', 'requesteeUserId', 'type', 'accepted', 'approved', 'taskId'],
         });
-        if (swapRequest) {
-            await swapRequest.destroy().then(function () {
-                res.status(200).json(swapRequest);
-            });
-        } else {
-            res.status(404).send({ message: 'Swap request not found' });
-        }
+        return request ? res.status(200) : res.status(404).send({ message: 'Swap request not found' });
     } catch (err) {
         if (err instanceof TokenExpiredError || err instanceof JsonWebTokenError) {
             res.status(401).send({ message: 'Unauthorized' });

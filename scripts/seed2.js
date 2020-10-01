@@ -1,4 +1,4 @@
-import helper from '../server/helper_functions';
+import { setDate } from '../server/utilities/helperFunctions';
 
 // function setDate(date, time, timeZone) {
 //     return DateTime.fromISO(`${date}T${time}`, { zone: timeZone });
@@ -16,12 +16,7 @@ const configuration = {
     logging: false,
 };
 
-const db = createModels(
-    configuration.database,
-    configuration.username,
-    configuration.password,
-    configuration,
-);
+const db = createModels(configuration.database, configuration.username, configuration.password, configuration);
 
 const churches = [
     {

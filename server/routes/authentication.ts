@@ -1,15 +1,18 @@
 import express, { Request, Response, NextFunction } from 'express';
 import crypto from 'crypto';
-import fs from 'fs';
 import jwt, { TokenExpiredError, JsonWebTokenError } from 'jsonwebtoken';
-import helper from '../helper_functions';
+import {
+    addMinutes,
+    createToken,
+    creatResetToken,
+    hashPassword,
+    sendGenericEmail,
+    sendVerEmail,
+} from '../utilities/helperFunctions';
 import db from '../index';
+
 // to destructure db into { Token, User}, cannot use default exports
 const router = express.Router();
-
-fs.readFile('tjcschedule_pub.pem', function read(err, data) {
-    if (err) throw err;
-});
 
 module.exports = router;
 
@@ -68,11 +71,11 @@ router.post('/resendConfirm', async (req: Request, res: Response, next: NextFunc
             token: newToken,
             expiresIn: Date.now() + 30 * 60 * 1000,
         });
-        const [message, status] = helper.sendVerEmail(email, headers, newToken, 'confirmation');
+        const [message, status] = sendVerEmail(email, headers, newToken, 'confirmation');
         return res.status(status).send({ message });
     } catch (err) {
-        next(err);
-        return res.status(503).send({ message: 'Server error, try again later' });
+        res.status(503).send({ message: 'Server error, try again later' });
+        return next(err);
     }
 });
 
@@ -94,7 +97,7 @@ router.post('/login', async (req: Request, res: Response, next: NextFunction) =>
             ],
         });
         const { password, salt, loginTimeout, loginAttempts, id, isVerified, firstName, lastName, email } = user;
-        const hashedLoginPassword = helper.hashPassword(loginPassword, salt);
+        const hashedLoginPassword = hashPassword(loginPassword, salt);
         const determineMessageStatus: () => [string, number] = () => {
             const currentTime = new Date();
             switch (true) {
@@ -117,7 +120,7 @@ router.post('/login', async (req: Request, res: Response, next: NextFunction) =>
                     ? {
                           id,
                           loginAttempts: 0,
-                          loginTimeout: helper.addMinutes(new Date(), 5),
+                          loginTimeout: addMinutes(new Date(), 5),
                       }
                     : { id, loginAttempts: loginAttempts + 1 };
             user.update(updatedAttempts);
@@ -127,8 +130,8 @@ router.post('/login', async (req: Request, res: Response, next: NextFunction) =>
 
         // if login is successful, reset login attempt information
         user.update({ id, loginAttempts: 0, loginTimeout: null });
-        const token = helper.createToken('reg', id, 60);
-        return res.status(status).send({ message }).json({
+        const token = createToken('reg', id, 60);
+        return res.status(status).json({
             user_id: id,
             firstName,
             lastName,
@@ -136,7 +139,7 @@ router.post('/login', async (req: Request, res: Response, next: NextFunction) =>
             access_token: token,
         });
     } catch (err) {
-        next(err);
+        // next(err);
         return res.status(503).send({ message: 'Server error, try again later' });
     }
 });
@@ -149,13 +152,13 @@ router.post('/confirmPassword', async (req: Request, res: Response, next: NextFu
             attributes: ['salt', 'password'],
         });
 
-        const checkedHash = helper.hashPassword(loginPassword, salt);
+        const checkedHash = hashPassword(loginPassword, salt);
         const [message, status, verify] =
             checkedHash !== password ? ['Invalid credentials', 401, false] : ['Password confirmed', 200, true];
         return res.status(status).send({ message, verify });
     } catch (err) {
-        next(err);
-        return res.status(503).send({ message: 'Server error, try again later' });
+        res.status(503).send({ message: 'Server error, try again later' });
+        return next(err);
     }
 });
 
@@ -218,9 +221,9 @@ router.post('/sendResetEmail', async (req: Request, res: Response, next: NextFun
         const { isVerified, id, password } = user;
 
         if (user && isVerified) {
-            const token = helper.creatResetToken(id, 15, password);
+            const token = creatResetToken(id, 15, password);
             const [tokenHeader, tokenPayload, tokenSignature] = token.split('.');
-            helper.sendGenericEmail(
+            sendGenericEmail(
                 email,
                 `http://localhost:8080/api/authentication/checkResetToken?header=${tokenHeader}&payload=${tokenPayload}&signature=${tokenSignature}`,
             );

@@ -1,24 +1,17 @@
 import express, { Request, Response, NextFunction } from 'express';
-import fs from 'fs';
 import jwt, { TokenExpiredError, JsonWebTokenError } from 'jsonwebtoken';
 import { RequestInstance, UserInstance } from 'shared/SequelizeTypings/models';
 import db from '../index';
-import helper from '../helper_functions';
+import { makeMyNotificationMessage, sendPushNotification, certify } from '../utilities/helperFunctions';
 
 const router = express.Router();
-let cert;
-fs.readFile('tjcschedule_pub.pem', function read(err, data) {
-    if (err) throw err;
-    cert = data;
-});
+
 module.exports = router;
 
-router.get('/notifications/:userId', async (req: Request, res: Response, next: NextFunction) => {
+router.get('/notifications/:userId', certify, async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { authorization } = req.headers;
         const { userId } = req.params;
-        jwt.verify(authorization, cert);
-        const notifications = await db.Notification.findAll({
+        const swapNotifications = await db.Notification.findAll({
             where: { userId },
             attributes: ['id', 'userId', 'message', 'createdAt', 'requestId'],
             include: [
@@ -34,8 +27,8 @@ router.get('/notifications/:userId', async (req: Request, res: Response, next: N
                 },
             ],
         });
-        if (notifications.length === 0) return res.status(404).send({ message: 'No notifications found' });
-        return res.status(200).json(notifications);
+        if (swapNotifications.length > 0) return res.status(200).json(swapNotifications);
+        return res.status(404).send({ message: 'Not found' });
     } catch (err) {
         next(err);
         const [message, status] =
@@ -46,16 +39,14 @@ router.get('/notifications/:userId', async (req: Request, res: Response, next: N
     }
 });
 
-router.post('/notifications', async (req: Request, res: Response, next: NextFunction) => {
+router.post('/notifications', certify, async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { authorization } = req.headers;
-        jwt.verify(authorization, cert);
+        const { requestId, notification } = req.body;
         const decodedToken = jwt.decode(authorization, { json: true });
         const loggedInId: number = parseInt(decodedToken.sub.split('|')[1], 10);
 
-        const { requestId, notification } = req.body;
-
-        const request: RequestInstance = await db.Request.findOne({
+        const request = await db.Request.findOne({
             where: { id: requestId },
             attributes: ['id', 'requesteeUserId', 'type', 'accepted', 'approved'],
             include: [
@@ -66,18 +57,14 @@ router.post('/notifications', async (req: Request, res: Response, next: NextFunc
                 },
             ],
         });
-        const { requesteeUserId, task, type: requestType } = request;
-        // eslint-disable-next-line no-nested-ternary
-        const [message, status] = !notification
-            ? ['Invalid notification type.', 400]
-            : !request
-            ? ['Swap request not found', 404]
-            : ['Notifications created', 200];
-        if (status > 399) return res.status(status).send({ message });
+        const { requesteeUserId, task, type: swapRequestType } = request;
+
+        if (!notification) return res.status(400).send({ message: 'Invalid notification type.' });
+        if (!request) return res.status(404).send({ message: 'Swap request not found' });
 
         // whoami
         const {
-            firstName: myName,
+            firstName: myFirstName,
             churchId: myChurchId,
             id: myUserId,
             expoPushToken: myPushToken,
@@ -87,43 +74,51 @@ router.post('/notifications', async (req: Request, res: Response, next: NextFunc
         });
 
         // whoareyou
-        const { firstName: theirName } =
-            requesteeUserId &&
-            (await db.User.findOne({
-                where: { id: requesteeUserId },
-                attributes: ['id', 'firstName', 'expoPushToken'],
-            }));
+        const { firstName: theirFirstName } = await db.User.findOne({
+            where: { id: requesteeUserId },
+            attributes: ['id', 'firstName', 'expoPushToken'],
+        });
 
-        // creates notification for receivers
+        const receivers: UserInstance[] =
+            notification === 'created' && swapRequestType === 'requestOne' && requesteeUserId
+                ? [
+                      await db.User.findOne({
+                          where: { id: requesteeUserId },
+                          attributes: ['id', 'firstName', 'expoPushToken'],
+                      }),
+                  ]
+                : await db.User.findAll({
+                      where: { churchId: myChurchId },
+                      attributes: ['id', 'firstName', 'expoPushToken'],
+                  });
+
+        // creates notification for them
         if (notification === 'created') {
-            const [theirNotifMessage, receivers]: [string, UserInstance[]] = await helper.makeTheirNotifications(
-                requestType,
-                myName,
-                requesteeUserId ?? myChurchId,
-            );
-
-            receivers.map(async ({ id: theirId, expoPushToken: theirPushToken }) => {
-                // won't send to myself
+            const theirNotificationMessage =
+                swapRequestType === 'requestOne'
+                    ? `${myFirstName} wants to switch with you`
+                    : `${myFirstName} requested to switch with someone. An open request has been sent out.`;
+            receivers.map(async ({ id: theirId, expoPushToken }) => {
                 if (theirId !== loggedInId) {
                     await db.Notification.create({
                         userId: theirId,
-                        message: theirNotifMessage,
+                        message: theirNotificationMessage,
                         requestId,
                     });
-                    helper.sendPushNotification(theirId, theirPushToken, 'Request Notification', theirNotifMessage);
+                    sendPushNotification(theirId, expoPushToken, 'Request Notification', theirNotificationMessage);
                 }
             });
         }
+        // is made if requesteeUser
+        const myNotificationMessage = makeMyNotificationMessage(notification, swapRequestType, theirFirstName);
         // creates notification for me
-        const myNotifMessage: string = helper.makeMyNotification(notification, requestType, theirName);
         await db.Notification.create({
             userId: myUserId,
-            message: myNotifMessage,
+            message: myNotificationMessage,
             requestId,
         });
-        helper.sendPushNotification(myUserId, myPushToken, 'Request Notification', myNotifMessage);
-
-        return res.status(status).send({ message });
+        sendPushNotification(myUserId, myPushToken, 'Request Notification', myNotificationMessage);
+        res.status(201).send({ message: 'Notifications created' });
     } catch (err) {
         next(err);
         const [message, status] =
@@ -134,19 +129,16 @@ router.post('/notifications', async (req: Request, res: Response, next: NextFunc
     }
 });
 
-router.patch('/notifications/:notificationId', async (req: Request, res: Response, next: NextFunction) => {
+router.patch('/notifications/:notificationId', certify, async (req: Request, res: Response, next: NextFunction) => {
     try {
-        jwt.verify(req.headers.authorization, cert);
-        const notification = await db.Notification.findOne({
+        const swapNotification = await db.Notification.findOne({
             where: { id: req.params.notificationId },
             attributes: ['id', 'userId', 'createdAt', 'isRead', 'updatedAt', 'requestId'],
         });
-        notification.update({
-            id: notification.id,
+        swapNotification.update({
+            id: swapNotification.id,
             isRead: true,
         });
-        const [message, status] = !notification ? ['Invalid notification.', 400] : ['Notifications patched', 200];
-        return res.status(status).send({ message });
     } catch (err) {
         next(err);
         const [message, status] =
@@ -157,16 +149,17 @@ router.patch('/notifications/:notificationId', async (req: Request, res: Respons
     }
 });
 
-router.patch('/notifications/read-all/:userId', async (req: Request, res: Response, next: NextFunction) => {
+router.patch('/notifications/read-all/:userId', certify, async (req: Request, res: Response, next: NextFunction) => {
     try {
-        jwt.verify(req.headers.authorization, cert);
-        const notifications = await db.Notification.findAll({
+        const swapNotifications = await db.Notification.findAll({
             where: { userId: req.params.userId },
             attributes: ['id', 'userId', 'createdAt', 'isRead', 'updatedAt', 'requestId'],
         });
-        notifications.map((notification) => notification.update({ isRead: true }));
-        const [message, status] = !notifications ? ['Invalid notification.', 400] : ['All notifications read', 200];
-        return res.status(status).send({ message });
+        swapNotifications.map((swapNotification) => {
+            swapNotification.update({
+                isRead: true,
+            });
+        });
     } catch (err) {
         next(err);
         const [message, status] =
@@ -177,16 +170,19 @@ router.patch('/notifications/read-all/:userId', async (req: Request, res: Respon
     }
 });
 
-router.delete('/notifications/:notificationId', async (req: Request, res: Response, next: NextFunction) => {
+router.delete('/notifications/:notificationId', certify, async (req: Request, res: Response, next: NextFunction) => {
     try {
-        jwt.verify(req.headers.authorization, cert);
-        const notification = await db.Notification.findOne({
+        const swapNotification = await db.Notification.findOne({
             where: { id: req.params.notificationId },
             attributes: ['id', 'userId', 'createdAt', 'updatedAt', 'requestId'],
         });
-        if (notification) await notification.destroy();
-        const [message, status] = notification ? ['Notification destroyed', 200] : ['Notification not found', 404];
-        return res.status(status).send({ message });
+        if (swapNotification) {
+            await swapNotification.destroy().then(function () {
+                res.status(200).json(swapNotification);
+            });
+        } else {
+            res.status(404).send({ message: 'Notification not found' });
+        }
     } catch (err) {
         next(err);
         const [message, status] =
