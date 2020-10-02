@@ -43,6 +43,7 @@ router.post('/notifications', certify, async (req: Request, res: Response, next:
     try {
         const loggedInId: number = determineLoginId(req.headers.authorization);
         const { requestId, notification } = req.body;
+        console.log(loggedInId, requestId, notification);
         const request = await db.Request.findOne({
             where: { id: requestId },
             attributes: ['id', 'requesteeUserId', 'type', 'accepted', 'approved'],

@@ -36,14 +36,8 @@ router.get('/confirmation', async ({ query }: Request, res: Response, next: Next
         const [message, status] = determineMessageStatus();
 
         if (status === 201) {
-            const user = await db.User.findOne({
-                where: { id: userId },
-                attributes: ['isVerified'],
-            });
-            user.update({
-                id: userId,
-                isVerified: true,
-            });
+            const user = await db.User.findOne({ where: { id: userId }, attributes: ['isVerified'] });
+            user.update({ id: userId, isVerified: true });
         }
         return res.status(status).send({ message });
     } catch (err) {
@@ -56,21 +50,11 @@ router.post('/resendConfirm', async (req: Request, res: Response, next: NextFunc
     try {
         const { headers } = req;
         const { email } = req.body;
-        const { id: userId } = await db.User.findOne({
-            where: { email },
-            attributes: ['id'],
-        });
-        const userToken = await db.Token.findOne({
-            where: { userId },
-            attributes: ['id', 'token', 'expiresIn'],
-        });
+        const { id: userId } = await db.User.findOne({ where: { email }, attributes: ['id'] });
+        const userToken = await db.Token.findOne({ where: { userId }, attributes: ['id', 'token', 'expiresIn'] });
         const newToken = crypto.randomBytes(16).toString('hex');
         // update token entry with new token and extended expire time
-        userToken.update({
-            id: userToken.id,
-            token: newToken,
-            expiresIn: Date.now() + 30 * 60 * 1000,
-        });
+        userToken.update({ id: userToken.id, token: newToken, expiresIn: Date.now() + 30 * 60 * 1000 });
         const [message, status] = sendVerEmail(email, headers, newToken, 'confirmation');
         return res.status(status).send({ message });
     } catch (err) {
@@ -130,14 +114,9 @@ router.post('/login', async (req: Request, res: Response, next: NextFunction) =>
 
         // if login is successful, reset login attempt information
         user.update({ id, loginAttempts: 0, loginTimeout: null });
-        const token = createToken('reg', id, 60);
-        return res.status(status).json({
-            user_id: id,
-            firstName,
-            lastName,
-            email,
-            access_token: token,
-        });
+        const token = createToken('reg', id, 600);
+        console.log(token);
+        return res.status(status).json({ user_id: id, firstName, lastName, email, access_token: token });
     } catch (err) {
         next(err);
         return res.status(503).send({ message: 'Server error, try again later' });
@@ -147,10 +126,7 @@ router.post('/login', async (req: Request, res: Response, next: NextFunction) =>
 router.post('/confirmPassword', async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { email, password: loginPassword } = req.body;
-        const { salt, password } = await db.User.findOne({
-            where: { email },
-            attributes: ['salt', 'password'],
-        });
+        const { salt, password } = await db.User.findOne({ where: { email }, attributes: ['salt', 'password'] });
 
         const checkedHash = hashPassword(loginPassword, salt);
         const [message, status, verify] =
@@ -162,53 +138,44 @@ router.post('/confirmPassword', async (req: Request, res: Response, next: NextFu
     }
 });
 
-// router.post(
-//     '/changePassword',
-//     async (req: Request, res: Response, next: NextFunction) => {
-//         try {
-//             const { authorization } = req.headers;
-//             const { userId, email } = req.body;
-//             const decodedToken = jwt.decode(authorization, { json: true });
-//             const requestId = decodedToken.sub.split('|')[1];
-//             if (requestId === userId) {
-//                 const options = {
-//                     method: 'POST',
-//                     uri: `http://${process.env.SECRET_IP}/api/authentication/confirmPassword`,
-//                     body: {
-//                         email,
-//                         password: req.body.oldPass,
-//                     },
-//                     json: true,
-//                 };
-//                 const verifyOldPassword = await request(options);
+// router.post('/changePassword', async (req: Request, res: Response, next: NextFunction) => {
+//     try {
+//         const { authorization } = req.headers;
+//         const { userId, email } = req.body;
+//         const decodedToken = jwt.decode(authorization, { json: true });
+//         const requestId = decodedToken.sub.split('|')[1];
+//         if (requestId === userId) {
+//             const options = {
+//                 method: 'POST',
+//                 uri: `http://${process.env.SECRET_IP}/api/authentication/confirmPassword`,
+//                 body: {
+//                     email,
+//                     password: req.body.oldPass,
+//                 },
+//                 json: true,
+//             };
+//             const verifyOldPassword = await request(options);
+//             const user = await db.User.findOne({
+//                 where: { email },
+//                 attributes: ['id', 'password', 'salt'],
+//             });
 
-//                 console.log(verifyOldPassword);
-//                 const user = await db.User.findOne({
-//                     where: { email },
-//                     attributes: ['id', 'password', 'salt'],
+//             if (verifyOldPassword.verify) {
+//                 user.update({
+//                     id: user.id,
+//                     password: req.body.password,
 //                 });
 
-//                 if (verifyOldPassword.verify) {
-//                     user.update({
-//                         id: user.id,
-//                         password: req.body.password,
-//                     });
-
-//                     res.status(200).send({
-//                         message: 'Password change success.',
-//                     });
-//                 }
+//                 res.status(200).send({
+//                     message: 'Password change success.',
+//                 });
 //             }
-//         } catch (err) {
-//             if (err instanceof TokenExpiredError || err instanceof JsonWebTokenError) {
-//                 res.status(401).send({ message: 'Unauthorized' });
-//             } else {
-//                 res.status(503).send({ message: 'Server error, try again later' });
-//             }
-//             next(err);
 //         }
-//     },
-// );
+//     } catch (err) {
+//         next(err);
+//         return res.status(503).send({ message: 'Server error, try again later' });
+//     }
+// });
 
 router.post('/sendResetEmail', async (req: Request, res: Response, next: NextFunction) => {
     try {
