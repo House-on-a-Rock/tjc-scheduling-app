@@ -17,10 +17,10 @@ const RequestFactory = (
             type: DataTypes.BOOLEAN,
             defaultValue: false,
         },
-        rejected: {
-            type: DataTypes.BOOLEAN,
-            defaultValue: false,
-        },
+        // rejected: {
+        //     type: DataTypes.BOOLEAN,
+        //     defaultValue: false,
+        // },
         message: { type: DataTypes.STRING },
         replace: { type: DataTypes.BOOLEAN },
     };

@@ -37,7 +37,7 @@ router.get('/confirmation', async ({ query }: Request, res: Response, next: Next
 
         if (status === 201) {
             const user = await db.User.findOne({ where: { id: userId }, attributes: ['isVerified'] });
-            user.update({ id: userId, isVerified: true });
+            await user.update({ id: userId, isVerified: true });
         }
         return res.status(status).send({ message });
     } catch (err) {
@@ -107,13 +107,13 @@ router.post('/login', async (req: Request, res: Response, next: NextFunction) =>
                           loginTimeout: addMinutes(new Date(), 5),
                       }
                     : { id, loginAttempts: loginAttempts + 1 };
-            user.update(updatedAttempts);
+            await user.update(updatedAttempts);
         }
 
         if (status > 299) return res.status(status).send({ message });
 
         // if login is successful, reset login attempt information
-        user.update({ id, loginAttempts: 0, loginTimeout: null });
+        await user.update({ id, loginAttempts: 0, loginTimeout: null });
         const token = createToken('reg', id, 600);
         console.log(token);
         return res.status(status).json({ user_id: id, firstName, lastName, email, access_token: token });

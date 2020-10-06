@@ -19,8 +19,7 @@ router.get('/user-roles/:userId', certify, async (req: Request, res: Response, n
                 },
             ],
         });
-        if (userRoles) res.status(200).json(userRoles);
-        else res.status(404).send({ message: 'Not found' });
+        return userRoles ? res.status(200).json(userRoles) : res.status(404).send({ message: 'Not found' });
     } catch (err) {
         next(err);
         return res.status(503).send({ message: 'Server error, try again later' });

@@ -7,6 +7,23 @@ import db from '../index';
 const router = express.Router();
 
 module.exports = router;
+const determineMessageStatus: (arg1, arg2, arg3) => [string, number] = (request, accepted, approved) => {
+    switch (true) {
+        case !request:
+            return ['Swap request not found', 404];
+        case !accepted && !approved:
+            return ['', 202];
+        default:
+            return ['Invalid Request', 400];
+    }
+};
+
+const postNotification = (requestId, userId, notification, message, authorization) =>
+    axios.post(
+        `${process.env.SECRET_IP}api/notifications`,
+        { requestId, userId, notification, message },
+        { headers: { authorization } },
+    );
 
 router.get('/requests', certify, async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -36,8 +53,9 @@ router.get('/requests', certify, async (req: Request, res: Response, next: NextF
 
 router.get('/requests/:requestId', certify, async (req: Request, res: Response, next: NextFunction) => {
     try {
+        const { requestId: id } = req.params;
         const request = await db.Request.findOne({
-            where: { id: req.params.requestId },
+            where: { id },
             attributes: ['id', 'requesteeUserId', 'type', 'accepted', 'taskId'],
         });
         return request ? res.json(request) : res.status(404).send({ message: 'Not Found' });
@@ -47,117 +65,55 @@ router.get('/requests/:requestId', certify, async (req: Request, res: Response, 
     }
 });
 
-router.post(
-    '/requests',
-    //  certify,
-    async (req: Request, res: Response, next: NextFunction) => {
-        try {
-            const { targetTaskId, myTaskId, message } = req.body;
-            console.log(req.body);
-            console.log(targetTaskId, myTaskId, message);
-            const { authorization } = req.headers;
-            const loggedInId: number = determineLoginId(authorization);
-            const type = targetTaskId ? 'requestOne' : 'requestAll';
-            const shouldReplace = req.query.replace === 'true';
-            const { userId: requesteeUserId } =
-                (await db.Task.findOne({ where: { id: targetTaskId }, attributes: ['userId'] })) || {};
-            console.log('requesteeUserId', requesteeUserId);
-            const myTask = await db.Task.findOne({ where: { id: myTaskId } });
-            console.log('myTask', myTask, '\n\n\n');
+router.post('/requests', certify, async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { targetTaskId, myTaskId, message } = req.body;
+        const { authorization } = req.headers;
+        const { userId: requesteeUserId } =
+            (await db.Task.findOne({ where: { id: targetTaskId }, attributes: ['userId'] })) || {};
+        const task = await db.Task.findOne({ where: { id: myTaskId } });
 
-            if (!myTask) res.status(404).send({ message: 'Task not found' });
+        if (!task) res.status(404).send({ message: 'Task not found' });
+        await task.update({ status: 'changeRequested' });
 
-            myTask.update({ status: 'changeRequested' });
-            const createRequest = await db.Request.create({
-                requesteeUserId,
-                type,
-                message,
-                taskId: myTaskId,
-                replace: shouldReplace,
-                userId: loggedInId,
-            });
-            console.log('createRequest', createRequest, '\n\n\n');
-            // const request = await db.Request.findOne({
-            //     where: { id: createRequest.id },
-            //     include: [{ model: db.Task, as: 'task', attributes: ['id', 'userId'] }],
-            // });
-
-            const newRequest = await db.Request.findOne({
-                where: { id: createRequest.id },
-                include: [
-                    {
-                        model: db.Task,
-                        as: 'task',
-                        attributes: ['id', 'userId'],
-                    },
-                ],
-            }).then(async (request) => {
-                console.log('request', request);
-                await axios.post(
-                    `${process.env.SECRET_IP}api/notifications`,
-                    {
-                        requestId: request.id,
-                        userId: request.task.userId,
-                        notification: 'created',
-                        message: req.body.message,
-                    },
-                    { headers: { authorization: req.headers.authorization } },
-                );
-            });
-            console.log(
-                'request',
-                newRequest,
-                '\n\n\n',
-                process.env.SECRET_IP,
-                `${process.env.SECRET_IP}api/notifications`,
-            );
-            res.status(201).json(newRequest);
-            // console.log('notification', notification);
-            // return res.status(201).json(request);
-        } catch (err) {
-            next(err);
-            return res.status(503).send({ message: 'Server error, try again later' });
-        }
-    },
-);
+        const request = await db.Request.create({
+            requesteeUserId,
+            message,
+            type: targetTaskId ? 'requestOne' : 'requestAll',
+            taskId: myTaskId,
+            replace: req.query.replace === 'true',
+            userId: determineLoginId(authorization),
+        });
+        postNotification(request.id, task.userId, 'created', message, authorization);
+        return res.status(201).json(request);
+    } catch (err) {
+        next(err);
+        return res.status(503).send({ message: 'Server error, try again later' });
+    }
+});
 
 router.patch('/requests/accept/:requestId', certify, async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const decodedToken = jwt.decode(req.headers.authorization, { json: true });
-        const acceptingUserId = decodedToken.sub.split('|')[1];
+        // need to test acceptingUserId w/ requesteeUserId
+        const { authorization } = req.headers;
+        const acceptingUserId = parseInt(jwt.decode(authorization, { json: true }).sub.split('|')[1], 10);
         const request = await db.Request.findOne({
             where: { id: req.params.requestId },
             attributes: ['id', 'requesteeUserId', 'type', 'accepted', 'approved', 'replace'],
             include: [{ model: db.Task, as: 'task', attributes: ['id', 'userId'] }],
         });
-        if (!request) res.status(404).send({ message: 'Swap request not found' });
-        if (!request.accepted && !request.approved && request.type === 'requestAll') {
-            request.update({ id: request.id, accepted: true, requesteeUserId: acceptingUserId }).then(() => {
-                axios.post(
-                    `${process.env.SECRET_IP}api/notifications`,
-                    { requestId: request.id, userId: request.task.userId, notification: 'accepted' },
-                    { headers: { authorization: req.headers.authorization } },
-                );
-            });
+        const { accepted, approved, type, task, id: requestId } = request || {};
+        const [message, status] = determineMessageStatus(request, accepted, approved);
 
-            res.status(202).json(request);
-        } else if (
-            !request.accepted &&
-            !request.approved &&
-            request.type === 'requestOne' &&
-            acceptingUserId === request.requesteeUserId.toString()
-        ) {
-            request.update({ id: request.id, accepted: true }).then(() => {
-                axios.post(
-                    `${process.env.SECRET_IP}api/notifications`,
-                    { requestId: request.id, userId: request.task.userId, notification: 'accepted' },
-                    { headers: { authorization: req.headers.authorization } },
-                );
-            });
-            res.status(202).json(request);
-        } else {
-            res.status(400).send({ message: 'Invalid Request' });
+        if (status === 202) {
+            // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+            type === 'requestAll'
+                ? await request.update({ requestId, accepted: true, requesteeUserId: acceptingUserId })
+                : await request.update({ requestId, accepted: true });
+            postNotification(requestId, task.userId, 'accepted', message, authorization);
         }
+
+        return status === 202 ? res.status(status).json(request) : res.status(status).send({ message });
     } catch (err) {
         next(err);
         return res.status(503).send({ message: 'Server error, try again later' });
@@ -166,40 +122,20 @@ router.patch('/requests/accept/:requestId', certify, async (req: Request, res: R
 
 router.patch('/requests/approve/:requestId', certify, async (req: Request, res: Response, next: NextFunction) => {
     try {
-        // const decodedToken = jwt.decode(req.headers.authorization, { json: true });
         const request = await db.Request.findOne({
             where: { id: req.params.requestId },
             attributes: ['id', 'requesteeUserId', 'type', 'accepted', 'approved', 'replace'],
-            include: [
-                {
-                    model: db.Task,
-                    as: 'task',
-                    attributes: ['id', 'userId'],
-                },
-            ],
+            include: [{ model: db.Task, as: 'task', attributes: ['id', 'userId'] }],
         });
-        if (!request) res.status(404).send({ message: 'Swap request not found' });
-        if (!request.approved && request.accepted) {
-            request
-                .update({
-                    id: request.id,
-                    approved: true,
-                })
-                .then(() => {
-                    axios.post(
-                        `${process.env.SECRET_IP}api/notifications`,
-                        {
-                            requestId: request.id,
-                            userId: request.task.userId,
-                            notification: 'approved',
-                        },
-                        { headers: { authorization: req.headers.authorization } },
-                    );
-                });
-            res.status(200).json(request);
-        } else {
-            res.status(400).send({ message: 'Invalid Request' });
+        const { accepted, approved, task, id: requestId } = request || {};
+        const [message, status] = determineMessageStatus(request, accepted, approved);
+
+        // does this need to test for requestAll?
+        if (status === 202 && !approved && accepted) {
+            await request.update({ id: requestId, approved: true });
+            postNotification(requestId, task.userId, 'approved', message, req.headers.authorization);
         }
+        return status === 202 ? res.status(status).json(request) : res.status(status).send({ message });
     } catch (err) {
         next(err);
         return res.status(503).send({ message: 'Server error, try again later' });
@@ -208,8 +144,8 @@ router.patch('/requests/approve/:requestId', certify, async (req: Request, res: 
 
 router.patch('/requests/accept/:requestId', certify, async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const decodedToken = jwt.decode(req.headers.authorization, { json: true });
-        const acceptingUserId = decodedToken.sub.split('|')[1];
+        const { authorization } = req.headers;
+        const acceptingUserId = jwt.decode(authorization, { json: true }).sub.split('|')[1];
         const request = await db.Request.findOne({
             where: { id: req.params.requestId },
             attributes: ['id', 'requesteeUserId', 'type', 'accepted', 'approved', 'replace'],
@@ -221,53 +157,16 @@ router.patch('/requests/accept/:requestId', certify, async (req: Request, res: R
                 },
             ],
         });
-        if (!request) res.status(404).send({ message: 'Swap request not found' });
-        if (!request.accepted && !request.approved && request.type === 'requestAll') {
-            request
-                .update({
-                    id: request.id,
-                    accepted: true,
-                    requesteeUserId: acceptingUserId,
-                })
-                .then(() => {
-                    axios.post(
-                        `${process.env.SECRET_IP}api/notifications`,
-                        {
-                            requestId: request.id,
-                            userId: request.task.userId,
-                            notification: 'accepted',
-                        },
-                        { headers: { authorization: req.headers.authorization } },
-                    );
-                });
-
-            res.status(202).json(request);
-        } else if (
-            !request.accepted &&
-            !request.approved &&
-            request.type === 'requestOne' &&
-            acceptingUserId === request.requesteeUserId.toString()
-        ) {
-            request
-                .update({
-                    id: request.id,
-                    accepted: true,
-                })
-                .then(() => {
-                    axios.post(
-                        `${process.env.SECRET_IP}api/notifications`,
-                        {
-                            requestId: request.id,
-                            userId: request.task.userId,
-                            notification: 'accepted',
-                        },
-                        { headers: { authorization: req.headers.authorization } },
-                    );
-                });
-            res.status(202).json(request);
-        } else {
-            res.status(400).send({ message: 'Invalid Request' });
+        const { accepted, approved, task, id, type } = request || {};
+        const [message, status] = determineMessageStatus(request, accepted, approved);
+        if (status === 202) {
+            // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+            type === 'requestAll'
+                ? await request.update({ id, accepted: true, requesteeUserId: acceptingUserId })
+                : await request.update({ id, accepted: true });
+            postNotification(id, task.userId, 'accepted', message, authorization);
         }
+        return status === 202 ? res.status(status).json(request) : res.status(status).send({ message });
     } catch (err) {
         next(err);
         return res.status(503).send({ message: 'Server error, try again later' });

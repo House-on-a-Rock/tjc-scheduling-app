@@ -12,9 +12,10 @@ module.exports = router;
 router.get('/tasks', certify, async (req: Request, res: Response, next: NextFunction) => {
     try {
         const searchArray = [];
-        if (req.query.userId) searchArray.push({ userId: req.query.userId });
-        if (req.query.churchId) searchArray.push({ churchId: req.query.churchId });
-        if (req.query.roleId) searchArray.push({ roleId: req.query.roleId });
+        const { userId, churchId, roleId } = req.query;
+        if (userId) searchArray.push({ userId });
+        if (churchId) searchArray.push({ churchId });
+        if (roleId) searchArray.push({ roleId });
 
         const searchParams = {
             [Op.and]: searchArray,
@@ -42,11 +43,7 @@ router.get('/tasks', certify, async (req: Request, res: Response, next: NextFunc
             ],
             order: [['date', 'ASC']],
         });
-        if (tasks) {
-            res.status(200).json(tasks);
-        } else {
-            res.status(404).send({ message: 'Not found' });
-        }
+        return tasks ? res.status(200).json(tasks) : res.status(404).send({ message: 'Not found' });
     } catch (err) {
         next(err);
         return res.status(503).send({ message: 'Server error, try again later' });
@@ -59,8 +56,7 @@ router.get('/tasks/:taskId', certify, async (req: Request, res: Response, next: 
             where: { taskId: req.params.taskId },
             attributes: ['id', 'date', 'churchId', 'userId', 'roleId'],
         });
-        if (task) res.status(200).json(task);
-        else res.status(404).send({ message: 'Task not found' });
+        return task ? res.status(200).json(task) : res.status(404).send({ message: 'Task not found' });
     } catch (err) {
         next(err);
         return res.status(503).send({ message: 'Server error, try again later' });
@@ -69,9 +65,9 @@ router.get('/tasks/:taskId', certify, async (req: Request, res: Response, next: 
 
 router.post('/tasks', certify, async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const now = new Date();
+        const { date, time, roleId } = req.body;
         const userId = jwt.decode(req.headers.authorization, { json: true }).sub.split('|')[1];
-        const userData = await db.User.findOne({
+        const { church } = await db.User.findOne({
             where: { id: userId },
             include: [
                 {
@@ -81,20 +77,14 @@ router.post('/tasks', certify, async (req: Request, res: Response, next: NextFun
                 },
             ],
         });
-        const date = setDate(req.body.date, req.body.time, userData.church.timezone);
+        const taskDate = setDate(date, time, church.timezone);
         const task = await db.Task.create({
-            date: new Date(date.toString()),
-            churchId: userData.church.id,
-            roleId: req.body.roleId,
+            date: new Date(taskDate.toString()),
+            churchId: church.id,
+            roleId,
             userId: parseInt(userId, 10),
         });
-        const millisTillDate = new Date(date.toString()).getTime() - now.getTime();
-        setTimeout(function () {
-            task.update({
-                status: 'archived',
-            });
-        }, millisTillDate);
-        res.status(201).send(task);
+        return res.status(201).send(task);
     } catch (err) {
         next(err);
         return res.status(503).send({ message: 'Server error, try again later' });
@@ -106,13 +96,10 @@ router.delete('/tasks/:taskId', certify, async (req: Request, res: Response, nex
         const task = await db.Task.findOne({
             where: { id: req.params.taskId },
         });
-        if (task) {
-            await task.destroy().then(function () {
-                res.status(200).send({ message: 'Task deleted' });
-            });
-        } else {
-            res.status(404).send({ message: 'Task not found' });
-        }
+        const [message, status] = task ? ['Task deleted', 200] : ['Task not found', 404];
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+        status === 200 && (await task.destroy());
+        return res.status(status).send({ message });
     } catch (err) {
         next(err);
         return res.status(503).send({ message: 'Server error, try again later' });
@@ -124,32 +111,32 @@ router.patch(
     certify,
     async (req: Request, res: Response, next: NextFunction) => {
         try {
+            const { targetTaskId, switchTaskId } = req.params;
             const targetTask = await db.Task.findOne({
-                where: { id: req.params.targetTaskId },
+                where: { id: targetTaskId },
                 attributes: ['id', 'date', 'churchId', 'userId', 'roleId'],
             });
 
             const switchTask = await db.Task.findOne({
-                where: { id: req.params.switchTaskId },
+                where: { id: switchTaskId },
                 attributes: ['id', 'date', 'churchId', 'userId', 'roleId'],
             });
-            if (!targetTask || !switchTask) {
-                return res.status(404).send({ message: 'Not found' });
-            }
-            // if (targetTask.ChurchId === switchTask.ChurchId) {
-            const targetTaskId = targetTask.userId;
-            const switchTaskId = switchTask.userId;
-            targetTask.update({
-                id: targetTask.id,
-                userId: switchTaskId,
-            });
 
-            switchTask.update({
-                id: switchTask.id,
-                userId: targetTaskId,
-            });
-            res.status(200).send({ message: 'Task switch successful' });
-            // }
+            const [message, status] =
+                !targetTask || !switchTask ? ['Task switch successful', 200] : ['Task not found', 404];
+
+            if (status === 200) {
+                await targetTask.update({
+                    id: targetTask.id,
+                    userId: switchTask.userId,
+                });
+
+                await switchTask.update({
+                    id: switchTask.id,
+                    userId: targetTask.userId,
+                });
+            }
+            return res.status(status).send({ message });
         } catch (err) {
             next(err);
             return res.status(503).send({ message: 'Server error, try again later' });
@@ -161,16 +148,18 @@ router.patch(
     '/tasks/replaceTask/:taskId/replacedBy/:userId',
     certify,
     async (req: Request, res: Response, next: NextFunction) => {
+        console.log(req.params);
         try {
+            const { taskId, userId } = req.params;
             const task = await db.Task.findOne({
                 where: {
-                    id: req.params.taskId.toString(),
+                    id: taskId,
                 },
                 attributes: ['id', 'userId'],
             });
 
             const replacedByUser = await db.User.findOne({
-                where: { id: req.params.userId.toString() },
+                where: { id: userId },
                 attributes: ['id', 'churchId'],
             });
 
@@ -178,16 +167,17 @@ router.patch(
                 where: { id: task.userId },
                 attributes: ['id', 'churchId'],
             });
-            if (!task || !replacedByUser || !belongsToUser) {
-                return res.status(404).send({ message: 'Not found' });
-            }
-            // if (replacedByUser.ChurchId === belongsToUser.ChurchId) {
-            await task.update({
-                id: task.id,
-                userId: replacedByUser.id,
-            });
-            res.status(200).send({ message: 'Task replacement successful.' });
-            // }
+            const [message, status] =
+                !task || !replacedByUser || !belongsToUser
+                    ? ['Task replacement successful', 200]
+                    : ['Task not found', 404];
+
+            if (status === 200)
+                await task.update({
+                    id: task.id,
+                    userId: replacedByUser.id,
+                });
+            return res.status(status).send({ message });
         } catch (err) {
             next(err);
             return res.status(503).send({ message: 'Server error, try again later' });

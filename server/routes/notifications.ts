@@ -43,7 +43,6 @@ router.post('/notifications', certify, async (req: Request, res: Response, next:
     try {
         const loggedInId: number = determineLoginId(req.headers.authorization);
         const { requestId, notification } = req.body;
-        console.log(loggedInId, requestId, notification);
         const request = await db.Request.findOne({
             where: { id: requestId },
             attributes: ['id', 'requesteeUserId', 'type', 'accepted', 'approved'],
@@ -130,7 +129,7 @@ router.patch('/notifications/:notificationId', certify, async (req: Request, res
             attributes: ['id', 'userId', 'createdAt', 'isRead', 'updatedAt', 'requestId'],
         });
         if (!notification) return res.status(404).send({ message: 'Notification not found' });
-        const data = notification.update({ id: notification.id, isRead: true });
+        const data = await notification.update({ id: notification.id, isRead: true });
         return res.status(200).json(data);
     } catch (err) {
         next(err);

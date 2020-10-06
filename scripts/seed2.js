@@ -1,9 +1,5 @@
 import { setDate } from '../server/utilities/helperFunctions';
 
-// function setDate(date, time, timeZone) {
-//     return DateTime.fromISO(`${date}T${time}`, { zone: timeZone });
-// }
-
 const { green, red, blue } = require('chalk');
 const createModels = require('../server/db/models').default;
 
@@ -246,61 +242,61 @@ const roles = [
 ];
 const tasks = [
     {
-        date: helper.setDate('2020-05-21', '10:30:00', 'America/New_York').toString(),
+        date: setDate('2020-05-21', '10:30:00', 'America/New_York').toString(),
         userId: 1,
         roleId: 4,
         churchId: 3,
     },
     {
-        date: helper.setDate('2020-08-21', '10:30:00', 'America/New_York').toString(),
+        date: setDate('2020-08-21', '10:30:00', 'America/New_York').toString(),
         userId: 1,
         roleId: 1,
         churchId: 1,
     },
     {
-        date: helper.setDate('2020-08-22', '10:30:00', 'America/New_York').toString(),
+        date: setDate('2020-08-22', '10:30:00', 'America/New_York').toString(),
         userId: 1,
         roleId: 1,
         churchId: 1,
     },
     {
-        date: helper.setDate('2020-08-23', '10:30:00', 'America/New_York').toString(),
+        date: setDate('2020-08-23', '10:30:00', 'America/New_York').toString(),
         userId: 1,
         roleId: 1,
         churchId: 1,
     },
     {
-        date: helper.setDate('2020-08-24', '10:30:00', 'America/New_York').toString(),
+        date: setDate('2020-08-24', '10:30:00', 'America/New_York').toString(),
         userId: 2,
         roleId: 1,
         churchId: 1,
     },
     {
-        date: helper.setDate('2020-08-25', '10:30:00', 'America/New_York').toString(),
+        date: setDate('2020-08-25', '10:30:00', 'America/New_York').toString(),
         userId: 2,
         roleId: 1,
         churchId: 1,
     },
     {
-        date: helper.setDate('2020-08-26', '10:30:00', 'America/New_York').toString(),
+        date: setDate('2020-08-26', '10:30:00', 'America/New_York').toString(),
         userId: 2,
         roleId: 1,
         churchId: 1,
     },
     {
-        date: helper.setDate('2020-08-27', '10:30:00', 'America/New_York').toString(),
+        date: setDate('2020-08-27', '10:30:00', 'America/New_York').toString(),
         userId: 3,
         roleId: 1,
         churchId: 1,
     },
     {
-        date: helper.setDate('2020-08-28', '10:30:00', 'America/New_York').toString(),
+        date: setDate('2020-08-28', '10:30:00', 'America/New_York').toString(),
         userId: 3,
         roleId: 1,
         churchId: 1,
     },
     {
-        date: helper.setDate('2020-08-29', '10:30:00', 'America/New_York').toString(),
+        date: setDate('2020-08-29', '10:30:00', 'America/New_York').toString(),
         userId: 3,
         roleId: 1,
         churchId: 1,
@@ -384,46 +380,26 @@ async function seed() {
     await db.sequelize.sync({ force: true });
     console.log(green('db synced!'));
 
-    const seedChurches = await Promise.all(
-        churches.map((church) => {
-            db.Church.create(church);
-        }),
-    );
+    const seedChurches = await Promise.all(churches.map((church) => db.Church.create(church)));
     await new Promise((r) => setTimeout(r, 2000));
-    const seedUsers = await Promise.all(
-        users.map((user) => {
-            db.User.create(user);
-        }),
-    );
+
+    const seedUsers = await Promise.all(users.map((user) => db.User.create(user)));
     await new Promise((r) => setTimeout(r, 2000));
-    const seedRoles = await Promise.all(
-        roles.map((role) => {
-            db.Role.create(role);
-        }),
-    );
+
+    const seedRoles = await Promise.all(roles.map((role) => db.Role.create(role)));
     await new Promise((r) => setTimeout(r, 2000));
-    const seedTasks = await Promise.all(
-        tasks.map((task) => {
-            db.Task.create(task);
-        }),
-    );
+
+    const seedTasks = await Promise.all(tasks.map((task) => db.Task.create(task)));
     await new Promise((r) => setTimeout(r, 2000));
-    const seedTeams = await Promise.all(
-        teams.map((team) => {
-            db.Team.create(team);
-        }),
-    );
+
+    const seedTeams = await Promise.all(teams.map((team) => db.Team.create(team)));
     await new Promise((r) => setTimeout(r, 2000));
-    const seedUserRole = await Promise.all(
-        userRoles.map((userRole) => {
-            db.UserRole.create(userRole);
-        }),
-    );
+
+    const seedUserRole = await Promise.all(userRoles.map((userRole) => db.UserRole.create(userRole)));
     await new Promise((r) => setTimeout(r, 2000));
+
     const seedNotifications = await Promise.all(
-        notifications.map((notification) => {
-            db.Notification.create(notification);
-        }),
+        notifications.map((notification) => db.Notification.create(notification)),
     );
 
     console.log(blue(`seeded ${seedChurches.length} churches`));

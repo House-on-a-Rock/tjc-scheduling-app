@@ -17,6 +17,7 @@ export function certify(req, res, next) {
     try {
         const { authorization } = req.headers;
         jwt.verify(authorization, cert);
+        next();
     } catch (err) {
         next(err);
         const [message, status] =
@@ -56,7 +57,7 @@ export function sendGenericEmail(username, link) {
     }
 }
 
-export function sendVerEmail(username, headers, token, api) {
+export function sendVerEmail(username, headers, token, api): [string, number] {
     try {
         console.log('Sending email..');
         let message;

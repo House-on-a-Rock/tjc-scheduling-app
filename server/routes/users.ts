@@ -12,25 +12,22 @@ module.exports = router;
 
 router.get('/users', certify, async (req: Request, res: Response, next) => {
     try {
-        const loggedInId: number = determineLoginId(req.headers.authorization);
+        const { roleId, churchId } = req.query;
         const searchArray = [];
-        if (req.query.churchId) searchArray.push({ churchId: req.query.churchId });
-        if (req.query.roleId) {
+        if (churchId) searchArray.push({ churchId });
+        if (roleId) {
             const userRoles = await db.UserRole.findAll({
-                where: { roleId: req.query.roleId },
+                where: { roleId },
                 attributes: ['userId'],
             });
             if (userRoles.length === 0) return res.status(404).send({ message: 'No users found with that role id' });
-            const userIds = userRoles.map((userRole) => {
-                return userRole.userId;
-            });
+            const userIds = userRoles.map((userRole) => userRole.userId);
             searchArray.push({ id: userIds });
         }
         const searchParams = {
             [Op.and]: searchArray,
-            [Op.not]: { id: loggedInId },
+            [Op.not]: { id: determineLoginId(req.headers.authorization) },
         };
-        console.log(searchParams);
         const users: UserInstance[] = await db.User.findAll({
             where: searchParams,
             attributes: [['id', 'userId'], 'firstName', 'lastName', 'email', 'churchId', 'disabled'],
@@ -42,8 +39,7 @@ router.get('/users', certify, async (req: Request, res: Response, next) => {
                 },
             ],
         });
-        if (users.length > 0) res.status(200).json(users);
-        else res.status(404).send({ message: 'Not found' });
+        return users.length > 0 ? res.status(200).json(users) : res.status(404).send({ message: 'Users not found' });
     } catch (err) {
         next(err);
         return res.status(503).send({ message: 'Server error, try again later' });
@@ -66,9 +62,7 @@ router.get('/users/:userId', certify, async (req, res, next) => {
                 },
             ],
         });
-
-        if (user) res.json(user);
-        else res.status(404).send({ message: 'Not found' });
+        return user ? res.status(200).json(user) : res.status(404).send({ message: 'User not found' });
     } catch (err) {
         next(err);
         return res.status(503).send({ message: 'Server error, try again later' });
@@ -77,37 +71,27 @@ router.get('/users/:userId', certify, async (req, res, next) => {
 
 router.post('/users', certify, async (req: Request, res: Response, next) => {
     try {
-        let doesUserExist = false;
-        const username = req.body.email;
+        const { email, firstName, lastName, password, churchId } = req.body;
         const token = crypto.randomBytes(16).toString('hex');
-        const checkIfUserExist = await db.User.findOne({
-            where: { email: username },
+        const user = await db.User.findOne({
+            where: { email },
             attributes: ['id', 'email'],
-        }).then(function (user) {
-            if (user) {
-                doesUserExist = true;
-                return res.status(409).send({
-                    message: 'User already exists',
-                });
-            }
-            return true;
         });
-        if (!validateEmail(req.body.email)) {
-            return res.status(406).send({ message: 'Invalid email' });
-        }
-        if (!doesUserExist) {
-            await db.User.create({
-                firstName: req.body.firstName,
-                lastName: req.body.lastName,
-                email: req.body.email,
-                password: req.body.password,
-                churchId: req.body.churchId,
+        const { id } =
+            !user &&
+            (await db.User.create({
+                firstName,
+                lastName,
+                email,
+                password,
+                churchId,
                 isVerified: false,
                 disabled: false,
-            });
-
-            const addedUser = await db.User.findOne({
-                where: { email: username },
+            }));
+        const addedUser =
+            id &&
+            (await db.User.findOne({
+                where: { id },
                 attributes: ['id', 'firstName', 'lastName', 'email', 'disabled'],
                 include: [
                     {
@@ -116,16 +100,26 @@ router.post('/users', certify, async (req: Request, res: Response, next) => {
                         attributes: ['name'],
                     },
                 ],
-            });
-            db.Token.create({
-                userId: addedUser.id,
-                token: token,
-            });
+            }));
 
-            const [message, status] = sendVerEmail(username, req.headers, token, 'confirmation');
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+        addedUser && (await db.Token.create({ userId: addedUser.id, token }));
 
-            res.status(status).json(addedUser);
-        }
+        const determineMessageStatus: () => [string, number] = () => {
+            switch (true) {
+                case !validateEmail(email):
+                    return ['Invalid email', 406];
+                case !!user:
+                    return ['User already exists', 409];
+                case !user:
+                    sendVerEmail(email, req.headers, token, 'confirmation');
+                    return ['', 200];
+                default:
+                    return ['', 400];
+            }
+        };
+        const [message, status] = determineMessageStatus();
+        return status === 200 ? res.status(status).json(addedUser) : res.status(status).send({ message });
     } catch (err) {
         next(err);
         return res.status(503).send({ message: 'Server error, try again later' });
@@ -138,11 +132,9 @@ router.delete('/users/:userId', certify, async (req: Request, res: Response, nex
             where: { id: req.params.userId },
             attributes: ['id'],
         });
-        if (user) {
-            await user.destroy().then(function () {
-                res.status(200).json(user);
-            });
-        } else res.status(404).send({ message: 'User not found' });
+        const [message, status] = user ? ['', 200] : ['User not found', 404];
+        if (status === 200) await user.destroy();
+        return res.status(status).send({ message });
     } catch (err) {
         next(err);
         return res.status(503).send({ message: 'Server error, try again later' });
@@ -155,10 +147,9 @@ router.patch('/users/expoPushToken/:userId', certify, async (req: Request, res: 
         const user = await db.User.findOne({
             where: { id: req.params.userId },
         });
-        if (user) {
-            user.update({ expoPushToken: req.body.pushToken });
-            res.status(200).send({ messageg: 'Push Token updated' });
-        } else res.status(404).send({ message: 'User not found' });
+        const [message, status] = user ? ['Push Token updated', 200] : ['User not found', 404];
+        if (status === 200) await user.update({ expoPushToken: req.body.pushToken });
+        return res.status(status).send({ message });
     } catch (err) {
         next(err);
         return res.status(503).send({ message: 'Server error, try again later' });

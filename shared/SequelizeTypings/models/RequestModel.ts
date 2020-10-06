@@ -9,7 +9,6 @@ export interface RequestAttributes {
     taskId?: number;
     accepted?: boolean;
     approved?: boolean;
-    rejected?: boolean;
     task?: TaskAttributes;
     message?: string;
     replace?: boolean;
