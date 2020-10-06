@@ -148,7 +148,6 @@ router.patch(
     '/tasks/replaceTask/:taskId/replacedBy/:userId',
     certify,
     async (req: Request, res: Response, next: NextFunction) => {
-        console.log(req.params);
         try {
             const { taskId, userId } = req.params;
             const task = await db.Task.findOne({
