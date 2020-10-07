@@ -3,8 +3,6 @@ import crypto from 'crypto';
 import jwt, { Algorithm, TokenExpiredError, JsonWebTokenError } from 'jsonwebtoken';
 import fs from 'fs';
 import { DateTime } from 'luxon';
-import fetch from 'node-fetch';
-import db from '../index';
 
 const privateKey = fs.readFileSync('tjcschedule.pem');
 let cert;
@@ -132,30 +130,7 @@ export function validateEmail(email: string) {
 export function setDate(date: string, time: string, timeZone: string) {
     return DateTime.fromISO(`${date}T${time}`, { zone: timeZone });
 }
-export async function sendPushNotification(userId: number, userPushToken: string, title: string, body: string) {
-    const user = await db.Notification.findAll({
-        where: { id: userId, isRead: false },
-        attributes: ['isRead'],
-    });
-    const badgeNumber = user.length + 1;
-    fetch('https://exp.host/--/api/v2/push/send', {
-        method: 'POST',
-        headers: {
-            Accept: 'application/json',
-            'Accept-Encoding': 'gzip, deflate',
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            to: userPushToken,
-            data: {
-                extraData: 'tsm sucks',
-            },
-            title: title,
-            body: body,
-            badge: badgeNumber,
-        }),
-    });
-}
+
 export function hashPassword(password: string, salt: string) {
     return crypto.createHash(process.env.SECRET_HASH).update(password).update(salt).digest('hex');
 }

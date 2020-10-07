@@ -1,16 +1,36 @@
 import express, { Request, Response, NextFunction } from 'express';
 import { UserInstance } from 'shared/SequelizeTypings/models';
 import db from '../index';
-import {
-    makeMyNotificationMessage,
-    sendPushNotification,
-    certify,
-    determineLoginId,
-} from '../utilities/helperFunctions';
+import { makeMyNotificationMessage, certify, determineLoginId } from '../utilities/helperFunctions';
 
 const router = express.Router();
 
 module.exports = router;
+
+async function sendPushNotification(userId: number, userPushToken: string, title: string, body: string) {
+    const user = await db.Notification.findAll({
+        where: { id: userId, isRead: false },
+        attributes: ['isRead'],
+    });
+    const badgeNumber = user.length + 1;
+    fetch('https://exp.host/--/api/v2/push/send', {
+        method: 'POST',
+        headers: {
+            Accept: 'application/json',
+            'Accept-Encoding': 'gzip, deflate',
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            to: userPushToken,
+            data: {
+                extraData: 'tsm sucks',
+            },
+            title: title,
+            body: body,
+            badge: badgeNumber,
+        }),
+    });
+}
 
 router.get('/notifications/:userId', certify, async (req: Request, res: Response, next: NextFunction) => {
     try {
