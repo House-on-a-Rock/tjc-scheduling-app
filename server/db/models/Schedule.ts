@@ -7,6 +7,7 @@ const ScheduleFactory = (
     DataTypes: Sequelize.DataTypes,
 ): Sequelize.Model<ScheduleInstance, ScheduleAttributes> => {
     const attributes: SequelizeAttributes<ScheduleAttributes> = {
+        title: { type: DataTypes.STRING },
         view: { type: DataTypes.STRING },
         timespan: { type: DataTypes.STRING },
     };

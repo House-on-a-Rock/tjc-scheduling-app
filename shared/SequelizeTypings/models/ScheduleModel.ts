@@ -4,6 +4,7 @@ type ViewType = 'weekly' | 'monthly'; //
 
 export interface ScheduleAttributes {
     id?: number;
+    title: string;
     view: ViewType;
     timespan: string;
 }

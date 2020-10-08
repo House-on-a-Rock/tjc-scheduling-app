@@ -11,7 +11,6 @@
         "server": "node -r ts-node/register ./server/index.ts",
         "server:watch": "nodemon -r ts-node/register ./server/index.ts",
         "seed": "ts-node scripts/seed.js",
-        "seed2": "ts-node scripts/seed2.js",
         "set-mac-env": "chmod +x scripts/set_mac_env.sh && scripts/set_mac_env.sh",
         "prettier:base": "prettier",
         "prettier:check": "npm run prettier:base -- --list-different \"**/*\"",
