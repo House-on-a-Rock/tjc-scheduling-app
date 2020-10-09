@@ -1,19 +1,15 @@
 import dotenv from 'dotenv';
 import { expect } from 'chai';
 import request, { Options } from 'request-promise';
-import jwt, { Algorithm } from 'jsonwebtoken';
-import fs from 'fs';
 import db from '../server/index';
-import helper from '../server/helper_functions';
+import { createToken } from '../server/utilities/helperFunctions';
 
 dotenv.config();
 
 let queryId;
 const userIdString = '1';
 
-// const privateKey = fs.readFileSync('tjcschedule.pem');
-
-const token = helper.createToken('test', userIdString, 60);
+const token = createToken('test', userIdString, 60);
 
 describe('Users', function () {
     const options: Options = {

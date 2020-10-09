@@ -9,7 +9,6 @@ export interface RequestAttributes {
     taskId?: number;
     accepted?: boolean;
     approved?: boolean;
-    rejected?: boolean;
     task?: TaskAttributes;
     message?: string;
     replace?: boolean;
@@ -19,6 +18,4 @@ export interface RequestAttributes {
     updatedAt?: Date;
 }
 
-export interface RequestInstance
-    extends Sequelize.Instance<RequestAttributes>,
-        RequestAttributes {}
+export interface RequestInstance extends Sequelize.Instance<RequestAttributes>, RequestAttributes {}

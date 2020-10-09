@@ -13,6 +13,4 @@ export interface UserRoleAttributes {
     team_lead: boolean;
 }
 
-export interface UserRoleInstance
-    extends Sequelize.Instance<UserRoleAttributes>,
-        UserRoleAttributes {}
+export interface UserRoleInstance extends Sequelize.Instance<UserRoleAttributes>, UserRoleAttributes {}

@@ -1,58 +1,36 @@
 import express, { Request, Response } from 'express';
-import fs from 'fs';
 import Sequelize from 'sequelize';
-import jwt, { TokenExpiredError, JsonWebTokenError } from 'jsonwebtoken';
 import crypto from 'crypto';
 import { UserInstance } from 'shared/SequelizeTypings/models';
 import db from '../index';
-import helper from '../helper_functions';
+import { certify, determineLoginId, sendVerEmail, validateEmail } from '../utilities/helperFunctions';
 
 const router = express.Router();
 const { Op } = Sequelize;
-let cert;
-fs.readFile('tjcschedule_pub.pem', function read(err, data) {
-    if (err) throw err;
-    cert = data;
-});
 
 module.exports = router;
 
-router.get('/users', async (req: Request, res: Response, next) => {
+router.get('/users', certify, async (req: Request, res: Response, next) => {
     try {
-        jwt.verify(req.headers.authorization, cert);
-        const decodedToken = jwt.decode(req.headers.authorization, { json: true });
-        const loggedInId = decodedToken.sub.split('|')[1];
+        const { roleId, churchId } = req.query;
         const searchArray = [];
-        if (req.query.churchId) searchArray.push({ churchId: req.query.churchId });
-        if (req.query.roleId) {
+        if (churchId) searchArray.push({ churchId });
+        if (roleId) {
             const userRoles = await db.UserRole.findAll({
-                where: { roleId: req.query.roleId },
+                where: { roleId },
                 attributes: ['userId'],
             });
-            if (userRoles.length === 0)
-                return res
-                    .status(404)
-                    .send({ message: 'No users found with that role id' });
-            const userIds = userRoles.map((userRole) => {
-                return userRole.userId;
-            });
+            if (userRoles.length === 0) return res.status(404).send({ message: 'No users found with that role id' });
+            const userIds = userRoles.map((userRole) => userRole.userId);
             searchArray.push({ id: userIds });
         }
         const searchParams = {
             [Op.and]: searchArray,
-            [Op.not]: { id: loggedInId },
+            [Op.not]: { id: determineLoginId(req.headers.authorization) },
         };
-        console.log(searchParams);
         const users: UserInstance[] = await db.User.findAll({
             where: searchParams,
-            attributes: [
-                ['id', 'userId'],
-                'firstName',
-                'lastName',
-                'email',
-                'churchId',
-                'disabled',
-            ],
+            attributes: [['id', 'userId'], 'firstName', 'lastName', 'email', 'churchId', 'disabled'],
             include: [
                 {
                     model: db.Church,
@@ -61,34 +39,21 @@ router.get('/users', async (req: Request, res: Response, next) => {
                 },
             ],
         });
-        if (users.length > 0) res.status(200).json(users);
-        else res.status(404).send({ message: 'Not found' });
+        return users.length > 0 ? res.status(200).json(users) : res.status(404).send({ message: 'Users not found' });
     } catch (err) {
-        if (err instanceof TokenExpiredError || err instanceof JsonWebTokenError) {
-            res.status(401).send({ message: 'Unauthorized' });
-        } else {
-            res.status(503).send({ message: 'Server error, try again later' });
-        }
         next(err);
+        return res.status(503).send({ message: 'Server error, try again later' });
     }
 });
 
-router.get('/users/:userId', async (req, res, next) => {
+router.get('/users/:userId', certify, async (req, res, next) => {
     try {
-        jwt.verify(req.headers.authorization, cert);
         const parsedId = req.params.userId.toString();
         const user = await db.User.findOne({
             where: {
                 id: parsedId,
             },
-            attributes: [
-                'firstName',
-                'lastName',
-                'email',
-                'id',
-                'churchId',
-                'expoPushToken',
-            ],
+            attributes: ['firstName', 'lastName', 'email', 'id', 'churchId', 'expoPushToken'],
             include: [
                 {
                     model: db.Church,
@@ -97,53 +62,36 @@ router.get('/users/:userId', async (req, res, next) => {
                 },
             ],
         });
-
-        if (user) res.json(user);
-        else res.status(404).send({ message: 'Not found' });
+        return user ? res.status(200).json(user) : res.status(404).send({ message: 'User not found' });
     } catch (err) {
-        if (err instanceof TokenExpiredError || err instanceof JsonWebTokenError) {
-            res.status(401).send({ message: 'Unauthorized' });
-        } else {
-            res.status(503).send({ message: 'Server error, try again later' });
-        }
         next(err);
+        return res.status(503).send({ message: 'Server error, try again later' });
     }
 });
 
-router.post('/users', async (req: Request, res: Response, next) => {
+router.post('/users', certify, async (req: Request, res: Response, next) => {
     try {
-        jwt.verify(req.headers.authorization, cert);
-        let doesUserExist = false;
-        const username = req.body.email;
+        const { email, firstName, lastName, password, churchId } = req.body;
         const token = crypto.randomBytes(16).toString('hex');
-        const checkIfUserExist = await db.User.findOne({
-            where: { email: username },
+        const user = await db.User.findOne({
+            where: { email },
             attributes: ['id', 'email'],
-        }).then(function (user) {
-            if (user) {
-                doesUserExist = true;
-                return res.status(409).send({
-                    message: 'User already exists',
-                });
-            }
-            return true;
         });
-        if (!helper.validateEmail(req.body.email)) {
-            return res.status(406).send({ message: 'Invalid email' });
-        }
-        if (!doesUserExist) {
-            await db.User.create({
-                firstName: req.body.firstName,
-                lastName: req.body.lastName,
-                email: req.body.email,
-                password: req.body.password,
-                churchId: req.body.churchId,
+        const { id } =
+            !user &&
+            (await db.User.create({
+                firstName,
+                lastName,
+                email,
+                password,
+                churchId,
                 isVerified: false,
                 disabled: false,
-            });
-
-            const addedUser = await db.User.findOne({
-                where: { email: username },
+            }));
+        const addedUser =
+            id &&
+            (await db.User.findOne({
+                where: { id },
                 attributes: ['id', 'firstName', 'lastName', 'email', 'disabled'],
                 include: [
                     {
@@ -152,73 +100,58 @@ router.post('/users', async (req: Request, res: Response, next) => {
                         attributes: ['name'],
                     },
                 ],
-            });
-            db.Token.create({
-                userId: addedUser.id,
-                token: token,
-            });
+            }));
 
-            const [message, status] = helper.sendVerEmail(
-                username,
-                req.headers,
-                token,
-                'confirmation',
-            );
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+        if (addedUser) await db.Token.create({ userId: addedUser.id, token });
 
-            res.status(status).json(addedUser);
-        }
+        const determineMessageStatus: () => [string, number] = () => {
+            switch (true) {
+                case !validateEmail(email):
+                    return ['Invalid email', 406];
+                case !!user:
+                    return ['User already exists', 409];
+                case !user:
+                    sendVerEmail(email, req.headers, token, 'confirmation');
+                    return ['', 200];
+                default:
+                    return ['', 400];
+            }
+        };
+        const [message, status] = determineMessageStatus();
+        return status === 200 ? res.status(status).json(addedUser) : res.status(status).send({ message });
     } catch (err) {
-        if (err instanceof TokenExpiredError || err instanceof JsonWebTokenError) {
-            res.status(401).send({ message: 'Unauthorized' });
-        } else {
-            res.status(503).send({ message: 'Server error, try again later' });
-        }
         next(err);
+        return res.status(503).send({ message: 'Server error, try again later' });
     }
 });
 
-router.delete('/users/:userId', async (req: Request, res: Response, next) => {
+router.delete('/users/:userId', certify, async (req: Request, res: Response, next) => {
     try {
-        jwt.verify(req.headers.authorization, cert);
         const user = await db.User.findOne({
             where: { id: req.params.userId },
             attributes: ['id'],
         });
-        if (user) {
-            await user.destroy().then(function () {
-                res.status(200).json(user);
-            });
-        } else res.status(404).send({ message: 'User not found' });
+        const [message, status] = user ? ['', 200] : ['User not found', 404];
+        if (status === 200) await user.destroy();
+        return res.status(status).send({ message });
     } catch (err) {
-        if (err instanceof TokenExpiredError || err instanceof JsonWebTokenError) {
-            res.status(401).send({ message: 'Unauthorized' });
-        } else {
-            res.status(503).send({ message: 'Server error, try again later' });
-        }
         next(err);
+        return res.status(503).send({ message: 'Server error, try again later' });
     }
 });
 
-//updates expoPushToken on login, may need cleanup or be moved around
-router.patch(
-    '/users/expoPushToken/:userId',
-    async (req: Request, res: Response, next) => {
-        try {
-            jwt.verify(req.headers.authorization, cert);
-            const user = await db.User.findOne({
-                where: { id: req.params.userId },
-            });
-            if (user) {
-                user.update({ expoPushToken: req.body.pushToken });
-                res.status(200).send({ messageg: 'Push Token updated' });
-            } else res.status(404).send({ message: 'User not found' });
-        } catch (err) {
-            if (err instanceof TokenExpiredError || err instanceof JsonWebTokenError) {
-                res.status(401).send({ message: 'Unauthorized' });
-            } else {
-                res.status(503).send({ message: 'Server error, try again later' });
-            }
-            next(err);
-        }
-    },
-);
+// updates expoPushToken on login, may need cleanup or be moved around
+router.patch('/users/expoPushToken/:userId', certify, async (req: Request, res: Response, next) => {
+    try {
+        const user = await db.User.findOne({
+            where: { id: req.params.userId },
+        });
+        const [message, status] = user ? ['Push Token updated', 200] : ['User not found', 404];
+        if (status === 200) await user.update({ expoPushToken: req.body.pushToken });
+        return res.status(status).send({ message });
+    } catch (err) {
+        next(err);
+        return res.status(503).send({ message: 'Server error, try again later' });
+    }
+});

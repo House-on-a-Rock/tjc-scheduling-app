@@ -17,18 +17,15 @@ const RequestFactory = (
             type: DataTypes.BOOLEAN,
             defaultValue: false,
         },
-        rejected: {
-            type: DataTypes.BOOLEAN,
-            defaultValue: false,
-        },
+        // rejected: {
+        //     type: DataTypes.BOOLEAN,
+        //     defaultValue: false,
+        // },
         message: { type: DataTypes.STRING },
         replace: { type: DataTypes.BOOLEAN },
     };
 
-    const Request = sequelize.define<RequestInstance, RequestAttributes>(
-        'Request',
-        attributes,
-    );
+    const Request = sequelize.define<RequestInstance, RequestAttributes>('Request', attributes);
 
     Request.associate = (models) => {
         Request.belongsTo(models.Task, { as: 'task', foreignKey: 'taskId' });

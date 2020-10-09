@@ -21,9 +21,7 @@ export interface UserAttributes {
     expoPushToken?: string;
 }
 
-export interface UserInstance
-    extends Sequelize.Instance<UserAttributes>,
-        UserAttributes {}
+export interface UserInstance extends Sequelize.Instance<UserAttributes>, UserAttributes {}
 
 export interface UserModel extends Sequelize.Model<UserInstance, UserAttributes> {
     prototype: {

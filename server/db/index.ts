@@ -1,4 +1,4 @@
 import db from './db';
-// import './models';
+import './models';
 
 export default db;
