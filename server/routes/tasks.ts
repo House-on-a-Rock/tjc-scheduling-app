@@ -73,7 +73,7 @@ router.post('/tasks', certify, async (req: Request, res: Response, next: NextFun
                 {
                     model: db.Church,
                     as: 'church',
-                    attributes: ['id', 'name', 'address', 'timeZone'],
+                    attributes: ['id', 'name', 'address', 'timezone'],
                 },
             ],
         });
