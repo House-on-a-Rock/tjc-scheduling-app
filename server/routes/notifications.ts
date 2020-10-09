@@ -35,7 +35,7 @@ async function sendPushNotification(userId: number, userPushToken: string, title
 router.get('/notifications/:userId', certify, async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { userId } = req.params;
-        const swapNotifications = await db.Notification.findAll({
+        const notifications = await db.Notification.findAll({
             where: { userId },
             attributes: ['id', 'userId', 'message', 'createdAt', 'requestId'],
             include: [
@@ -47,12 +47,13 @@ router.get('/notifications/:userId', certify, async (req: Request, res: Response
                 {
                     model: db.Task,
                     as: 'task',
-                    attributes: ['date', 'status', 'churchId', 'userId', 'roleId'],
+                    attributes: ['date', 'status', 'churchId', 'userRoleId'],
                 },
             ],
         });
-        if (swapNotifications.length > 0) return res.status(200).json(swapNotifications);
-        return res.status(404).send({ message: 'Not found' });
+        return notifications.length > 0
+            ? res.status(200).json(notifications)
+            : res.status(404).send({ message: 'No Notifications Found' });
     } catch (err) {
         next(err);
         return res.status(503).send({ message: 'Server error, try again later' });

@@ -1,6 +1,5 @@
 import express, { Request, Response, NextFunction } from 'express';
 import Sequelize from 'sequelize';
-import jwt from 'jsonwebtoken';
 import db from '../index';
 import { certify, setDate } from '../utilities/helperFunctions';
 
