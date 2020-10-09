@@ -97,8 +97,7 @@ router.delete('/tasks/:taskId', certify, async (req: Request, res: Response, nex
             where: { id: req.params.taskId },
         });
         const [message, status] = task ? ['Task deleted', 200] : ['Task not found', 404];
-        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-        status === 200 && (await task.destroy());
+        if (status === 200) await task.destroy();
         return res.status(status).send({ message });
     } catch (err) {
         next(err);

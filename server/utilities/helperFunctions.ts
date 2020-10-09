@@ -112,7 +112,7 @@ export function createToken(tokenType, userId, expiresInMinutes) {
 
     return token;
 }
-export function creatResetToken(userId, expiresInMinutes, secret) {
+export function createResetToken(userId, expiresInMinutes, secret) {
     console.log('Creating token');
     const token = jwt.sign(
         {
