@@ -20,8 +20,8 @@ const TeamFactory = (
     const Team = sequelize.define<TeamInstance, TeamAttributes>('Team', attributes);
 
     Team.associate = (models) => {
-        Team.belongsTo(models.Church, { as: 'church', foreignKey: 'ChurchId' });
-        // Team.belongsTo(models.UserRole, { foreignKey: 'TeamId' });
+        Team.belongsTo(models.Church, { as: 'church', foreignKey: 'churchId' });
+        // Team.belongsTo(models.UserRole, { foreignKey: 'teamId' });
     };
 
     return Team;

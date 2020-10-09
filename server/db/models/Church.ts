@@ -1,9 +1,6 @@
 import * as Sequelize from 'sequelize';
 import { SequelizeAttributes } from 'shared/SequelizeTypings/typings/SequelizeAttributes';
-import {
-    ChurchInstance,
-    ChurchAttributes,
-} from 'shared/SequelizeTypings/models/ChurchModel';
+import { ChurchInstance, ChurchAttributes } from 'shared/SequelizeTypings/models/ChurchModel';
 
 const ChurchFactory = (
     sequelize: Sequelize.Sequelize,
@@ -16,15 +13,12 @@ const ChurchFactory = (
         timezone: { type: DataTypes.STRING },
     };
 
-    const Church = sequelize.define<ChurchInstance, ChurchAttributes>(
-        'Church',
-        attributes,
-    );
+    const Church = sequelize.define<ChurchInstance, ChurchAttributes>('Church', attributes);
 
     Church.associate = (models) => {
-        Church.hasMany(models.User, { foreignKey: 'ChurchId', as: 'church' });
-        Church.hasMany(models.Role, { foreignKey: 'ChurchId' });
-        Church.hasMany(models.Task, { foreignKey: 'ChurchId' });
+        Church.hasMany(models.User, { foreignKey: 'churchId', as: 'church' });
+        Church.hasMany(models.Role, { foreignKey: 'churchId' });
+        Church.hasMany(models.Task, { foreignKey: 'churchId' });
     };
 
     return Church;

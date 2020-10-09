@@ -7,12 +7,10 @@ export interface UserRoleAttributes {
     id?: number;
     createdAt?: Date;
     updatedAt?: Date;
-    users?: UserAttributes['id'][];
+    userId?: UserAttributes['id'];
     role?: RoleAttributes | RoleAttributes['id'];
     team?: TeamAttributes | TeamAttributes['id'];
     team_lead: boolean;
 }
 
-export interface UserRoleInstance
-    extends Sequelize.Instance<UserRoleAttributes>,
-        UserRoleAttributes {}
+export interface UserRoleInstance extends Sequelize.Instance<UserRoleAttributes>, UserRoleAttributes {}

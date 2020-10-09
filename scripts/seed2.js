@@ -1,4 +1,4 @@
-import helper from '../server/helper_functions';
+import { setDate } from '../server/utilities/helperFunctions';
 
 const { green, red, blue } = require('chalk');
 const createModels = require('../server/db/models').default;
@@ -12,12 +12,7 @@ const configuration = {
     logging: false,
 };
 
-const db = createModels(
-    configuration.database,
-    configuration.username,
-    configuration.password,
-    configuration,
-);
+const db = createModels(configuration.database, configuration.username, configuration.password, configuration);
 
 const churches = [
     {
@@ -65,142 +60,246 @@ const users = [
         email: 'shaun.tung@gmail.com',
         password: 'password',
         isVerified: true,
-        ChurchId: 2,
+        churchId: 1,
+        expoPushToken: 'ExponentPushToken[-uuepvN27WLr5fHqJoK3y8]',
     },
     {
         firstName: 'Ted',
         lastName: 'Chen',
         email: 'ted.chen@gmail.com',
-        password: 'password1',
-        isVerified: false,
-        ChurchId: 1,
+        password: 'password',
+        isVerified: true,
+        churchId: 1,
+        expoPushToken: 'ExponentPushToken[F-BJ4-BkJXff6Lbp9SbI4K]',
     },
     {
         firstName: 'Jonathan',
         lastName: 'Lee',
         email: 'jonathan.lee@gmail.com',
-        password: 'password3',
+        password: 'password',
         isVerified: true,
-        ChurchId: 6,
+        churchId: 1,
+        expoPushToken: 'ExponentPushToken[2CkbA5CQcxyiSNWT1oGvhC]',
+    },
+    // {
+    //     firstName: 'Geoff',
+    //     lastName: 'Chu',
+    //     email: 'geoff.chu@gmail.com',
+    //     password: 'password',
+    //     isVerified: true,
+    //     churchId: 1,
+    // },
+    // {
+    //     firstName: 'Amanda',
+    //     lastName: 'Chin',
+    //     email: 'amanda.chin@gmail.com',
+    //     password: 'password',
+    //     isVerified: true,
+    //     churchId: 1,
+    // },
+    // {
+    //     firstName: 'Alan',
+    //     lastName: 'Lin',
+    //     email: 'alan.lin@gmail.com',
+    //     password: 'password',
+    //     isVerified: true,
+    //     churchId: 1,
+    // },
+    // {
+    //     firstName: 'Ian',
+    //     lastName: 'Lin',
+    //     email: 'ian.lin@gmail.com',
+    //     password: 'password',
+    //     isVerified: true,
+    //     churchId: 2,
+    // },
+];
+
+const notifications = [
+    {
+        userId: 1,
+        message: 'Some notification',
+        isRead: false,
+        taskId: 1,
     },
     {
-        firstName: 'Geoff',
-        lastName: 'Chu',
-        email: 'geoff.chu@gmail.com',
-        password: 'password3',
-        isVerified: true,
-        ChurchId: 3,
+        userId: 1,
+        message: 'Some notification',
+        isRead: false,
+        taskId: 2,
     },
     {
-        firstName: 'Amanda',
-        lastName: 'Chin',
-        email: 'amanda.chin@gmail.com',
-        password: 'password4',
-        isVerified: true,
-        ChurchId: 4,
+        userId: 1,
+        message: 'Some notification',
+        isRead: false,
+        taskId: 3,
     },
     {
-        firstName: 'Alan',
-        lastName: 'Lin',
-        email: 'alan.lin@gmail.com',
-        password: 'password5',
-        isVerified: true,
-        ChurchId: 2,
+        userId: 1,
+        message: 'Some notification',
+        isRead: false,
+        taskId: 1,
     },
     {
-        firstName: 'Ian',
-        lastName: 'Lin',
-        email: 'ian.lin@gmail.com',
-        password: 'password6',
-        isVerified: true,
-        ChurchId: 5,
+        userId: 2,
+        message: 'Some notification',
+        isRead: false,
+        taskId: 1,
+    },
+    {
+        userId: 2,
+        message: 'Some notification',
+        isRead: false,
+        taskId: 2,
+    },
+    {
+        userId: 2,
+        message: 'Some notification',
+        isRead: false,
+        taskId: 3,
+    },
+    {
+        userId: 2,
+        message: 'Some notification',
+        isRead: false,
+        taskId: 1,
+    },
+    {
+        userId: 3,
+        message: 'Some notification',
+        isRead: false,
+        taskId: 1,
+    },
+    {
+        userId: 3,
+        message: 'Some notification',
+        isRead: false,
+        taskId: 2,
+    },
+    {
+        userId: 3,
+        message: 'Some notification',
+        isRead: false,
+        taskId: 3,
+    },
+    {
+        userId: 3,
+        message: 'Some notification',
+        isRead: false,
+        taskId: 1,
     },
 ];
 
 const roles = [
     {
         name: 'AV',
-        ChurchId: 1,
+        churchId: 1,
     },
     {
         name: 'Speaker',
-        ChurchId: 1,
+        churchId: 1,
     },
     {
         name: 'Interpreting',
-        ChurchId: 1,
+        churchId: 1,
     },
     {
         name: 'RE',
-        ChurchId: 1,
+        churchId: 1,
+    },
+    {
+        name: 'AV',
+        churchId: 2,
+    },
+    {
+        name: 'Speaker',
+        churchId: 2,
+    },
+    {
+        name: 'Interpreting',
+        churchId: 2,
+    },
+    {
+        name: 'RE',
+        churchId: 2,
+    },
+    {
+        name: 'AV3',
+        churchId: 3,
+    },
+    {
+        name: 'Speaker3',
+        churchId: 3,
+    },
+    {
+        name: 'Interpreting3',
+        churchId: 3,
+    },
+    {
+        name: 'RE3',
+        churchId: 3,
     },
 ];
 const tasks = [
     {
-        date: helper.setDate('2020-05-06', '10:30:00', 'America/New_York').toString(),
-        UserId: 1,
-        RoleId: 2,
-        ChurchId: 3,
+        date: setDate('2020-05-21', '10:30:00', 'America/New_York').toString(),
+        userId: 1,
+        roleId: 4,
+        churchId: 3,
     },
     {
-        date: helper.setDate('2020-05-06', '10:30:00', 'America/New_York').toString(),
-        UserId: 2,
-        RoleId: 2,
-        ChurchId: 4,
+        date: setDate('2020-08-21', '10:30:00', 'America/New_York').toString(),
+        userId: 1,
+        roleId: 1,
+        churchId: 1,
     },
     {
-        date: helper.setDate('2020-05-06', '10:30:00', 'America/New_York').toString(),
-        UserId: 3,
-        RoleId: 3,
-        ChurchId: 1,
+        date: setDate('2020-08-22', '10:30:00', 'America/New_York').toString(),
+        userId: 1,
+        roleId: 1,
+        churchId: 1,
     },
     {
-        date: helper.setDate('2020-04-06', '10:30:00', 'America/New_York').toString(),
-        UserId: 2,
-        RoleId: 3,
-        ChurchId: 4,
+        date: setDate('2020-08-23', '10:30:00', 'America/New_York').toString(),
+        userId: 1,
+        roleId: 1,
+        churchId: 1,
     },
     {
-        date: helper.setDate('2020-05-12', '10:30:00', 'America/New_York').toString(),
-        UserId: 2,
-        RoleId: 2,
-        ChurchId: 4,
+        date: setDate('2020-08-24', '10:30:00', 'America/New_York').toString(),
+        userId: 2,
+        roleId: 1,
+        churchId: 1,
     },
     {
-        date: helper.setDate('2020-05-16', '10:30:00', 'America/New_York').toString(),
-        UserId: 1,
-        RoleId: 1,
-        ChurchId: 3,
+        date: setDate('2020-08-25', '10:30:00', 'America/New_York').toString(),
+        userId: 2,
+        roleId: 1,
+        churchId: 1,
     },
     {
-        date: helper.setDate('2020-05-16', '10:30:00', 'America/New_York').toString(),
-        UserId: 1,
-        RoleId: 2,
-        ChurchId: 3,
+        date: setDate('2020-08-26', '10:30:00', 'America/New_York').toString(),
+        userId: 2,
+        roleId: 1,
+        churchId: 1,
     },
     {
-        date: helper.setDate('2020-05-16', '10:30:00', 'America/New_York').toString(),
-        UserId: 1,
-        RoleId: 3,
-        ChurchId: 3,
+        date: setDate('2020-08-27', '10:30:00', 'America/New_York').toString(),
+        userId: 3,
+        roleId: 1,
+        churchId: 1,
     },
     {
-        date: helper.setDate('2020-05-16', '10:30:00', 'America/New_York').toString(),
-        UserId: 1,
-        RoleId: 1,
-        ChurchId: 3,
+        date: setDate('2020-08-28', '10:30:00', 'America/New_York').toString(),
+        userId: 3,
+        roleId: 1,
+        churchId: 1,
     },
     {
-        date: helper.setDate('2020-06-01', '10:30:00', 'America/New_York').toString(),
-        UserId: 1,
-        RoleId: 3,
-        ChurchId: 3,
-    },
-    {
-        date: helper.setDate('2020-05-21', '10:30:00', 'America/New_York').toString(),
-        UserId: 1,
-        RoleId: 4,
-        ChurchId: 3,
+        date: setDate('2020-08-29', '10:30:00', 'America/New_York').toString(),
+        userId: 3,
+        roleId: 1,
+        churchId: 1,
     },
 ];
 
@@ -208,28 +307,71 @@ const teams = [
     {
         name: 'RE Team',
         type: 'organized',
-        RoleId: 4,
-        ChurchId: 1,
+        roleId: 4,
+        churchId: 1,
     },
     {
         name: 'AV Team',
         type: 'unorganized',
-        RoleId: 4,
-        ChurchId: 1,
+        roleId: 4,
+        churchId: 1,
     },
 ];
 
-const user_role = [
+const userRoles = [
     {
-        UserId: 3,
-        RoleId: 1,
-        TeamId: 2,
+        userId: 1,
+        roleId: 1,
+        teamId: 1,
         team_lead: false,
     },
     {
-        UserId: 3,
-        RoleId: 2,
-        TeamId: 1,
+        userId: 1,
+        roleId: 2,
+        teamId: 1,
+        team_lead: false,
+    },
+    {
+        userId: 1,
+        roleId: 3,
+        teamId: 1,
+        team_lead: false,
+    },
+    {
+        userId: 2,
+        roleId: 1,
+        teamId: 1,
+        team_lead: false,
+    },
+    {
+        userId: 2,
+        roleId: 2,
+        teamId: 1,
+        team_lead: false,
+    },
+    {
+        userId: 2,
+        roleId: 3,
+        teamId: 1,
+        team_lead: false,
+    },
+
+    {
+        userId: 3,
+        roleId: 1,
+        teamId: 1,
+        team_lead: false,
+    },
+    {
+        userId: 3,
+        roleId: 2,
+        teamId: 1,
+        team_lead: false,
+    },
+    {
+        userId: 3,
+        roleId: 3,
+        teamId: 1,
         team_lead: false,
     },
 ];
@@ -238,40 +380,26 @@ async function seed() {
     await db.sequelize.sync({ force: true });
     console.log(green('db synced!'));
 
-    const seedChurches = await Promise.all(
-        churches.map((church) => {
-            db.Church.create(church);
-        }),
-    );
+    const seedChurches = await Promise.all(churches.map((church) => db.Church.create(church)));
     await new Promise((r) => setTimeout(r, 2000));
-    const seedUsers = await Promise.all(
-        users.map((user) => {
-            db.User.create(user);
-        }),
-    );
+
+    const seedUsers = await Promise.all(users.map((user) => db.User.create(user)));
     await new Promise((r) => setTimeout(r, 2000));
-    const seedRoles = await Promise.all(
-        roles.map((role) => {
-            db.Role.create(role);
-        }),
-    );
+
+    const seedRoles = await Promise.all(roles.map((role) => db.Role.create(role)));
     await new Promise((r) => setTimeout(r, 2000));
-    const seedTasks = await Promise.all(
-        tasks.map((task) => {
-            db.Task.create(task);
-        }),
-    );
+
+    const seedTasks = await Promise.all(tasks.map((task) => db.Task.create(task)));
     await new Promise((r) => setTimeout(r, 2000));
-    const seedTeams = await Promise.all(
-        teams.map((team) => {
-            db.Team.create(team);
-        }),
-    );
+
+    const seedTeams = await Promise.all(teams.map((team) => db.Team.create(team)));
     await new Promise((r) => setTimeout(r, 2000));
-    const seedUserRole = await Promise.all(
-        user_role.map((userRole) => {
-            db.UserRole.create(userRole);
-        }),
+
+    const seedUserRole = await Promise.all(userRoles.map((userRole) => db.UserRole.create(userRole)));
+    await new Promise((r) => setTimeout(r, 2000));
+
+    const seedNotifications = await Promise.all(
+        notifications.map((notification) => db.Notification.create(notification)),
     );
 
     console.log(blue(`seeded ${seedChurches.length} churches`));
@@ -280,6 +408,7 @@ async function seed() {
     console.log(blue(`seeded ${seedTasks.length} tasks`));
     console.log(blue(`seeded ${seedTeams.length} teams`));
     console.log(blue(`seeded ${seedUserRole.length} user roles`));
+    console.log(blue(`seeded ${seedNotifications.length} notifications`));
     console.log(blue(`seeded succesfully`));
 }
 

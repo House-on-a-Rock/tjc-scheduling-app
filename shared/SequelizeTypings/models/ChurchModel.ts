@@ -10,6 +10,4 @@ export interface ChurchAttributes {
     updatedAt?: Date;
 }
 
-export interface ChurchInstance
-    extends Sequelize.Instance<ChurchAttributes>,
-        ChurchAttributes {}
+export interface ChurchInstance extends Sequelize.Instance<ChurchAttributes>, ChurchAttributes {}

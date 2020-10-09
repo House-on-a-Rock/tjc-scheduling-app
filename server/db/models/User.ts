@@ -53,12 +53,13 @@ const UserFactory = (
             type: DataTypes.DATE,
             allowNull: true,
         },
+        expoPushToken: {
+            type: DataTypes.STRING,
+            allowNull: true,
+        },
     };
 
-    const User = sequelize.define<UserInstance, UserAttributes>(
-        'User',
-        attributes,
-    ) as UserModel;
+    const User = sequelize.define<UserInstance, UserAttributes>('User', attributes) as UserModel;
 
     User.prototype.verifyPassword = function (candidatePwd: string): boolean {
         return User.encryptPassword(candidatePwd, this.salt) === this.password;
@@ -69,11 +70,7 @@ const UserFactory = (
     };
 
     User.encryptPassword = function (plainText, salt) {
-        return crypto
-            .createHash(process.env.SECRET_HASH)
-            .update(plainText)
-            .update(salt)
-            .digest('hex');
+        return crypto.createHash(process.env.SECRET_HASH).update(plainText).update(salt).digest('hex');
     };
 
     const createSaltyPassword = (user: UserInstance) => {
@@ -88,9 +85,13 @@ const UserFactory = (
     User.beforeUpdate(createSaltyPassword);
 
     User.associate = (models) => {
-        User.hasMany(models.Task, { foreignKey: 'UserId' });
-        User.belongsTo(models.Church, { as: 'church', foreignKey: 'ChurchId' });
-        User.belongsToMany(models.Role, { through: models.UserRole, as: 'role' });
+        User.hasMany(models.Task, { foreignKey: 'userId' });
+        User.belongsTo(models.Church, { as: 'church', foreignKey: 'churchId' });
+        // User.belongsToMany(models.Role, {
+        //     through: models.UserRole,
+        //     as: 'user',
+        //     foreignKey: 'userId',
+        // });
     };
 
     return User;

@@ -12,17 +12,16 @@ export interface UserAttributes {
     isVerified: boolean;
     loginAttempts?: number;
     loginTimeout?: Date;
-    ChurchId?: number;
+    churchId?: number;
     disabled: boolean;
     createdAt?: Date | null;
     updatedAt?: Date | null;
     duty?: RoleAttributes[] | RoleAttributes['id'];
     church?: ChurchAttributes;
+    expoPushToken?: string;
 }
 
-export interface UserInstance
-    extends Sequelize.Instance<UserAttributes>,
-        UserAttributes {}
+export interface UserInstance extends Sequelize.Instance<UserAttributes>, UserAttributes {}
 
 export interface UserModel extends Sequelize.Model<UserInstance, UserAttributes> {
     prototype: {

@@ -1,9 +1,6 @@
 import * as Sequelize from 'sequelize';
 import { SequelizeAttributes } from 'shared/SequelizeTypings/typings/SequelizeAttributes';
-import {
-    UserRoleInstance,
-    UserRoleAttributes,
-} from 'shared/SequelizeTypings/models/UserRoleModel';
+import { UserRoleInstance, UserRoleAttributes } from 'shared/SequelizeTypings/models/UserRoleModel';
 
 const UserRoleFactory = (
     sequelize: Sequelize.Sequelize,
@@ -15,14 +12,12 @@ const UserRoleFactory = (
         },
     };
 
-    const UserRole = sequelize.define<UserRoleInstance, UserRoleAttributes>(
-        'UserRole',
-        attributes,
-    );
+    const UserRole = sequelize.define<UserRoleInstance, UserRoleAttributes>('UserRole', attributes);
 
     UserRole.associate = (models) => {
-        UserRole.belongsTo(models.Team, { as: 'church', foreignKey: 'TeamId' });
-        UserRole.belongsTo(models.Role, { as: 'role', foreignKey: 'RoleId' });
+        UserRole.belongsTo(models.Team, { as: 'team', foreignKey: 'teamId' });
+        UserRole.belongsTo(models.Role, { as: 'role', foreignKey: 'roleId' });
+        UserRole.belongsTo(models.User, { as: 'user', foreignKey: 'userId' });
     };
 
     return UserRole;
