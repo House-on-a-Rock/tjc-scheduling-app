@@ -253,7 +253,6 @@ router.post('/resetPassword', async (req: Request, res: Response, next: NextFunc
         jwt.verify(authorization, password);
 
         const [message, status] =
-            // eslint-disable-next-line no-nested-ternary
             userEmail !== queryEmail
                 ? ['Invalid Request', 401]
                 : isVerified

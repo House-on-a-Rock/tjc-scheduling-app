@@ -6,7 +6,9 @@ export interface ScheduleAttributes {
     id?: number;
     title: string;
     view: ViewType;
-    timespan: string;
+    start: Date;
+    end: Date;
+    // timespan: string;
 }
 
 export interface ScheduleInstance extends Sequelize.Instance<ScheduleAttributes>, ScheduleAttributes {}

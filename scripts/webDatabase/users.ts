@@ -1,6 +1,5 @@
 const { v4: uuid } = require('uuid');
 
-// eslint-disable-next-line import/prefer-default-export
 export const users = [
     { id: uuid(), name: 'Shaun Tung' },
     { id: uuid(), name: 'Sun-Yu Yang' },

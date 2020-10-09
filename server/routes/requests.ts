@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 import express, { Request, Response, NextFunction } from 'express';
 import axios from 'axios';
 import jwt from 'jsonwebtoken';
@@ -106,7 +107,6 @@ router.patch('/requests/accept/:requestId', certify, async (req: Request, res: R
         const [message, status] = determineMessageStatus(request, accepted, approved);
 
         if (status === 202) {
-            // eslint-disable-next-line @typescript-eslint/no-unused-expressions
             type === 'requestAll'
                 ? await request.update({ requestId, accepted: true, requesteeUserId: acceptingUserId })
                 : await request.update({ requestId, accepted: true });
@@ -160,7 +160,6 @@ router.patch('/requests/accept/:requestId', certify, async (req: Request, res: R
         const { accepted, approved, task, id, type } = request || {};
         const [message, status] = determineMessageStatus(request, accepted, approved);
         if (status === 202) {
-            // eslint-disable-next-line @typescript-eslint/no-unused-expressions
             type === 'requestAll'
                 ? await request.update({ id, accepted: true, requesteeUserId: acceptingUserId })
                 : await request.update({ id, accepted: true });

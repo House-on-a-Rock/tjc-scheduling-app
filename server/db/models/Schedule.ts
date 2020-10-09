@@ -9,7 +9,8 @@ const ScheduleFactory = (
     const attributes: SequelizeAttributes<ScheduleAttributes> = {
         title: { type: DataTypes.STRING },
         view: { type: DataTypes.STRING },
-        timespan: { type: DataTypes.STRING },
+        start: { type: DataTypes.DATE },
+        end: { type: DataTypes.DATE },
     };
 
     const Schedule = sequelize.define<ScheduleInstance, ScheduleAttributes>('Schedule', attributes);

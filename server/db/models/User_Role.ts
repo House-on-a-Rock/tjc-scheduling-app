@@ -11,7 +11,6 @@ const UserRoleFactory = (
     const UserRole = sequelize.define<UserRoleInstance, UserRoleAttributes>('UserRole', attributes);
 
     UserRole.associate = (models) => {
-        // UserRole.belongsTo(models.Team, { as: 'team', foreignKey: 'teamId' });
         UserRole.belongsTo(models.Role, { as: 'role', foreignKey: 'roleId' });
         UserRole.belongsTo(models.User, { as: 'user', foreignKey: 'userId' });
     };

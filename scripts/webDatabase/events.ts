@@ -1,4 +1,3 @@
-// eslint-disable-next-line import/prefer-default-export
 export const events = [
     {
         time: '10:15 AM',
