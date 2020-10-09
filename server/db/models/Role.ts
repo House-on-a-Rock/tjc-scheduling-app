@@ -7,23 +7,13 @@ const RoleFactory = (
     DataTypes: Sequelize.DataTypes,
 ): Sequelize.Model<RoleInstance, RoleAttributes> => {
     const attributes: SequelizeAttributes<RoleAttributes> = {
-        name: {
-            type: DataTypes.STRING,
-        },
-        time: {
-            type: DataTypes.DATE,
-        },
+        name: { type: DataTypes.STRING },
     };
 
     const Role = sequelize.define<RoleInstance, RoleAttributes>('Role', attributes);
 
     Role.associate = (models) => {
         Role.belongsTo(models.Church, { as: 'church', foreignKey: 'churchId' });
-        // Role.belongsToMany(models.User, {
-        //     through: models.UserRole,
-        //     as: 'member',
-        //     foreignKey: 'roleId',
-        // });
     };
 
     return Role;

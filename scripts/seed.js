@@ -27,13 +27,13 @@ async function seed() {
     const seedRoles = await Promise.all(roles.map((role) => db.Role.create(role)));
     await new Promise((r) => setTimeout(r, 2000));
 
-    const seedTasks = await Promise.all(tasks.map((task) => db.Task.create(task)));
-    await new Promise((r) => setTimeout(r, 2000));
-
     const seedTeams = await Promise.all(teams.map((team) => db.Team.create(team)));
     await new Promise((r) => setTimeout(r, 2000));
 
     const seedUserRole = await Promise.all(userRoles.map((userRole) => db.UserRole.create(userRole)));
+    await new Promise((r) => setTimeout(r, 2000));
+
+    const seedTasks = await Promise.all(tasks.map((task) => db.Task.create(task)));
     await new Promise((r) => setTimeout(r, 2000));
 
     const seedNotifications = await Promise.all(

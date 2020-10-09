@@ -101,7 +101,8 @@
         "redux-thunk": "^2.3.0",
         "request": "^2.88.2",
         "request-promise": "^4.2.5",
-        "sequelize": "^4.44.4"
+        "sequelize": "^4.44.4",
+        "uuid": "^8.3.1"
     },
     "devDependencies": {
         "@babel/cli": "^7.8.4",

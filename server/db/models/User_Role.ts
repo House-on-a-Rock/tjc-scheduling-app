@@ -6,16 +6,12 @@ const UserRoleFactory = (
     sequelize: Sequelize.Sequelize,
     DataTypes: Sequelize.DataTypes,
 ): Sequelize.Model<UserRoleInstance, UserRoleAttributes> => {
-    const attributes: SequelizeAttributes<UserRoleAttributes> = {
-        team_lead: {
-            type: DataTypes.BOOLEAN,
-        },
-    };
+    const attributes: SequelizeAttributes<UserRoleAttributes> = { team_lead: { type: DataTypes.BOOLEAN } };
 
     const UserRole = sequelize.define<UserRoleInstance, UserRoleAttributes>('UserRole', attributes);
 
     UserRole.associate = (models) => {
-        UserRole.belongsTo(models.Team, { as: 'team', foreignKey: 'teamId' });
+        // UserRole.belongsTo(models.Team, { as: 'team', foreignKey: 'teamId' });
         UserRole.belongsTo(models.Role, { as: 'role', foreignKey: 'roleId' });
         UserRole.belongsTo(models.User, { as: 'user', foreignKey: 'userId' });
     };

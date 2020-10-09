@@ -16,9 +16,8 @@ const ChurchFactory = (
     const Church = sequelize.define<ChurchInstance, ChurchAttributes>('Church', attributes);
 
     Church.associate = (models) => {
-        Church.hasMany(models.User, { foreignKey: 'churchId', as: 'church' });
+        Church.hasMany(models.User, { foreignKey: 'churchId' });
         Church.hasMany(models.Role, { foreignKey: 'churchId' });
-        Church.hasMany(models.Task, { foreignKey: 'churchId' });
     };
 
     return Church;
