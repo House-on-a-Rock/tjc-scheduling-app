@@ -85,7 +85,7 @@ const UserFactory = (
     User.beforeUpdate(createSaltyPassword);
 
     User.associate = (models) => {
-        User.belongsTo(models.Church, { foreignKey: 'churchId' });
+        User.belongsTo(models.Church, { as: 'church', foreignKey: 'churchId' });
     };
 
     return User;

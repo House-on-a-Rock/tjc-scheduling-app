@@ -84,7 +84,6 @@ function makeTasksFromEvents(eventData) {
                     const { assignee, date } = data[k];
                     const userId = userToId()[assignee];
                     const roleId = roleToId()[role];
-                    // console.log(userRoles);
                     const { userRoleId } = userRoles.filter(
                         (userRole) => userId === userRole.userId && roleId === userRole.roleId,
                     )[0];
