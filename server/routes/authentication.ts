@@ -4,7 +4,7 @@ import jwt, { TokenExpiredError, JsonWebTokenError } from 'jsonwebtoken';
 import {
     addMinutes,
     createToken,
-    creatResetToken,
+    createResetToken,
     hashPassword,
     sendGenericEmail,
     sendVerEmail,
@@ -58,8 +58,8 @@ router.post('/resendConfirm', async (req: Request, res: Response, next: NextFunc
         const [message, status] = sendVerEmail(email, headers, newToken, 'confirmation');
         return res.status(status).send({ message });
     } catch (err) {
-        res.status(503).send({ message: 'Server error, try again later' });
-        return next(err);
+        next(err);
+        return res.status(503).send({ message: 'Server error, try again later' });
     }
 });
 
@@ -187,7 +187,7 @@ router.post('/sendResetEmail', async (req: Request, res: Response, next: NextFun
         const { isVerified, id, password } = user;
 
         if (user && isVerified) {
-            const token = creatResetToken(id, 15, password);
+            const token = createResetToken(id, 15, password);
             const [tokenHeader, tokenPayload, tokenSignature] = token.split('.');
             sendGenericEmail(
                 email,
