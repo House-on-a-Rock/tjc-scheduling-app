@@ -67,23 +67,23 @@ router.get('/requests/:requestId', certify, async (req: Request, res: Response, 
 
 router.post('/requests', certify, async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { yourTaskId, myTaskId, message } = req.body;
+        const { requesteeTaskId, requesterTaskId, message } = req.body;
         const { authorization } = req.headers;
 
-        const yourTask = await db.Task.findOne({ where: { id: yourTaskId } });
-        const { userId: yourUserId } = await db.UserRole.findOne({ where: { id: yourTask.userRoleId } });
+        const requesteeTask = await db.Task.findOne({ where: { id: requesteeTaskId } });
+        const { userId: requesteeUserId } = await db.UserRole.findOne({ where: { id: requesteeTask.userRoleId } });
 
-        const myTask = await db.Task.findOne({ where: { id: myTaskId } });
-        const { userId: myUserId } = await db.UserRole.findOne({ where: { id: myTask.userRoleId } });
+        const requesterTask = await db.Task.findOne({ where: { id: requesterTaskId } });
+        const { userId: myUserId } = await db.UserRole.findOne({ where: { id: requesterTask.userRoleId } });
 
-        if (!myTask) res.status(404).send({ message: 'Task not found' });
-        await myTask.update({ status: 'changeRequested' });
+        if (!requesterTask) res.status(404).send({ message: 'Task not found' });
+        await requesterTask.update({ status: 'changeRequested' });
 
         const request = await db.Request.create({
-            requesteeUserId: yourUserId,
+            requesteeUserId,
             message,
-            type: yourTaskId ? 'requestOne' : 'requestAll',
-            taskId: myTaskId,
+            type: requesteeTaskId ? 'requestOne' : 'requestAll',
+            taskId: requesterTaskId,
             replace: req.query.replace === 'true',
             userId: determineLoginId(authorization),
         });

@@ -145,7 +145,7 @@ router.patch(
             });
 
             const [message, status] =
-                !task || !replacingTeammate || !askingTeammate
+                task && replacingTeammate && askingTeammate
                     ? ['Task replacement successful', 200]
                     : ['Task not found', 404];
 
