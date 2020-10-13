@@ -20,7 +20,7 @@ export const roles = [
         churchId: 2,
     },
     {
-        name: 'any',
+        name: 'Any',
         churchId: 2,
     },
     {

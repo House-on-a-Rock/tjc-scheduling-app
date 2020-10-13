@@ -61,7 +61,8 @@ router.post('/tasks', certify, async (req: Request, res: Response, next: NextFun
         const taskDate = setDate(date, time, timezone);
         const task = await db.Task.create({
             date: new Date(taskDate.toString()),
-            churchId,
+            // churchId,
+            // should be eventId
             userRoleId,
         });
         return res.status(201).send(task);

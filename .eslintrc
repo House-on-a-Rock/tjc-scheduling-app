@@ -17,6 +17,7 @@
         "import/prefer-default-export": "off",
         "no-unused-vars": "warn",
         "no-nested-ternary": "off",
+        "import/extensions": "off",
         "no-console": "off",
         "no-var-requires": "off",
         "no-process-exit": "off",

@@ -1,11 +1,10 @@
 import * as Sequelize from 'sequelize';
+import { CommonSequelizeAttributes } from '.';
 
-export interface TokenAttributes {
-    id?: number;
+export interface TokenAttributes extends CommonSequelizeAttributes {
     userId: number;
     token: string;
     expiresIn?: Date;
-    createdAt?: Date;
 }
 
 export interface TokenInstance extends Sequelize.Instance<TokenAttributes>, TokenAttributes {}

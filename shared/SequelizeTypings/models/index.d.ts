@@ -1,12 +1,17 @@
 export * from './ChurchModel';
 export * from './EventModel';
-export * from './EventTaskModel';
 export * from './NotificationModel';
 export * from './RequestModel';
 export * from './RoleModel';
 export * from './ScheduleModel';
 export * from './TaskModel';
-export * from './TeamModel';
+export * from './DividerModel';
 export * from './TokenModel';
 export * from './UserModel';
 export * from './UserRoleModel';
+
+export interface CommonSequelizeAttributes {
+    id?: number;
+    createdAt?: Date | null;
+    updatedAt?: Date | null;
+}

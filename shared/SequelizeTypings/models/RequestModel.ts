@@ -1,9 +1,9 @@
 import * as Sequelize from 'sequelize';
 import { TaskAttributes } from './TaskModel';
 import { UserAttributes } from './UserModel';
+import { CommonSequelizeAttributes } from '.';
 
-export interface RequestAttributes {
-    id?: number;
+export interface RequestAttributes extends CommonSequelizeAttributes {
     requesteeUserId: number;
     type: string;
     taskId?: number;
@@ -14,8 +14,6 @@ export interface RequestAttributes {
     replace?: boolean;
     userId?: number;
     user?: UserAttributes;
-    createdAt?: Date;
-    updatedAt?: Date;
 }
 
 export interface RequestInstance extends Sequelize.Instance<RequestAttributes>, RequestAttributes {}

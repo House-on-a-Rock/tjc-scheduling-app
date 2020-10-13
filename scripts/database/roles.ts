@@ -1,18 +1,14 @@
 export const roles = [
     {
-        name: 'Usher',
+        name: 'Church Council',
         churchId: 2,
     },
     {
-        name: 'Hymn Leading',
+        name: 'Hymn Leader',
         churchId: 2,
     },
     {
-        name: 'Piano',
-        churchId: 2,
-    },
-    {
-        name: 'Sermon Speaker',
+        name: 'Pianist',
         churchId: 2,
     },
     {
@@ -24,7 +20,7 @@ export const roles = [
         churchId: 2,
     },
     {
-        name: 'Grace',
+        name: 'Any',
         churchId: 2,
     },
     {

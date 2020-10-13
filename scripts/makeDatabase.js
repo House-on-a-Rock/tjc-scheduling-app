@@ -1,11 +1,12 @@
+/* eslint-disable consistent-return */
 /* eslint-disable array-callback-return */
 /* eslint-disable no-unused-vars */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-plusplus */
 const fs = require('fs');
-const { users: databaseUsers, roles: databaseRoles, events: databaseEvents } = require('./webDatabase');
+const { users: databaseUsers, roles: databaseRoles, events: databaseEvents, SCHEDULE } = require('./webDatabase');
 
-const userToId = () => {
+const userToIdFn = () => {
     const mappedUsers = {};
     databaseUsers.map((user, index) => {
         mappedUsers[user.name] = index + 1;
@@ -13,13 +14,17 @@ const userToId = () => {
     return mappedUsers;
 };
 
-const roleToId = () => {
+const userToId = userToIdFn();
+
+const roleToIdFn = () => {
     const mappedRoles = {};
     databaseRoles.map((role, index) => {
         mappedRoles[role.name] = index + 1;
     });
     return mappedRoles;
 };
+
+const roleToId = roleToIdFn();
 
 function makeUserDetails(users) {
     const allUsers = users.map((user, idx) => {
@@ -50,8 +55,8 @@ function makeUserRoles(events) {
             for (let k = 0; k < data.length; k++) {
                 if (title !== 'Cooking') {
                     const { assignee } = data[k];
-                    const userId = userToId()[assignee];
-                    const roleId = roleToId()[role];
+                    const userId = userToId[assignee];
+                    const roleId = roleToId[role];
                     if (!cache[userId] || !cache[userId][roleId]) {
                         cache[userId] = { ...cache[userId], [roleId]: true };
                     }
@@ -94,17 +99,95 @@ function makeTasksFromEvents(eventData) {
         }
     }
     const taskstring = JSON.stringify(tasks);
+    // fs.writeFile('tasks.json', taskstring, function (err) {
+    //     if (err) console.log('error', err);
+    // });
+    return [tasks, userRoles];
+}
+
+// makeTasksFromEvents(databaseEvents);
+
+function makeNewUserRoles(events) {
+    const cache = {};
+    events.map((event) => {
+        const { team, tasks } = event;
+        tasks.map((task) => {
+            const { assignee } = task;
+            const roleId = roleToId[team];
+            const userId = userToId[assignee];
+            if (!userId) console.log(assignee);
+            if (!cache[userId] || !cache[userId][roleId]) {
+                cache[userId] = { ...cache[userId], [roleId]: true };
+            }
+        });
+    });
+    let count = 0;
+    const userRoles = [];
+    for (let userId = 1; userId < Object.keys(cache).length + 1; userId++) {
+        const roleIds = Object.keys(cache[userId]);
+        for (let idx = 0; idx < roleIds.length; idx++) {
+            count++;
+            const roleId = parseInt(roleIds[idx], 10);
+            userRoles.push({ roleId: roleId, userId: userId, userRoleId: count });
+        }
+    }
+    return userRoles;
+}
+
+function dataToData(schedules) {
+    const scheduleArr = [];
+    const dividerArr = [];
+    const eventArr = [];
+    const taskArr = [];
+    // console.log(userRoles);
+    schedules.map((schedule, scheduleId) => {
+        const { view, dividers, events } = schedule;
+        const scheduleObj = { churchId: 2 };
+        scheduleObj.title = schedule.title;
+        scheduleObj.view = view;
+        scheduleObj.start = schedule.start;
+        scheduleObj.end = schedule.end;
+        scheduleArr.push(scheduleObj);
+        dividers.map((divider) => {
+            if (divider.name !== 'Specific' || divider.name !== 'Specific') {
+                const dividerObj = { scheduleId: 1 };
+                dividerObj.name = divider.name;
+                dividerObj.day = divider.day;
+                dividerObj.start = divider.start;
+                dividerObj.end = divider.end;
+                dividerObj.order = divider.order;
+                dividerArr.push(dividerObj);
+            }
+        });
+        const userRoles = makeNewUserRoles(events);
+        events.map((event, eventId) => {
+            const eventObj = { scheduleId: 1 };
+            const { time, day, title, team, order, tasks } = event;
+            eventObj.roleId = roleToId[team];
+            eventObj.day = day;
+            eventObj.title = title;
+            eventObj.time = time;
+            eventObj.order = order;
+            eventArr.push(eventObj);
+            tasks.map((task) => {
+                if (title !== 'Cooking') {
+                    const { assignee, date } = task;
+                    const userId = userToId[assignee];
+                    const roleId = roleToId[team];
+                    const { userRoleId } = userRoles.filter(
+                        (userRole) => userId === userRole.userId && roleId === userRole.roleId,
+                    )[0];
+
+                    taskArr.push({ userRoleId, date, eventId: eventId + 1 });
+                }
+            });
+        });
+    });
+    console.log(taskArr);
+    const taskstring = JSON.stringify(taskArr);
     fs.writeFile('tasks.json', taskstring, function (err) {
         if (err) console.log('error', err);
     });
-    return tasks;
 }
 
-makeTasksFromEvents(databaseEvents);
-
-// {
-//     date: setDate('2020-08-21', '10:30:00', 'America/New_York').toString(),
-//     userId: 1,
-//     roleId: 1,
-//     churchId: 1,
-// },
+dataToData(SCHEDULE);

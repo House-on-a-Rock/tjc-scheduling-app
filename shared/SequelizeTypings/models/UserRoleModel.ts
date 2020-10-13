@@ -1,15 +1,11 @@
 import * as Sequelize from 'sequelize';
 import { UserAttributes } from './UserModel';
 import { RoleAttributes } from './RoleModel';
-import { TeamAttributes } from './TeamModel';
+import { CommonSequelizeAttributes } from '.';
 
-export interface UserRoleAttributes {
-    id?: number;
-    createdAt?: Date;
-    updatedAt?: Date;
+export interface UserRoleAttributes extends CommonSequelizeAttributes {
     userId?: UserAttributes['id'];
-    role?: RoleAttributes | RoleAttributes['id'];
-    team?: TeamAttributes | TeamAttributes['id'];
+    roleId?: RoleAttributes | RoleAttributes['id'];
     team_lead: boolean;
 }
 

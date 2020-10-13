@@ -7,14 +7,17 @@ const EventFactory = (
     DataTypes: Sequelize.DataTypes,
 ): Sequelize.Model<EventInstance, EventAttributes> => {
     const attributes: SequelizeAttributes<EventAttributes> = {
-        time: { type: DataTypes.TIME },
-        tag: { type: DataTypes.STRING },
+        day: { type: DataTypes.STRING },
+        order: { type: DataTypes.INTEGER },
+        time: { type: DataTypes.STRING },
+        title: { type: DataTypes.STRING },
     };
 
     const Event = sequelize.define<EventInstance, EventAttributes>('Event', attributes);
 
     Event.associate = (models) => {
-        Event.belongsTo(models.Schedule, { foreignKey: 'eventId' });
+        Event.belongsTo(models.Schedule, { foreignKey: 'scheduleId' });
+        Event.belongsTo(models.Role, { foreignKey: 'roleId' });
     };
 
     return Event;

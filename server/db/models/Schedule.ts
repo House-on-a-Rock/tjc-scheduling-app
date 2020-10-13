@@ -17,6 +17,7 @@ const ScheduleFactory = (
 
     Schedule.associate = (models) => {
         Schedule.belongsTo(models.Church, { as: 'church', foreignKey: 'churchId' });
+        // Schedule.hasMany(models.Events)
     };
 
     return Schedule;

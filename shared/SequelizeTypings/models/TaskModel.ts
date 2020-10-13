@@ -1,13 +1,13 @@
 import * as Sequelize from 'sequelize';
+import { CommonSequelizeAttributes } from '.';
 
-export interface TaskAttributes {
-    id?: number;
-    churchId?: number;
-    userRoleId?: number;
+type StatusTypes = 'active' | 'changeRequested';
+
+export interface TaskAttributes extends CommonSequelizeAttributes {
+    status?: StatusTypes;
     date: Date;
-    status?: string;
-    createdAt?: Date;
-    updatedAt?: Date;
+    userRoleId?: number;
+    eventId?: number;
 }
 
 export interface TaskInstance extends Sequelize.Instance<TaskAttributes>, TaskAttributes {}

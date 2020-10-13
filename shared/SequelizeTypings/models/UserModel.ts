@@ -1,9 +1,9 @@
 import * as Sequelize from 'sequelize';
 import { RoleAttributes } from './RoleModel';
 import { ChurchAttributes } from './ChurchModel';
+import { CommonSequelizeAttributes } from '.';
 
-export interface UserAttributes {
-    id?: number;
+export interface UserAttributes extends CommonSequelizeAttributes {
     firstName: string;
     lastName: string;
     email: string;
@@ -14,8 +14,6 @@ export interface UserAttributes {
     loginTimeout?: Date;
     churchId?: number;
     disabled: boolean;
-    createdAt?: Date | null;
-    updatedAt?: Date | null;
     duty?: RoleAttributes[] | RoleAttributes['id'];
     church?: ChurchAttributes;
     expoPushToken?: string;
