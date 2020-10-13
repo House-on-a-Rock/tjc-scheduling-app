@@ -6,7 +6,6 @@
         "plugin:@typescript-eslint/eslint-recommended",
         "plugin:@typescript-eslint/recommended",
         "plugin:@typescript-eslint/recommended-requiring-type-checking",
-        // "plugin:node/recommended",
         "prettier/@typescript-eslint",
         "plugin:prettier/recommended"
     ],
@@ -23,6 +22,8 @@
         "no-process-exit": "off",
         "no-param-reassign": "off",
         "no-unused-expressions": "off",
+        "no-plusplus": "off",
+        "no-return-assign": "off",
         "object-shorthand": "off",
         "class-methods-use-this": "off",
         "@typescript-eslint/explicit-function-return-type": "off",

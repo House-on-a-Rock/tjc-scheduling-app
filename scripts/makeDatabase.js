@@ -1,16 +1,12 @@
 /* eslint-disable consistent-return */
-/* eslint-disable array-callback-return */
 /* eslint-disable no-unused-vars */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable no-plusplus */
 const fs = require('fs');
 const { users: databaseUsers, roles: databaseRoles, events: databaseEvents, SCHEDULE } = require('./webDatabase');
 
 const userToIdFn = () => {
     const mappedUsers = {};
-    databaseUsers.map((user, index) => {
-        mappedUsers[user.name] = index + 1;
-    });
+    databaseUsers.map((user, index) => (mappedUsers[user.name] = index++));
     return mappedUsers;
 };
 
@@ -18,9 +14,7 @@ const userToId = userToIdFn();
 
 const roleToIdFn = () => {
     const mappedRoles = {};
-    databaseRoles.map((role, index) => {
-        mappedRoles[role.name] = index + 1;
-    });
+    databaseRoles.map((role, index) => (mappedRoles[role.name] = index++));
     return mappedRoles;
 };
 
