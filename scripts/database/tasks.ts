@@ -1,4 +1,3 @@
-// eslint-disable-next-line import/prefer-default-export
 export const tasks = [
     { userRoleId: 7, date: '2020/06/27', churchId: 2 },
     { userRoleId: 7, date: '2020/07/04', churchId: 2 },

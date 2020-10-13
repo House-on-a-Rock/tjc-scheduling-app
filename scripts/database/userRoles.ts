@@ -1,4 +1,3 @@
-// eslint-disable-next-line import/prefer-default-export
 export const userRoles = [
     { roleId: 1, userId: 1 },
     { roleId: 2, userId: 1 },
