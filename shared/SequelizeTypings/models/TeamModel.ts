@@ -16,6 +16,4 @@ export interface TeamAttributes {
     church?: ChurchAttributes | ChurchAttributes['id'];
 }
 
-export interface TeamInstance
-    extends Sequelize.Instance<TeamAttributes>,
-        TeamAttributes {}
+export interface TeamInstance extends Sequelize.Instance<TeamAttributes>, TeamAttributes {}

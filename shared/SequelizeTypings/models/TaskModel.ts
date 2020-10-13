@@ -3,8 +3,7 @@ import * as Sequelize from 'sequelize';
 export interface TaskAttributes {
     id?: number;
     churchId?: number;
-    userId?: number;
-    roleId?: number;
+    userRoleId?: number;
     date: Date;
     status?: string;
     createdAt?: Date;

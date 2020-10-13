@@ -8,6 +8,4 @@ export interface TokenAttributes {
     createdAt?: Date;
 }
 
-export interface TokenInstance
-    extends Sequelize.Instance<TokenAttributes>,
-        TokenAttributes {}
+export interface TokenInstance extends Sequelize.Instance<TokenAttributes>, TokenAttributes {}

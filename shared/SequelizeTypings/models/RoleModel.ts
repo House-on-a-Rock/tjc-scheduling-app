@@ -4,7 +4,6 @@ import { UserAttributes } from './UserModel';
 export interface RoleAttributes {
     id?: number;
     name: string;
-    time: Date;
     createdAt?: Date;
     updatedAt?: Date;
     churchId?: number;

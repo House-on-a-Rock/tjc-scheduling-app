@@ -1,21 +1,41 @@
 import express, { Request, Response, NextFunction } from 'express';
 import { UserInstance } from 'shared/SequelizeTypings/models';
 import db from '../index';
-import {
-    makeMyNotificationMessage,
-    sendPushNotification,
-    certify,
-    determineLoginId,
-} from '../utilities/helperFunctions';
+import { makeMyNotificationMessage, certify, determineLoginId } from '../utilities/helperFunctions';
 
 const router = express.Router();
 
 module.exports = router;
 
+async function sendPushNotification(userId: number, userPushToken: string, title: string, body: string) {
+    const user = await db.Notification.findAll({
+        where: { id: userId, isRead: false },
+        attributes: ['isRead'],
+    });
+    const badgeNumber = user.length + 1;
+    fetch('https://exp.host/--/api/v2/push/send', {
+        method: 'POST',
+        headers: {
+            Accept: 'application/json',
+            'Accept-Encoding': 'gzip, deflate',
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            to: userPushToken,
+            data: {
+                extraData: 'tsm sucks',
+            },
+            title: title,
+            body: body,
+            badge: badgeNumber,
+        }),
+    });
+}
+
 router.get('/notifications/:userId', certify, async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { userId } = req.params;
-        const swapNotifications = await db.Notification.findAll({
+        const notifications = await db.Notification.findAll({
             where: { userId },
             attributes: ['id', 'userId', 'message', 'createdAt', 'requestId'],
             include: [
@@ -27,12 +47,13 @@ router.get('/notifications/:userId', certify, async (req: Request, res: Response
                 {
                     model: db.Task,
                     as: 'task',
-                    attributes: ['date', 'status', 'churchId', 'userId', 'roleId'],
+                    attributes: ['date', 'status', 'churchId', 'userRoleId'],
                 },
             ],
         });
-        if (swapNotifications.length > 0) return res.status(200).json(swapNotifications);
-        return res.status(404).send({ message: 'Not found' });
+        return notifications.length > 0
+            ? res.status(200).json(notifications)
+            : res.status(404).send({ message: 'No Notifications Found' });
     } catch (err) {
         next(err);
         return res.status(503).send({ message: 'Server error, try again later' });
@@ -55,6 +76,7 @@ router.post('/notifications', certify, async (req: Request, res: Response, next:
             ],
         });
         const { requesteeUserId, task, type: swapRequestType } = request;
+        const { userId } = await db.UserRole.findOne({ where: { id: task.userRoleId } });
 
         if (!notification) return res.status(400).send({ message: 'Invalid notification type.' });
         if (!request) return res.status(404).send({ message: 'Swap request not found' });
@@ -66,7 +88,7 @@ router.post('/notifications', certify, async (req: Request, res: Response, next:
             id: myUserId,
             expoPushToken: myPushToken,
         } = await db.User.findOne({
-            where: { id: task.userId },
+            where: { id: userId },
             attributes: ['id', 'firstName', 'churchId', 'expoPushToken'],
         });
 

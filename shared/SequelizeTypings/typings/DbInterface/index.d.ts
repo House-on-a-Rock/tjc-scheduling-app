@@ -1,34 +1,44 @@
 import * as Sequelize from 'sequelize';
 import {
-    ChurchInstance,
     ChurchAttributes,
-    UserInstance,
-    UserAttributes,
-    TaskInstance,
-    TaskAttributes,
-    RoleInstance,
-    RoleAttributes,
-    UserRoleInstance,
-    UserRoleAttributes,
-    TokenInstance,
-    TokenAttributes,
-    RequestInstance,
-    RequestAttributes,
+    ChurchInstance,
+    EventAttributes,
+    EventInstance,
+    EventTaskAttributes,
+    EventTaskInstance,
     NotificationAttributes,
     NotificationInstance,
+    RequestAttributes,
+    RequestInstance,
+    RoleAttributes,
+    RoleInstance,
+    ScheduleInstance,
+    ScheduleAttributes,
+    TaskAttributes,
+    TaskInstance,
+    TeamInstance,
+    TeamAttributes,
+    TokenAttributes,
+    TokenInstance,
+    UserAttributes,
+    UserInstance,
+    UserRoleAttributes,
+    UserRoleInstance,
 } from 'shared/SequelizeTypings/models';
-import { TeamInstance, TeamAttributes } from 'shared/SequelizeTypings/models/TeamModel';
 
 export interface DbInterface {
     sequelize: Sequelize.Sequelize;
     Sequelize: Sequelize.SequelizeStatic;
     Church: Sequelize.Model<ChurchInstance, ChurchAttributes>;
-    User: Sequelize.Model<UserInstance, UserAttributes>;
-    Task: Sequelize.Model<TaskInstance, TaskAttributes>;
-    Role: Sequelize.Model<RoleInstance, RoleAttributes>;
-    Team: Sequelize.Model<TeamInstance, TeamAttributes>;
-    UserRole: Sequelize.Model<UserRoleInstance, UserRoleAttributes>;
-    Token: Sequelize.Model<TokenInstance, TokenAttributes>;
-    Request: Sequelize.Model<RequestInstance, RequestAttributes>;
+    Event: Sequelize.Model<EventInstance, EventAttributes>;
+    EventTask: Sequelize.Model<EventTaskInstance, EventTaskAttributes>;
     Notification: Sequelize.Model<NotificationInstance, NotificationAttributes>;
+    Request: Sequelize.Model<RequestInstance, RequestAttributes>;
+    Role: Sequelize.Model<RoleInstance, RoleAttributes>;
+    Schedule: Sequelize.Model<ScheduleInstance, ScheduleAttributes>;
+    Task: Sequelize.Model<TaskInstance, TaskAttributes>;
+    Team: Sequelize.Model<TeamInstance, TeamAttributes>;
+    Token: Sequelize.Model<TokenInstance, TokenAttributes>;
+    User: Sequelize.Model<UserInstance, UserAttributes>;
+    UserRole: Sequelize.Model<UserRoleInstance, UserRoleAttributes>;
 }

@@ -31,7 +31,7 @@ router.post('/churches', certify, async (req: Request, res: Response, next: Next
             description: req.body.description,
             timezone: req.body.timeZone,
         });
-        res.status(201).send(church);
+        return res.status(201).send(church);
     } catch (err) {
         next(err);
         return res.status(503).send({ message: 'Server error, try again later' });

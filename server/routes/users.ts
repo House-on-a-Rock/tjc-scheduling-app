@@ -102,7 +102,6 @@ router.post('/users', certify, async (req: Request, res: Response, next) => {
                 ],
             }));
 
-        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         if (addedUser) await db.Token.create({ userId: addedUser.id, token });
 
         const determineMessageStatus: () => [string, number] = () => {

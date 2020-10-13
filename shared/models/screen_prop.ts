@@ -64,10 +64,7 @@ export type ScheduleRouteProp = RouteProp<CalendarStackParamList, 'Tasks'>;
 
 export type ScheduleScreenNavigationProp = CompositeNavigationProp<
     StackNavigationProp<ScheduleStackParamList, 'Schedule'>,
-    CompositeNavigationProp<
-        BottomTabNavigationProp<HomeStackTabParamList>,
-        StackNavigationProp<DrawerStackParamList>
-    >
+    CompositeNavigationProp<BottomTabNavigationProp<HomeStackTabParamList>, StackNavigationProp<DrawerStackParamList>>
 >;
 
 export type ScheduleScreenProps = {
@@ -80,10 +77,7 @@ export type CalendarRouteProp = RouteProp<CalendarStackParamList, 'Calendar'>;
 
 export type CalendarScreenNavigationProp = CompositeNavigationProp<
     StackNavigationProp<CalendarStackParamList, 'Calendar'>,
-    CompositeNavigationProp<
-        BottomTabNavigationProp<HomeStackTabParamList>,
-        StackNavigationProp<DrawerStackParamList>
-    >
+    CompositeNavigationProp<BottomTabNavigationProp<HomeStackTabParamList>, StackNavigationProp<DrawerStackParamList>>
 >;
 
 export type CalendarScreenProps = {
@@ -96,10 +90,7 @@ export type TasksRouteProp = RouteProp<CalendarStackParamList, 'Tasks'>;
 
 export type TasksScreenNavigationProp = CompositeNavigationProp<
     StackNavigationProp<CalendarStackParamList, 'Tasks'>,
-    CompositeNavigationProp<
-        BottomTabNavigationProp<HomeStackTabParamList>,
-        StackNavigationProp<DrawerStackParamList>
-    >
+    CompositeNavigationProp<BottomTabNavigationProp<HomeStackTabParamList>, StackNavigationProp<DrawerStackParamList>>
 >;
 
 export type TasksScreenProps = {
@@ -120,10 +111,7 @@ export type LoginScreenProps = {
 // RecoverLoginScreen
 export type RecoverLoginRouteProp = RouteProp<AuthStackParamList, 'RecoverLogin'>;
 
-export type RecoverLoginNavigationProp = StackNavigationProp<
-    AuthStackParamList,
-    'RecoverLogin'
->;
+export type RecoverLoginNavigationProp = StackNavigationProp<AuthStackParamList, 'RecoverLogin'>;
 
 export type RecoverLoginScreenProps = {
     route: RecoverLoginRouteProp;

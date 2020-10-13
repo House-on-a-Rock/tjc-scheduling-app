@@ -11,7 +11,6 @@
         "server": "node -r ts-node/register ./server/index.ts",
         "server:watch": "nodemon -r ts-node/register ./server/index.ts",
         "seed": "ts-node scripts/seed.js",
-        "seed2": "ts-node scripts/seed2.js",
         "set-mac-env": "chmod +x scripts/set_mac_env.sh && scripts/set_mac_env.sh",
         "prettier:base": "prettier",
         "prettier:check": "npm run prettier:base -- --list-different \"**/*\"",
@@ -102,7 +101,8 @@
         "redux-thunk": "^2.3.0",
         "request": "^2.88.2",
         "request-promise": "^4.2.5",
-        "sequelize": "^4.44.4"
+        "sequelize": "^4.44.4",
+        "uuid": "^8.3.1"
     },
     "devDependencies": {
         "@babel/cli": "^7.8.4",
