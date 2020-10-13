@@ -17,7 +17,7 @@ router.get('/users', certify, async (req: Request, res: Response, next) => {
         if (churchId) searchArray.push({ churchId });
         if (roleId) {
             const userRoles = await db.UserRole.findAll({
-                where: { roleId },
+                where: { roleId: roleId.toString() },
                 attributes: ['userId'],
             });
             if (userRoles.length === 0) return res.status(404).send({ message: 'No users found with that role id' });
@@ -102,7 +102,7 @@ router.post('/users', certify, async (req: Request, res: Response, next) => {
                 ],
             }));
 
-        addedUser && (await db.Token.create({ userId: addedUser.id, token }));
+        if (addedUser) await db.Token.create({ userId: addedUser.id, token });
 
         const determineMessageStatus: () => [string, number] = () => {
             switch (true) {
