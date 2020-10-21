@@ -1,5 +1,5 @@
 import express, { Request, Response, NextFunction } from 'express';
-import { UserInstance } from 'shared/SequelizeTypings/models';
+import { NotificationInstance, UserInstance } from 'shared/SequelizeTypings/models';
 import db from '../index';
 import { makeMyNotificationMessage, certify, determineLoginId } from '../utilities/helperFunctions';
 
@@ -37,17 +37,18 @@ router.get('/notifications/:userId', certify, async (req: Request, res: Response
         const { userId } = req.params;
         const notifications = await db.Notification.findAll({
             where: { userId },
-            attributes: ['id', 'userId', 'message', 'createdAt', 'requestId'],
+            attributes: ['id', 'userId', 'message', 'createdAt'],
             include: [
                 {
                     model: db.Request,
                     as: 'request',
-                    attributes: ['requesteeUserId', 'type', 'accepted', 'approved', 'createdAt', 'taskId'],
+                    attributes: ['id', 'requesteeUserId', 'type', 'accepted', 'approved', 'createdAt'],
                 },
+                // this is probably bugged
                 {
                     model: db.Task,
                     as: 'task',
-                    attributes: ['date', 'status', 'churchId', 'userRoleId'],
+                    attributes: ['id', 'date', 'status', 'churchId', 'userRoleId'],
                 },
             ],
         });
@@ -146,12 +147,12 @@ router.post('/notifications', certify, async (req: Request, res: Response, next:
 
 router.patch('/notifications/:notificationId', certify, async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const notification = await db.Notification.findOne({
+        const notification: NotificationInstance = await db.Notification.findOne({
             where: { id: req.params.notificationId },
             attributes: ['id', 'userId', 'createdAt', 'isRead', 'updatedAt', 'requestId'],
         });
         if (!notification) return res.status(404).send({ message: 'Notification not found' });
-        const data = await notification.update({ id: notification.id, isRead: true });
+        const data: NotificationInstance = await notification.update({ id: notification.id, isRead: true });
         return res.status(200).json(data);
     } catch (err) {
         next(err);
@@ -161,7 +162,7 @@ router.patch('/notifications/:notificationId', certify, async (req: Request, res
 
 router.patch('/notifications/read-all/:userId', certify, async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const notifications = await db.Notification.findAll({
+        const notifications: NotificationInstance[] = await db.Notification.findAll({
             where: { userId: req.params.userId },
             attributes: ['id', 'userId', 'createdAt', 'isRead', 'updatedAt', 'requestId'],
         });
@@ -181,8 +182,8 @@ router.delete('/notifications/:notificationId', certify, async (req: Request, re
             attributes: ['id', 'userId', 'createdAt', 'updatedAt', 'requestId'],
         });
         if (!notification) return res.status(404).send({ message: 'Notification not found' });
-        const data = await notification.destroy();
-        return res.status(200).json(data);
+        await notification.destroy();
+        return res.status(200);
     } catch (err) {
         next(err);
         return res.status(503).send({ message: 'Server error, try again later' });
