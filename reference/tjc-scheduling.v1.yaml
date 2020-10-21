@@ -185,6 +185,140 @@ paths:
               example-1:
                 value:
                   pushToken: 'ExponentPushToken[-uuepvN27WLr5fHqJoK3y8]'
+  '/user-roles/{userId}':
+    parameters:
+      - schema:
+          type: string
+        name: userId
+        in: path
+        required: true
+    get:
+      summary: get user's roles
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    roleId:
+                      type: number
+                    role:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+              examples:
+                example-1:
+                  value:
+                    - roleId: 1
+                      role:
+                        name: Church Council
+                    - roleId: 2
+                      role:
+                        name: Hymn Leader
+                    - roleId: 3
+                      role:
+                        name: Pianist
+                    - roleId: 6
+                      role:
+                        name: Any
+      operationId: get-user-roles-userId
+      description: ''
+  /tasks:
+    get:
+      summary: Get Tasks
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: number
+                    date:
+                      type: string
+                    status:
+                      type: boolean
+                    createdAt:
+                      type: string
+                    updatedAt:
+                      type: string
+                    eventId:
+                      type: number
+                    userRoleId:
+                      type: number
+      operationId: get-tasks
+      parameters:
+        - schema:
+            type: number
+          in: query
+          name: userId
+        - schema:
+            type: number
+          in: query
+          name: churchId
+        - schema:
+            type: number
+          in: query
+          name: roleId
+      description: 'Gets tasks dynamically depending on query params. '
+    post:
+      summary: Post Tasks
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: number
+                  date:
+                    type: string
+                  status:
+                    type: boolean
+                  createdAt:
+                    type: string
+                  updatedAt:
+                    type: string
+                  eventId:
+                    type: number
+                  userRoleId:
+                    type: number
+      operationId: post-tasks
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                date:
+                  type: string
+                time:
+                  type: string
+                userRoleId:
+                  type: number
+                eventId:
+                  type: number
+            examples:
+              example-1:
+                value:
+                  date: '2020-06-27'
+                  time: '04:00:00+00'
+                  userRoleId: 7
+                  eventId: 1
 components:
   schemas: {}
   securitySchemes: {}
