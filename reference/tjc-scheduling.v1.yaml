@@ -1,0 +1,190 @@
+openapi: 3.0.0
+info:
+  title: Services API
+  version: '1.0'
+  description: ''
+servers:
+  - url: 'http://localhost:8080/api'
+    description: local
+paths:
+  /users:
+    get:
+      summary: Get all users
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    userId:
+                      type: number
+                    firstName:
+                      type: string
+                    lastName:
+                      type: string
+                    email:
+                      type: string
+                    churchId:
+                      type: number
+                    disabled:
+                      type: boolean
+                    church:
+                      type: string
+              examples:
+                example-1:
+                  value:
+                    - userId: 1
+                      firstName: Shaun
+                      lastName: Tung
+                      email: shaun.tung@gmail.com
+                      churchId: 2
+                      disabled: false
+                    - userId: 2
+                      firstName: Sun-Yu
+                      lastName: Yang
+                      email: sun-yu.yang@gmail.com
+                      churchId: 2
+                      disabled: false
+      operationId: get-users
+      description: 'Gets all users. If by roleId, finds all users for that role. If by churchId, finds all users in that church.'
+    post:
+      summary: Create new user
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: number
+                  firstName:
+                    type: string
+                  lastName:
+                    type: string
+                  email:
+                    type: string
+                  disabled:
+                    type: boolean
+              examples:
+                example-1:
+                  value:
+                    userId: 2
+                    firstName: Sun-Yu
+                    lastName: Yang
+                    email: sun-yu.yang@gmail.com
+                    churchId: 2
+                    disabled: false
+      operationId: post-users
+      description: Creates user by id
+  '/users/{userId}':
+    parameters:
+      - schema:
+          type: string
+        name: userId
+        in: path
+        required: true
+    get:
+      summary: gets user by id
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  firstName:
+                    type: string
+                  lastname:
+                    type: string
+                  email:
+                    type: string
+                  id:
+                    type: number
+                  churchId:
+                    type: number
+                  expoPushToken:
+                    type: string
+                  church:
+                    type: string
+              examples:
+                example-1:
+                  value:
+                    id: 1
+                    firstName: Shaun
+                    lastName: Tung
+                    email: shaun.tung@gmail.com
+                    churchId: 2
+                    expoPushToken: 'ExponentPushToken[-uuepvN27WLr5fHqJoK3y8]'
+                    church: Philadelphia
+      operationId: get-users-userId
+      description: gets user by id
+    delete:
+      summary: Deletes user by id
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+              examples:
+                example-1:
+                  value:
+                    message: ''
+      operationId: delete-users-userId
+      description: Deletes user by id
+  '/users/expoPushToken/{userId}':
+    parameters:
+      - schema:
+          type: string
+        name: userId
+        in: path
+        required: true
+    patch:
+      summary: Updates expo token
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+              examples:
+                example-1:
+                  value:
+                    message: Push Token updated
+      operationId: patch-users-expoPushToken-userId
+      description: updates expo token
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                pushToken:
+                  type: string
+            examples:
+              example-1:
+                value:
+                  pushToken: 'ExponentPushToken[-uuepvN27WLr5fHqJoK3y8]'
+components:
+  schemas: {}
+  securitySchemes: {}
