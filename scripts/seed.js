@@ -25,7 +25,6 @@ async function seed() {
     const seedDividers = await db.Divider.bulkCreate(dividers);
 
     const seedUsers = await db.User.bulkCreate(users);
-    // new change breaks salt generation
     const seedRoles = await db.Role.bulkCreate(roles);
     const seedEvents = await db.Event.bulkCreate(events);
     const seedUserRoles = await db.UserRole.bulkCreate(userRoles);
