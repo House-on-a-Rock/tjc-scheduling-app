@@ -1,7 +1,7 @@
 import * as Sequelize from 'sequelize';
 import { TaskAttributes } from './TaskModel';
 import { UserAttributes } from './UserModel';
-import { CommonSequelizeAttributes } from '.';
+import { CommonSequelizeAttributes } from './index';
 
 export interface RequestAttributes extends CommonSequelizeAttributes {
     requesteeUserId: number;
