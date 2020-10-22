@@ -98,6 +98,8 @@ router.post('/login', async (req: Request, res: Response, next: NextFunction) =>
             }
         };
         const [message, status] = determineMessageStatus();
+
+        if (status > 299) return res.status(status).send({ message });
         if (hashedLoginPassword !== password) {
             const updatedAttempts =
                 loginAttempts === 3
@@ -109,8 +111,6 @@ router.post('/login', async (req: Request, res: Response, next: NextFunction) =>
                     : { id, loginAttempts: loginAttempts + 1 };
             await user.update(updatedAttempts);
         }
-
-        if (status > 299) return res.status(status).send({ message });
 
         // if login is successful, reset login attempt information
         await user.update({ id, loginAttempts: 0, loginTimeout: null });
@@ -199,7 +199,7 @@ router.post('/sendResetEmail', async (req: Request, res: Response, next: NextFun
                 token: token,
             });
         }
-        return res.status(200);
+        return res.status(204);
     } catch (err) {
         next(err);
         return res.status(503).send({ message: 'Server error, try again later' });
