@@ -99,6 +99,7 @@ router.post('/requests', certify, async (req: Request, res: Response, next: Next
                 userId: determineLoginId(authorization),
             });
             postNotification(request.id, myUserId, 'created', message, authorization);
+            request = [request];
         }
 
         if (type === 'requestAll') {
@@ -175,36 +176,28 @@ router.patch('/requests/approve/:requestId', certify, async (req: Request, res: 
     }
 });
 
-router.patch('/requests/accept/:requestId', certify, async (req: Request, res: Response, next: NextFunction) => {
+router.patch('/requests/reject/:requestId', async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { authorization } = req.headers;
-        const acceptingUserId = jwt.decode(authorization, { json: true }).sub.split('|')[1];
         const request = await db.Request.findOne({
             where: { id: req.params.requestId },
-            attributes: ['id', 'requesteeUserId', 'type', 'accepted', 'approved', 'replace'],
-            include: [
-                {
-                    model: db.Task,
-                    as: 'task',
-                    attributes: ['id', 'userId'],
-                },
-            ],
+            attributes: ['id', 'requesteeUserId', 'type', 'accepted', 'approved'],
+            include: [{ model: db.Task, as: 'task', attributes: ['id', 'userId'] }],
         });
-        const { accepted, approved, task, id, type } = request || {};
-        const { userId } = await db.UserRole.findOne({ where: { id: task.userRoleId } });
+        const { accepted, approved } = request;
         const [message, status] = determineMessageStatus(request, accepted, approved);
         if (status === 202) {
-            type === 'requestAll'
-                ? await request.update({ id, accepted: true, requesteeUserId: acceptingUserId })
-                : await request.update({ id, accepted: true });
-            postNotification(id, userId, 'accepted', message, authorization);
+            await request.update({ id: request.id, rejected: true });
+            postNotification(request.id, request.task.userRoleId, 'cancelled', message, authorization);
+            return res.status(200).json(request);
         }
-        return status === 202 ? res.status(status).json(request) : res.status(status).send({ message });
+        return res.status(status).send(message);
     } catch (err) {
         next(err);
         return res.status(503).send({ message: 'Server error, try again later' });
     }
 });
+
 router.delete('/requests/:requestId', certify, async (req: Request, res: Response, next: NextFunction) => {
     try {
         const request = await db.Request.findOne({
