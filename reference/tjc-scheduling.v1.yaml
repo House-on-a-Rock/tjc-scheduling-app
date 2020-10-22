@@ -846,6 +846,226 @@ paths:
                   - userId
       operationId: patch-requests-reject-requestId
       description: 'End user decides to cancel or reject a request. '
+  /churches:
+    get:
+      summary: Get church by id
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: number
+                  name:
+                    type: string
+                  address:
+                    type: string
+                  description:
+                    type: string
+                  timezone:
+                    type: string
+                  createdAt:
+                    type: string
+                  updatedAt:
+                    type: string
+      operationId: get-churches
+      description: Get church by id
+    post:
+      summary: Make a new church
+      tags: []
+      responses: {}
+      operationId: post-churches
+      description: this will not be a public endpoint
+  /notifications:
+    post:
+      summary: create notifications
+      tags: []
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+              examples:
+                example-1:
+                  value:
+                    message: Notifications created'
+      operationId: post-notifications
+      description: 'Creates notifications, is currently dependent on requestId, but will not be in the future'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                requestId:
+                  type: number
+                notification:
+                  type: string
+  '/notifications/{userId}':
+    parameters:
+      - schema:
+          type: string
+        name: userId
+        in: path
+        required: true
+    get:
+      summary: Get all notifications for userId
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: number
+                    userId:
+                      type: number
+                    isRead:
+                      type: boolean
+                    createdAt:
+                      type: string
+                    updatedAt:
+                      type: string
+                    requestId:
+                      type: number
+                    taskId:
+                      type: number
+              examples:
+                example-1:
+                  value:
+                    - id: 0
+                      userId: 0
+                      isRead: true
+                      createdAt: string
+                      updatedAt: string
+                      requestId: 0
+                      taskId: 0
+      operationId: get-notifications-userId
+      description: Gets all notifications for a user
+  '/notifications/{notificationId}':
+    parameters:
+      - schema:
+          type: string
+        name: notificationId
+        in: path
+        required: true
+    patch:
+      summary: Update notification by notification id
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                description: ''
+                type: object
+                properties:
+                  id:
+                    type: number
+                  userId:
+                    type: number
+                  isRead:
+                    type: boolean
+                  createdAt:
+                    type: string
+                    minLength: 1
+                  updatedAt:
+                    type: string
+                    minLength: 1
+                  requestId:
+                    type: number
+                  taskId:
+                    type: number
+                required:
+                  - id
+                  - userId
+                  - isRead
+                  - createdAt
+                  - updatedAt
+                  - requestId
+                  - taskId
+      operationId: patch-notifications-notificationId
+      description: Updates notification by notification id
+    delete:
+      summary: Deletes notification by notification id
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+      operationId: delete-notifications-notificationId
+      description: Deletes notification by id
+  '/notifications/read-all/{userId}':
+    parameters:
+      - schema:
+          type: string
+        name: userId
+        in: path
+        required: true
+    patch:
+      summary: Updates all notification for user
+      tags: []
+      responses:
+        '200':
+          description: OK
+          headers: {}
+          content:
+            application/json:
+              schema:
+                type: array
+                description: ''
+                minItems: 1
+                uniqueItems: true
+                items:
+                  type: object
+                  required:
+                    - id
+                    - userId
+                    - isRead
+                    - createdAt
+                    - updatedAt
+                    - requestId
+                    - taskId
+                  properties:
+                    id:
+                      type: number
+                    userId:
+                      type: number
+                    isRead:
+                      type: boolean
+                    createdAt:
+                      type: string
+                      minLength: 1
+                    updatedAt:
+                      type: string
+                      minLength: 1
+                    requestId:
+                      type: number
+                    taskId:
+                      type: number
+      operationId: patch-notifications-read-all-userId
+      description: 'Sets all notification status  for specific user from isRead: false --> true'
 components:
   schemas: {}
   securitySchemes: {}
