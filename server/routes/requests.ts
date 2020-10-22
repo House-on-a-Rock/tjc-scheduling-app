@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 import express, { Request, Response, NextFunction } from 'express';
-import axios from 'axios';
+import axios, { AxiosResponse } from 'axios';
 import jwt from 'jsonwebtoken';
+import { UserInstance } from 'shared/SequelizeTypings/models';
 import { certify, determineLoginId } from '../utilities/helperFunctions';
 import db from '../index';
 
@@ -19,12 +20,15 @@ const determineMessageStatus: (arg1, arg2, arg3) => [string, number] = (request,
     }
 };
 
-const postNotification = (requestId, userId, notification, message, authorization) =>
+const postNotification = (requestId, userId, notification, message, authorization): Promise<AxiosResponse> =>
     axios.post(
         `${process.env.SECRET_IP}api/notifications`,
         { requestId, userId, notification, message },
         { headers: { authorization } },
     );
+
+const getUsersFromRole = (roleId, authorization): Promise<AxiosResponse> =>
+    axios.get(`${process.env.SECRET_IP}api/users?roleId=${roleId}`, { headers: authorization });
 
 router.get('/requests', certify, async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -68,27 +72,51 @@ router.get('/requests/:requestId', certify, async (req: Request, res: Response, 
 
 router.post('/requests', certify, async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { requesteeTaskId, requesterTaskId, message } = req.body;
+        // requester is the one asking others for a switch
+        // requestee are the ones being asked for a switch
+        // if type === requestOne, requesterTaskId === null
+        const { requesteeTaskId, requesterTaskId, message, type } = req.body;
         const { authorization } = req.headers;
 
-        const requesteeTask = await db.Task.findOne({ where: { id: requesteeTaskId } });
-        const { userId: requesteeUserId } = await db.UserRole.findOne({ where: { id: requesteeTask.userRoleId } });
-
+        // requester logic
         const requesterTask = await db.Task.findOne({ where: { id: requesterTaskId } });
-        const { userId: myUserId } = await db.UserRole.findOne({ where: { id: requesterTask.userRoleId } });
-
         if (!requesterTask) res.status(404).send({ message: 'Task not found' });
+        const { userId: myUserId, roleId } = await db.UserRole.findOne({ where: { id: requesterTask.userRoleId } });
         await requesterTask.update({ status: 'changeRequested' });
 
-        const request = await db.Request.create({
-            requesteeUserId,
-            message,
-            type: requesteeTaskId ? 'requestOne' : 'requestAll',
-            taskId: requesterTaskId,
-            replace: req.query.replace === 'true',
-            userId: determineLoginId(authorization),
-        });
-        postNotification(request.id, myUserId, 'created', message, authorization);
+        // requestee logic
+        let request;
+        if (type === 'requestOne') {
+            const requesteeTask = await db.Task.findOne({ where: { id: requesteeTaskId } });
+            const { userId: requesteeUserId } = await db.UserRole.findOne({ where: { id: requesteeTask.userRoleId } });
+
+            request = await db.Request.create({
+                requesteeUserId,
+                message,
+                type: 'requestOne',
+                taskId: requesterTaskId,
+                replace: req.query.replace === 'true',
+                userId: determineLoginId(authorization),
+            });
+            postNotification(request.id, myUserId, 'created', message, authorization);
+        }
+
+        if (type === 'requestAll') {
+            const { data: users } = await getUsersFromRole(roleId, authorization);
+            const requests = users.map((user: UserInstance) => {
+                return {
+                    requesteeUserId: user.id,
+                    message,
+                    type: 'requestAll',
+                    taskId: requesterTaskId,
+                    replace: req.query.replace === 'true',
+                    userId: determineLoginId(authorization),
+                };
+            });
+            request = await db.Request.bulkCreate(requests);
+            request.map(({ id }) => postNotification(id, myUserId, 'created', message, authorization));
+        }
+
         return res.status(201).json(request);
     } catch (err) {
         next(err);

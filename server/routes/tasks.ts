@@ -56,14 +56,13 @@ router.get('/tasks/:taskId', certify, async (req: Request, res: Response, next: 
 router.post('/tasks', certify, async (req: Request, res: Response, next: NextFunction) => {
     try {
         // req.body could have userId + roleId, or userRoleId
-        const { date, time, userRoleId, churchId } = req.body;
+        const { date, time, userRoleId, churchId, eventId } = req.body;
         const { timezone } = await db.Church.findOne({ where: { id: churchId } });
         const taskDate = setDate(date, time, timezone);
         const task = await db.Task.create({
-            date: new Date(taskDate.toString()),
-            // churchId,
-            // should be eventId
+            eventId,
             userRoleId,
+            date: new Date(taskDate.toString()),
         });
         return res.status(201).send(task);
     } catch (err) {
