@@ -58,12 +58,11 @@ export function sendGenericEmail(username, link) {
 export function sendVerEmail(username, headers, token, api): [string, number] {
     try {
         console.log('Sending email..');
-        let message;
-        if (api === 'confirmation') {
-            message = `A verification email has been sent to ${username}.`;
-        } else {
-            message = `A password recovery email has been sent to ${username}.`;
-        }
+        const message =
+            api === 'confirmation'
+                ? `A verification email has been sent to ${username}.`
+                : `A password recovery email has been sent to ${username}.`;
+
         const transporter = nodemailer.createTransport({
             service: 'Sendgrid',
             auth: {
@@ -73,13 +72,13 @@ export function sendVerEmail(username, headers, token, api): [string, number] {
         });
         // send confirmation email
         const mailOptions = {
-            from: 'alraneus@gmail.com',
+            from: 'shaun.tung@gmail.com',
             to: username,
             subject: 'Account Verification Token',
             text: `Hello,\n\n Please verify your account by clicking the link: \nhttp://${headers.host}/api/authentication/${api}?token=${token}`,
         };
         transporter.sendMail(mailOptions, function (err) {
-            return err ? console.log(err.message) : console.log('success');
+            return !err ? console.log('success') : console.log(err.message);
         });
         return [message, 201];
     } catch (err) {
