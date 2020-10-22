@@ -2,7 +2,7 @@ openapi: 3.0.0
 info:
   title: Services API
   version: '1.0'
-  description: ''
+  description: Api's for TJC scheduling services
 servers:
   - url: 'http://localhost:8080/api'
     description: local
@@ -228,7 +228,7 @@ paths:
                       role:
                         name: Any
       operationId: get-user-roles-userId
-      description: ''
+      description: Get's user's roles via userId
   /tasks:
     get:
       summary: Get Tasks
@@ -271,7 +271,7 @@ paths:
             type: number
           in: query
           name: roleId
-      description: 'Gets tasks dynamically depending on query params. '
+      description: Gets tasks dynamically depending on query params.
     post:
       summary: Post Tasks
       tags: []
@@ -329,6 +329,7 @@ paths:
                   time: '04:00:00+00'
                   userRoleId: 7
                   eventId: 1
+      description: 'Endpoint to create tasks '
   '/tasks/{taskId}':
     parameters:
       - schema:
@@ -665,7 +666,9 @@ paths:
     delete:
       summary: Delete request by id
       tags: []
-      responses: {}
+      responses:
+        '200':
+          description: OK
       operationId: delete-requests-requestId
       description: Delete request by id
   '/requests/accept/{requestId}':
@@ -877,7 +880,9 @@ paths:
     post:
       summary: Make a new church
       tags: []
-      responses: {}
+      responses:
+        '200':
+          description: OK
       operationId: post-churches
       description: this will not be a public endpoint
   /notifications:
@@ -1214,7 +1219,10 @@ paths:
             type: string
           in: query
           name: signature
-      description: ''
+      description: Validates token when user is trying to reset account
+      responses:
+        '200':
+          description: OK
   /authentication/resetPassword:
     post:
       summary: Reset password
@@ -1247,7 +1255,7 @@ paths:
                   value:
                     message: User does not exist or is not verified'
       operationId: post-authentication-resetPassword
-      description: ''
+      description: Endpoint that resets user password
       requestBody:
         content:
           application/json:
