@@ -1066,6 +1066,198 @@ paths:
                       type: number
       operationId: patch-notifications-read-all-userId
       description: 'Sets all notification status  for specific user from isRead: false --> true'
+  /authentication/confirmation:
+    get:
+      summary: Confirms user
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+              examples:
+                example-1:
+                  value:
+                    message: The account has been verified. Please log in.
+      operationId: get-authentication-confirmation
+      description: Gets confirmation that a user exists and the token is valid
+  /authentication/resendConfirm:
+    post:
+      summary: Sends another confirmation email
+      tags: []
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+              examples:
+                example-1:
+                  value:
+                    message: A verification email has been sent to Shaun.
+      operationId: post-authentication-resendConfirm
+      description: Checks for userId and creates a token that validates user session. Token is sent with email as part of a link to confirm and verify account.
+  /authentication/login:
+    post:
+      summary: Authenticate login
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user_id:
+                    type: number
+                  firstName:
+                    type: string
+                  lastName:
+                    type: string
+                  email:
+                    type: string
+                  access_token:
+                    type: string
+      operationId: post-authentication-login
+      description: Authenticate login.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+  /authenticate/confirmPassword:
+    post:
+      summary: Confirms Password
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  verify:
+                    type: boolean
+      operationId: post-authenticate-confirmPassword
+      description: Confirms password. Checks hashed password against submitted password.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+  /authenticate/sendResetEmail:
+    post:
+      summary: Sends an email to reset password
+      tags: []
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+              examples:
+                example-1:
+                  value:
+                    message: Recovery token created
+      operationId: post-authenticate-sendResetEmail
+      description: Checks for userId and creates a token that validates user session. Token is sent with the email. Email is sent with a link that links user to a page to allow for resetting of password.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+  /authentication/checkResetToken:
+    get:
+      summary: Checks reset account token
+      tags: []
+      operationId: get-authentication-checkResetToken
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: header
+        - schema:
+            type: string
+          in: query
+          name: payload
+        - schema:
+            type: string
+          in: query
+          name: signature
+      description: ''
+  /authentication/resetPassword:
+    post:
+      summary: Reset password
+      tags: []
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+              examples:
+                example-1:
+                  value:
+                    message: Password change success.
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+              examples:
+                example-1:
+                  value:
+                    message: User does not exist or is not verified'
+      operationId: post-authentication-resetPassword
+      description: ''
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                password:
+                  type: string
+                email:
+                  type: string
 components:
   schemas: {}
   securitySchemes: {}
