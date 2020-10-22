@@ -65,6 +65,8 @@ router.post('/notifications', certify, async (req: Request, res: Response, next:
     try {
         const loggedInId: number = determineLoginId(req.headers.authorization);
         const { requestId, notification } = req.body;
+
+        // will have to be edited, notification doesn't necessarily have to depend on request
         const request = await db.Request.findOne({
             where: { id: requestId },
             attributes: ['id', 'requesteeUserId', 'type', 'accepted', 'approved'],
@@ -181,9 +183,9 @@ router.delete('/notifications/:notificationId', certify, async (req: Request, re
             where: { id: req.params.notificationId },
             attributes: ['id', 'userId', 'createdAt', 'updatedAt', 'requestId'],
         });
-        if (!notification) return res.status(404).send({ message: 'Notification not found' });
-        await notification.destroy();
-        return res.status(200);
+        const [message, status] = notification ? ['', 200] : ['Notification not found', 404];
+        await notification?.destroy();
+        return res.status(status).send({ message });
     } catch (err) {
         next(err);
         return res.status(503).send({ message: 'Server error, try again later' });

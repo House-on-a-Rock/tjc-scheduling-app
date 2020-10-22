@@ -191,7 +191,7 @@ router.patch('/requests/reject/:requestId', async (req: Request, res: Response, 
             postNotification(request.id, request.task.userRoleId, 'cancelled', message, authorization);
             return res.status(200).json(request);
         }
-        return res.status(status).send(message);
+        return res.status(status).send({ message });
     } catch (err) {
         next(err);
         return res.status(503).send({ message: 'Server error, try again later' });

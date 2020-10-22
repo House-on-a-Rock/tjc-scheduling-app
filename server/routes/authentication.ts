@@ -16,10 +16,10 @@ const router = express.Router();
 
 module.exports = router;
 
-router.get('/confirmation', async ({ query }: Request, res: Response, next: NextFunction) => {
+router.get('/confirmation', async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { expiresIn, token, userId } = await db.Token.findOne({
-            where: { token: query.token.toString() },
+            where: { token: req.query.token.toString() },
             attributes: ['userId', 'token', 'expiresIn'],
         });
         const [current, expiration] = [Date.now(), new Date(expiresIn).getTime()];
@@ -30,12 +30,12 @@ router.get('/confirmation', async ({ query }: Request, res: Response, next: Next
                 case expiration <= current:
                     return ['Token expired', 401];
                 default:
-                    return ['The account has been verified. Please log in.', 201];
+                    return ['The account has been verified. Please log in.', 200];
             }
         };
         const [message, status] = determineMessageStatus();
 
-        if (status === 201) {
+        if (status === 200) {
             const user = await db.User.findOne({ where: { id: userId }, attributes: ['isVerified'] });
             await user.update({ id: userId, isVerified: true });
         }
