@@ -56,8 +56,8 @@ paths:
       summary: Create new user
       tags: []
       responses:
-        '200':
-          description: OK
+        '201':
+          description: Created
           content:
             application/json:
               schema:
@@ -127,7 +127,7 @@ paths:
                     expoPushToken: 'ExponentPushToken[-uuepvN27WLr5fHqJoK3y8]'
                     church: Philadelphia
       operationId: get-users-userId
-      description: gets user by id
+      description: Gets user by id
     delete:
       summary: Deletes user by id
       tags: []
@@ -276,8 +276,8 @@ paths:
       summary: Post Tasks
       tags: []
       responses:
-        '200':
-          description: OK
+        '201':
+          description: Created
           content:
             application/json:
               schema:
@@ -288,7 +288,7 @@ paths:
                   date:
                     type: string
                   status:
-                    type: boolean
+                    type: string
                   createdAt:
                     type: string
                   updatedAt:
@@ -297,6 +297,16 @@ paths:
                     type: number
                   userRoleId:
                     type: number
+              examples:
+                example-1:
+                  value:
+                    id: 0
+                    date: string
+                    status: active
+                    createdAt: '2020-10-14 20:43:56.908+00'
+                    updatedAt: '2020-10-14 20:43:56.908+00'
+                    eventId: 1
+                    userRoleId: 7
       operationId: post-tasks
       requestBody:
         content:
@@ -319,6 +329,523 @@ paths:
                   time: '04:00:00+00'
                   userRoleId: 7
                   eventId: 1
+  '/tasks/{taskId}':
+    parameters:
+      - schema:
+          type: string
+        name: taskId
+        in: path
+        required: true
+    get:
+      summary: Get task by id
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: number
+                  date:
+                    type: string
+                  status:
+                    type: string
+                  createdAt:
+                    type: string
+                  updatedAt:
+                    type: string
+                  eventId:
+                    type: number
+                  userRoleId:
+                    type: number
+              examples:
+                example-1:
+                  value:
+                    id: 1
+                    date: '2020-06-27 04:00:00+00'
+                    status: active
+                    createdAt: '2020-10-14 20:43:56.908+00'
+                    updatedAt: '2020-10-14 20:43:56.908+00'
+                    eventId: 1
+                    userRoleId: 7
+      operationId: get-tasks-taskId
+      description: Gets task by id
+    delete:
+      summary: Delete task by id
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+              examples:
+                example-1:
+                  value:
+                    message: Task deleted
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+              examples:
+                example-1:
+                  value:
+                    message: Task not found
+      operationId: delete-tasks-taskId
+      description: Delete task by id
+  '/tasks/switchTask/{targetTaskId}/switchWith/{switchTaskId}':
+    parameters:
+      - schema:
+          type: string
+        name: targetTaskId
+        in: path
+        required: true
+      - schema:
+          type: string
+        name: switchTaskId
+        in: path
+        required: true
+    patch:
+      summary: Switch tasks between users
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+              examples:
+                example-1:
+                  value:
+                    message: Task switch successful
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+              examples:
+                example-1:
+                  value:
+                    message: Task not found
+      operationId: patch-tasks-switchTask-targetTaskId-switchWith-switchTaskId
+      description: |-
+        Task 1 --> User 2
+        Task 2 --> User 1
+  '/tasks/replaceTask/{taskId}/replacedBy/{userRoleId}':
+    parameters:
+      - schema:
+          type: string
+        name: taskId
+        in: path
+        required: true
+      - schema:
+          type: string
+        name: userRoleId
+        in: path
+        required: true
+    patch:
+      summary: Update task to reflect replacement
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+              examples:
+                example-1:
+                  value:
+                    message: Task replacement successful
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+              examples:
+                example-1:
+                  value:
+                    message: Task not found
+      operationId: patch-tasks-replaceTask-taskId-replacedBy-userRoleId
+      description: |-
+        Task 1 --> User 2
+        No task for User 1
+  /requests:
+    get:
+      summary: Get Request
+      tags: []
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    requestId:
+                      type: number
+                    requesteeUserId:
+                      type: number
+                    type:
+                      type: string
+                    accepted:
+                      type: boolean
+                    approved:
+                      type: boolean
+                    createdAt:
+                      type: string
+                    taskId:
+                      type: number
+                    message:
+                      type: string
+                    replace:
+                      type: boolean
+              examples: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+              examples:
+                example-1:
+                  value:
+                    message: Swap requests not found
+      operationId: get-requests
+      description: Get request by id
+      parameters: []
+    post:
+      summary: Post Request
+      tags: []
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: number
+                    requesteeUserId:
+                      type: number
+                    type:
+                      type: string
+                    accepted:
+                      type: boolean
+                    approved:
+                      type: boolean
+                    message:
+                      type: string
+                    replace:
+                      type: boolean
+                    createdAt:
+                      type: string
+                    updatedAt:
+                      type: string
+                    taskId:
+                      type: number
+                    userId:
+                      type: number
+      operationId: post-requests
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                requesteeTaskId:
+                  type: number
+                requesterTaskId:
+                  type: number
+                message:
+                  type: string
+            examples:
+              example-1:
+                value:
+                  requesteeTaskId: 1
+                  requesterTaskId: 2
+                  message: Please switch with me
+      description: |-
+        Make requests to switch or replace task with people. The target audience can be singular, a range of people, or everyone depending on request body
+
+        // requester is the one asking others for a switch
+        // requestee are the ones being asked for a switch
+        // if type === requestOne, requesterTaskId === null
+  '/requests/{requestId}':
+    parameters:
+      - schema:
+          type: string
+        name: requestId
+        in: path
+        required: true
+    get:
+      summary: Get request by id
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: number
+                  requesteeUserId:
+                    type: number
+                  type:
+                    type: string
+                  accepted:
+                    type: boolean
+                  approved:
+                    type: boolean
+                  message:
+                    type: string
+                  replace:
+                    type: boolean
+                  createdAt:
+                    type: string
+                  updatedAt:
+                    type: string
+                  taskId:
+                    type: number
+                  userId:
+                    type: number
+              examples:
+                example-1:
+                  value:
+                    id: 0
+                    requesteeUserId: 0
+                    type: string
+                    accepted: true
+                    approved: true
+                    message: string
+                    replace: true
+                    createdAt: string
+                    updatedAt: string
+                    taskId: 0
+                    userId: 0
+      operationId: get-requests-requestId
+      description: Get request by id
+    delete:
+      summary: Delete request by id
+      tags: []
+      responses: {}
+      operationId: delete-requests-requestId
+      description: Delete request by id
+  '/requests/accept/{requestId}':
+    parameters:
+      - schema:
+          type: string
+        name: requestId
+        in: path
+        required: true
+    patch:
+      summary: Accept a request
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                description: ''
+                type: object
+                properties:
+                  id:
+                    type: number
+                  requesteeUserId:
+                    type: number
+                  type:
+                    type: string
+                    minLength: 1
+                  accepted:
+                    type: boolean
+                  approved:
+                    type: boolean
+                  message:
+                    type: string
+                    minLength: 1
+                  replace:
+                    type: boolean
+                  createdAt:
+                    type: string
+                    minLength: 1
+                  updatedAt:
+                    type: string
+                    minLength: 1
+                  taskId:
+                    type: number
+                  userId:
+                    type: number
+                required:
+                  - id
+                  - requesteeUserId
+                  - type
+                  - accepted
+                  - approved
+                  - message
+                  - replace
+                  - createdAt
+                  - updatedAt
+                  - taskId
+                  - userId
+              examples: {}
+      operationId: patch-requests-accept-requestId
+      description: 'Accessing this endpoint changes the request status of false to true, and creates a notification that updates all parties involved. '
+  '/requests/approve/{requestId}':
+    parameters:
+      - schema:
+          type: string
+        name: requestId
+        in: path
+        required: true
+    patch:
+      summary: Approve requests
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                description: ''
+                type: object
+                properties:
+                  id:
+                    type: number
+                  requesteeUserId:
+                    type: number
+                  type:
+                    type: string
+                    minLength: 1
+                  accepted:
+                    type: boolean
+                  approved:
+                    type: boolean
+                  message:
+                    type: string
+                    minLength: 1
+                  replace:
+                    type: boolean
+                  createdAt:
+                    type: string
+                    minLength: 1
+                  updatedAt:
+                    type: string
+                    minLength: 1
+                  taskId:
+                    type: number
+                  userId:
+                    type: number
+                required:
+                  - id
+                  - requesteeUserId
+                  - type
+                  - accepted
+                  - approved
+                  - message
+                  - replace
+                  - createdAt
+                  - updatedAt
+                  - taskId
+                  - userId
+      operationId: patch-requests-approve-requestId
+      description: Certain tasks requires church council approval to allow replacement or switching.
+  '/requests/reject/{requestId}':
+    parameters:
+      - schema:
+          type: string
+        name: requestId
+        in: path
+        required: true
+    patch:
+      summary: Reject request
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                description: ''
+                type: object
+                properties:
+                  id:
+                    type: number
+                  requesteeUserId:
+                    type: number
+                  type:
+                    type: string
+                    minLength: 1
+                  accepted:
+                    type: boolean
+                  approved:
+                    type: boolean
+                  message:
+                    type: string
+                    minLength: 1
+                  replace:
+                    type: boolean
+                  createdAt:
+                    type: string
+                    minLength: 1
+                  updatedAt:
+                    type: string
+                    minLength: 1
+                  taskId:
+                    type: number
+                  userId:
+                    type: number
+                required:
+                  - id
+                  - requesteeUserId
+                  - type
+                  - accepted
+                  - approved
+                  - message
+                  - replace
+                  - createdAt
+                  - updatedAt
+                  - taskId
+                  - userId
+      operationId: patch-requests-reject-requestId
+      description: 'End user decides to cancel or reject a request. '
 components:
   schemas: {}
   securitySchemes: {}
