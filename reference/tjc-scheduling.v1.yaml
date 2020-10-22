@@ -1,0 +1,1271 @@
+openapi: 3.0.0
+info:
+  title: Services API
+  version: '1.0'
+  description: Api's for TJC scheduling services
+servers:
+  - url: 'http://localhost:8080/api'
+    description: local
+paths:
+  /users:
+    get:
+      summary: Get all users
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    userId:
+                      type: number
+                    firstName:
+                      type: string
+                    lastName:
+                      type: string
+                    email:
+                      type: string
+                    churchId:
+                      type: number
+                    disabled:
+                      type: boolean
+                    church:
+                      type: string
+              examples:
+                example-1:
+                  value:
+                    - userId: 1
+                      firstName: Shaun
+                      lastName: Tung
+                      email: shaun.tung@gmail.com
+                      churchId: 2
+                      disabled: false
+                    - userId: 2
+                      firstName: Sun-Yu
+                      lastName: Yang
+                      email: sun-yu.yang@gmail.com
+                      churchId: 2
+                      disabled: false
+      operationId: get-users
+      description: 'Gets all users. If by roleId, finds all users for that role. If by churchId, finds all users in that church.'
+    post:
+      summary: Create new user
+      tags: []
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: number
+                  firstName:
+                    type: string
+                  lastName:
+                    type: string
+                  email:
+                    type: string
+                  disabled:
+                    type: boolean
+              examples:
+                example-1:
+                  value:
+                    userId: 2
+                    firstName: Sun-Yu
+                    lastName: Yang
+                    email: sun-yu.yang@gmail.com
+                    churchId: 2
+                    disabled: false
+      operationId: post-users
+      description: Creates user by id
+  '/users/{userId}':
+    parameters:
+      - schema:
+          type: string
+        name: userId
+        in: path
+        required: true
+    get:
+      summary: gets user by id
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  firstName:
+                    type: string
+                  lastname:
+                    type: string
+                  email:
+                    type: string
+                  id:
+                    type: number
+                  churchId:
+                    type: number
+                  expoPushToken:
+                    type: string
+                  church:
+                    type: string
+              examples:
+                example-1:
+                  value:
+                    id: 1
+                    firstName: Shaun
+                    lastName: Tung
+                    email: shaun.tung@gmail.com
+                    churchId: 2
+                    expoPushToken: 'ExponentPushToken[-uuepvN27WLr5fHqJoK3y8]'
+                    church: Philadelphia
+      operationId: get-users-userId
+      description: Gets user by id
+    delete:
+      summary: Deletes user by id
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+              examples:
+                example-1:
+                  value:
+                    message: ''
+      operationId: delete-users-userId
+      description: Deletes user by id
+  '/users/expoPushToken/{userId}':
+    parameters:
+      - schema:
+          type: string
+        name: userId
+        in: path
+        required: true
+    patch:
+      summary: Updates expo token
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+              examples:
+                example-1:
+                  value:
+                    message: Push Token updated
+      operationId: patch-users-expoPushToken-userId
+      description: updates expo token
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                pushToken:
+                  type: string
+            examples:
+              example-1:
+                value:
+                  pushToken: 'ExponentPushToken[-uuepvN27WLr5fHqJoK3y8]'
+  '/user-roles/{userId}':
+    parameters:
+      - schema:
+          type: string
+        name: userId
+        in: path
+        required: true
+    get:
+      summary: get user's roles
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    roleId:
+                      type: number
+                    role:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+              examples:
+                example-1:
+                  value:
+                    - roleId: 1
+                      role:
+                        name: Church Council
+                    - roleId: 2
+                      role:
+                        name: Hymn Leader
+                    - roleId: 3
+                      role:
+                        name: Pianist
+                    - roleId: 6
+                      role:
+                        name: Any
+      operationId: get-user-roles-userId
+      description: Get's user's roles via userId
+  /tasks:
+    get:
+      summary: Get Tasks
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: number
+                    date:
+                      type: string
+                    status:
+                      type: boolean
+                    createdAt:
+                      type: string
+                    updatedAt:
+                      type: string
+                    eventId:
+                      type: number
+                    userRoleId:
+                      type: number
+      operationId: get-tasks
+      parameters:
+        - schema:
+            type: number
+          in: query
+          name: userId
+        - schema:
+            type: number
+          in: query
+          name: churchId
+        - schema:
+            type: number
+          in: query
+          name: roleId
+      description: Gets tasks dynamically depending on query params.
+    post:
+      summary: Post Tasks
+      tags: []
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: number
+                  date:
+                    type: string
+                  status:
+                    type: string
+                  createdAt:
+                    type: string
+                  updatedAt:
+                    type: string
+                  eventId:
+                    type: number
+                  userRoleId:
+                    type: number
+              examples:
+                example-1:
+                  value:
+                    id: 0
+                    date: string
+                    status: active
+                    createdAt: '2020-10-14 20:43:56.908+00'
+                    updatedAt: '2020-10-14 20:43:56.908+00'
+                    eventId: 1
+                    userRoleId: 7
+      operationId: post-tasks
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                date:
+                  type: string
+                time:
+                  type: string
+                userRoleId:
+                  type: number
+                eventId:
+                  type: number
+            examples:
+              example-1:
+                value:
+                  date: '2020-06-27'
+                  time: '04:00:00+00'
+                  userRoleId: 7
+                  eventId: 1
+      description: 'Endpoint to create tasks '
+  '/tasks/{taskId}':
+    parameters:
+      - schema:
+          type: string
+        name: taskId
+        in: path
+        required: true
+    get:
+      summary: Get task by id
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: number
+                  date:
+                    type: string
+                  status:
+                    type: string
+                  createdAt:
+                    type: string
+                  updatedAt:
+                    type: string
+                  eventId:
+                    type: number
+                  userRoleId:
+                    type: number
+              examples:
+                example-1:
+                  value:
+                    id: 1
+                    date: '2020-06-27 04:00:00+00'
+                    status: active
+                    createdAt: '2020-10-14 20:43:56.908+00'
+                    updatedAt: '2020-10-14 20:43:56.908+00'
+                    eventId: 1
+                    userRoleId: 7
+      operationId: get-tasks-taskId
+      description: Gets task by id
+    delete:
+      summary: Delete task by id
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+              examples:
+                example-1:
+                  value:
+                    message: Task deleted
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+              examples:
+                example-1:
+                  value:
+                    message: Task not found
+      operationId: delete-tasks-taskId
+      description: Delete task by id
+  '/tasks/switchTask/{targetTaskId}/switchWith/{switchTaskId}':
+    parameters:
+      - schema:
+          type: string
+        name: targetTaskId
+        in: path
+        required: true
+      - schema:
+          type: string
+        name: switchTaskId
+        in: path
+        required: true
+    patch:
+      summary: Switch tasks between users
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+              examples:
+                example-1:
+                  value:
+                    message: Task switch successful
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+              examples:
+                example-1:
+                  value:
+                    message: Task not found
+      operationId: patch-tasks-switchTask-targetTaskId-switchWith-switchTaskId
+      description: |-
+        Task 1 --> User 2
+        Task 2 --> User 1
+  '/tasks/replaceTask/{taskId}/replacedBy/{userRoleId}':
+    parameters:
+      - schema:
+          type: string
+        name: taskId
+        in: path
+        required: true
+      - schema:
+          type: string
+        name: userRoleId
+        in: path
+        required: true
+    patch:
+      summary: Update task to reflect replacement
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+              examples:
+                example-1:
+                  value:
+                    message: Task replacement successful
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+              examples:
+                example-1:
+                  value:
+                    message: Task not found
+      operationId: patch-tasks-replaceTask-taskId-replacedBy-userRoleId
+      description: |-
+        Task 1 --> User 2
+        No task for User 1
+  /requests:
+    get:
+      summary: Get Request
+      tags: []
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    requestId:
+                      type: number
+                    requesteeUserId:
+                      type: number
+                    type:
+                      type: string
+                    accepted:
+                      type: boolean
+                    approved:
+                      type: boolean
+                    createdAt:
+                      type: string
+                    taskId:
+                      type: number
+                    message:
+                      type: string
+                    replace:
+                      type: boolean
+              examples: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+              examples:
+                example-1:
+                  value:
+                    message: Swap requests not found
+      operationId: get-requests
+      description: Get request by id
+      parameters: []
+    post:
+      summary: Post Request
+      tags: []
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: number
+                    requesteeUserId:
+                      type: number
+                    type:
+                      type: string
+                    accepted:
+                      type: boolean
+                    approved:
+                      type: boolean
+                    message:
+                      type: string
+                    replace:
+                      type: boolean
+                    createdAt:
+                      type: string
+                    updatedAt:
+                      type: string
+                    taskId:
+                      type: number
+                    userId:
+                      type: number
+      operationId: post-requests
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                requesteeTaskId:
+                  type: number
+                requesterTaskId:
+                  type: number
+                message:
+                  type: string
+            examples:
+              example-1:
+                value:
+                  requesteeTaskId: 1
+                  requesterTaskId: 2
+                  message: Please switch with me
+      description: |-
+        Make requests to switch or replace task with people. The target audience can be singular, a range of people, or everyone depending on request body
+
+        // requester is the one asking others for a switch
+        // requestee are the ones being asked for a switch
+        // if type === requestOne, requesterTaskId === null
+  '/requests/{requestId}':
+    parameters:
+      - schema:
+          type: string
+        name: requestId
+        in: path
+        required: true
+    get:
+      summary: Get request by id
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: number
+                  requesteeUserId:
+                    type: number
+                  type:
+                    type: string
+                  accepted:
+                    type: boolean
+                  approved:
+                    type: boolean
+                  message:
+                    type: string
+                  replace:
+                    type: boolean
+                  createdAt:
+                    type: string
+                  updatedAt:
+                    type: string
+                  taskId:
+                    type: number
+                  userId:
+                    type: number
+              examples:
+                example-1:
+                  value:
+                    id: 0
+                    requesteeUserId: 0
+                    type: string
+                    accepted: true
+                    approved: true
+                    message: string
+                    replace: true
+                    createdAt: string
+                    updatedAt: string
+                    taskId: 0
+                    userId: 0
+      operationId: get-requests-requestId
+      description: Get request by id
+    delete:
+      summary: Delete request by id
+      tags: []
+      responses:
+        '200':
+          description: OK
+      operationId: delete-requests-requestId
+      description: Delete request by id
+  '/requests/accept/{requestId}':
+    parameters:
+      - schema:
+          type: string
+        name: requestId
+        in: path
+        required: true
+    patch:
+      summary: Accept a request
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                description: ''
+                type: object
+                properties:
+                  id:
+                    type: number
+                  requesteeUserId:
+                    type: number
+                  type:
+                    type: string
+                    minLength: 1
+                  accepted:
+                    type: boolean
+                  approved:
+                    type: boolean
+                  message:
+                    type: string
+                    minLength: 1
+                  replace:
+                    type: boolean
+                  createdAt:
+                    type: string
+                    minLength: 1
+                  updatedAt:
+                    type: string
+                    minLength: 1
+                  taskId:
+                    type: number
+                  userId:
+                    type: number
+                required:
+                  - id
+                  - requesteeUserId
+                  - type
+                  - accepted
+                  - approved
+                  - message
+                  - replace
+                  - createdAt
+                  - updatedAt
+                  - taskId
+                  - userId
+              examples: {}
+      operationId: patch-requests-accept-requestId
+      description: 'Accessing this endpoint changes the request status of false to true, and creates a notification that updates all parties involved. '
+  '/requests/approve/{requestId}':
+    parameters:
+      - schema:
+          type: string
+        name: requestId
+        in: path
+        required: true
+    patch:
+      summary: Approve requests
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                description: ''
+                type: object
+                properties:
+                  id:
+                    type: number
+                  requesteeUserId:
+                    type: number
+                  type:
+                    type: string
+                    minLength: 1
+                  accepted:
+                    type: boolean
+                  approved:
+                    type: boolean
+                  message:
+                    type: string
+                    minLength: 1
+                  replace:
+                    type: boolean
+                  createdAt:
+                    type: string
+                    minLength: 1
+                  updatedAt:
+                    type: string
+                    minLength: 1
+                  taskId:
+                    type: number
+                  userId:
+                    type: number
+                required:
+                  - id
+                  - requesteeUserId
+                  - type
+                  - accepted
+                  - approved
+                  - message
+                  - replace
+                  - createdAt
+                  - updatedAt
+                  - taskId
+                  - userId
+      operationId: patch-requests-approve-requestId
+      description: Certain tasks requires church council approval to allow replacement or switching.
+  '/requests/reject/{requestId}':
+    parameters:
+      - schema:
+          type: string
+        name: requestId
+        in: path
+        required: true
+    patch:
+      summary: Reject request
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                description: ''
+                type: object
+                properties:
+                  id:
+                    type: number
+                  requesteeUserId:
+                    type: number
+                  type:
+                    type: string
+                    minLength: 1
+                  accepted:
+                    type: boolean
+                  approved:
+                    type: boolean
+                  message:
+                    type: string
+                    minLength: 1
+                  replace:
+                    type: boolean
+                  createdAt:
+                    type: string
+                    minLength: 1
+                  updatedAt:
+                    type: string
+                    minLength: 1
+                  taskId:
+                    type: number
+                  userId:
+                    type: number
+                required:
+                  - id
+                  - requesteeUserId
+                  - type
+                  - accepted
+                  - approved
+                  - message
+                  - replace
+                  - createdAt
+                  - updatedAt
+                  - taskId
+                  - userId
+      operationId: patch-requests-reject-requestId
+      description: 'End user decides to cancel or reject a request. '
+  /churches:
+    get:
+      summary: Get church by id
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: number
+                  name:
+                    type: string
+                  address:
+                    type: string
+                  description:
+                    type: string
+                  timezone:
+                    type: string
+                  createdAt:
+                    type: string
+                  updatedAt:
+                    type: string
+      operationId: get-churches
+      description: Get church by id
+    post:
+      summary: Make a new church
+      tags: []
+      responses:
+        '200':
+          description: OK
+      operationId: post-churches
+      description: this will not be a public endpoint
+  /notifications:
+    post:
+      summary: create notifications
+      tags: []
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+              examples:
+                example-1:
+                  value:
+                    message: Notifications created'
+      operationId: post-notifications
+      description: 'Creates notifications, is currently dependent on requestId, but will not be in the future'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                requestId:
+                  type: number
+                notification:
+                  type: string
+  '/notifications/{userId}':
+    parameters:
+      - schema:
+          type: string
+        name: userId
+        in: path
+        required: true
+    get:
+      summary: Get all notifications for userId
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: number
+                    userId:
+                      type: number
+                    isRead:
+                      type: boolean
+                    createdAt:
+                      type: string
+                    updatedAt:
+                      type: string
+                    requestId:
+                      type: number
+                    taskId:
+                      type: number
+              examples:
+                example-1:
+                  value:
+                    - id: 0
+                      userId: 0
+                      isRead: true
+                      createdAt: string
+                      updatedAt: string
+                      requestId: 0
+                      taskId: 0
+      operationId: get-notifications-userId
+      description: Gets all notifications for a user
+  '/notifications/{notificationId}':
+    parameters:
+      - schema:
+          type: string
+        name: notificationId
+        in: path
+        required: true
+    patch:
+      summary: Update notification by notification id
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                description: ''
+                type: object
+                properties:
+                  id:
+                    type: number
+                  userId:
+                    type: number
+                  isRead:
+                    type: boolean
+                  createdAt:
+                    type: string
+                    minLength: 1
+                  updatedAt:
+                    type: string
+                    minLength: 1
+                  requestId:
+                    type: number
+                  taskId:
+                    type: number
+                required:
+                  - id
+                  - userId
+                  - isRead
+                  - createdAt
+                  - updatedAt
+                  - requestId
+                  - taskId
+      operationId: patch-notifications-notificationId
+      description: Updates notification by notification id
+    delete:
+      summary: Deletes notification by notification id
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+      operationId: delete-notifications-notificationId
+      description: Deletes notification by id
+  '/notifications/read-all/{userId}':
+    parameters:
+      - schema:
+          type: string
+        name: userId
+        in: path
+        required: true
+    patch:
+      summary: Updates all notification for user
+      tags: []
+      responses:
+        '200':
+          description: OK
+          headers: {}
+          content:
+            application/json:
+              schema:
+                type: array
+                description: ''
+                minItems: 1
+                uniqueItems: true
+                items:
+                  type: object
+                  required:
+                    - id
+                    - userId
+                    - isRead
+                    - createdAt
+                    - updatedAt
+                    - requestId
+                    - taskId
+                  properties:
+                    id:
+                      type: number
+                    userId:
+                      type: number
+                    isRead:
+                      type: boolean
+                    createdAt:
+                      type: string
+                      minLength: 1
+                    updatedAt:
+                      type: string
+                      minLength: 1
+                    requestId:
+                      type: number
+                    taskId:
+                      type: number
+      operationId: patch-notifications-read-all-userId
+      description: 'Sets all notification status  for specific user from isRead: false --> true'
+  /authentication/confirmation:
+    get:
+      summary: Confirms user
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+              examples:
+                example-1:
+                  value:
+                    message: The account has been verified. Please log in.
+      operationId: get-authentication-confirmation
+      description: Gets confirmation that a user exists and the token is valid
+  /authentication/resendConfirm:
+    post:
+      summary: Sends another confirmation email
+      tags: []
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+              examples:
+                example-1:
+                  value:
+                    message: A verification email has been sent to Shaun.
+      operationId: post-authentication-resendConfirm
+      description: Checks for userId and creates a token that validates user session. Token is sent with email as part of a link to confirm and verify account.
+  /authentication/login:
+    post:
+      summary: Authenticate login
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user_id:
+                    type: number
+                  firstName:
+                    type: string
+                  lastName:
+                    type: string
+                  email:
+                    type: string
+                  access_token:
+                    type: string
+      operationId: post-authentication-login
+      description: Authenticate login.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+  /authenticate/confirmPassword:
+    post:
+      summary: Confirms Password
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  verify:
+                    type: boolean
+      operationId: post-authenticate-confirmPassword
+      description: Confirms password. Checks hashed password against submitted password.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+  /authenticate/sendResetEmail:
+    post:
+      summary: Sends an email to reset password
+      tags: []
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+              examples:
+                example-1:
+                  value:
+                    message: Recovery token created
+      operationId: post-authenticate-sendResetEmail
+      description: Checks for userId and creates a token that validates user session. Token is sent with the email. Email is sent with a link that links user to a page to allow for resetting of password.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+  /authentication/checkResetToken:
+    get:
+      summary: Checks reset account token
+      tags: []
+      operationId: get-authentication-checkResetToken
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: header
+        - schema:
+            type: string
+          in: query
+          name: payload
+        - schema:
+            type: string
+          in: query
+          name: signature
+      description: Validates token when user is trying to reset account
+      responses:
+        '200':
+          description: OK
+  /authentication/resetPassword:
+    post:
+      summary: Reset password
+      tags: []
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+              examples:
+                example-1:
+                  value:
+                    message: Password change success.
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+              examples:
+                example-1:
+                  value:
+                    message: User does not exist or is not verified'
+      operationId: post-authentication-resetPassword
+      description: Endpoint that resets user password
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                password:
+                  type: string
+                email:
+                  type: string
+components:
+  schemas: {}
+  securitySchemes: {}
