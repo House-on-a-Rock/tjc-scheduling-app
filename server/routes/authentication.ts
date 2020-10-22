@@ -193,13 +193,9 @@ router.post('/sendResetEmail', async (req: Request, res: Response, next: NextFun
                 email,
                 `http://localhost:8080/api/authentication/checkResetToken?header=${tokenHeader}&payload=${tokenPayload}&signature=${tokenSignature}`,
             );
-            return res.status(200).send({
-                message: 'Recovery token created',
-                email,
-                token: token,
-            });
+            return res.status(201).send({ message: 'Recovery token created' });
         }
-        return res.status(204);
+        return res.status(404).send({ message: 'User is not found' });
     } catch (err) {
         next(err);
         return res.status(503).send({ message: 'Server error, try again later' });
@@ -209,9 +205,7 @@ router.post('/sendResetEmail', async (req: Request, res: Response, next: NextFun
 router.get('/checkResetToken', async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { header, payload, signature } = req.query;
-        const decodedToken = jwt.decode(`${header}.${payload}.${signature}`, {
-            json: true,
-        });
+        const decodedToken = jwt.decode(`${header}.${payload}.${signature}`, { json: true });
         const requestId = decodedToken.sub.split('|')[1];
         const { password } = await db.User.findOne({
             where: { id: parseInt(requestId, 10) },
@@ -229,12 +223,10 @@ router.get('/checkResetToken', async (req: Request, res: Response, next: NextFun
         // const message = querystring.stringify({message:"TokenExpired", status:401})
         // : res.redirect(`http://localhost:8081/auth/expiredAccess?message=${message}`)
     } catch (err) {
-        if (err instanceof TokenExpiredError) {
+        if (err instanceof TokenExpiredError)
             return res.redirect(`http://localhost:8081/auth/expiredAccess?message=TokenExpired&status=401`);
-        }
-        if (err instanceof JsonWebTokenError) {
-            return res.status(400).send({ message: 'No token found' });
-        }
+
+        if (err instanceof JsonWebTokenError) return res.status(400).send({ message: 'No token found' });
         next(err);
         return res.status(503).send({ message: 'Server error, try again later' });
     }
