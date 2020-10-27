@@ -3,7 +3,7 @@ import Sequelize from 'sequelize';
 import crypto from 'crypto';
 import { UserInstance } from 'shared/SequelizeTypings/models';
 import db from '../index';
-import { certify, determineLoginId, sendVerEmail, validateEmail } from '../utilities/helperFunctions';
+import { certify, sendVerEmail, validateEmail } from '../utilities/helperFunctions';
 
 const router = express.Router();
 const { Op } = Sequelize;
@@ -24,25 +24,13 @@ router.get('/users', certify, async (req: Request, res: Response, next) => {
             const userIds = userRoles.map((userRole) => userRole.userId);
             searchArray.push({ id: userIds });
         }
-        const searchParams = {
-            [Op.and]: searchArray,
-            [Op.not]: { id: determineLoginId(req.headers.authorization) },
-        };
-        const users: UserInstance[] = await db.User.findAll({
+        const searchParams = { [Op.and]: searchArray };
+        const users = await db.User.findAll({
             where: searchParams,
             attributes: [['id', 'userId'], 'firstName', 'lastName', 'email', 'churchId', 'disabled'],
-            include: [
-                {
-                    model: db.Church,
-                    as: 'church',
-                    attributes: ['name', 'id'],
-                },
-            ],
         });
-        const allUsers = users.map((user) => {
-            return { ...user, church: user.church.name, churchId: user.church.id };
-        });
-        return users.length > 0 ? res.status(200).json(allUsers) : res.status(404).send({ message: 'Users not found' });
+
+        return users.length > 0 ? res.status(200).json(users) : res.status(404).send({ message: 'Users not found' });
     } catch (err) {
         next(err);
         return res.status(503).send({ message: 'Server error, try again later' });
@@ -92,7 +80,7 @@ router.post('/users', certify, async (req: Request, res: Response, next) => {
                 isVerified: false,
                 disabled: false,
             }));
-        const addedUser: UserInstance =
+        const addedUser =
             id &&
             (await db.User.findOne({
                 where: { id },
