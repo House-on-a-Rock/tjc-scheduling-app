@@ -81,6 +81,7 @@ const UserFactory = (
         }
     };
 
+    User.beforeBulkCreate((users: UserInstance[]) => users.map((user) => createSaltyPassword(user)));
     User.beforeCreate(createSaltyPassword);
     User.beforeUpdate(createSaltyPassword);
 

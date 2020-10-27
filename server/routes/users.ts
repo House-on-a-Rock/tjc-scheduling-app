@@ -17,7 +17,7 @@ router.get('/users', certify, async (req: Request, res: Response, next) => {
         if (churchId) searchArray.push({ churchId });
         if (roleId) {
             const userRoles = await db.UserRole.findAll({
-                where: { roleId },
+                where: { roleId: roleId.toString() },
                 attributes: ['userId'],
             });
             if (userRoles.length === 0) return res.status(404).send({ message: 'No users found with that role id' });
@@ -35,11 +35,14 @@ router.get('/users', certify, async (req: Request, res: Response, next) => {
                 {
                     model: db.Church,
                     as: 'church',
-                    attributes: ['name', ['id', 'churchId']],
+                    attributes: ['name', 'id'],
                 },
             ],
         });
-        return users.length > 0 ? res.status(200).json(users) : res.status(404).send({ message: 'Users not found' });
+        const allUsers = users.map((user) => {
+            return { ...user, church: user.church.name, churchId: user.church.id };
+        });
+        return users.length > 0 ? res.status(200).json(allUsers) : res.status(404).send({ message: 'Users not found' });
     } catch (err) {
         next(err);
         return res.status(503).send({ message: 'Server error, try again later' });
@@ -62,7 +65,8 @@ router.get('/users/:userId', certify, async (req, res, next) => {
                 },
             ],
         });
-        return user ? res.status(200).json(user) : res.status(404).send({ message: 'User not found' });
+        const refactoredUser = { ...user, church: user.church.name };
+        return user ? res.status(200).json(refactoredUser) : res.status(404).send({ message: 'User not found' });
     } catch (err) {
         next(err);
         return res.status(503).send({ message: 'Server error, try again later' });
@@ -73,12 +77,12 @@ router.post('/users', certify, async (req: Request, res: Response, next) => {
     try {
         const { email, firstName, lastName, password, churchId } = req.body;
         const token = crypto.randomBytes(16).toString('hex');
-        const user = await db.User.findOne({
+        const userExists: UserInstance = await db.User.findOne({
             where: { email },
             attributes: ['id', 'email'],
         });
-        const { id } =
-            !user &&
+        const { id }: UserInstance =
+            !userExists &&
             (await db.User.create({
                 firstName,
                 lastName,
@@ -88,7 +92,7 @@ router.post('/users', certify, async (req: Request, res: Response, next) => {
                 isVerified: false,
                 disabled: false,
             }));
-        const addedUser =
+        const addedUser: UserInstance =
             id &&
             (await db.User.findOne({
                 where: { id },
@@ -108,17 +112,18 @@ router.post('/users', certify, async (req: Request, res: Response, next) => {
             switch (true) {
                 case !validateEmail(email):
                     return ['Invalid email', 406];
-                case !!user:
+                case !!userExists:
                     return ['User already exists', 409];
-                case !user:
+                case !userExists:
                     sendVerEmail(email, req.headers, token, 'confirmation');
                     return ['', 200];
                 default:
                     return ['', 400];
             }
         };
+        const newUser = { ...addedUser, church: addedUser.church.name };
         const [message, status] = determineMessageStatus();
-        return status === 200 ? res.status(status).json(addedUser) : res.status(status).send({ message });
+        return status === 200 ? res.status(status).json(newUser) : res.status(status).send({ message });
     } catch (err) {
         next(err);
         return res.status(503).send({ message: 'Server error, try again later' });

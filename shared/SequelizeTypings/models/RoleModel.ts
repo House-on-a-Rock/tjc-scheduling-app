@@ -1,11 +1,9 @@
 import * as Sequelize from 'sequelize';
+import { CommonSequelizeAttributes } from '.';
 import { UserAttributes } from './UserModel';
 
-export interface RoleAttributes {
-    id?: number;
+export interface RoleAttributes extends CommonSequelizeAttributes {
     name: string;
-    createdAt?: Date;
-    updatedAt?: Date;
     churchId?: number;
     member?: UserAttributes[] | UserAttributes['id'];
 }

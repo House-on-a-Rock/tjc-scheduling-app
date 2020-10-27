@@ -1,13 +1,11 @@
 import * as Sequelize from 'sequelize';
+import { CommonSequelizeAttributes } from '.';
 
-export interface ChurchAttributes {
-    id?: number;
+export interface ChurchAttributes extends CommonSequelizeAttributes {
     name: string;
     address: string;
     description: string;
     timezone: string;
-    createdAt?: Date;
-    updatedAt?: Date;
 }
 
 export interface ChurchInstance extends Sequelize.Instance<ChurchAttributes>, ChurchAttributes {}

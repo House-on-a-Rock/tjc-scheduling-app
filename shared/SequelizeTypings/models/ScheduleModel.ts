@@ -1,12 +1,14 @@
 import * as Sequelize from 'sequelize';
+import { CommonSequelizeAttributes } from '.';
 
 type ViewType = 'weekly' | 'monthly'; //
 
-export interface ScheduleAttributes {
-    id?: number;
+export interface ScheduleAttributes extends CommonSequelizeAttributes {
     title: string;
     view: ViewType;
-    timespan: string;
+    start: Date;
+    end: Date;
+    // timespan: string;
 }
 
 export interface ScheduleInstance extends Sequelize.Instance<ScheduleAttributes>, ScheduleAttributes {}

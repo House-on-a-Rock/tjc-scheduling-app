@@ -16,10 +16,10 @@ const router = express.Router();
 
 module.exports = router;
 
-router.get('/confirmation', async ({ query }: Request, res: Response, next: NextFunction) => {
+router.get('/confirmation', async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { expiresIn, token, userId } = await db.Token.findOne({
-            where: { token: query.token.toString() },
+            where: { token: req.query.token.toString() },
             attributes: ['userId', 'token', 'expiresIn'],
         });
         const [current, expiration] = [Date.now(), new Date(expiresIn).getTime()];
@@ -30,12 +30,12 @@ router.get('/confirmation', async ({ query }: Request, res: Response, next: Next
                 case expiration <= current:
                     return ['Token expired', 401];
                 default:
-                    return ['The account has been verified. Please log in.', 201];
+                    return ['The account has been verified. Please log in.', 200];
             }
         };
         const [message, status] = determineMessageStatus();
 
-        if (status === 201) {
+        if (status === 200) {
             const user = await db.User.findOne({ where: { id: userId }, attributes: ['isVerified'] });
             await user.update({ id: userId, isVerified: true });
         }
@@ -98,6 +98,8 @@ router.post('/login', async (req: Request, res: Response, next: NextFunction) =>
             }
         };
         const [message, status] = determineMessageStatus();
+
+        if (status > 299) return res.status(status).send({ message });
         if (hashedLoginPassword !== password) {
             const updatedAttempts =
                 loginAttempts === 3
@@ -109,8 +111,6 @@ router.post('/login', async (req: Request, res: Response, next: NextFunction) =>
                     : { id, loginAttempts: loginAttempts + 1 };
             await user.update(updatedAttempts);
         }
-
-        if (status > 299) return res.status(status).send({ message });
 
         // if login is successful, reset login attempt information
         await user.update({ id, loginAttempts: 0, loginTimeout: null });
@@ -193,13 +193,9 @@ router.post('/sendResetEmail', async (req: Request, res: Response, next: NextFun
                 email,
                 `http://localhost:8080/api/authentication/checkResetToken?header=${tokenHeader}&payload=${tokenPayload}&signature=${tokenSignature}`,
             );
-            return res.status(200).send({
-                message: 'Recovery token created',
-                email,
-                token: token,
-            });
+            return res.status(201).send({ message: 'Recovery token created' });
         }
-        return res.status(200);
+        return res.status(404).send({ message: 'User is not found' });
     } catch (err) {
         next(err);
         return res.status(503).send({ message: 'Server error, try again later' });
@@ -209,9 +205,7 @@ router.post('/sendResetEmail', async (req: Request, res: Response, next: NextFun
 router.get('/checkResetToken', async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { header, payload, signature } = req.query;
-        const decodedToken = jwt.decode(`${header}.${payload}.${signature}`, {
-            json: true,
-        });
+        const decodedToken = jwt.decode(`${header}.${payload}.${signature}`, { json: true });
         const requestId = decodedToken.sub.split('|')[1];
         const { password } = await db.User.findOne({
             where: { id: parseInt(requestId, 10) },
@@ -229,12 +223,10 @@ router.get('/checkResetToken', async (req: Request, res: Response, next: NextFun
         // const message = querystring.stringify({message:"TokenExpired", status:401})
         // : res.redirect(`http://localhost:8081/auth/expiredAccess?message=${message}`)
     } catch (err) {
-        if (err instanceof TokenExpiredError) {
+        if (err instanceof TokenExpiredError)
             return res.redirect(`http://localhost:8081/auth/expiredAccess?message=TokenExpired&status=401`);
-        }
-        if (err instanceof JsonWebTokenError) {
-            return res.status(400).send({ message: 'No token found' });
-        }
+
+        if (err instanceof JsonWebTokenError) return res.status(400).send({ message: 'No token found' });
         next(err);
         return res.status(503).send({ message: 'Server error, try again later' });
     }
@@ -253,7 +245,6 @@ router.post('/resetPassword', async (req: Request, res: Response, next: NextFunc
         jwt.verify(authorization, password);
 
         const [message, status] =
-            // eslint-disable-next-line no-nested-ternary
             userEmail !== queryEmail
                 ? ['Invalid Request', 401]
                 : isVerified
