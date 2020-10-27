@@ -28,7 +28,7 @@ router.get('/users', certify, async (req: Request, res: Response, next) => {
             [Op.and]: searchArray,
             [Op.not]: { id: determineLoginId(req.headers.authorization) },
         };
-        const users: UserInstance[] = await db.User.findAll({
+        const users = await db.User.findAll({
             where: searchParams,
             attributes: [['id', 'userId'], 'firstName', 'lastName', 'email', 'churchId', 'disabled'],
             include: [
@@ -39,8 +39,25 @@ router.get('/users', certify, async (req: Request, res: Response, next) => {
                 },
             ],
         });
-        const allUsers = users.map((user) => {
-            return { ...user, church: user.church.name, churchId: user.church.id };
+        const firstUser = users[0];
+        console.log(
+            Object.keys(firstUser),
+            firstUser.firstName,
+            firstUser.lastName,
+            firstUser.email,
+            firstUser.churchId,
+            firstUser.disabled,
+            firstUser.church.name,
+        );
+        const allUsers = users.map(({ firstName, lastName, email, churchId: userChurchId, disabled, church }) => {
+            return {
+                firstName,
+                lastName,
+                email,
+                churchId: userChurchId,
+                disabled,
+                church: church.name,
+            };
         });
         return users.length > 0 ? res.status(200).json(allUsers) : res.status(404).send({ message: 'Users not found' });
     } catch (err) {
@@ -92,7 +109,7 @@ router.post('/users', certify, async (req: Request, res: Response, next) => {
                 isVerified: false,
                 disabled: false,
             }));
-        const addedUser: UserInstance =
+        const addedUser =
             id &&
             (await db.User.findOne({
                 where: { id },

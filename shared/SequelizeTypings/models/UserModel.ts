@@ -1,4 +1,5 @@
 import * as Sequelize from 'sequelize';
+import { ChurchAttributes } from './ChurchModel';
 import { CommonSequelizeAttributes } from './index';
 
 export interface UserAttributes extends CommonSequelizeAttributes {
@@ -13,6 +14,7 @@ export interface UserAttributes extends CommonSequelizeAttributes {
     churchId?: number;
     disabled: boolean;
     expoPushToken?: string;
+    church?: ChurchAttributes;
 }
 
 export interface UserInstance extends Sequelize.Instance<UserAttributes>, UserAttributes {}
