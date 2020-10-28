@@ -28,6 +28,13 @@ router.get('/users', certify, async (req: Request, res: Response, next) => {
         const users = await db.User.findAll({
             where: searchParams,
             attributes: [['id', 'userId'], 'firstName', 'lastName', 'email', 'churchId', 'disabled'],
+            include: [
+                {
+                    model: db.Church,
+                    as: 'church',
+                    attributes: ['name'],
+                },
+            ],
         });
 
         return users.length > 0 ? res.status(200).json(users) : res.status(404).send({ message: 'Users not found' });
@@ -53,8 +60,7 @@ router.get('/users/:userId', certify, async (req, res, next) => {
                 },
             ],
         });
-        const refactoredUser = { ...user, church: user.church.name };
-        return user ? res.status(200).json(refactoredUser) : res.status(404).send({ message: 'User not found' });
+        return user ? res.status(200).json(user) : res.status(404).send({ message: 'User not found' });
     } catch (err) {
         next(err);
         return res.status(503).send({ message: 'Server error, try again later' });
