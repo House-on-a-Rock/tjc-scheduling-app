@@ -36,6 +36,7 @@ app.use('/api', require('./routes/tasks'));
 app.use('/api', require('./routes/requests'));
 app.use('/api', require('./routes/user-roles'));
 app.use('/api', require('./routes/notifications'));
+app.use('/api', require('./routes/schedules'));
 
 app.use((req, res, next) => {
     const error = new Error('Not Found');

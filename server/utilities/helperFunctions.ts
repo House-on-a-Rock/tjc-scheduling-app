@@ -97,7 +97,7 @@ export function createToken(tokenType, userId, expiresInMinutes) {
         {
             iss: process.env.AUDIENCE,
             sub: `tjc-scheduling|${userId}`,
-            exp: Math.floor(Date.now() / 1000) + expiresInMinutes * 60,
+            exp: Math.floor(Date.now() / 1000) + expiresInMinutes * 60 * 60,
             type: tokenType,
         },
         {
@@ -133,7 +133,7 @@ export function setDate(date: string, time: string, timeZone: string) {
 export function hashPassword(password: string, salt: string) {
     return crypto.createHash(process.env.SECRET_HASH).update(password).update(salt).digest('hex');
 }
-export function makeMyNotificationMessage(notification: string, type: string, firstName: string) {
+export function makeMyNotificationMessage(notification: string, type: string, firstName: string): string {
     switch (notification) {
         case 'accepted':
             return `Your requested has been accepted by ${firstName}`;
@@ -151,4 +151,43 @@ export function makeMyNotificationMessage(notification: string, type: string, fi
 export function determineLoginId(auth) {
     const decodedToken = jwt.decode(auth, { json: true });
     return parseInt(decodedToken.sub.split('|')[1], 10);
+}
+
+export function timeToMilliSeconds(time: string) {
+    const [hourMin, period] = time.split(' ');
+    const [hour, min] = hourMin.split(':');
+    const convertedHour = hour === '12' ? 3600000 : 3600000 * parseInt(hour, 10);
+    const convertedMin = 60000 * parseInt(min, 10);
+    const convertedPeriod = period === 'AM' ? 0 : 43200000;
+
+    return convertedHour + convertedMin + convertedPeriod;
+}
+
+export function isInTime(target: string, start: string, end: string): boolean {
+    const targetTime = timeToMilliSeconds(target);
+    const startTime = timeToMilliSeconds(start);
+    const endTime = timeToMilliSeconds(end);
+    return startTime <= targetTime && targetTime <= endTime;
+}
+
+export function isTimeBefore(comparing: string, target: string): boolean {
+    const targetTime = timeToMilliSeconds(target);
+    const comparingTime = timeToMilliSeconds(comparing);
+    return comparingTime < targetTime;
+}
+
+// Recursively checks if the order is correct by checking from last element to first.
+// eslint-disable-next-line consistent-return
+export function correctOrder(arr, lastIdx, target, type) {
+    if (lastIdx === -1) {
+        arr.unshift(target);
+        return arr;
+    }
+    const condition =
+        type === 'order' ? target.order < arr[lastIdx].order : !isTimeBefore(arr[lastIdx].time, target.time);
+    if (!condition) {
+        arr.splice(lastIdx + 1, 0, target);
+        return arr;
+    }
+    if (condition) return correctOrder(arr, lastIdx - 1, target, type);
 }
