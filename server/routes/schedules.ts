@@ -37,21 +37,21 @@ router.get('/schedules', certify, async (req: Request, res: Response, next: Next
                             "start": "10:15 AM",
                             "end": "12:30 PM",
                             "events": [],
+                            "day": "Saturday"
                         }, ...
                     */
                     const services = dividers.map(({ id, name, order, start: dividerStart, end: dividerEnd }) => {
-                        return { id, name, order, start: dividerStart, end: dividerEnd, events: [] };
+                        return { id, name, order, start: dividerStart, end: dividerEnd, events: [], day: '' };
                     });
-
                     const events = await db.Event.findAll({ where: { scheduleId } });
 
                     await Promise.all(
-                        events.map(async ({ id, day, order, time: eventTime, title }) => {
+                        events.map(async ({ id, day: eventDay, order, time: eventTime, title }) => {
                             const tasks = await db.Task.findAll({
                                 where: { eventId: id },
                                 include: [{ model: db.UserRole, as: 'userRole' }],
                             });
-                            // TasksData is a complete version of tasks (requirese assignee)
+                            // TasksData is a complete version of tasks (requires assignee)
                             const tasksData = await Promise.all(
                                 tasks.map(async ({ date, userRole, status }) => {
                                     const { firstName, lastName } = await db.User.findOne({
@@ -61,42 +61,50 @@ router.get('/schedules', certify, async (req: Request, res: Response, next: Next
                                 }),
                             );
                             // Compares the task's time (given by event) and attaches into services template
-                            services.map(({ start, end, events: serviceEvents }) => {
-                                // If eventTime is between scheduleStart and scheduleEnd, then it belongs in this current service
+                            services.map((service) => {
+                                const { start, end, events: serviceEvents } = service;
                                 if (isInTime(eventTime, start, end)) {
+                                    // Event belongs to service
+                                    if (!service.day) service.day = eventDay;
+
+                                    // If eventTime is between scheduleStart and scheduleEnd, then it belongs in this current service
                                     const allEventTimes = serviceEvents.map(({ time }) => time);
                                     // Consolidate tasks by time similar to memoizing
                                     // AllEventTimes records the times available
                                     if (!allEventTimes.includes(eventTime)) {
                                         // If memo doens't contain time, add a new time, but time isn't always right...
-                                        const newData = {
+                                        const newEvents = {
                                             time: eventTime,
-                                            day,
                                             duties: [{ tasks: tasksData, order, title }],
                                         };
-                                        serviceEvents = correctOrder(
+                                        service.events = correctOrder(
                                             serviceEvents,
                                             serviceEvents.length - 1,
-                                            newData,
+                                            newEvents,
                                             'time',
                                         );
                                     }
                                     // If memo does contain time, update with new duties
                                     else
                                         serviceEvents.map(({ time, duties }) => {
-                                            const newData = { tasks: tasksData, order, title };
+                                            const newDuties = { tasks: tasksData, order, title };
                                             if (time === eventTime) {
                                                 // Order isn't always right..
                                                 if (duties[duties.length - 1].order > order)
-                                                    duties = correctOrder(duties, duties.length - 1, newData, 'order');
-                                                else duties.push(newData);
+                                                    duties = correctOrder(
+                                                        duties,
+                                                        duties.length - 1,
+                                                        newDuties,
+                                                        'order',
+                                                    );
+                                                else duties.push(newDuties);
                                             }
                                         });
                                 }
                             });
                         }),
                     );
-                    return { services, title: scheduleTitle, view, scheduleStart, scheduleEnd };
+                    return { services, title: scheduleTitle, view, start: scheduleStart, end: scheduleEnd };
                 },
             ),
         );
