@@ -191,3 +191,83 @@ export function correctOrder(arr, lastIdx, target, type) {
     }
     if (condition) return correctOrder(arr, lastIdx - 1, target, type);
 }
+
+const dayIndex = {
+    Sunday: 0,
+    Monday: 1,
+    Tuesday: 2,
+    Wednesday: 3,
+    Thursday: 4,
+    Friday: 5,
+    Saturday: 6,
+};
+
+const zeroPaddingDates = (monthIdx: number, dayIdx: number): string => {
+    let month = (monthIdx + 1).toString();
+    let day = dayIdx.toString();
+
+    month = month.length > 1 ? month : `0${month}`;
+    day = day.length > 1 ? day : `0${day}`;
+
+    return `${month}/${day}`;
+};
+
+export const contrivedDate = (date: string | Date) => {
+    const jsDate = new Date(date);
+    const monthIdx = jsDate.getMonth();
+    const dayIdx = jsDate.getDate();
+    return zeroPaddingDates(monthIdx, dayIdx);
+};
+
+const readableDate = (unreadableDate: Date) =>
+    `${unreadableDate.getMonth() + 1}/${unreadableDate.getDate()}/${unreadableDate.getFullYear()}`;
+
+const incrementDay = (date: Date) => new Date(date.setDate(date.getDate() + 1));
+
+function determineStartDate(startDate: string, day: number) {
+    let current = incrementDay(new Date(startDate));
+    while (current.getDay() !== day) current = incrementDay(current);
+    return current;
+}
+
+export function columnizedDates(everyRepeatingDay: string[]) {
+    return everyRepeatingDay.map((date: string) => {
+        const jsDate = new Date(date);
+        const monthIdx = jsDate.getMonth();
+        const dayIdx = jsDate.getDate();
+        return {
+            Header: zeroPaddingDates(monthIdx, dayIdx),
+            accessor: zeroPaddingDates(monthIdx, dayIdx),
+        };
+    });
+}
+
+export function everyRepeatingDayBetweenTwoDates(startDate: string, endDate: string, day: string) {
+    const everyRepeatingDay = [];
+    let start = new Date(startDate);
+
+    if (start.getDay() !== dayIndex[day]) start = determineStartDate(startDate, dayIndex[day]);
+
+    let current = new Date(start);
+    const end = new Date(endDate);
+
+    while (current <= end) {
+        everyRepeatingDay.push(readableDate(current));
+        current = new Date(current.setDate(current.getDate() + 7));
+    }
+    return everyRepeatingDay;
+}
+
+export function createColumns(start: any, end: any, day: any) {
+    return [
+        {
+            Header: 'Time',
+            accessor: 'time',
+        },
+        {
+            Header: 'Duty',
+            accessor: 'duty',
+        },
+        ...columnizedDates(everyRepeatingDayBetweenTwoDates(start, end, day)),
+    ];
+}

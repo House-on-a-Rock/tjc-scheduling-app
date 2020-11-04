@@ -1,4 +1,4 @@
-export const dividers = [
+export const services = [
     {
         name: 'Morning Service',
         start: '10:15 AM',

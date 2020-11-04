@@ -131,27 +131,27 @@ function makeNewUserRoles(events) {
 
 function dataToData(schedules) {
     const scheduleArr = [];
-    const dividerArr = [];
+    const serviceArr = [];
     const eventArr = [];
     const taskArr = [];
     // console.log(userRoles);
     schedules.map((schedule, scheduleId) => {
-        const { view, dividers, events } = schedule;
+        const { view, services, events } = schedule;
         const scheduleObj = { churchId: 2 };
         scheduleObj.title = schedule.title;
         scheduleObj.view = view;
         scheduleObj.start = schedule.start;
         scheduleObj.end = schedule.end;
         scheduleArr.push(scheduleObj);
-        dividers.map((divider) => {
-            if (divider.name !== 'Specific' || divider.name !== 'Specific') {
-                const dividerObj = { scheduleId: 1 };
-                dividerObj.name = divider.name;
-                dividerObj.day = divider.day;
-                dividerObj.start = divider.start;
-                dividerObj.end = divider.end;
-                dividerObj.order = divider.order;
-                dividerArr.push(dividerObj);
+        services.map((service) => {
+            if (service.name !== 'Specific' || service.name !== 'Specific') {
+                const serviceObj = { scheduleId: 1 };
+                serviceObj.name = service.name;
+                serviceObj.day = service.day;
+                serviceObj.start = service.start;
+                serviceObj.end = service.end;
+                serviceObj.order = service.order;
+                serviceArr.push(serviceObj);
             }
         });
         const userRoles = makeNewUserRoles(events);

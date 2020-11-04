@@ -1,6 +1,6 @@
 /* eslint-disable no-plusplus */
 /* eslint-disable no-await-in-loop */
-import { churches, notifications, roles, tasks, dividers, users, userRoles, schedules, events } from './database';
+import { churches, notifications, roles, tasks, services, users, userRoles, schedules, events } from './database';
 
 const { green, red, blue } = require('chalk');
 const createModels = require('../server/db/models').default;
@@ -22,7 +22,7 @@ async function seed() {
 
     const seedChurches = await db.Church.bulkCreate(churches);
     const seedSchedules = await db.Schedule.bulkCreate(schedules);
-    const seedDividers = await db.Divider.bulkCreate(dividers);
+    const seedServices = await db.Service.bulkCreate(services);
 
     const seedUsers = await db.User.bulkCreate(users);
     const seedRoles = await db.Role.bulkCreate(roles);
@@ -33,7 +33,7 @@ async function seed() {
 
     console.log(blue(`seeded ${seedChurches.length} churches`));
     console.log(blue(`seeded ${seedSchedules.length} schedules`));
-    console.log(blue(`seeded ${seedDividers.length} dividers`));
+    console.log(blue(`seeded ${seedServices.length} services`));
     console.log(blue(`seeded ${seedUsers.length} users`));
     console.log(blue(`seeded ${seedRoles.length} roles`));
     console.log(blue(`seeded ${seedEvents.length} events`));

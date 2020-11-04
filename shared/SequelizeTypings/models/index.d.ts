@@ -5,7 +5,7 @@ export * from './RequestModel';
 export * from './RoleModel';
 export * from './ScheduleModel';
 export * from './TaskModel';
-export * from './DividerModel';
+export * from './ServiceModel';
 export * from './TokenModel';
 export * from './UserModel';
 export * from './UserRoleModel';

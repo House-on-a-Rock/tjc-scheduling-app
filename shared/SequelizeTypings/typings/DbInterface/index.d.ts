@@ -14,8 +14,8 @@ import {
     ScheduleAttributes,
     TaskAttributes,
     TaskInstance,
-    DividerInstance,
-    DividerAttributes,
+    ServiceInstance,
+    ServiceAttributes,
     TokenAttributes,
     TokenInstance,
     UserAttributes,
@@ -34,7 +34,7 @@ export interface DbInterface {
     Role: Sequelize.Model<RoleInstance, RoleAttributes>;
     Schedule: Sequelize.Model<ScheduleInstance, ScheduleAttributes>;
     Task: Sequelize.Model<TaskInstance, TaskAttributes>;
-    Divider: Sequelize.Model<DividerInstance, DividerAttributes>;
+    Service: Sequelize.Model<ServiceInstance, ServiceAttributes>;
     Token: Sequelize.Model<TokenInstance, TokenAttributes>;
     User: Sequelize.Model<UserInstance, UserAttributes>;
     UserRole: Sequelize.Model<UserRoleInstance, UserRoleAttributes>;

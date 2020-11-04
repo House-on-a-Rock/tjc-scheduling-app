@@ -10,9 +10,7 @@ const app: express.Application = express();
 app.use(
     session({
         secret: 't-rex',
-        cookie: {
-            maxAge: 7 * 24 * 60 * 60 * 1000,
-        },
+        cookie: { maxAge: 7 * 24 * 60 * 60 * 1000 },
         resave: false,
         saveUninitialized: true,
     }),
@@ -24,9 +22,7 @@ app.use(cors());
 
 app.get('/', (req: any, res) => {
     const msg = 'Welcome to this API. ';
-    res.status(200).send({
-        message: msg,
-    });
+    res.status(200).send({ message: msg });
 });
 
 app.use('/api', require('./routes'));

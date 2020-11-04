@@ -3,7 +3,7 @@
 import express, { Request, Response, NextFunction } from 'express';
 import Sequelize from 'sequelize';
 import db from '../index';
-import { certify, correctOrder, isInTime } from '../utilities/helperFunctions';
+import { certify, contrivedDate, createColumns, isInTime } from '../utilities/helperFunctions';
 
 const router = express.Router();
 const { Op } = Sequelize;
@@ -12,99 +12,65 @@ module.exports = router;
 
 router.get('/schedules', certify, async (req: Request, res: Response, next: NextFunction) => {
     try {
-        // query dependent on date
         const { churchId } = req.query;
-
         const schedules = await db.Schedule.findAll({ where: { churchId } });
-        // Schedule is the overarching model of all tasks/events/services
-        // Schedule includes all services that a user wants displayed on one page (schedule)
-
-        // Uses Schedule id to find associated dividers
         const searchArray = await Promise.all(schedules.map((schedule) => schedule.id));
         const searchParams = { [Op.and]: searchArray };
-        const dividers = await db.Divider.findAll({ where: searchParams });
-        // While all tasks fall under the Schedule umbrella, it can be further organized into servcies (ex. Morning service, Afternoon service, Friday service)
-        // Dividers serve to divide the tasks into appropriate services
+        const servicesData = await db.Service.findAll({ where: searchParams });
 
         const schedulesData = await Promise.all(
             schedules.map(
                 async ({ id: scheduleId, title: scheduleTitle, view, start: scheduleStart, end: scheduleEnd }) => {
-                    /* Services is the template for how the schedule should look
-                        {
-                            "id": 1,
-                            "name": "Morning Service",
-                            "order": 1,
-                            "start": "10:15 AM",
-                            "end": "12:30 PM",
-                            "events": [],
-                            "day": "Saturday"
-                        }, ...
-                    */
-                    const services = dividers.map(({ id, name, order, start: dividerStart, end: dividerEnd }) => {
-                        return { id, name, order, start: dividerStart, end: dividerEnd, events: [], day: '' };
-                    });
-                    const events = await db.Event.findAll({ where: { scheduleId } });
+                    const eventsData = await db.Event.findAll({ where: { scheduleId } });
+                    const services = await Promise.all(
+                        servicesData.map(async (service) => {
+                            const { name, start: startofService, end: endOfService, day: dayOfService } = service;
+                            const columns = createColumns(scheduleStart, scheduleEnd, dayOfService);
 
-                    await Promise.all(
-                        events.map(async ({ id, day: eventDay, order, time: eventTime, title }) => {
-                            const tasks = await db.Task.findAll({
-                                where: { eventId: id },
-                                include: [{ model: db.UserRole, as: 'userRole' }],
-                            });
-                            // TasksData is a complete version of tasks (requires assignee)
-                            const tasksData = await Promise.all(
-                                tasks.map(async ({ date, userRole, status }) => {
-                                    const { firstName, lastName } = await db.User.findOne({
-                                        where: { id: userRole.userId },
-                                    });
-                                    return { date, assignee: { firstName, lastName }, status };
+                            const returnData = [];
+
+                            await Promise.all(
+                                eventsData.map(async (event) => {
+                                    const { day, order, time, title, roleId, id } = event;
+                                    if (isInTime(time, startofService, endOfService) && day === dayOfService) {
+                                        const tasks = await db.Task.findAll({
+                                            where: { eventId: id },
+                                            include: [{ model: db.UserRole, as: 'userRole' }],
+                                        });
+                                        const role = await db.Role.findOne({
+                                            where: { id: roleId },
+                                            attributes: ['id', 'name'],
+                                        });
+                                        const tasksData = await Promise.all(
+                                            tasks.map(async ({ date, userRole }) => {
+                                                const { firstName, lastName, id: userId } = await db.User.findOne({
+                                                    where: { id: userRole.userId },
+                                                });
+                                                return {
+                                                    [contrivedDate(date)]: {
+                                                        data: { firstName, lastName, userId, role },
+                                                    },
+                                                };
+                                            }),
+                                        );
+
+                                        // need to add typescript types to these data structures
+                                        const serviceData: any = { duty: { data: { display: title } } };
+                                        if (order === 1) serviceData.time = { data: { display: time } };
+                                        tasksData.map((task) => {
+                                            const key = Object.keys(task)[0];
+                                            const value = Object.values(task)[0];
+                                            serviceData[key] = value;
+                                        });
+                                        returnData.push(serviceData);
+                                    }
                                 }),
                             );
-                            // Compares the task's time (given by event) and attaches into services template
-                            services.map((service) => {
-                                const { start, end, events: serviceEvents } = service;
-                                if (isInTime(eventTime, start, end)) {
-                                    // Event belongs to service
-                                    if (!service.day) service.day = eventDay;
 
-                                    // If eventTime is between scheduleStart and scheduleEnd, then it belongs in this current service
-                                    const allEventTimes = serviceEvents.map(({ time }) => time);
-                                    // Consolidate tasks by time similar to memoizing
-                                    // AllEventTimes records the times available
-                                    if (!allEventTimes.includes(eventTime)) {
-                                        // If memo doens't contain time, add a new time, but time isn't always right...
-                                        const newEvents = {
-                                            time: eventTime,
-                                            duties: [{ tasks: tasksData, order, title }],
-                                        };
-                                        service.events = correctOrder(
-                                            serviceEvents,
-                                            serviceEvents.length - 1,
-                                            newEvents,
-                                            'time',
-                                        );
-                                    }
-                                    // If memo does contain time, update with new duties
-                                    else
-                                        serviceEvents.map(({ time, duties }) => {
-                                            const newDuties = { tasks: tasksData, order, title };
-                                            if (time === eventTime) {
-                                                // Order isn't always right..
-                                                if (duties[duties.length - 1].order > order)
-                                                    duties = correctOrder(
-                                                        duties,
-                                                        duties.length - 1,
-                                                        newDuties,
-                                                        'order',
-                                                    );
-                                                else duties.push(newDuties);
-                                            }
-                                        });
-                                }
-                            });
+                            return { name, day: dayOfService, columns, data: returnData };
                         }),
                     );
-                    return { services, title: scheduleTitle, view, start: scheduleStart, end: scheduleEnd };
+                    return { services, title: scheduleTitle, view };
                 },
             ),
         );
