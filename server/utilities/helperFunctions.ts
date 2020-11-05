@@ -177,7 +177,6 @@ export function isTimeBefore(comparing: string, target: string): boolean {
 }
 
 // Recursively checks if the order is correct by checking from last element to first.
-// eslint-disable-next-line consistent-return
 export function correctOrder(arr, lastIdx, target, type) {
     if (lastIdx === -1) {
         arr.unshift(target);
@@ -189,7 +188,7 @@ export function correctOrder(arr, lastIdx, target, type) {
         arr.splice(lastIdx + 1, 0, target);
         return arr;
     }
-    if (condition) return correctOrder(arr, lastIdx - 1, target, type);
+    return correctOrder(arr, lastIdx - 1, target, type);
 }
 
 const dayIndex = {

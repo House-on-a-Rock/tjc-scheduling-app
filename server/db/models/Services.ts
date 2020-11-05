@@ -9,7 +9,7 @@ const ServiceFactory = (
     const attributes: SequelizeAttributes<ServiceAttributes> = {
         name: {
             type: DataTypes.STRING,
-            allowNull: true,
+            allowNull: false,
         },
         order: { type: DataTypes.INTEGER },
         start: { type: DataTypes.STRING },

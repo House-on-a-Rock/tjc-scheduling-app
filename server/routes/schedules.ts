@@ -24,7 +24,7 @@ router.get('/schedules', certify, async (req: Request, res: Response, next: Next
                     const eventsData = await db.Event.findAll({ where: { scheduleId } });
                     const services = await Promise.all(
                         servicesData.map(async (service) => {
-                            const { name, start: startofService, end: endOfService, day: dayOfService } = service;
+                            const { name, start: startOfService, end: endOfService, day: dayOfService } = service;
                             const columns = createColumns(scheduleStart, scheduleEnd, dayOfService);
 
                             const returnData = [];
@@ -32,7 +32,7 @@ router.get('/schedules', certify, async (req: Request, res: Response, next: Next
                             await Promise.all(
                                 eventsData.map(async (event) => {
                                     const { day, order, time, title, roleId, id } = event;
-                                    if (isInTime(time, startofService, endOfService) && day === dayOfService) {
+                                    if (isInTime(time, startOfService, endOfService) && day === dayOfService) {
                                         const tasks = await db.Task.findAll({
                                             where: { eventId: id },
                                             include: [{ model: db.UserRole, as: 'userRole' }],
@@ -46,20 +46,18 @@ router.get('/schedules', certify, async (req: Request, res: Response, next: Next
                                                 const { firstName, lastName, id: userId } = await db.User.findOne({
                                                     where: { id: userRole.userId },
                                                 });
-                                                return {
-                                                    [contrivedDate(date)]: {
-                                                        data: { firstName, lastName, userId, role },
-                                                    },
-                                                };
+                                                return { date, firstName, lastName, userId, role };
                                             }),
                                         );
 
                                         // need to add typescript types to these data structures
                                         const serviceData: any = { duty: { data: { display: title } } };
                                         if (order === 1) serviceData.time = { data: { display: time } };
-                                        tasksData.map((task) => {
-                                            const key = Object.keys(task)[0];
-                                            const value = Object.values(task)[0];
+                                        tasksData.map(({ date, firstName, lastName, userId, role: taskRole }) => {
+                                            const key = contrivedDate(date);
+                                            const value = {
+                                                data: { firstName, lastName, userId, role: taskRole },
+                                            };
                                             serviceData[key] = value;
                                         });
                                         returnData.push(serviceData);
