@@ -156,7 +156,7 @@ export function determineLoginId(auth) {
 export function timeToMilliSeconds(time: string) {
     const [hourMin, period] = time.split(' ');
     const [hour, min] = hourMin.split(':');
-    const convertedHour = hour === '12' ? 3600000 : 3600000 * parseInt(hour, 10);
+    const convertedHour = hour === '12' ? 0 : 3600000 * parseInt(hour, 10);
     const convertedMin = 60000 * parseInt(min, 10);
     const convertedPeriod = period === 'AM' ? 0 : 43200000;
 
