@@ -97,7 +97,7 @@ export function createToken(tokenType, userId, expiresInMinutes) {
         {
             iss: process.env.AUDIENCE,
             sub: `tjc-scheduling|${userId}`,
-            exp: Math.floor(Date.now() / 1000) + expiresInMinutes * 60,
+            exp: Math.floor(Date.now() / 1000) + expiresInMinutes * 60 * 60,
             type: tokenType,
         },
         {
@@ -133,7 +133,7 @@ export function setDate(date: string, time: string, timeZone: string) {
 export function hashPassword(password: string, salt: string) {
     return crypto.createHash(process.env.SECRET_HASH).update(password).update(salt).digest('hex');
 }
-export function makeMyNotificationMessage(notification: string, type: string, firstName: string) {
+export function makeMyNotificationMessage(notification: string, type: string, firstName: string): string {
     switch (notification) {
         case 'accepted':
             return `Your requested has been accepted by ${firstName}`;
@@ -151,4 +151,122 @@ export function makeMyNotificationMessage(notification: string, type: string, fi
 export function determineLoginId(auth) {
     const decodedToken = jwt.decode(auth, { json: true });
     return parseInt(decodedToken.sub.split('|')[1], 10);
+}
+
+export function timeToMilliSeconds(time: string) {
+    const [hourMin, period] = time.split(' ');
+    const [hour, min] = hourMin.split(':');
+    const convertedHour = hour === '12' ? 3600000 : 3600000 * parseInt(hour, 10);
+    const convertedMin = 60000 * parseInt(min, 10);
+    const convertedPeriod = period === 'AM' ? 0 : 43200000;
+
+    return convertedHour + convertedMin + convertedPeriod;
+}
+
+export function isInTime(target: string, start: string, end: string): boolean {
+    const targetTime = timeToMilliSeconds(target);
+    const startTime = timeToMilliSeconds(start);
+    const endTime = timeToMilliSeconds(end);
+    return startTime <= targetTime && targetTime <= endTime;
+}
+
+export function isTimeBefore(comparing: string, target: string): boolean {
+    const targetTime = timeToMilliSeconds(target);
+    const comparingTime = timeToMilliSeconds(comparing);
+    return comparingTime < targetTime;
+}
+
+// Recursively checks if the order is correct by checking from last element to first.
+export function correctOrder(arr, lastIdx, target, type) {
+    if (lastIdx === -1) {
+        arr.unshift(target);
+        return arr;
+    }
+    const condition =
+        type === 'order' ? target.order < arr[lastIdx].order : !isTimeBefore(arr[lastIdx].time, target.time);
+    if (!condition) {
+        arr.splice(lastIdx + 1, 0, target);
+        return arr;
+    }
+    return correctOrder(arr, lastIdx - 1, target, type);
+}
+
+const dayIndex = {
+    Sunday: 0,
+    Monday: 1,
+    Tuesday: 2,
+    Wednesday: 3,
+    Thursday: 4,
+    Friday: 5,
+    Saturday: 6,
+};
+
+const zeroPaddingDates = (monthIdx: number, dayIdx: number): string => {
+    let month = (monthIdx + 1).toString();
+    let day = dayIdx.toString();
+
+    month = month.length > 1 ? month : `0${month}`;
+    day = day.length > 1 ? day : `0${day}`;
+
+    return `${month}/${day}`;
+};
+
+export const contrivedDate = (date: string | Date) => {
+    const jsDate = new Date(date);
+    const monthIdx = jsDate.getMonth();
+    const dayIdx = jsDate.getDate();
+    return zeroPaddingDates(monthIdx, dayIdx);
+};
+
+const readableDate = (unreadableDate: Date) =>
+    `${unreadableDate.getMonth() + 1}/${unreadableDate.getDate()}/${unreadableDate.getFullYear()}`;
+
+const incrementDay = (date: Date) => new Date(date.setDate(date.getDate() + 1));
+
+function determineStartDate(startDate: string, day: number) {
+    let current = incrementDay(new Date(startDate));
+    while (current.getDay() !== day) current = incrementDay(current);
+    return current;
+}
+
+export function columnizedDates(everyRepeatingDay: string[]) {
+    return everyRepeatingDay.map((date: string) => {
+        const jsDate = new Date(date);
+        const monthIdx = jsDate.getMonth();
+        const dayIdx = jsDate.getDate();
+        return {
+            Header: zeroPaddingDates(monthIdx, dayIdx),
+            accessor: zeroPaddingDates(monthIdx, dayIdx),
+        };
+    });
+}
+
+export function everyRepeatingDayBetweenTwoDates(startDate: string, endDate: string, day: string) {
+    const everyRepeatingDay = [];
+    let start = new Date(startDate);
+
+    if (start.getDay() !== dayIndex[day]) start = determineStartDate(startDate, dayIndex[day]);
+
+    let current = new Date(start);
+    const end = new Date(endDate);
+
+    while (current <= end) {
+        everyRepeatingDay.push(readableDate(current));
+        current = new Date(current.setDate(current.getDate() + 7));
+    }
+    return everyRepeatingDay;
+}
+
+export function createColumns(start: any, end: any, day: any) {
+    return [
+        {
+            Header: 'Time',
+            accessor: 'time',
+        },
+        {
+            Header: 'Duty',
+            accessor: 'duty',
+        },
+        ...columnizedDates(everyRepeatingDayBetweenTwoDates(start, end, day)),
+    ];
 }

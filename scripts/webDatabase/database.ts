@@ -4,7 +4,7 @@ export const SCHEDULE = [
         view: 'weekly', // 'weekly' | 'monthly'  // leave to the front end
         start: '2020/06/26',
         end: '2020/09/19',
-        dividers: [
+        services: [
             {
                 name: 'Morning Service',
                 day: 'Saturday',
@@ -410,7 +410,7 @@ export const SCHEDULE = [
     //     view: 'monthly',
     //     start: '2020/09/19',
     //     end: '2020/09/19',
-    //     dividers: [{ name: null, day: 'Saturday', start: '11:00 AM', end: '1:30 PM' }],
+    //     services: [{ name: null, day: 'Saturday', start: '11:00 AM', end: '1:30 PM' }],
     //     events: [
     //         {
     //             title: 'E1 Teacher',

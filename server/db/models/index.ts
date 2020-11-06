@@ -7,7 +7,7 @@ import RoleFactory from './Role';
 import NotificationFactory from './Notification';
 import ScheduleFactory from './Schedule';
 import TaskFactory from './Task';
-import DividerFactory from './Divider';
+import ServiceFactory from './Services';
 import UserFactory from './User';
 import UserRoleFactory from './User_Role';
 import TokenFactory from './Token';
@@ -25,7 +25,7 @@ const createModels = (database, username, password, config): DbInterface => {
         Role: RoleFactory(sequelize, Sequelize),
         Schedule: ScheduleFactory(sequelize, Sequelize),
         Task: TaskFactory(sequelize, Sequelize),
-        Divider: DividerFactory(sequelize, Sequelize),
+        Service: ServiceFactory(sequelize, Sequelize),
         Token: TokenFactory(sequelize, Sequelize),
         User: UserFactory(sequelize, Sequelize),
         UserRole: UserRoleFactory(sequelize, Sequelize),

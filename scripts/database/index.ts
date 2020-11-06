@@ -4,6 +4,6 @@ export * from './roles';
 export * from './events';
 export * from './schedules';
 export * from './tasks';
-export * from './dividers';
+export * from './services';
 export * from './users';
 export * from './userRoles';
