@@ -21,6 +21,7 @@ const ServiceFactory = (
 
     Service.associate = (models) => {
         Service.belongsTo(models.Schedule, { as: 'schedule', foreignKey: 'scheduleId' });
+        // Service.hasMany(models.Event);
     };
 
     return Service;
