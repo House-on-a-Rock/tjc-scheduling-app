@@ -1,12 +1,12 @@
 /* eslint-disable consistent-return */
 /* eslint-disable array-callback-return */
 import express, { Request, Response, NextFunction } from 'express';
-import Sequelize from 'sequelize';
+// import Sequelize from 'sequelize';
 import db from '../index';
-import { certify, contrivedDate, createColumns, isInTime } from '../utilities/helperFunctions';
+import { certify, contrivedDate, createColumns } from '../utilities/helperFunctions';
 
 const router = express.Router();
-const { Op } = Sequelize;
+// const { Op } = Sequelize;
 
 module.exports = router;
 
@@ -22,12 +22,12 @@ router.get('/schedules', certify, async (req: Request, res: Response, next: Next
                     services.map(async (service) => {
                         const events = await db.Event.findAll({ where: { serviceId: service.id } });
                         const columns = createColumns(schedule.start, schedule.end, service.day);
-
                         const data = await Promise.all(
-                            events.map(async (event, index) => {
-                                const { day, order, time, title, roleId, id } = event;
+                            events.map(async (event) => {
+                                const { time, title, roleId, displayTime, id: eventId } = event;
+
                                 const tasks = await db.Task.findAll({
-                                    where: { eventId: event.id },
+                                    where: { eventId },
                                     include: [{ model: db.UserRole, as: 'userRole' }],
                                 });
                                 const role = await db.Role.findOne({
@@ -44,8 +44,8 @@ router.get('/schedules', certify, async (req: Request, res: Response, next: Next
                                 );
                                 const serviceData: any = { duty: { data: { display: title } } };
 
-                                // if (order === 1)
-                                serviceData.time = { data: { display: time } };
+                                if (displayTime) serviceData.time = { data: { display: time } };
+
                                 tasksData.map((task) => {
                                     const { date, firstName, lastName, userId, role: taskRole } = task;
                                     const key = contrivedDate(date);
@@ -58,7 +58,7 @@ router.get('/schedules', certify, async (req: Request, res: Response, next: Next
                             }),
                         );
 
-                        return { columns: columns, name: service.name, day: service.day, data: data }; //needs data
+                        return { columns: columns, name: service.name, day: service.day, data: data };
                     }),
                 );
                 return { services: sData, title: schedule.title, view: schedule.view };

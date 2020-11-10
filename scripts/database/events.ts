@@ -6,6 +6,7 @@ export const events = [
         title: 'Usher',
         time: '10:15 AM',
         order: 1,
+        displayTime: true,
     },
     {
         serviceId: 1,
@@ -14,6 +15,7 @@ export const events = [
         title: 'Hymn Leading',
         time: '10:45 AM',
         order: 2,
+        displayTime: true,
     },
     {
         serviceId: 1,
@@ -22,6 +24,7 @@ export const events = [
         title: 'Piano',
         time: '10:45 AM',
         order: 3,
+        displayTime: false,
     },
     {
         serviceId: 1,
@@ -30,6 +33,7 @@ export const events = [
         title: 'Sermon Speaker',
         time: '11:00 AM',
         order: 4,
+        displayTime: true,
     },
     {
         serviceId: 1,
@@ -38,6 +42,7 @@ export const events = [
         title: 'Interpreter',
         time: '11:00 AM',
         order: 5,
+        displayTime: false,
     },
     {
         serviceId: 1,
@@ -46,6 +51,7 @@ export const events = [
         title: 'Announcer',
         time: '12:00 PM',
         order: 6,
+        displayTime: true,
     },
     {
         serviceId: 1,
@@ -54,6 +60,7 @@ export const events = [
         title: 'Grace',
         time: '12:00 PM',
         order: 7,
+        displayTime: false,
     },
     {
         serviceId: 1,
@@ -62,6 +69,7 @@ export const events = [
         title: 'Cooking',
         time: '12:00 PM',
         order: 8,
+        displayTime: false,
     },
     {
         serviceId: 2,
@@ -70,6 +78,7 @@ export const events = [
         title: 'Hymn Leading',
         time: '1:45 PM',
         order: 1,
+        displayTime: true,
     },
     {
         serviceId: 2,
@@ -78,6 +87,7 @@ export const events = [
         title: 'Piano',
         time: '1:45 PM',
         order: 2,
+        displayTime: false,
     },
     {
         serviceId: 2,
@@ -86,6 +96,7 @@ export const events = [
         title: 'Sermon Speaker',
         time: '2:00 PM',
         order: 3,
+        displayTime: true,
     },
     {
         serviceId: 2,
@@ -94,6 +105,7 @@ export const events = [
         title: 'Interpreter',
         time: '2:00 PM',
         order: 4,
+        displayTime: false,
     },
     {
         serviceId: 3,
@@ -102,6 +114,7 @@ export const events = [
         title: 'Usher',
         time: '7:00 PM',
         order: 1,
+        displayTime: true,
     },
     {
         serviceId: 3,
@@ -110,6 +123,7 @@ export const events = [
         title: 'Hymn Leading',
         time: '7:45 PM',
         order: 2,
+        displayTime: true,
     },
     {
         serviceId: 3,
@@ -118,6 +132,7 @@ export const events = [
         title: 'Piano',
         time: '7:45 PM',
         order: 3,
+        displayTime: false,
     },
     {
         serviceId: 3,
@@ -126,6 +141,7 @@ export const events = [
         title: 'Sermon Speaker',
         time: '8:00 PM',
         order: 4,
+        displayTime: true,
     },
     {
         serviceId: 3,
@@ -134,5 +150,6 @@ export const events = [
         title: 'Interpreter',
         time: '8:00 PM',
         order: 5,
+        displayTime: false,
     },
 ];

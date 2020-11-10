@@ -8,6 +8,7 @@ export interface EventAttributes extends CommonSequelizeAttributes {
     title: string;
     time: string;
     order: number;
+    displayTime: boolean;
 }
 
 export interface EventInstance extends Sequelize.Instance<EventAttributes>, EventAttributes {}
