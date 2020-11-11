@@ -9,7 +9,7 @@ export interface ScheduleAttributes extends CommonSequelizeAttributes {
     start: Date;
     end: Date;
     churchId?: number;
-    // timespan: string;
+    team: number;
 }
 
 export interface ScheduleInstance extends Sequelize.Instance<ScheduleAttributes>, ScheduleAttributes {}

@@ -11,12 +11,15 @@ const ScheduleFactory = (
         view: { type: DataTypes.STRING },
         start: { type: DataTypes.DATE },
         end: { type: DataTypes.DATE },
+        team: { type: DataTypes.INTEGER },
+        churchId: { type: DataTypes.INTEGER },
     };
 
     const Schedule = sequelize.define<ScheduleInstance, ScheduleAttributes>('Schedule', attributes);
 
     Schedule.associate = (models) => {
         Schedule.belongsTo(models.Church, { as: 'church', foreignKey: 'churchId' });
+        Schedule.hasOne(models.Role);
         // Schedule.hasMany(models.Events)
     };
 

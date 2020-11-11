@@ -69,7 +69,7 @@ router.post('/tasks', certify, async (req: Request, res: Response, next: NextFun
             userId,
             date: new Date(taskDate.toString()),
         });
-        return res.status(201).send(task);
+        return res.status(201).json(task);
     } catch (err) {
         next(err);
         return res.status(503).send({ message: 'Server error, try again later' });
