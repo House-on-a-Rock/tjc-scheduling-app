@@ -15,7 +15,7 @@ const TaskFactory = (
 
     Task.associate = (models) => {
         Task.belongsTo(models.Event, { as: 'event', foreignKey: 'eventId' });
-        Task.belongsTo(models.UserRole, { as: 'userRole', foreignKey: 'userRoleId' });
+        Task.belongsTo(models.UserRole, { as: 'user', foreignKey: 'userId' });
     };
     return Task;
 };

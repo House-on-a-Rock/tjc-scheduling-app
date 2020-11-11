@@ -6,7 +6,7 @@ import { CommonSequelizeAttributes } from '.';
 export interface UserRoleAttributes extends CommonSequelizeAttributes {
     userId?: UserAttributes['id'];
     roleId?: RoleAttributes | RoleAttributes['id'];
-    team_lead: boolean;
+    teamLead: boolean;
 }
 
 export interface UserRoleInstance extends Sequelize.Instance<UserRoleAttributes>, UserRoleAttributes {}

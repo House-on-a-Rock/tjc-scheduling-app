@@ -7,7 +7,7 @@ type StatusTypes = 'active' | 'changeRequested';
 export interface TaskAttributes extends CommonSequelizeAttributes {
     status?: StatusTypes;
     date: Date;
-    userRoleId?: number;
+    userId?: number;
     eventId?: number;
     userRole?: UserRoleAttributes;
 }

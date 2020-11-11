@@ -63,6 +63,67 @@ router.post('/resendConfirm', async (req: Request, res: Response, next: NextFunc
     }
 });
 
+router.post('/webLogin', async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { email: loginEmail, password: loginPassword } = req.body;
+        const user = await db.User.findOne({
+            where: { email: loginEmail },
+            attributes: [
+                'id',
+                'firstName',
+                'lastName',
+                'email',
+                'password',
+                'salt',
+                'loginTimeout',
+                'loginAttempts',
+                'isVerified',
+            ],
+        });
+        const { password, salt, loginTimeout, loginAttempts, id, isVerified, firstName, lastName, email } = user;
+        // const { teamLead } = await db.UserRole.findAll({ where: { userId: id } });
+        const hashedLoginPassword = hashPassword(loginPassword, salt);
+        const determineMessageStatus: () => [string, number] = () => {
+            const currentTime = new Date();
+            switch (true) {
+                case !user:
+                    return ['Invalid Username or Password', 401];
+                case loginTimeout && loginTimeout.getTime() < currentTime.getTime():
+                    return ['Too many login attempts', 400];
+                case hashedLoginPassword !== password:
+                    return ['Invalid Username or Password', 401];
+                case !isVerified:
+                    return ['Please verify your email', 403];
+                default:
+                    return ['success', 200];
+            }
+        };
+        const [message, status] = determineMessageStatus();
+
+        if (status > 299) return res.status(status).send({ message });
+        if (hashedLoginPassword !== password) {
+            const updatedAttempts =
+                loginAttempts === 3
+                    ? {
+                          id,
+                          loginAttempts: 0,
+                          loginTimeout: addMinutes(new Date(), 5),
+                      }
+                    : { id, loginAttempts: loginAttempts + 1 };
+            await user.update(updatedAttempts);
+        }
+
+        // if login is successful, reset login attempt information
+        await user.update({ id, loginAttempts: 0, loginTimeout: null });
+        const token = createToken('reg', id, 600);
+        console.log(token);
+        return res.status(status).json({ user_id: id, firstName, lastName, email, access_token: token });
+    } catch (err) {
+        next(err);
+        return res.status(503).send({ message: 'Server error, try again later' });
+    }
+});
+
 router.post('/login', async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { email: loginEmail, password: loginPassword } = req.body;

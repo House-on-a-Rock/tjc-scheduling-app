@@ -79,7 +79,7 @@ router.post('/notifications', certify, async (req: Request, res: Response, next:
             ],
         });
         const { requesteeUserId, task, type: swapRequestType } = request;
-        const { userId } = await db.UserRole.findOne({ where: { id: task.userRoleId } });
+        const { id: userId } = await db.User.findOne({ where: { id: task.userId } });
 
         if (!notification) return res.status(400).send({ message: 'Invalid notification type.' });
         if (!request) return res.status(404).send({ message: 'Swap request not found' });

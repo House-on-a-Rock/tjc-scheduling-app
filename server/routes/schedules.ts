@@ -13,7 +13,7 @@ module.exports = router;
 router.get('/schedules', certify, async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { churchId } = req.query;
-        const schedules = await db.Schedule.findAll({ where: { churchId } });
+        const schedules = await db.Schedule.findAll({ where: { churchId: churchId.toString() } });
 
         const scheduleData = await Promise.all(
             schedules.map(async (schedule) => {

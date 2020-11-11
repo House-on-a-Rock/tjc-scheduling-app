@@ -81,14 +81,15 @@ router.post('/requests', certify, async (req: Request, res: Response, next: Next
         // requester logic
         const requesterTask = await db.Task.findOne({ where: { id: requesterTaskId } });
         if (!requesterTask) res.status(404).send({ message: 'Task not found' });
-        const { userId: myUserId, roleId } = await db.UserRole.findOne({ where: { id: requesterTask.userRoleId } });
+        const { id: myUserId } = await db.User.findOne({ where: { id: requesterTask.userId } });
+        const { roleId } = await db.Event.findOne({ where: { id: requesterTask.eventId } });
         await requesterTask.update({ status: 'changeRequested' });
 
         // requestee logic
         let request;
         if (type === 'requestOne') {
             const requesteeTask = await db.Task.findOne({ where: { id: requesteeTaskId } });
-            const { userId: requesteeUserId } = await db.UserRole.findOne({ where: { id: requesteeTask.userRoleId } });
+            const { id: requesteeUserId } = await db.User.findOne({ where: { id: requesteeTask.userId } });
 
             request = await db.Request.create({
                 requesteeUserId,
@@ -136,7 +137,7 @@ router.patch('/requests/accept/:requestId', certify, async (req: Request, res: R
             include: [{ model: db.Task, as: 'task', attributes: ['id', 'userRoleId'] }],
         });
         const { accepted, approved, type, task, id: requestId } = request;
-        const { userId } = await db.UserRole.findOne({ where: { id: task.userRoleId } });
+        const { id: userId } = await db.User.findOne({ where: { id: task.userId } });
         const [message, status] = determineMessageStatus(request, accepted, approved);
 
         if (status === 202) {
@@ -161,7 +162,7 @@ router.patch('/requests/approve/:requestId', certify, async (req: Request, res: 
             include: [{ model: db.Task, as: 'task', attributes: ['id', 'userId'] }],
         });
         const { accepted, approved, task, id: requestId } = request;
-        const { userId } = await db.UserRole.findOne({ where: { id: task.userRoleId } });
+        const { id: userId } = await db.User.findOne({ where: { id: task.userId } });
         const [message, status] = determineMessageStatus(request, accepted, approved);
 
         // does this need to test for requestAll?
@@ -188,7 +189,7 @@ router.patch('/requests/reject/:requestId', async (req: Request, res: Response, 
         const [message, status] = determineMessageStatus(request, accepted, approved);
         if (status === 202) {
             await request.update({ id: request.id, rejected: true });
-            postNotification(request.id, request.task.userRoleId, 'cancelled', message, authorization);
+            postNotification(request.id, request.task.userId, 'cancelled', message, authorization);
             return res.status(200).json(request);
         }
         return res.status(status).send({ message });
