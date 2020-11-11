@@ -12,6 +12,7 @@ router.get('/tasks', certify, async (req: Request, res: Response, next: NextFunc
     try {
         const searchArray = [];
         const { userId, churchId, roleId } = req.query;
+        // is going to need more information like date, time --> events
         if (userId) searchArray.push({ userId });
         if (churchId) searchArray.push({ churchId });
         if (roleId) searchArray.push({ roleId });
@@ -21,14 +22,18 @@ router.get('/tasks', certify, async (req: Request, res: Response, next: NextFunc
             // date: { [Op.gt]: new Date() },
         };
         const tasks = [];
-        if (userId || roleId) {
-            const userRoles = await db.UserRole.findAll({ where: searchParams });
-            const query = userRoles.map(async ({ id }) => {
-                const task = await db.Task.findOne({ where: { userRoleId: id } });
+        if (userId) {
+            // and not role
+            const users = await db.User.findAll({ where: searchParams });
+            const query = users.map(async ({ id }) => {
+                const task = await db.Task.findOne({ where: { user: id } });
                 tasks.push(task);
             });
             await Promise.all(query);
         }
+        // if (roleId) {
+
+        // }
         if (churchId) {
             const query = await db.Task.findAll({ where: searchParams });
             tasks.push(...query);
@@ -44,7 +49,7 @@ router.get('/tasks/:taskId', certify, async (req: Request, res: Response, next: 
     try {
         const task = await db.Task.findOne({
             where: { id: req.params.taskId },
-            attributes: ['id', 'date', 'churchId', 'userRoleId'],
+            attributes: ['id', 'date', 'churchId', 'userId'],
         });
         return task ? res.status(200).json(task) : res.status(404).send({ message: 'Task not found' });
     } catch (err) {
@@ -129,9 +134,10 @@ router.patch(
     async (req: Request, res: Response, next: NextFunction) => {
         try {
             const { taskId, userRoleId } = req.params;
+            // this endpoint is messed up. needs rewriting
             const task = await db.Task.findOne({
                 where: { id: taskId },
-                attributes: ['id', 'userRoleId'],
+                attributes: ['id', 'userId'],
             });
 
             const replacingTeammate = await db.UserRole.findOne({

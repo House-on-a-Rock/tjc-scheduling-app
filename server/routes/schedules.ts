@@ -18,7 +18,7 @@ router.get('/schedules', certify, async (req: Request, res: Response, next: Next
         const scheduleData = await Promise.all(
             schedules.map(async (schedule) => {
                 const services = await db.Service.findAll({ where: { scheduleId: schedule.id } });
-                const sData = await Promise.all(
+                const servicesData = await Promise.all(
                     services.map(async (service) => {
                         const events = await db.Event.findAll({ where: { serviceId: service.id } });
                         const columns = createColumns(schedule.start, schedule.end, service.day);
@@ -26,19 +26,17 @@ router.get('/schedules', certify, async (req: Request, res: Response, next: Next
                             events.map(async (event) => {
                                 const { time, title, roleId, displayTime, id: eventId } = event;
 
-                                const tasks = await db.Task.findAll({
-                                    where: { eventId },
-                                    include: [{ model: db.UserRole, as: 'userRole' }],
-                                });
+                                const tasks = await db.Task.findAll({ where: { eventId } });
                                 const role = await db.Role.findOne({
                                     where: { id: roleId },
                                     attributes: ['id', 'name'],
                                 });
                                 const tasksData = await Promise.all(
-                                    tasks.map(async ({ date, userRole }) => {
-                                        const { firstName, lastName, id: userId } = await db.User.findOne({
-                                            where: { id: userRole.userId },
+                                    tasks.map(async ({ date, userId }) => {
+                                        const { firstName, lastName } = await db.User.findOne({
+                                            where: { id: userId },
                                         });
+                                        // if
                                         return { date, firstName, lastName, userId, role };
                                     }),
                                 );
@@ -61,7 +59,7 @@ router.get('/schedules', certify, async (req: Request, res: Response, next: Next
                         return { columns: columns, name: service.name, day: service.day, data: data };
                     }),
                 );
-                return { services: sData, title: schedule.title, view: schedule.view };
+                return { services: servicesData, title: schedule.title, view: schedule.view };
             }),
         );
 

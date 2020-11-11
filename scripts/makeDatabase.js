@@ -5,6 +5,16 @@
 const fs = require('fs');
 const { SCHEDULE } = require('./webDatabase');
 
+const dayToIndex = {
+    Sunday: 0,
+    Monday: 1,
+    Tuesday: 2,
+    Wednesday: 3,
+    Thursday: 4,
+    Friday: 5,
+    Saturday: 6,
+};
+
 function makeUserDetails(name, id) {
     const firstName = name.split(' ')[0];
     const lastName = name.split(' ')[1];
@@ -59,7 +69,7 @@ function dataToData(schedules) {
         services.map((service, serviceIdx) => {
             if (service.name !== 'Specific') {
                 const { events } = service;
-                if (serviceIdx > 0) eventSum += events.length;
+                if (serviceIdx > 0) eventSum += services[serviceIdx - 1].events.length;
                 const timeCache = {};
                 events.map((event, eventId) => {
                     const { time, day, title, team, tasks } = event;
@@ -69,8 +79,6 @@ function dataToData(schedules) {
                         rolesCache[team] = rolesCount;
                         data.roles.push({ id: rolesCount, name: team, churchId: 2 });
                     }
-                    // const roleId = rolesCount;
-
                     tasks.map((task) => {
                         if (title !== 'Cooking') {
                             const { assignee, date } = task;
@@ -84,14 +92,11 @@ function dataToData(schedules) {
                                 .id;
 
                             // creates userRoles data
-
                             const teamLead = teamLeads[team] === assignee;
-                            let userRoleId;
 
-                            if (team === 'Church Council') console.log(assignee);
                             const roleId = rolesCache[team];
                             if (!userRolesCache[userId] || !userRolesCache[userId][roleId]) {
-                                userRoleId = userRoleCount;
+                                const userRoleId = userRoleCount;
                                 userRolesCache[userId] = {
                                     ...userRolesCache[userId],
                                     [roleId]: { teamLead, userRoleId },
@@ -118,7 +123,7 @@ function dataToData(schedules) {
                     const eventObj = {
                         serviceId: serviceIdx + 1,
                         roleId: rolesCache[team],
-                        day,
+                        day: dayToIndex[day],
                         title,
                         time,
                         order: eventId + 1,
@@ -140,12 +145,12 @@ function dataToData(schedules) {
             }
         });
     });
-    data.userRoles.map((userRole) => {
-        const { teamLead, roleId, userId, userRoleId } = userRole;
-        const user = data.users.filter((el) => el.id === userId)[0];
-        const role = data.roles.filter((el) => el.id === roleId)[0];
-        console.log(userRoleId, user.firstName, user.lastName, role.name, 'teamLead:', teamLead);
-    });
+    // data.userRoles.map((userRole) => {
+    //     const { teamLead, roleId, userId, userRoleId } = userRole;
+    //     const user = data.users.filter((el) => el.id === userId)[0];
+    //     const role = data.roles.filter((el) => el.id === roleId)[0];
+    //     console.log(userRoleId, user.firstName, user.lastName, role.name, 'teamLead:', teamLead);
+    // });
 
     const returnString = JSON.stringify(data);
     fs.writeFile('data.json', returnString, function (err) {
