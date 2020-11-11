@@ -98,30 +98,3 @@ router.post('/schedules', certify, async (req: Request, res: Response, next: Nex
         return res.status(503).send({ message: 'Server error, try again later' });
     }
 });
-
-router.post('/schedules/services', certify, async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        const { name, order, dayOfWeek, scheduleId } = req.body;
-        const dbService = await db.Service.findOne({
-            where: {
-                name,
-                scheduleId,
-            },
-        });
-        console.log('dbService', dbService);
-
-        if (dbService) return res.status(409).send({ message: 'Service already exists' });
-
-        const newService = await db.Service.create({
-            name,
-            order,
-            day: dayOfWeek,
-            scheduleId: scheduleId,
-        });
-
-        return res.status(200).json(newService);
-    } catch (err) {
-        next(err);
-        return res.status(503).send({ message: 'Server error, try again later' });
-    }
-});
