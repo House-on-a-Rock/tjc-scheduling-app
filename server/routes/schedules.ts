@@ -13,7 +13,7 @@ module.exports = router;
 router.get('/schedules', certify, async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { churchId } = req.query;
-        const schedules = await db.Schedule.findAll({ where: { churchId } });
+        const schedules = await db.Schedule.findAll({ where: { churchId: churchId.toString() } });
 
         const scheduleData = await Promise.all(
             schedules.map(async (schedule) => {
@@ -67,6 +67,32 @@ router.get('/schedules', certify, async (req: Request, res: Response, next: Next
 
         if (!scheduleData) return res.status(404).send({ message: 'No schedules found' });
         return res.status(200).json(scheduleData);
+    } catch (err) {
+        next(err);
+        return res.status(503).send({ message: 'Server error, try again later' });
+    }
+});
+
+router.post('/schedules', certify, async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { title, view, startDate, endDate, churchId, team } = req.body;
+        const dbSchedule = await db.Schedule.findOne({
+            where: { churchId, title },
+            attributes: ['churchId', 'title'],
+        });
+
+        if (dbSchedule) return res.status(409).send({ message: 'Schedule already exists' });
+
+        const newSchedule = await db.Schedule.create({
+            title,
+            view,
+            start: new Date(startDate),
+            end: new Date(endDate),
+            churchId,
+            team,
+        });
+
+        return res.status(200).json(newSchedule);
     } catch (err) {
         next(err);
         return res.status(503).send({ message: 'Server error, try again later' });
