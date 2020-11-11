@@ -241,11 +241,11 @@ export function columnizedDates(everyRepeatingDay: string[]) {
     });
 }
 
-export function everyRepeatingDayBetweenTwoDates(startDate: string, endDate: string, day: string) {
+export function everyRepeatingDayBetweenTwoDates(startDate: string, endDate: string, day: number) {
     const everyRepeatingDay = [];
     let start = new Date(startDate);
 
-    if (start.getDay() !== dayIndex[day]) start = determineStartDate(startDate, dayIndex[day]);
+    if (start.getDay() !== day) start = determineStartDate(startDate, day);
 
     let current = new Date(start);
     const end = new Date(endDate);

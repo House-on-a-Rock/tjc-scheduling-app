@@ -12,9 +12,8 @@ const ServiceFactory = (
             allowNull: false,
         },
         order: { type: DataTypes.INTEGER },
-        start: { type: DataTypes.STRING },
-        end: { type: DataTypes.STRING },
-        day: { type: DataTypes.STRING },
+        day: { type: DataTypes.INTEGER },
+        scheduleId: { type: DataTypes.INTEGER },
     };
 
     const Service = sequelize.define<ServiceInstance, ServiceAttributes>('Service', attributes);
