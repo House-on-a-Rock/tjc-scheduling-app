@@ -3,6 +3,7 @@ import crypto from 'crypto';
 import jwt, { Algorithm, TokenExpiredError, JsonWebTokenError } from 'jsonwebtoken';
 import fs from 'fs';
 import { DateTime } from 'luxon';
+import { RoleAttributes } from 'shared/SequelizeTypings/models';
 
 const privateKey = fs.readFileSync('tjcschedule.pem');
 let cert;
@@ -91,14 +92,20 @@ export function addMinutes(date: Date, minutes) {
     return new Date(date.getTime() + minutes * 60000);
 }
 
-export function createToken(tokenType, userId, expiresInMinutes) {
+export function createToken(tokenType, userId, expiresInMinutes, roleIds: (number | RoleAttributes)[] = []) {
     console.log('Creating token');
+    let mappedRoleIds = '';
+    roleIds.forEach((roleId, id) => {
+        if (id === 0) mappedRoleIds += roleId.toString();
+        else mappedRoleIds += `|${roleId.toString()}`;
+    });
     const token = jwt.sign(
         {
             iss: process.env.AUDIENCE,
             sub: `tjc-scheduling|${userId}`,
             exp: Math.floor(Date.now() / 1000) + expiresInMinutes * 60 * 60,
             type: tokenType,
+            roleIds: mappedRoleIds,
         },
         {
             key: privateKey,

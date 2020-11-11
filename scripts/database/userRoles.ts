@@ -1,7 +1,7 @@
 export const userRoles = [
     { userRoleId: 1, teamLead: true, roleId: 1, userId: 1 },
     { userRoleId: 2, teamLead: false, roleId: 1, userId: 2 },
-    { userRoleId: 3, teamLead: false, roleId: 2, userId: 3 },
+    { userRoleId: 3, teamLead: true, roleId: 2, userId: 3 },
     { userRoleId: 4, teamLead: false, roleId: 2, userId: 4 },
     { userRoleId: 5, teamLead: false, roleId: 2, userId: 5 },
     { userRoleId: 6, teamLead: false, roleId: 2, userId: 6 },
@@ -20,7 +20,7 @@ export const userRoles = [
     { userRoleId: 19, teamLead: false, roleId: 4, userId: 10 },
     { userRoleId: 20, teamLead: false, roleId: 1, userId: 13 },
     { userRoleId: 21, teamLead: false, roleId: 1, userId: 14 },
-    { userRoleId: 22, teamLead: false, roleId: 5, userId: 3 },
+    { userRoleId: 22, teamLead: true, roleId: 5, userId: 3 },
     { userRoleId: 23, teamLead: false, roleId: 5, userId: 5 },
     { userRoleId: 24, teamLead: false, roleId: 5, userId: 8 },
     { userRoleId: 25, teamLead: false, roleId: 5, userId: 9 },
