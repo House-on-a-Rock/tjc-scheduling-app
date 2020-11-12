@@ -68,19 +68,19 @@ router.post('/webLogin', async (req: Request, res: Response, next: NextFunction)
         const { email: loginEmail, password: loginPassword } = req.body;
         const user = await db.User.findOne({
             where: { email: loginEmail },
-            attributes: [
-                'id',
-                'firstName',
-                'lastName',
-                'email',
-                'password',
-                'salt',
-                'loginTimeout',
-                'loginAttempts',
-                'isVerified',
-            ],
         });
-        const { password, salt, loginTimeout, loginAttempts, id, isVerified, firstName, lastName, email } = user;
+        const {
+            password,
+            salt,
+            loginTimeout,
+            loginAttempts,
+            id,
+            isVerified,
+            firstName,
+            lastName,
+            email,
+            isAdmin,
+        } = user;
 
         const userRoles = await db.UserRole.findAll({ where: { userId: id } });
         const roleIds = userRoles.filter((userRole) => userRole.teamLead)?.map((userRole) => userRole.roleId);
@@ -97,7 +97,7 @@ router.post('/webLogin', async (req: Request, res: Response, next: NextFunction)
                     return ['Invalid Username or Password', 401];
                 case !isVerified:
                     return ['Please verify your email', 403];
-                case roleIds.length === 0:
+                case !(roleIds.length > 0 || isAdmin):
                     return ['You are not permitted to access this site', 404];
                 default:
                     return ['success', 200];
@@ -117,9 +117,8 @@ router.post('/webLogin', async (req: Request, res: Response, next: NextFunction)
                     : { id, loginAttempts: loginAttempts + 1 };
             await user.update(updatedAttempts);
         }
-
         await user.update({ id, loginAttempts: 0, loginTimeout: null });
-        const token = createToken('reg', id, 600, roleIds);
+        const token = createToken('reg', id, 600, isAdmin, roleIds);
         console.log(token);
         // return res.redirect(`http://localhost:8081/home/token?token=${token}`);
         return res.status(status).json({ user_id: id, firstName, lastName, email, access_token: token });
@@ -134,17 +133,6 @@ router.post('/login', async (req: Request, res: Response, next: NextFunction) =>
         const { email: loginEmail, password: loginPassword } = req.body;
         const user = await db.User.findOne({
             where: { email: loginEmail },
-            attributes: [
-                'id',
-                'firstName',
-                'lastName',
-                'email',
-                'password',
-                'salt',
-                'loginTimeout',
-                'loginAttempts',
-                'isVerified',
-            ],
         });
         const { password, salt, loginTimeout, loginAttempts, id, isVerified, firstName, lastName, email } = user;
         const hashedLoginPassword = hashPassword(loginPassword, salt);

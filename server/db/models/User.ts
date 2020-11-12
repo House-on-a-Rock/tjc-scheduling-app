@@ -57,6 +57,10 @@ const UserFactory = (
             type: DataTypes.STRING,
             allowNull: true,
         },
+        isAdmin: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: false,
+        },
     };
 
     const User = sequelize.define<UserInstance, UserAttributes>('User', attributes) as UserModel;
