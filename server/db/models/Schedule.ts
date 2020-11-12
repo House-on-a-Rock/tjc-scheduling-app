@@ -11,7 +11,7 @@ const ScheduleFactory = (
         view: { type: DataTypes.STRING },
         start: { type: DataTypes.DATE },
         end: { type: DataTypes.DATE },
-        team: { type: DataTypes.INTEGER },
+        roleId: { type: DataTypes.INTEGER },
         churchId: { type: DataTypes.INTEGER },
     };
 
@@ -19,7 +19,7 @@ const ScheduleFactory = (
 
     Schedule.associate = (models) => {
         Schedule.belongsTo(models.Church, { as: 'church', foreignKey: 'churchId' });
-        Schedule.hasOne(models.Role);
+        Schedule.hasOne(models.Role, { as: 'role', foreignKey: 'roleId' });
         // Schedule.hasMany(models.Events)
     };
 

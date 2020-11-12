@@ -20,7 +20,7 @@ function makeUserDetails(name, id) {
     const lastName = name.split(' ')[1];
     const email = `${firstName.toLowerCase()}.${lastName.toLowerCase()}@gmail.com`;
     return {
-        id,
+        id: id + 1,
         firstName,
         lastName,
         email,
