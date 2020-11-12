@@ -108,7 +108,7 @@ router.post('/webLogin', async (req: Request, res: Response, next: NextFunction)
         if (status > 299) return res.status(status).send({ message });
         if (hashedLoginPassword !== password) {
             const updatedAttempts =
-                loginAttempts === 3
+                loginAttempts >= 3
                     ? {
                           id,
                           loginAttempts: 0,
@@ -156,7 +156,7 @@ router.post('/login', async (req: Request, res: Response, next: NextFunction) =>
         if (status > 299) return res.status(status).send({ message });
         if (hashedLoginPassword !== password) {
             const updatedAttempts =
-                loginAttempts === 3
+                loginAttempts >= 3
                     ? {
                           id,
                           loginAttempts: 0,
