@@ -55,20 +55,11 @@ export const events = [
     },
     {
         serviceId: 1,
-        roleId: undefined,
+        roleId: 5,
         day: 'Saturday',
         title: 'Grace',
         time: '12:00 PM',
         order: 7,
-        displayTime: false,
-    },
-    {
-        serviceId: 1,
-        roleId: undefined,
-        day: 'Saturday',
-        title: 'Cooking',
-        time: '12:00 PM',
-        order: 8,
         displayTime: false,
     },
     {

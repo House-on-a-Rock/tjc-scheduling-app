@@ -8,7 +8,7 @@ export interface ScheduleAttributes extends CommonSequelizeAttributes {
     view: ViewType;
     start: Date;
     end: Date;
-    churchId: number;
+    churchId?: number;
     team: number;
 }
 
