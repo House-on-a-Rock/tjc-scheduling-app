@@ -7,6 +7,7 @@ import { certify } from '../utilities/helperFunctions';
 
 const router = express.Router();
 // const { Op } = Sequelize;
+const { green, red, blue } = require('chalk');
 
 module.exports = router;
 
