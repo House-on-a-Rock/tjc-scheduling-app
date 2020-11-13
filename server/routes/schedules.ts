@@ -22,6 +22,7 @@ router.get(
 
       const scheduleData = await Promise.all(
         schedules.map(async (schedule) => {
+          const scheduleRole = await db.Role.findOne({ where: { id: schedule.roleId } });
           const services = await db.Service.findAll({
             where: { scheduleId: schedule.id },
           });
@@ -43,7 +44,6 @@ router.get(
                       const { firstName, lastName } = await db.User.findOne({
                         where: { id: userId },
                       });
-                      // if
                       return { date, firstName, lastName, userId, role };
                     }),
                   );
@@ -71,7 +71,12 @@ router.get(
               };
             }),
           );
-          return { services: servicesData, title: schedule.title, view: schedule.view };
+          return {
+            services: servicesData,
+            title: schedule.title,
+            view: schedule.view,
+            role: scheduleRole,
+          };
         }),
       );
 
@@ -89,7 +94,7 @@ router.post(
   certify,
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { title, view, startDate, endDate, churchId, team } = req.body;
+      const { title, view, startDate, endDate, churchId, roleId } = req.body;
       const dbSchedule = await db.Schedule.findOne({
         where: { churchId, title },
         attributes: ['churchId', 'title'],
@@ -103,7 +108,7 @@ router.post(
         start: new Date(startDate),
         end: new Date(endDate),
         churchId,
-        team,
+        roleId,
       });
 
       return res.status(200).json(newSchedule);

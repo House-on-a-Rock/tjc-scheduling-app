@@ -15,6 +15,7 @@ export interface UserAttributes extends CommonSequelizeAttributes {
   disabled: boolean;
   expoPushToken?: string;
   church?: ChurchAttributes;
+  isAdmin?: boolean;
 }
 
 export interface UserInstance
