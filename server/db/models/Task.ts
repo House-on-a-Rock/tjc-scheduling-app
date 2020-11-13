@@ -3,21 +3,21 @@ import { SequelizeAttributes } from 'shared/SequelizeTypings/typings/SequelizeAt
 import { TaskInstance, TaskAttributes } from 'shared/SequelizeTypings/models';
 
 const TaskFactory = (
-    sequelize: Sequelize.Sequelize,
-    DataTypes: Sequelize.DataTypes,
+  sequelize: Sequelize.Sequelize,
+  DataTypes: Sequelize.DataTypes,
 ): Sequelize.Model<TaskInstance, TaskAttributes> => {
-    const attributes: SequelizeAttributes<TaskAttributes> = {
-        date: { type: DataTypes.DATE },
-        status: { type: DataTypes.STRING, defaultValue: 'active' },
-    };
+  const attributes: SequelizeAttributes<TaskAttributes> = {
+    date: { type: DataTypes.DATE },
+    status: { type: DataTypes.STRING, defaultValue: 'active' },
+  };
 
-    const Task = sequelize.define<TaskInstance, TaskAttributes>('Task', attributes);
+  const Task = sequelize.define<TaskInstance, TaskAttributes>('Task', attributes);
 
-    Task.associate = (models) => {
-        Task.belongsTo(models.Event, { as: 'event', foreignKey: 'eventId' });
-        Task.belongsTo(models.UserRole, { as: 'user', foreignKey: 'userId' });
-    };
-    return Task;
+  Task.associate = (models) => {
+    Task.belongsTo(models.Event, { as: 'event', foreignKey: 'eventId' });
+    Task.belongsTo(models.UserRole, { as: 'user', foreignKey: 'userId' });
+  };
+  return Task;
 };
 
 export default TaskFactory;

@@ -5,11 +5,13 @@ import { UserRoleAttributes } from './UserRoleModel';
 type StatusTypes = 'active' | 'changeRequested';
 
 export interface TaskAttributes extends CommonSequelizeAttributes {
-    status?: StatusTypes;
-    date: Date;
-    userId?: number;
-    eventId?: number;
-    userRole?: UserRoleAttributes;
+  status?: StatusTypes;
+  date: Date;
+  userId?: number;
+  eventId?: number;
+  userRole?: UserRoleAttributes;
 }
 
-export interface TaskInstance extends Sequelize.Instance<TaskAttributes>, TaskAttributes {}
+export interface TaskInstance
+  extends Sequelize.Instance<TaskAttributes>,
+    TaskAttributes {}

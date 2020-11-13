@@ -11,7 +11,7 @@ export * from './UserModel';
 export * from './UserRoleModel';
 
 export interface CommonSequelizeAttributes {
-    id?: number;
-    createdAt?: Date | null;
-    updatedAt?: Date | null;
+  id?: number;
+  createdAt?: Date | null;
+  updatedAt?: Date | null;
 }

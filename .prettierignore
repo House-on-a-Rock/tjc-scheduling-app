@@ -7,7 +7,6 @@
 !*.json
 !*.sass
 !*.md
-!*.ts
 !*.tsx
 !*.yml
 ## copied from .gitignore
