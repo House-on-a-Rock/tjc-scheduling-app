@@ -9,6 +9,7 @@
 !*.md
 !*.tsx
 !*.yml
+!*.html
 ## copied from .gitignore
 node_modules
 .vscode/
