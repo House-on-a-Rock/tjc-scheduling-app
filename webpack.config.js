@@ -1,15 +1,15 @@
-const HtmlWebPackPlugin = require('html-webpack-plugin');
+// const HtmlWebPackPlugin = require('html-webpack-plugin');
 const path = require('path');
 
-const htmlPlugin = new HtmlWebPackPlugin({
-  template: './public/index.html',
-  filename: './index.html',
-});
+// const htmlPlugin = new HtmlWebPackPlugin({
+//   template: './public/index.html',
+//   filename: './index.html',
+// });
 
 const isDev = process.env.NODE_ENV === 'development';
 
 module.exports = {
-  entry: './src/index.ts',
+  entry: './src/index.tsx',
   mode: isDev ? process.env.NODE_ENV : 'production',
   module: {
     rules: [
@@ -36,14 +36,15 @@ module.exports = {
       },
     ],
   },
-  plugins: [htmlPlugin],
+  // plugins: [htmlPlugin],
   resolve: {
     extensions: ['.tsx', '.ts', '.js'],
   },
   output: {
     path: path.resolve(__dirname, 'dist'),
-    filename: '[name].js',
+    filename: 'bundle.js',
   },
+  watch: true,
 };
 
 console.log(path.resolve(__dirname, 'dist'));

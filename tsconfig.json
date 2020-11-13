@@ -12,6 +12,7 @@
     "baseUrl": "./",
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
+    "skipLibCheck": true,
     "paths": {
       "shared/*": ["shared/*"],
       "*": ["node_modules/*"],

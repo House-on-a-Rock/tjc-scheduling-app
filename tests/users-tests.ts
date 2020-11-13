@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import dotenv from 'dotenv';
 import { expect } from 'chai';
 import request, { Options } from 'request-promise';

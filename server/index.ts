@@ -7,6 +7,11 @@ import db from './db';
 
 const port = process.env.PORT || 8080;
 const app: express.Application = express();
+const DIST_DIR = path.resolve(__dirname, '../dist');
+const HTML_FILE = path.join(DIST_DIR, 'index.html');
+console.log(DIST_DIR);
+
+app.use(express.static(DIST_DIR));
 
 app.use(
   session({
@@ -21,12 +26,14 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors());
 
-app.get('/', (req: any, res) => {
-  const msg = 'Welcome to this API. ';
-  res.status(200).send({ message: msg });
-});
+// app.get('/', (req: any, res) => {
+//   const msg = 'Welcome to this API. ';
+//   res.status(200).send({ message: msg });
+// });
 
-app.use(express.static(path.join(__dirname, 'dist')));
+app.get('/', (req, res) => {
+  res.sendFile(HTML_FILE);
+});
 
 app.use('/api', require('./routes'));
 app.use('/api', require('./routes/churches'));

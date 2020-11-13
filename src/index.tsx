@@ -5,13 +5,13 @@ import ReactDOM from 'react-dom';
 // import App from './app';
 // import { store } from './store';
 
-const Index = () => {
+const Root = () => {
   return (
+    <div>Hello World</div>
     // <Provider store={store}>
     // <App />
     // </Provider>
-    <div>wassup guys</div>
   );
 };
 
-ReactDOM.render(<Index />, document.getElementById('root'));
+ReactDOM.render(<Root />, document.getElementById('root'));
