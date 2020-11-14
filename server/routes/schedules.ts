@@ -1,13 +1,10 @@
 /* eslint-disable consistent-return */
 /* eslint-disable array-callback-return */
 import express, { Request, Response, NextFunction } from 'express';
-// import Sequelize from 'sequelize';
 import db from '../index';
 import { certify, contrivedDate, createColumns } from '../utilities/helperFunctions';
 
 const router = express.Router();
-// const { Op } = Sequelize;
-
 module.exports = router;
 
 router.get('/schedules/tabs', certify, async (req: Request, res: Response, next: NextFunction) => {
@@ -29,9 +26,6 @@ router.get('/schedules', certify, async (req: Request, res: Response, next: Next
         const { scheduleId } = req.query;
         const schedule = await db.Schedule.findOne({ where: { id: scheduleId.toString() } });
         const scheduleRole = await db.Role.findOne({ where: { id: schedule.roleId } });
-        // const scheduleData = await Promise.all(
-        //     schedules.map(async (schedule) => {
-        //         const scheduleRole = await db.Role.findOne({ where: { id: schedule.roleId } });
         const services = await db.Service.findAll({ where: { scheduleId: scheduleId.toString() } }); //toString fixes parsedQ's issue
         const servicesData = await Promise.all(
             services.map(async (service) => {
@@ -75,7 +69,7 @@ router.get('/schedules', certify, async (req: Request, res: Response, next: Next
         );
         const response = { services: servicesData, title: schedule.title, view: schedule.view, role: scheduleRole };
 
-        // if (!response) return res.status(404).send({ message: 'No schedules found' });
+        if (!response) return res.status(404).send({ message: 'No schedules found' });
         return res.status(200).json(response);
     } catch (err) {
         next(err);
