@@ -10,6 +10,7 @@ const EventFactory = (
   DataTypes: Sequelize.DataTypes,
 ): Sequelize.Model<EventInstance, EventAttributes> => {
   const attributes: SequelizeAttributes<EventAttributes> = {
+    id: { type: DataTypes.INTEGER, primaryKey: true },
     serviceId: { type: DataTypes.INTEGER },
     day: { type: DataTypes.STRING },
     order: { type: DataTypes.INTEGER },

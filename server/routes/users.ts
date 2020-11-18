@@ -1,7 +1,7 @@
 import express, { Request, Response } from 'express';
 import Sequelize from 'sequelize';
 import crypto from 'crypto';
-import { UserInstance } from 'shared/SequelizeTypings/models';
+import { UserInstance, UserRoleInstance } from 'shared/SequelizeTypings/models';
 import db from '../index';
 import { certify, sendVerEmail, validateEmail } from '../utilities/helperFunctions';
 
@@ -16,7 +16,7 @@ router.get('/users', certify, async (req: Request, res: Response, next) => {
     const searchArray = [];
     if (churchId) searchArray.push({ churchId });
     if (roleId) {
-      const userRoles = await db.UserRole.findAll({
+      const userRoles: UserRoleInstance[] = await db.UserRole.findAll({
         where: { roleId: roleId.toString() },
         attributes: ['userId'],
       });
@@ -83,10 +83,11 @@ router.post('/users', certify, async (req: Request, res: Response, next) => {
   try {
     const { email, firstName, lastName, password, churchId } = req.body;
     const token = crypto.randomBytes(16).toString('hex');
-    const userExists: UserInstance = await db.User.findOne({
+    const userExists: UserInstance | null = await db.User.findOne({
       where: { email },
       attributes: ['id', 'email'],
     });
+    // const userExists = !!user;
     const { id }: UserInstance =
       !userExists &&
       (await db.User.create({
@@ -118,11 +119,11 @@ router.post('/users', certify, async (req: Request, res: Response, next) => {
       switch (true) {
         case !validateEmail(email):
           return ['Invalid email', 406];
+        case !userExists:
+          sendVerEmail(email, req, token, 'confirmation');
+          return ['', 200];
         case !!userExists:
           return ['User already exists', 409];
-        case !userExists:
-          sendVerEmail(email, req.headers, token, 'confirmation');
-          return ['', 200];
         default:
           return ['', 400];
       }

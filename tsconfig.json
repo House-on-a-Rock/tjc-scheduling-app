@@ -4,24 +4,32 @@
     "jsx": "react",
     "target": "es6",
     "module": "commonjs",
+    "moduleResolution": "node",
     "lib": ["es6", "dom"],
     "allowJs": true,
     "isolatedModules": true,
-    "noEmit": true,
-    "moduleResolution": "node",
-    "baseUrl": "./",
+    "noEmit": false,
+    "sourceMap": true,
+    "strict": true,
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
+    "baseUrl": "./",
     "paths": {
       "shared/*": ["shared/*"],
       "*": ["node_modules/*"],
       "store/*": ["src/store/*"],
       "secrets/*": ["secrets/*"],
       "components/*": ["src/components/*"],
-      "services/*": ["src/services/*"],
-      "screens/*": ["src/screens/*"]
+      "services/*": ["src/services/*"]
     }
   },
   "exclude": ["node_modules", ".vscode", ".expo"]
 }
+
+// "noEmit": false,
+// "sourceMap": true,
+// "module": "esnext",
+// "strict": true,
+// "target": "esnext",
+// "moduleResolution": "node"

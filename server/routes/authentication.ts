@@ -1,6 +1,7 @@
 import express, { Request, Response, NextFunction } from 'express';
 import crypto from 'crypto';
 import jwt, { TokenExpiredError, JsonWebTokenError } from 'jsonwebtoken';
+import { RoleAttributes, UserRoleInstance } from 'shared/SequelizeTypings/models';
 import {
   addMinutes,
   createToken,
@@ -8,6 +9,7 @@ import {
   hashPassword,
   sendGenericEmail,
   sendVerEmail,
+  certify,
 } from '../utilities/helperFunctions';
 import db from '../index';
 
@@ -19,7 +21,7 @@ module.exports = router;
 router.get('/confirmation', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { expiresIn, token, userId } = await db.Token.findOne({
-      where: { token: req.query.token.toString() },
+      where: { token: req.query.token?.toString() },
       attributes: ['userId', 'token', 'expiresIn'],
     });
     const [current, expiration] = [Date.now(), new Date(expiresIn).getTime()];
@@ -51,7 +53,6 @@ router.get('/confirmation', async (req: Request, res: Response, next: NextFuncti
 
 router.post('/resendConfirm', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { headers } = req;
     const { email } = req.body;
     const { id: userId } = await db.User.findOne({
       where: { email },
@@ -68,7 +69,7 @@ router.post('/resendConfirm', async (req: Request, res: Response, next: NextFunc
       token: newToken,
       expiresIn: Date.now() + 30 * 60 * 1000,
     });
-    const [message, status] = sendVerEmail(email, headers, newToken, 'confirmation');
+    const [message, status] = sendVerEmail(email, req, newToken, 'confirmation');
     return res.status(status).send({ message });
   } catch (err) {
     next(err);
@@ -95,10 +96,12 @@ router.post('/webLogin', async (req: Request, res: Response, next: NextFunction)
       isAdmin,
     } = user;
 
-    const userRoles = await db.UserRole.findAll({ where: { userId: id } });
-    const roleIds = userRoles
+    const userRoles: UserRoleInstance[] = await db.UserRole.findAll({
+      where: { userId: id },
+    });
+    const roleIds: (number | RoleAttributes | undefined)[] = userRoles
       .filter((userRole) => userRole.teamLead)
-      ?.map((userRole) => userRole.roleId);
+      .map((userRole) => userRole.roleId);
 
     const hashedLoginPassword = hashPassword(loginPassword, salt);
     const determineMessageStatus: () => [string, number] = () => {
@@ -303,7 +306,7 @@ router.get(
       const decodedToken = jwt.decode(`${header}.${payload}.${signature}`, {
         json: true,
       });
-      const requestId = decodedToken.sub.split('|')[1];
+      const requestId = decodedToken?.sub.split('|')[1];
       const { password } = await db.User.findOne({
         where: { id: parseInt(requestId, 10) },
         attributes: ['id', 'email', 'password', 'isVerified'],
@@ -335,34 +338,38 @@ router.get(
   },
 );
 
-router.post('/resetPassword', async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const { authorization } = req.headers;
-    const { password: newPassword, email: queryEmail } = req.body;
-    const requestId = jwt.decode(authorization, { json: true }).sub.split('|')[1];
-    const user = await db.User.findOne({
-      where: { id: parseInt(requestId, 10) },
-      attributes: ['id', 'email', 'password', 'isVerified'],
-    });
-    const { email: userEmail, password, isVerified, id } = user;
-    jwt.verify(authorization, password);
-
-    const [message, status] =
-      userEmail !== queryEmail
-        ? ['Invalid Request', 401]
-        : isVerified
-        ? ['Password change success.', 201]
-        : ['User does not exist or is not verified', 401];
-
-    if (status === 201)
-      user.update({
-        id,
-        password: newPassword,
-        token: null,
+router.post(
+  '/resetPassword',
+  certify,
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { authorization = '' } = req.headers;
+      const { password: newPassword, email: queryEmail } = req.body;
+      const requestId = jwt.decode(authorization, { json: true })?.sub.split('|')[1];
+      const user = await db.User.findOne({
+        where: { id: parseInt(requestId, 10) },
+        attributes: ['id', 'email', 'password', 'isVerified'],
       });
-    return res.status(status).send({ message });
-  } catch (err) {
-    next(err);
-    return res.status(503).send({ message: 'Server error, try again later' });
-  }
-});
+      const { email: userEmail, password, isVerified, id } = user;
+      jwt.verify(authorization, password);
+
+      const [message, status] =
+        userEmail !== queryEmail
+          ? ['Invalid Request', 401]
+          : isVerified
+          ? ['Password change success.', 201]
+          : ['User does not exist or is not verified', 401];
+
+      if (status === 201)
+        user.update({
+          id,
+          password: newPassword,
+          token: null,
+        });
+      return res.status(status).send({ message });
+    } catch (err) {
+      next(err);
+      return res.status(503).send({ message: 'Server error, try again later' });
+    }
+  },
+);

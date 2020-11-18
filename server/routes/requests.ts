@@ -2,18 +2,18 @@
 import express, { Request, Response, NextFunction } from 'express';
 import axios, { AxiosResponse } from 'axios';
 import jwt from 'jsonwebtoken';
-import { UserInstance } from 'shared/SequelizeTypings/models';
+import { RequestInstance, UserInstance } from 'shared/SequelizeTypings/models';
 import { certify, determineLoginId } from '../utilities/helperFunctions';
 import db from '../index';
 
 const router = express.Router();
 
 module.exports = router;
-const determineMessageStatus: (arg1, arg2, arg3) => [string, number] = (
-  request,
-  accepted,
-  approved,
-) => {
+const determineMessageStatus: (
+  arg1: RequestInstance | null, // HELLOOOO
+  arg2: boolean,
+  arg3: boolean,
+) => [string, number] = (request, accepted, approved) => {
   switch (true) {
     case !request:
       return ['Swap request not found', 404];
@@ -25,11 +25,11 @@ const determineMessageStatus: (arg1, arg2, arg3) => [string, number] = (
 };
 
 const postNotification = (
-  requestId,
-  userId,
-  notification,
-  message,
-  authorization,
+  requestId: number,
+  userId: number,
+  notification: string,
+  message: string,
+  authorization: string,
 ): Promise<AxiosResponse> =>
   axios.post(
     `${process.env.SECRET_IP}api/notifications`,
@@ -37,7 +37,10 @@ const postNotification = (
     { headers: { authorization } },
   );
 
-const getUsersFromRole = (roleId, authorization): Promise<AxiosResponse> =>
+const getUsersFromRole = (
+  roleId: number,
+  authorization: string,
+): Promise<AxiosResponse> =>
   axios.get(`${process.env.SECRET_IP}api/users?roleId=${roleId}`, {
     headers: authorization,
   });
@@ -99,7 +102,7 @@ router.post(
       // requestee are the ones being asked for a switch
       // if type === requestOne, requesterTaskId === null
       const { requesteeTaskId, requesterTaskId, message, type } = req.body;
-      const { authorization } = req.headers;
+      const { authorization = '' } = req.headers;
 
       // requester logic
       const requesterTask = await db.Task.findOne({ where: { id: requesterTaskId } });
@@ -111,23 +114,25 @@ router.post(
       await requesterTask.update({ status: 'changeRequested' });
 
       // requestee logic
-      let request;
+      let request: RequestInstance[] = [];
       if (type === 'requestOne') {
         const requesteeTask = await db.Task.findOne({ where: { id: requesteeTaskId } });
         const { id: requesteeUserId } = await db.User.findOne({
           where: { id: requesteeTask.userId },
         });
 
-        request = await db.Request.create({
-          requesteeUserId,
-          message,
-          type: 'requestOne',
-          taskId: requesterTaskId,
-          replace: req.query.replace === 'true',
-          userId: determineLoginId(authorization),
-        });
-        postNotification(request.id, myUserId, 'created', message, authorization);
-        request = [request];
+        request = [
+          await db.Request.create({
+            requesteeUserId,
+            message,
+            type: 'requestOne',
+            taskId: requesterTaskId,
+            replace: req.query.replace === 'true',
+            userId: determineLoginId(authorization),
+          }),
+        ];
+
+        postNotification(request[0].id, myUserId, 'created', message, authorization);
       }
 
       if (type === 'requestAll') {
@@ -162,9 +167,9 @@ router.patch(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       // need to test acceptingUserId w/ requesteeUserId
-      const { authorization } = req.headers;
+      const { authorization = '' } = req.headers;
       const acceptingUserId = parseInt(
-        jwt.decode(authorization, { json: true }).sub.split('|')[1],
+        jwt.decode(authorization, { json: true })?.sub.split('|')[1],
         10,
       );
       const request = await db.Request.findOne({
@@ -202,6 +207,7 @@ router.patch(
   certify,
   async (req: Request, res: Response, next: NextFunction) => {
     try {
+      const { authorization = '' } = req.headers;
       const request = await db.Request.findOne({
         where: { id: req.params.requestId },
         attributes: ['id', 'requesteeUserId', 'type', 'accepted', 'approved', 'replace'],
@@ -214,13 +220,7 @@ router.patch(
       // does this need to test for requestAll?
       if (status === 202 && !approved && accepted) {
         await request.update({ id: requestId, approved: true });
-        postNotification(
-          requestId,
-          userId,
-          'approved',
-          message,
-          req.headers.authorization,
-        );
+        postNotification(requestId, userId, 'approved', message, authorization);
       }
       return status === 202
         ? res.status(status).json(request)
@@ -236,7 +236,7 @@ router.patch(
   '/requests/reject/:requestId',
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { authorization } = req.headers;
+      const { authorization = '' } = req.headers;
       const request = await db.Request.findOne({
         where: { id: req.params.requestId },
         attributes: ['id', 'requesteeUserId', 'type', 'accepted', 'approved'],

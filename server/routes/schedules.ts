@@ -1,9 +1,20 @@
 /* eslint-disable consistent-return */
 /* eslint-disable array-callback-return */
 import express, { Request, Response, NextFunction } from 'express';
+import {
+  EventInstance,
+  ScheduleInstance,
+  ServiceInstance,
+  TaskInstance,
+} from 'shared/SequelizeTypings/models';
 // import Sequelize from 'sequelize';
 import db from '../index';
-import { certify, contrivedDate, createColumns } from '../utilities/helperFunctions';
+import {
+  certify,
+  contrivedDate,
+  createColumns,
+  ReactTableColumnInterface,
+} from '../utilities/helperFunctions';
 
 const router = express.Router();
 // const { Op } = Sequelize;
@@ -15,26 +26,34 @@ router.get(
   certify,
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { churchId } = req.query;
-      const schedules = await db.Schedule.findAll({
-        where: { churchId: churchId.toString() },
+      const { churchId = '' } = req.query;
+      const schedules: ScheduleInstance[] = await db.Schedule.findAll({
+        where: { churchId },
       });
 
       const scheduleData = await Promise.all(
         schedules.map(async (schedule) => {
           const scheduleRole = await db.Role.findOne({ where: { id: schedule.roleId } });
-          const services = await db.Service.findAll({
+          const services: ServiceInstance[] = await db.Service.findAll({
             where: { scheduleId: schedule.id },
           });
           const servicesData = await Promise.all(
             services.map(async (service) => {
-              const events = await db.Event.findAll({ where: { serviceId: service.id } });
-              const columns = createColumns(schedule.start, schedule.end, service.day);
+              const events: EventInstance[] = await db.Event.findAll({
+                where: { serviceId: service.id },
+              });
+              const columns: ReactTableColumnInterface[] = createColumns(
+                schedule.start,
+                schedule.end,
+                service.day,
+              );
               const data = await Promise.all(
                 events.map(async (event) => {
                   const { time, title, roleId, displayTime, id: eventId } = event;
 
-                  const tasks = await db.Task.findAll({ where: { eventId } });
+                  const tasks: TaskInstance[] = await db.Task.findAll({
+                    where: { eventId },
+                  });
                   const role = await db.Role.findOne({
                     where: { id: roleId },
                     attributes: ['id', 'name'],

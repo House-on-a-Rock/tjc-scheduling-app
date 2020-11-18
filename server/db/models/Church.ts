@@ -10,6 +10,7 @@ const ChurchFactory = (
   DataTypes: Sequelize.DataTypes,
 ): Sequelize.Model<ChurchInstance, ChurchAttributes> => {
   const attributes: SequelizeAttributes<ChurchAttributes> = {
+    id: { type: DataTypes.INTEGER, primaryKey: true },
     name: { type: DataTypes.STRING },
     address: { type: DataTypes.TEXT },
     description: { type: DataTypes.TEXT },

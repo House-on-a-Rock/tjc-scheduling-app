@@ -10,6 +10,7 @@ const UserRoleFactory = (
   DataTypes: Sequelize.DataTypes,
 ): Sequelize.Model<UserRoleInstance, UserRoleAttributes> => {
   const attributes: SequelizeAttributes<UserRoleAttributes> = {
+    id: { type: DataTypes.INTEGER, primaryKey: true },
     teamLead: { type: DataTypes.BOOLEAN },
   };
 

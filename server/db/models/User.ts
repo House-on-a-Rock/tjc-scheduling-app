@@ -11,6 +11,7 @@ const UserFactory = (
   DataTypes: Sequelize.DataTypes,
 ): Sequelize.Model<UserInstance, UserAttributes> => {
   const attributes: SequelizeAttributes<UserAttributes> = {
+    id: { type: DataTypes.INTEGER, primaryKey: true },
     firstName: {
       type: DataTypes.STRING,
     },
@@ -68,20 +69,13 @@ const UserFactory = (
     attributes,
   ) as UserModel;
 
-  User.prototype.verifyPassword = function (candidatePwd: string): boolean {
-    return User.encryptPassword(candidatePwd, this.salt) === this.password;
-  };
-
   User.generateSalt = function () {
     return crypto.randomBytes(16).toString('base64');
   };
 
   User.encryptPassword = function (plainText, salt) {
-    return crypto
-      .createHash(process.env.SECRET_HASH)
-      .update(plainText)
-      .update(salt)
-      .digest('hex');
+    const hash = process.env.SECRET_HASH ? process.env.SECRET_HASH : '';
+    return crypto.createHash(hash).update(plainText).update(salt).digest('hex');
   };
 
   const createSaltyPassword = (user: UserInstance) => {

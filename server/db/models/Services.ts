@@ -10,6 +10,7 @@ const ServiceFactory = (
   DataTypes: Sequelize.DataTypes,
 ): Sequelize.Model<ServiceInstance, ServiceAttributes> => {
   const attributes: SequelizeAttributes<ServiceAttributes> = {
+    id: { type: DataTypes.INTEGER, primaryKey: true },
     name: {
       type: DataTypes.STRING,
       allowNull: false,

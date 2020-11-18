@@ -1,5 +1,5 @@
 import Sequelize from 'sequelize';
-import { DbInterface } from 'shared/SequelizeTypings/typings/DbInterface';
+import { DbInterface, DbOptions } from 'shared/SequelizeTypings/typings/DbInterface';
 import ChurchFactory from './Church';
 import EventFactory from './Event';
 import RequestFactory from './Request';
@@ -12,7 +12,12 @@ import UserFactory from './User';
 import UserRoleFactory from './User_Role';
 import TokenFactory from './Token';
 
-const createModels = (database, username, password, config): DbInterface => {
+const createModels = (
+  database: string,
+  username: string,
+  password: string,
+  config: Sequelize.Options | undefined,
+): DbInterface => {
   const sequelize = new Sequelize(database, username, password, config);
 
   const db: DbInterface = {
@@ -32,8 +37,9 @@ const createModels = (database, username, password, config): DbInterface => {
   };
 
   Object.keys(db).forEach((modelName) => {
-    if (db[modelName].associate) {
-      db[modelName].associate(db);
+    if (!['sequelize', 'Sequelize'].includes(modelName)) {
+      const { associate } = db[modelName as keyof DbOptions];
+      if (associate) associate(db);
     }
   });
 

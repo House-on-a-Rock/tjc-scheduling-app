@@ -4,17 +4,18 @@ import jwt, { Algorithm, TokenExpiredError, JsonWebTokenError } from 'jsonwebtok
 import fs from 'fs';
 import { DateTime } from 'luxon';
 import { RoleAttributes } from 'shared/SequelizeTypings/models';
+import { Request, Response, NextFunction } from 'express';
 
 const privateKey = fs.readFileSync('tjcschedule.pem');
-let cert;
-fs.readFile('tjcschedule_pub.pem', function read(err, data) {
+let cert: Buffer;
+fs.readFile('tjcschedule_pub.pem', function read(err, data: Buffer) {
   if (err) throw err;
   cert = data;
 });
 
-export function certify(req, res, next) {
+export function certify(req: Request, res: Response, next: NextFunction) {
   try {
-    const { authorization } = req.headers;
+    const { authorization = '' } = req.headers;
     jwt.verify(authorization, cert);
     next();
   } catch (err) {
@@ -27,7 +28,7 @@ export function certify(req, res, next) {
   }
 }
 
-export function sendGenericEmail(username, link) {
+export function sendGenericEmail(username: string, link: string) {
   try {
     console.log('Sending email..');
     const transporter = nodemailer.createTransport({
@@ -56,7 +57,12 @@ export function sendGenericEmail(username, link) {
   }
 }
 
-export function sendVerEmail(username, headers, token, api): [string, number] {
+export function sendVerEmail(
+  username: string,
+  { hostname }: Request, // https://github.com/getsentry/raven-node/issues/96
+  token: string,
+  api: string,
+): [string, number] {
   try {
     console.log('Sending email..');
     const message =
@@ -76,7 +82,7 @@ export function sendVerEmail(username, headers, token, api): [string, number] {
       from: 'shaun.tung@gmail.com',
       to: username,
       subject: 'Account Verification Token',
-      text: `Hello,\n\n Please verify your account by clicking the link: \nhttp://${headers.host}/api/authentication/${api}?token=${token}`,
+      text: `Hello,\n\n Please verify your account by clicking the link: \nhttp://${hostname}/api/authentication/${api}?token=${token}`,
     };
     transporter.sendMail(mailOptions, function (err) {
       return !err ? console.log('success') : console.log(err.message);
@@ -88,22 +94,24 @@ export function sendVerEmail(username, headers, token, api): [string, number] {
   }
 }
 
-export function addMinutes(date: Date, minutes) {
+export function addMinutes(date: Date, minutes: number) {
   return new Date(date.getTime() + minutes * 60000);
 }
 
 export function createToken(
-  tokenType,
-  userId,
-  expiresInMinutes,
+  tokenType: string,
+  userId: number,
+  expiresInMinutes: number,
   isAdmin = false,
-  roleIds: (number | RoleAttributes)[] = [],
+  roleIds: (number | RoleAttributes | undefined)[] = [],
 ) {
   console.log('Creating token');
   let mappedRoleIds = '';
   roleIds.forEach((roleId, id) => {
-    if (id === 0) mappedRoleIds += roleId.toString();
-    else mappedRoleIds += `|${roleId.toString()}`;
+    if (roleId) {
+      if (id === 0) mappedRoleIds += roleId.toString();
+      else mappedRoleIds += `|${roleId.toString()}`;
+    }
   });
   if (isAdmin) mappedRoleIds += '0';
   const token = jwt.sign(
@@ -116,14 +124,18 @@ export function createToken(
     },
     {
       key: privateKey,
-      passphrase: process.env.PRIVATEKEY_PASS,
+      passphrase: process.env.PRIVATEKEY_PASS ? process.env.PRIVATEKEY_PASS : '',
     },
     { algorithm: process.env.JWT_ALGORITHM as Algorithm },
   );
 
   return token;
 }
-export function createResetToken(userId, expiresInMinutes, secret) {
+export function createResetToken(
+  userId: number,
+  expiresInMinutes: number,
+  secret: string,
+) {
   console.log('Creating token');
   const token = jwt.sign(
     {
@@ -145,11 +157,8 @@ export function setDate(date: string, time: string, timeZone: string) {
 }
 
 export function hashPassword(password: string, salt: string) {
-  return crypto
-    .createHash(process.env.SECRET_HASH)
-    .update(password)
-    .update(salt)
-    .digest('hex');
+  const hashbrown = process.env.SECRET_HASH ? process.env.SECRET_HASH : '';
+  return crypto.createHash(hashbrown).update(password).update(salt).digest('hex');
 }
 export function makeMyNotificationMessage(
   notification: string,
@@ -172,12 +181,12 @@ export function makeMyNotificationMessage(
   }
 }
 
-export function determineLoginId(auth) {
+export function determineLoginId(auth = '') {
   const decodedToken = jwt.decode(auth, { json: true });
-  return parseInt(decodedToken.sub.split('|')[1], 10);
+  return parseInt(decodedToken?.sub.split('|')[1], 10);
 }
 
-export function timeToMilliSeconds(time: string) {
+export function timeToMilliSeconds(time = '') {
   const [hourMin, period] = time.split(' ');
   const [hour, min] = hourMin.split(':');
   const convertedHour = hour === '12' ? 0 : 3600000 * parseInt(hour, 10);
@@ -199,33 +208,6 @@ export function isTimeBefore(comparing: string, target: string): boolean {
   const comparingTime = timeToMilliSeconds(comparing);
   return comparingTime < targetTime;
 }
-
-// Recursively checks if the order is correct by checking from last element to first.
-export function correctOrder(arr, lastIdx, target, type) {
-  if (lastIdx === -1) {
-    arr.unshift(target);
-    return arr;
-  }
-  const condition =
-    type === 'order'
-      ? target.order < arr[lastIdx].order
-      : !isTimeBefore(arr[lastIdx].time, target.time);
-  if (!condition) {
-    arr.splice(lastIdx + 1, 0, target);
-    return arr;
-  }
-  return correctOrder(arr, lastIdx - 1, target, type);
-}
-
-const dayIndex = {
-  Sunday: 0,
-  Monday: 1,
-  Tuesday: 2,
-  Wednesday: 3,
-  Thursday: 4,
-  Friday: 5,
-  Saturday: 6,
-};
 
 const zeroPaddingDates = (monthIdx: number, dayIdx: number): string => {
   let month = (monthIdx + 1).toString();
@@ -251,7 +233,7 @@ const readableDate = (unreadableDate: Date) =>
 
 const incrementDay = (date: Date) => new Date(date.setDate(date.getDate() + 1));
 
-function determineStartDate(startDate: string, day: number) {
+function determineStartDate(startDate: Date, day: number) {
   let current = incrementDay(new Date(startDate));
   while (current.getDay() !== day) current = incrementDay(current);
   return current;
@@ -270,10 +252,10 @@ export function columnizedDates(everyRepeatingDay: string[]) {
 }
 
 export function everyRepeatingDayBetweenTwoDates(
-  startDate: string,
-  endDate: string,
+  startDate: Date,
+  endDate: Date,
   day: number,
-) {
+): string[] {
   const everyRepeatingDay = [];
   let start = new Date(startDate);
 
@@ -289,7 +271,11 @@ export function everyRepeatingDayBetweenTwoDates(
   return everyRepeatingDay;
 }
 
-export function createColumns(start: any, end: any, day: any) {
+export function createColumns(
+  start: Date,
+  end: Date,
+  day: number,
+): ReactTableColumnInterface[] {
   return [
     {
       Header: 'Time',
@@ -301,4 +287,9 @@ export function createColumns(start: any, end: any, day: any) {
     },
     ...columnizedDates(everyRepeatingDayBetweenTwoDates(start, end, day)),
   ];
+}
+
+export interface ReactTableColumnInterface {
+  Header: string;
+  accessor: string;
 }
