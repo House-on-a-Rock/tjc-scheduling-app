@@ -9,7 +9,6 @@ const port = process.env.PORT || 8080;
 const app: express.Application = express();
 const DIST_DIR = path.resolve(__dirname, '../dist');
 const HTML_FILE = path.join(DIST_DIR, 'index.html');
-console.log(DIST_DIR);
 
 app.use(express.static(DIST_DIR));
 

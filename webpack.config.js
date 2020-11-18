@@ -46,5 +46,3 @@ module.exports = {
   },
   watch: true,
 };
-
-console.log(path.resolve(__dirname, 'dist'));

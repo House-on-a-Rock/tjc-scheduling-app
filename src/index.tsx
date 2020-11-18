@@ -1,19 +1,12 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-// import { Provider } from 'react-redux';
-
-// import { App } from './app';
-// import { store } from './store';
+import { App } from './app';
 
 const Root = () => {
   return (
-    // <Provider store={store}>
     <div>
-      {/* <App /> */}
-      hi
+      <App />
     </div>
-
-    // </Provider>
   );
 };
 

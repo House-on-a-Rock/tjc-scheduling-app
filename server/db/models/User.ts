@@ -74,7 +74,7 @@ const UserFactory = (
   };
 
   User.encryptPassword = function (plainText, salt) {
-    const hash = process.env.SECRET_HASH ? process.env.SECRET_HASH : '';
+    const hash = process.env.SECRET_HASH ?? '';
     return crypto.createHash(hash).update(plainText).update(salt).digest('hex');
   };
 

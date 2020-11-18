@@ -1,17 +1,18 @@
 {
   "name": "tjc-scheduling-app",
   "scripts": {
-    "test": "mocha -r ts-node/register tests/*.ts --reporter spec --exit",
-    "dev": "",
-    "devbuild": "set \"NODE_ENV=development\" && webpack --watch",
+    "build-client": "webpack",
+    "build-client-watch": "webpack -w",
+    "start-dev": "NODE_ENV='development' npm run build-client-watch & npm run server:watch",
     "server": "node -r ts-node/register ./server/index.ts",
     "server:watch": "nodemon -r ts-node/register ./server/index.ts",
     "seed": "ts-node scripts/seed.js",
-    "set-mac-env": "chmod +x scripts/set_mac_env.sh && scripts/set_mac_env.sh",
     "prettier:base": "prettier",
     "prettier:check": "npm run prettier:base -- --list-different \"**/*\"",
     "prettier:write": "npm run prettier:base -- --write \"**/*\"",
-    "set-win-env": "powershell.exe -exec bypass -File D:/Code Projects/tjc-scheduling-app/scripts/set_win_env.ps1"
+    "set-mac-env": "chmod +x scripts/set_mac_env.sh && scripts/set_mac_env.sh",
+    "set-win-env": "powershell.exe -exec bypass -File D:/Code Projects/tjc-scheduling-app/scripts/set_win_env.ps1",
+    "test": "mocha -r ts-node/register tests/*.ts --reporter spec --exit"
   },
   "husky": {
     "hooks": {

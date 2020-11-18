@@ -124,7 +124,7 @@ export function createToken(
     },
     {
       key: privateKey,
-      passphrase: process.env.PRIVATEKEY_PASS ? process.env.PRIVATEKEY_PASS : '',
+      passphrase: process.env.PRIVATEKEY_PASS ?? '',
     },
     { algorithm: process.env.JWT_ALGORITHM as Algorithm },
   );
@@ -157,7 +157,7 @@ export function setDate(date: string, time: string, timeZone: string) {
 }
 
 export function hashPassword(password: string, salt: string) {
-  const hashbrown = process.env.SECRET_HASH ? process.env.SECRET_HASH : '';
+  const hashbrown = process.env.SECRET_HASH ?? '';
   return crypto.createHash(hashbrown).update(password).update(salt).digest('hex');
 }
 export function makeMyNotificationMessage(
