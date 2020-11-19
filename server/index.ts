@@ -25,15 +25,6 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors());
 
-// app.get('/', (req: any, res) => {
-//   const msg = 'Welcome to this API. ';
-//   res.status(200).send({ message: msg });
-// });
-
-app.get('/', (req, res) => {
-  res.sendFile(HTML_FILE);
-});
-
 app.use('/api', require('./routes'));
 app.use('/api', require('./routes/churches'));
 app.use('/api', require('./routes/users'));
@@ -43,6 +34,11 @@ app.use('/api', require('./routes/user-roles'));
 app.use('/api', require('./routes/notifications'));
 app.use('/api', require('./routes/schedules'));
 app.use('/api', require('./routes/services'));
+
+app.use('*', (req, res) => {
+  console.log('am i hit');
+  res.sendFile(HTML_FILE);
+});
 
 app.use((req, res, next) => {
   const error = new Error('Not Found');

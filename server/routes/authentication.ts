@@ -78,6 +78,7 @@ router.post('/resendConfirm', async (req: Request, res: Response, next: NextFunc
 });
 
 router.post('/webLogin', async (req: Request, res: Response, next: NextFunction) => {
+  console.log('webLogin');
   try {
     const { email: loginEmail, password: loginPassword } = req.body;
     const user = await db.User.findOne({
@@ -137,11 +138,11 @@ router.post('/webLogin', async (req: Request, res: Response, next: NextFunction)
     }
     await user.update({ id, loginAttempts: 0, loginTimeout: null });
     const token = createToken('reg', id, 600, isAdmin, roleIds);
-    console.log(token);
-    // return res.redirect(`http://localhost:8081/home/token?token=${token}`);
-    return res
-      .status(status)
-      .json({ user_id: id, firstName, lastName, email, access_token: token });
+    // console.log(token);
+    return res.redirect(`http://localhost:8080/home/token?token=${token}`);
+    // return res
+    //   .status(status)
+    //   .json({ user_id: id, firstName, lastName, email, access_token: token });
   } catch (err) {
     next(err);
     return res.status(503).send({ message: 'Server error, try again later' });

@@ -1,13 +1,18 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { App } from './app';
+import { Provider } from 'react-redux';
 
-const Root = () => {
+import App from './app';
+import { store } from './store';
+
+console.log('document', document);
+
+const Index = () => {
   return (
-    <div>
+    <Provider store={store}>
       <App />
-    </div>
+    </Provider>
   );
 };
 
-ReactDOM.render(<Root />, document.getElementById('root'));
+ReactDOM.render(<Index />, document.getElementById('root'));
