@@ -65,7 +65,7 @@ router.get(
           'replace',
         ],
       });
-      return requests.length > 0
+      return requests.length
         ? res.status(200).json(requests)
         : res.status(404).send({ message: 'Swap requests not found' });
     } catch (err) {

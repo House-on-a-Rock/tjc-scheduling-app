@@ -46,7 +46,7 @@ export const MembersTable = ({
 }: MembersTableProps) => {
   const classes = useStyles();
   const setIndeterminate: boolean =
-    selectedRowLength > 0 && selectedRowLength !== members.length;
+    !!selectedRowLength && selectedRowLength !== members.length;
   return (
     <TableContainer component={Paper} className={classes.root}>
       <Table className={classes.table} aria-label="members table">
@@ -55,7 +55,7 @@ export const MembersTable = ({
             <TableCell padding="checkbox">
               <Checkbox
                 indeterminate={setIndeterminate}
-                checked={selectedRowLength > 0}
+                checked={!!selectedRowLength}
                 onChange={(event) => {
                   handleCheck(event);
                 }}

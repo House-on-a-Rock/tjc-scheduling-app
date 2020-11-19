@@ -10,8 +10,6 @@ const app: express.Application = express();
 const DIST_DIR = path.resolve(__dirname, '../dist');
 const HTML_FILE = path.join(DIST_DIR, 'index.html');
 
-app.use(express.static(DIST_DIR));
-
 app.use(
   session({
     secret: 't-rex',
@@ -35,15 +33,19 @@ app.use('/api', require('./routes/notifications'));
 app.use('/api', require('./routes/schedules'));
 app.use('/api', require('./routes/services'));
 
+app.use(express.static(DIST_DIR));
+
+app.use((req, res, next) => {
+  if (path.extname(req.path).length) {
+    const error = new Error('Not Found');
+    res.status(404);
+    next(error);
+  } else next();
+});
+
 app.use('*', (req, res) => {
   console.log('am i hit');
   res.sendFile(HTML_FILE);
-});
-
-app.use((req, res, next) => {
-  const error = new Error('Not Found');
-  res.status(404);
-  next(error);
 });
 
 const syncDb = () =>

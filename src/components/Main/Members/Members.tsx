@@ -137,7 +137,7 @@ export const Members = () => {
           }
           handleAddOpen={() => setIsAddMemberDialogOpen(!isAddMemberDialogOpen)}
           handleDeleteOpen={() =>
-            selectedRows.length > 0 && setIsConfirmDialogOpen(!isConfirmDialogOpen)
+            !!selectedRows.length && setIsConfirmDialogOpen(!isConfirmDialogOpen)
           }
         />
         <MembersTable

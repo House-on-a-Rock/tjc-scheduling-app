@@ -62,6 +62,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export const Login = () => {
+  console.log('entered login page');
   const classes = useStyles();
   const dispatch = useDispatch();
 
@@ -94,7 +95,7 @@ export const Login = () => {
     event?.preventDefault();
     setEmail({ ...email, valid: true, message: '' });
     setPassword({ ...password, valid: true, message: '' });
-    if (isValidEmail(email.value) && password.value.length > 0) {
+    if (isValidEmail(email.value) && password.value.length) {
       dispatch(checkCredentials(email.value, password.value));
     } else {
       if (password.value.length === 0)

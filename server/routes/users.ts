@@ -45,7 +45,7 @@ router.get('/users', certify, async (req: Request, res: Response, next) => {
       ],
     });
 
-    return users.length > 0
+    return users.length
       ? res.status(200).json(users)
       : res.status(404).send({ message: 'Users not found' });
   } catch (err) {

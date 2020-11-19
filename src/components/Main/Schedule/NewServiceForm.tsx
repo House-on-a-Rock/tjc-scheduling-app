@@ -62,7 +62,7 @@ export const NewServiceForm = ({ order, onSubmit, onClose }: NewServiceFormProps
 
     const dayInt = parseInt(dayOfWeek.value, 10);
 
-    if (serviceName.value.length > 0 && serviceName.value.length < 32 && dayInt >= 0)
+    if (serviceName.value.length && serviceName.value.length < 32 && dayInt >= 0)
       onSubmit(serviceName.value, order + 1, dayInt);
 
     constructError(

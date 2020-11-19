@@ -116,7 +116,7 @@ router.post('/webLogin', async (req: Request, res: Response, next: NextFunction)
           return ['Invalid Username or Password', 401];
         case !isVerified:
           return ['Please verify your email', 403];
-        case !(roleIds.length > 0 || isAdmin):
+        case roleIds.length || !isAdmin:
           return ['You are not permitted to access this site', 404];
         default:
           return ['success', 200];

@@ -94,7 +94,7 @@ export const NewScheduleForm = ({ onSubmit, onClose }: NewScheduleFormProps) => 
     setTeam({ ...team, valid: true, message: '' });
     const teamInt = parseInt(team.value, 10);
     if (
-      scheduleTitle.value.length > 0 &&
+      scheduleTitle.value.length &&
       scheduleTitle.value.length < 32 &&
       endDate.value > startDate.value &&
       teamInt > 0

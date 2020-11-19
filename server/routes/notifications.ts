@@ -71,7 +71,7 @@ router.get(
           },
         ],
       });
-      return notifications.length > 0
+      return notifications.length
         ? res.status(200).json(notifications)
         : res.status(404).send({ message: 'No Notifications Found' });
     } catch (err) {
