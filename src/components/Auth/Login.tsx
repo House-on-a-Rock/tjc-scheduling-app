@@ -18,7 +18,7 @@ import Container from '@material-ui/core/Container';
 import CircularProgress from '@material-ui/core/CircularProgress';
 
 // Custom Components
-import Copyright from '../shared/Copyright';
+import { Copyright } from '../shared/Copyright';
 
 // Actions
 import { checkCredentials } from '../../store/actions';

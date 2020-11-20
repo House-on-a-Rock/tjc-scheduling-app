@@ -102,6 +102,7 @@ declare module 'react-table' {
       UseResizeColumnsColumnProps<D>,
       UseSortByColumnProps<D> {}
 
+  // eslint-disable-next-line @typescript-eslint/no-empty-interface
   export interface Cell<D extends object = {}> extends UseGroupByCellProps<D> {}
 
   export interface Row<D extends object = {}>

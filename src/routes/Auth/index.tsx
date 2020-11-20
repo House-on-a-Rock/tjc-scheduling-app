@@ -5,6 +5,7 @@ import { AuthEmail } from '../../components/shared';
 
 const Auth = () => {
   const { path } = useRouteMatch();
+  console.log('Auth Index.tsx');
   return (
     <Switch>
       <Route path={`${path}/login`}>

@@ -1,13 +1,16 @@
 import { getAllLocalMembers, getUserRoles } from '../store/apis';
-import { INewMembersData, IRolesData } from './types';
+import { NewMembersData, RolesData } from './types';
 
 export const getChurchMembersData = async (key: string, churchId: number) => {
   if (churchId) {
     const { data } = await getAllLocalMembers(churchId);
-    const members: INewMembersData[] = await Promise.all(
-      data.map(async (member: INewMembersData) => {
-        const { data } = await getUserRoles(member.userId);
-        return { ...member, roles: data.map(({ role }: IRolesData) => role.name) };
+    const members: NewMembersData[] = await Promise.all(
+      data.map(async (member: NewMembersData) => {
+        const { data: userRolesData } = await getUserRoles(member.userId);
+        return {
+          ...member,
+          roles: userRolesData.map(({ role }: RolesData) => role.name),
+        };
       }),
     );
     return members;

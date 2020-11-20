@@ -20,14 +20,14 @@ export function showLoadingSpinner(showIt: boolean) {
 }
 
 function showWaitingMessage() {
-  const classList = document.body.classList;
+  const { classList } = document.body;
   classList.add('message');
   const whichMessage = randomNumber(1, numberOfMessages);
   classList.add(`message-${whichMessage}`);
 }
 
 function hideWaitingMessage() {
-  const classList = document.body.classList;
+  const { classList } = document.body;
   classList.remove('message');
   for (let i = 1; i <= numberOfMessages; i++) {
     classList.remove(`message-${i}`);

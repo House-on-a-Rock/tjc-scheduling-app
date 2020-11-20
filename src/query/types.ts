@@ -3,10 +3,10 @@ import { MemberStateData } from '../store/types';
 export type IRole = {
   name: string;
 };
-export interface IRolesData {
+export interface RolesData {
   roleId: number;
   role: IRole;
 }
-export interface INewMembersData extends MemberStateData {
+export interface NewMembersData extends MemberStateData {
   roles: string[];
 }

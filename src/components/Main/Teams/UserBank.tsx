@@ -1,5 +1,6 @@
+/* eslint-disable @typescript-eslint/unbound-method */
+/* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { getRenderItem } from './services';
 import {
   Droppable,
   Draggable,
@@ -9,13 +10,6 @@ import {
   DraggableStateSnapshot,
   DroppableId,
 } from 'react-beautiful-dnd';
-import './UserBank.css';
-import {
-  transitionTheme,
-  sideBarTheme,
-  buttonTheme,
-} from '../../../shared/styles/theme.js';
-import { verticalScrollIndicatorShadow } from '../../../shared/styles/scroll-indicator-shadow';
 
 // Material UI Components
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
@@ -25,6 +19,14 @@ import ListItemText from '@material-ui/core/ListItemText';
 import ListSubheader from '@material-ui/core/ListSubheader';
 import Paper from '@material-ui/core/Paper';
 import { MembersData } from './models';
+import { getRenderItem } from './services';
+import './UserBank.css';
+import {
+  transitionTheme,
+  sideBarTheme,
+  buttonTheme,
+} from '../../../shared/styles/theme.js';
+import { verticalScrollIndicatorShadow } from '../../../shared/styles/scroll-indicator-shadow';
 
 interface UserBankProps {
   members: MembersData[];
@@ -65,13 +67,13 @@ const DroppableBank = ({
     <Droppable
       renderClone={getRenderItem(members, className)}
       droppableId={droppableId}
-      isDropDisabled={true}
+      isDropDisabled
     >
       {(provided: DroppableProvided, snapshot: DroppableStateSnapshot) => (
         <List dense ref={provided.innerRef}>
-          <ListSubheader
-            className={classes.listSubheader}
-          >{`List of ${church} church members`}</ListSubheader>
+          <ListSubheader className={classes.listSubheader}>
+            {`List of ${church} church members`}
+          </ListSubheader>
           {members.map((member: MembersData, index: number) => {
             const shouldRenderClone = member.id === snapshot.draggingFromThisWith;
             return (
@@ -82,12 +84,15 @@ const DroppableBank = ({
                   </ListItem>
                 ) : (
                   <Draggable index={index} draggableId={member.id}>
-                    {(provided: DraggableProvided, snapshot: DraggableStateSnapshot) => (
+                    {(
+                      childProvided: DraggableProvided,
+                      childSnapshot: DraggableStateSnapshot,
+                    ) => (
                       <ListItem
-                        ref={provided.innerRef}
-                        {...provided.draggableProps}
-                        {...provided.dragHandleProps}
-                        className={`${snapshot.isDragging ? 'dragging' : ''} ${
+                        ref={childProvided.innerRef}
+                        {...childProvided.draggableProps}
+                        {...childProvided.dragHandleProps}
+                        className={`${childSnapshot.isDragging ? 'dragging' : ''} ${
                           classes.member
                         }`}
                       >

@@ -1,12 +1,11 @@
+/* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
 import TextField from '@material-ui/core/TextField';
 import { TextFieldState } from '../../shared/types/models';
 
 interface ValidatedTextField {
-  // name: string;
   label: string;
   input: TextFieldState;
-  className?: string;
   handleChange: (input: TextFieldState) => void;
   [x: string]: any;
 }
@@ -32,11 +31,9 @@ export const constructError = (
 };
 
 export const ValidatedTextField = ({
-  name,
   label,
   input,
   handleChange,
-  className,
   ...extraProps
 }: ValidatedTextField) => (
   <TextField
@@ -49,7 +46,7 @@ export const ValidatedTextField = ({
     name={label}
     value={input.value}
     onChange={(event) => handleChange({ ...input, value: event.target.value })}
-    className={className}
+    // className={className}
     error={!input.valid}
     helperText={input.valid ? '' : input.message}
     {...extraProps}

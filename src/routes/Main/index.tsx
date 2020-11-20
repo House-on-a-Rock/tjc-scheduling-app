@@ -2,19 +2,19 @@ import React, { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { BrowserRouter as Router, Route, Switch, Redirect } from 'react-router-dom';
 import { QueryCache, ReactQueryCacheProvider, useQuery } from 'react-query';
-// eslint-disable-next-line import/no-extraneous-dependencies
+
 import { ReactQueryDevtools } from 'react-query-devtools';
 import { ThemeProvider } from '@material-ui/core';
 
 import { Home, Teams, Members } from '../../components/Main';
 import { Header } from '../../components/shared/Header';
-import { Error404 } from '../../components/shared';
-import '../../assets/fonts.css';
-import '../../assets/global.css';
 import theme from '../../shared/styles/theme';
 import { extractUserId } from '../../shared/utilities';
 import { getUserData, getScheduleData } from '../../query';
 import { loadProfile } from '../../store/actions/profileActions';
+
+import '../../assets/fonts.css';
+import '../../assets/global.css';
 
 const Main = () => {
   console.log('HELLOOO PEOPLE');

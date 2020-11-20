@@ -26,10 +26,3 @@
   },
   "exclude": ["node_modules", ".vscode", ".expo"]
 }
-
-// "noEmit": false,
-// "sourceMap": true,
-// "module": "esnext",
-// "strict": true,
-// "target": "esnext",
-// "moduleResolution": "node"

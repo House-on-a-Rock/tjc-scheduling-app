@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
 import Slide from '@material-ui/core/Slide';
 import Dialog from '@material-ui/core/Dialog';
@@ -11,17 +12,7 @@ function Transition(props: any) {
   return <Slide direction="up" {...props} />;
 }
 
-export default function Alert(
-  {
-    // handleClose,
-    // handleSubmit,
-    // isOpen,
-    // hasTwoButtons = false,
-    // submitButtonText,
-    // title,
-    // text,
-  },
-) {
+export const Alert = () => {
   const isOpen = false;
   const title = 'Temporary Title';
   const text = 'Temporary Title';
@@ -41,9 +32,9 @@ export default function Alert(
         <DialogContentText>{text}</DialogContentText>
       </DialogContent>
       <DialogActions>
-        {hasTwoButtons && <Button color="primary">{'CANCEL'}</Button>}
+        {hasTwoButtons && <Button color="primary">CANCEL</Button>}
         <Button color="primary">{submitButtonText}</Button>
       </DialogActions>
     </Dialog>
   );
-}
+};
