@@ -85,7 +85,11 @@ router.post('/schedules', certify, async (req: Request, res: Response, next: Nex
             attributes: ['churchId', 'title'],
         });
 
-        if (dbSchedule) return res.status(409).send({ message: 'Schedule already exists' });
+        if (dbSchedule) {
+            res.statusMessage = 'Schedule already exists';
+            res.status(409).send();
+            return;
+        }
 
         const newSchedule = await db.Schedule.create({
             title,
@@ -96,7 +100,8 @@ router.post('/schedules', certify, async (req: Request, res: Response, next: Nex
             roleId: team,
         });
 
-        return res.status(200).json(newSchedule);
+        // return res.status(200).json(newSchedule);
+        return res.status(200).send(`Schedule ${newSchedule.title} successfully added`);
     } catch (err) {
         next(err);
         return res.status(503).send({ message: 'Server error, try again later' });
