@@ -9,13 +9,14 @@ const TaskFactory = (
     const attributes: SequelizeAttributes<TaskAttributes> = {
         date: { type: DataTypes.DATE },
         status: { type: DataTypes.STRING, defaultValue: 'active' },
+        // id: { type: DataTypes.INTEGER, primaryKey: true },
     };
 
     const Task = sequelize.define<TaskInstance, TaskAttributes>('Task', attributes);
 
     Task.associate = (models) => {
         Task.belongsTo(models.Event, { as: 'event', foreignKey: 'eventId' });
-        Task.belongsTo(models.UserRole, { as: 'user', foreignKey: 'userId' });
+        Task.belongsTo(models.User, { as: 'user', foreignKey: 'userId' });
     };
     return Task;
 };

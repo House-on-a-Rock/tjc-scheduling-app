@@ -205,6 +205,7 @@ export function correctOrder(arr, lastIdx, target, type) {
     return correctOrder(arr, lastIdx - 1, target, type);
 }
 
+// unused?
 const dayIndex = {
     Sunday: 0,
     Monday: 1,
@@ -215,9 +216,10 @@ const dayIndex = {
     Saturday: 6,
 };
 
-const zeroPaddingDates = (monthIdx: number, dayIdx: number): string => {
-    let month = (monthIdx + 1).toString();
-    let day = dayIdx.toString();
+// adds 0 in front of single-digit months
+const zeroPaddingDates = (date: Date): string => {
+    let month = (date.getMonth() + 1).toString();
+    let day = date.getDate().toString();
 
     month = month.length > 1 ? month : `0${month}`;
     day = day.length > 1 ? day : `0${day}`;
@@ -225,53 +227,44 @@ const zeroPaddingDates = (monthIdx: number, dayIdx: number): string => {
     return `${month}/${day}`;
 };
 
-export const contrivedDate = (date: string | Date) => {
-    const jsDate = new Date(date);
-    const monthIdx = jsDate.getMonth();
-    const dayIdx = jsDate.getDate();
-    return zeroPaddingDates(monthIdx, dayIdx);
+export const matchKey = (date: Date) => {
+    let start = new Date(date);
+    start.setDate(start.getDate() - start.getDay()); //sets start to sunday
+    let end = new Date(start);
+    end.setDate(start.getDate() + 6);
+    return `${zeroPaddingDates(start)}-${zeroPaddingDates(end)}`;
 };
 
-const readableDate = (unreadableDate: Date) =>
-    `${unreadableDate.getMonth() + 1}/${unreadableDate.getDate()}/${unreadableDate.getFullYear()}`;
+export function columnizedDates(everyRepeatingDay: Date[]) {
+    return everyRepeatingDay.map((date: Date) => {
+        const startDate = new Date(date);
+        const endDate = new Date(date);
+        endDate.setDate(startDate.getDate() + 6);
 
-const incrementDay = (date: Date) => new Date(date.setDate(date.getDate() + 1));
-
-function determineStartDate(startDate: string, day: number) {
-    let current = incrementDay(new Date(startDate));
-    while (current.getDay() !== day) current = incrementDay(current);
-    return current;
-}
-
-export function columnizedDates(everyRepeatingDay: string[]) {
-    return everyRepeatingDay.map((date: string) => {
-        const jsDate = new Date(date);
-        const monthIdx = jsDate.getMonth();
-        const dayIdx = jsDate.getDate();
         return {
-            Header: zeroPaddingDates(monthIdx, dayIdx),
-            accessor: zeroPaddingDates(monthIdx, dayIdx),
+            Header: `${zeroPaddingDates(startDate)}-${zeroPaddingDates(endDate)}`,
+            accessor: `${zeroPaddingDates(startDate)}-${zeroPaddingDates(endDate)}`,
         };
     });
 }
 
-export function everyRepeatingDayBetweenTwoDates(startDate: string, endDate: string, day: number) {
-    const everyRepeatingDay = [];
+export function determineWeeks(startDate: Date, endDate: Date) {
+    const weeks = [];
     let start = new Date(startDate);
-
-    if (start.getDay() !== day) start = determineStartDate(startDate, day);
+    start.setDate(start.getDate() - start.getDay()); //sets start to sunday
+    let end = new Date(endDate);
+    end.setDate(end.getDate() + (6 - end.getDay()));
 
     let current = new Date(start);
-    const end = new Date(endDate);
 
     while (current <= end) {
-        everyRepeatingDay.push(readableDate(current));
+        weeks.push(current);
         current = new Date(current.setDate(current.getDate() + 7));
     }
-    return everyRepeatingDay;
+    return weeks;
 }
 
-export function createColumns(start: any, end: any, day: any) {
+export function createColumns(start: Date, end: Date) {
     return [
         {
             Header: 'Time',
@@ -281,6 +274,6 @@ export function createColumns(start: any, end: any, day: any) {
             Header: 'Duty',
             accessor: 'duty',
         },
-        ...columnizedDates(everyRepeatingDayBetweenTwoDates(start, end, day)),
+        ...columnizedDates(determineWeeks(start, end)),
     ];
 }

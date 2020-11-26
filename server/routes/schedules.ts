@@ -2,7 +2,7 @@
 /* eslint-disable array-callback-return */
 import express, { Request, Response, NextFunction } from 'express';
 import db from '../index';
-import { certify, contrivedDate, createColumns } from '../utilities/helperFunctions';
+import { certify, createColumns, matchKey } from '../utilities/helperFunctions';
 
 const router = express.Router();
 module.exports = router;
@@ -26,26 +26,41 @@ router.get('/schedules', certify, async (req: Request, res: Response, next: Next
         const { scheduleId } = req.query;
         const schedule = await db.Schedule.findOne({ where: { id: scheduleId.toString() } });
         const scheduleRole = await db.Role.findOne({ where: { id: schedule.roleId } });
-        const services = await db.Service.findAll({ where: { scheduleId: scheduleId.toString() } }); //toString fixes parsedQ's issue
+        const services = await db.Service.findAll({
+            where: { scheduleId: scheduleId.toString() },
+            order: [['order', 'ASC']],
+        }); //toString fixes parsedQ's issue
+        const columns = createColumns(schedule.start, schedule.end);
+
         const servicesData = await Promise.all(
             services.map(async (service) => {
-                const events = await db.Event.findAll({ where: { serviceId: service.id } });
-                const columns = createColumns(schedule.start, schedule.end, service.day);
+                const events = await db.Event.findAll({ where: { serviceId: service.id }, order: [['order', 'ASC']] }); //returns events in ascending order
+
                 const data = await Promise.all(
                     events.map(async (event) => {
                         const { time, title, roleId, displayTime, id: eventId } = event;
-
-                        const tasks = await db.Task.findAll({ where: { eventId } });
                         const role = await db.Role.findOne({
                             where: { id: roleId },
                             attributes: ['id', 'name'],
                         });
+                        const tasks = await db.Task.findAll({
+                            where: { eventId },
+                            attributes: ['id', 'date', 'userId'],
+                            // include: [
+                            //     {
+                            //         model: db.User,
+                            //         as: 'user',
+                            //         attributes: ['firstName', 'lastName'],
+                            //     },
+                            // ],
+                        });
+
                         const tasksData = await Promise.all(
-                            tasks.map(async ({ date, userId }) => {
+                            tasks.map(async ({ date, userId, id }) => {
                                 const { firstName, lastName } = await db.User.findOne({
                                     where: { id: userId },
                                 });
-                                return { date, firstName, lastName, userId, role };
+                                return { date, firstName, lastName, userId, role, taskId: id };
                             }),
                         );
                         const serviceData: any = { duty: { data: { display: title } } };
@@ -53,10 +68,10 @@ router.get('/schedules', certify, async (req: Request, res: Response, next: Next
                         if (displayTime) serviceData.time = { data: { display: time } };
 
                         tasksData.map((task) => {
-                            const { date, firstName, lastName, userId, role: taskRole } = task;
-                            const key = contrivedDate(date);
+                            const { date, firstName, lastName, userId, role: taskRole, taskId } = task;
+                            const key = matchKey(date);
                             const value = {
-                                data: { firstName, lastName, userId, role: taskRole },
+                                data: { firstName, lastName, userId, role: taskRole, taskId },
                             };
                             serviceData[key] = value;
                         });
