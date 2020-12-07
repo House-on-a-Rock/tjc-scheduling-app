@@ -28,7 +28,6 @@ export const rememberMe = (remember: EmailMemory): AuthActionTypes => ({
 export const forgetMe = (): AuthActionTypes => ({ type: FORGET_ME });
 
 /* Thunk */
-
 export const onValidated = (): ThunkAction<any, any, any, Action> => (dispatch) => {
   dispatch(login());
   dispatch(AuthStateActions.Loaded());
@@ -41,18 +40,15 @@ export const checkCredentials = (
 ): ThunkAction<any, any, any, Action> => {
   return async (dispatch) => {
     try {
-      const { data, status, statusText } = await authenticateLogin(email, password);
+      const res = await authenticateLogin(email, password);
+      const { data, status, statusText } = res;
+      console.log('123123123', res, status, res.headers);
       dispatch(AuthStateActions.Loading());
       localStorage.setItem('access_token', data.access_token);
       axios.defaults.headers.commonauthorization = data.access_token;
+      // if (status === 200) window.location = res.headers.Location;
       if (status === 200) dispatch(onValidated());
-      else
-        dispatch(
-          AuthStateActions.Error({
-            status,
-            message: statusText,
-          }),
-        );
+      else dispatch(AuthStateActions.Error({ status, message: statusText }));
     } catch (error) {
       const errorData = errorDataExtractor(error);
       dispatch(AuthStateActions.Error(errorData));
@@ -66,13 +62,7 @@ export const validateResetToken = (token: string): ThunkAction<any, any, any, Ac
     try {
       const { status, statusText } = await checkResetToken(token);
       if (status === 200) dispatch(AuthStateActions.Loaded());
-      else
-        dispatch(
-          AuthStateActions.Error({
-            status,
-            message: statusText,
-          }),
-        );
+      else dispatch(AuthStateActions.Error({ status, message: statusText }));
     } catch (error) {
       const errorData = errorDataExtractor(error);
       dispatch(AuthStateActions.Error(errorData));
@@ -87,13 +77,7 @@ export const sendAuthEmail = (
   try {
     const { status, statusText } = await recoverEmail(email);
     if (status === 200) dispatch(AuthStateActions.Loaded());
-    else
-      dispatch(
-        AuthStateActions.Error({
-          status,
-          message: statusText,
-        }),
-      );
+    else dispatch(AuthStateActions.Error({ status, message: statusText }));
   } catch (error) {
     const errorData = errorDataExtractor(error);
     dispatch(AuthStateActions.Error(errorData));
@@ -108,13 +92,7 @@ export const resetPassword = (
   try {
     const { status, statusText } = await sendNewPassword(token, newPassword);
     if (status === 201) dispatch(AuthStateActions.Loaded());
-    else
-      dispatch(
-        AuthStateActions.Error({
-          status,
-          message: statusText,
-        }),
-      );
+    else dispatch(AuthStateActions.Error({ status, message: statusText }));
   } catch (error) {
     const errorData = errorDataExtractor(error);
     dispatch(AuthStateActions.Error(errorData));

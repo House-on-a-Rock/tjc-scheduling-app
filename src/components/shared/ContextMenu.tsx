@@ -20,7 +20,7 @@ interface FooObject {
   foo: string;
 }
 
-//This doesn't come with default styling unfortunately. They're style sheets are here: https://github.com/vkbansal/react-contextmenu/blob/master/examples/react-contextmenu.css
+// This doesn't come with default styling unfortunately. They're style sheets are here: https://github.com/vkbansal/react-contextmenu/blob/master/examples/react-contextmenu.css
 export const ContextMenu = ({ children, menuId, value }: ContextMenuProps) => {
   function handleClick({ target }: MenuItemProps, data: FooObject) {
     console.log(data, target.innerText);
@@ -30,10 +30,10 @@ export const ContextMenu = ({ children, menuId, value }: ContextMenuProps) => {
     <div>
       <ContextMenuComponent
         id={menuId}
-        hideOnLeave={true}
+        hideOnLeave
         style={{
           margin: 1,
-          borderColor: 'black', //these border attributes don't show up for some reason
+          borderColor: 'black', // these border attributes don't show up for some reason
           borderWidth: 1,
           padding: 5,
           backgroundColor: 'white',

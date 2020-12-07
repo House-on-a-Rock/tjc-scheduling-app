@@ -11,7 +11,7 @@ const TokenFactory = (
   DataTypes: Sequelize.DataTypes,
 ): Sequelize.Model<TokenInstance, TokenAttributes> => {
   const attributes: SequelizeAttributes<TokenAttributes> = {
-    id: { type: DataTypes.INTEGER, primaryKey: true },
+    id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     userId: { type: DataTypes.INTEGER },
     token: { type: DataTypes.STRING },
     expiresIn: {

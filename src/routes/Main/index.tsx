@@ -17,7 +17,6 @@ import '../../assets/fonts.css';
 import '../../assets/global.css';
 
 const Main = () => {
-  console.log('HELLOOO PEOPLE');
   const queryCache = new QueryCache({
     defaultConfig: {
       queries: {

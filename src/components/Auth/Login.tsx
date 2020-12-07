@@ -62,7 +62,6 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export const Login = () => {
-  console.log('entered login page');
   const classes = useStyles();
   const dispatch = useDispatch();
 

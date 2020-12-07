@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-misused-promises */
 import express, { Request, Response, NextFunction } from 'express';
 import crypto from 'crypto';
 import jwt, { TokenExpiredError, JsonWebTokenError } from 'jsonwebtoken';
@@ -78,24 +79,12 @@ router.post('/resendConfirm', async (req: Request, res: Response, next: NextFunc
 });
 
 router.post('/webLogin', async (req: Request, res: Response, next: NextFunction) => {
-  console.log('webLogin');
   try {
     const { email: loginEmail, password: loginPassword } = req.body;
     const user = await db.User.findOne({
       where: { email: loginEmail },
     });
-    const {
-      password,
-      salt,
-      loginTimeout,
-      loginAttempts,
-      id,
-      isVerified,
-      firstName,
-      lastName,
-      email,
-      isAdmin,
-    } = user;
+    const { password, salt, loginTimeout, loginAttempts, id, isVerified, isAdmin } = user;
 
     const userRoles: UserRoleInstance[] = await db.UserRole.findAll({
       where: { userId: id },
@@ -138,11 +127,14 @@ router.post('/webLogin', async (req: Request, res: Response, next: NextFunction)
     }
     await user.update({ id, loginAttempts: 0, loginTimeout: null });
     const token = createToken('reg', id, 600, isAdmin, roleIds);
-    // console.log(token);
-    return res.redirect(`http://localhost:8080/home/token?token=${token}`);
-    // return res
-    //   .status(status)
-    //   .json({ user_id: id, firstName, lastName, email, access_token: token });
+    console.log(token);
+    // res.header('Authorization', token);
+    return res.redirect(`http://localhost:8080/home?token=${token}`);
+    // return res.redirect(
+    //   `http://localhost:8080/auth/resetPassword?token=${header}.${payload}.${signature}`,
+    // );
+    // return res.redirect('http://mangapanda.com');
+    // return res.status(status).json({ user_id: id, access_token: token });
   } catch (err) {
     next(err);
     return res.status(503).send({ message: 'Server error, try again later' });
@@ -318,7 +310,7 @@ router.get(
       // These commented out lines is what you need. I just dunno how the jwt works, but this is how it should work.
       // (jwt === verified) ?
       return res.redirect(
-        `http://localhost:8081/auth/resetPassword?token=${header}.${payload}.${signature}`,
+        `http://localhost:8080/auth/resetPassword?token=${header}.${payload}.${signature}`,
       );
       // : res.redirect(`http://localhost:8081/auth/expiredAccess?message='TokenExpired'`)
       // also if you could change the way that "Token Expired" string is sent, I think you have to

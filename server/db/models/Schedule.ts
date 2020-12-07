@@ -10,7 +10,7 @@ const ScheduleFactory = (
   DataTypes: Sequelize.DataTypes,
 ): Sequelize.Model<ScheduleInstance, ScheduleAttributes> => {
   const attributes: SequelizeAttributes<ScheduleAttributes> = {
-    id: { type: DataTypes.INTEGER, primaryKey: true },
+    id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     title: { type: DataTypes.STRING },
     view: { type: DataTypes.STRING },
     start: { type: DataTypes.DATE },

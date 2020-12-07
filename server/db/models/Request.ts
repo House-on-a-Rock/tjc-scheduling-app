@@ -7,7 +7,7 @@ const RequestFactory = (
   DataTypes: Sequelize.DataTypes,
 ): Sequelize.Model<RequestInstance, RequestAttributes> => {
   const attributes: SequelizeAttributes<RequestAttributes> = {
-    id: { type: DataTypes.INTEGER, primaryKey: true },
+    id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     requesteeUserId: { type: DataTypes.INTEGER },
     type: { type: DataTypes.STRING },
     accepted: {

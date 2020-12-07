@@ -8,9 +8,7 @@ function useQuery() {
 
 export const PrivateRoute = ({ children, ...rest }: any) => {
   const query = useQuery();
-  console.log('PrivateRoute', query.get('token'));
   const isLoggedIn = useSelector(({ auth }) => auth.isLoggedIn);
-  console.log('PrivateRoute', isLoggedIn);
   return (
     <Route
       // eslint-disable-next-line react/jsx-props-no-spreading

@@ -1,10 +1,10 @@
-// const HtmlWebPackPlugin = require('html-webpack-plugin');
+const HtmlWebPackPlugin = require('html-webpack-plugin');
 const path = require('path');
 
-// const htmlPlugin = new HtmlWebPackPlugin({
-//   template: './public/index.html',
-//   filename: './index.html',
-// });
+const htmlPlugin = new HtmlWebPackPlugin({
+  template: './public/index.html',
+  filename: './index.html',
+});
 
 const isDev = process.env.NODE_ENV === 'development';
 
@@ -36,9 +36,9 @@ module.exports = {
       },
     ],
   },
-  // plugins: [htmlPlugin],
+  plugins: [htmlPlugin],
   resolve: {
-    extensions: ['.tsx', '.ts', '.js'],
+    extensions: ['.tsx', '.ts', '.js', 'css', 'scss'],
   },
   output: {
     path: path.resolve(__dirname, 'dist'),

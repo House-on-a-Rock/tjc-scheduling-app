@@ -17,7 +17,6 @@ export const addSchedule = ({
   team,
   churchId,
 }: AddScheduleProps) => {
-  console.log('scheduleTitle', scheduleTitle);
   return axios.post(`${secretIp}/api/schedules`, {
     title: scheduleTitle,
     startDate,

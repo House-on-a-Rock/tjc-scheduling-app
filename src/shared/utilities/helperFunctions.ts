@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unnecessary-type-assertion */
 import { useLocation } from 'react-router-dom';
 import jwtDecode from 'jwt-decode';
 import { HttpError, JWTDataType } from '../types/models';

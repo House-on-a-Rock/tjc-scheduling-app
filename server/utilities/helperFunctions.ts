@@ -136,7 +136,7 @@ export function createResetToken(
   expiresInMinutes: number,
   secret: string,
 ) {
-  console.log('Creating token');
+  console.log('Creating reset token');
   const token = jwt.sign(
     {
       iss: process.env.AUDIENCE,
