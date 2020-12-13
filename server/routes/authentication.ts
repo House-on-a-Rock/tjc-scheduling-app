@@ -127,14 +127,8 @@ router.post('/webLogin', async (req: Request, res: Response, next: NextFunction)
     }
     await user.update({ id, loginAttempts: 0, loginTimeout: null });
     const token = createToken('reg', id, 600, isAdmin, roleIds);
-    console.log(token);
-    // res.header('Authorization', token);
-    return res.redirect(`http://localhost:8080/home?token=${token}`);
-    // return res.redirect(
-    //   `http://localhost:8080/auth/resetPassword?token=${header}.${payload}.${signature}`,
-    // );
-    // return res.redirect('http://mangapanda.com');
-    // return res.status(status).json({ user_id: id, access_token: token });
+
+    return res.status(200).json({ redirectUrl: '/', token });
   } catch (err) {
     next(err);
     return res.status(503).send({ message: 'Server error, try again later' });
@@ -191,7 +185,6 @@ router.post('/login', async (req: Request, res: Response, next: NextFunction) =>
 
     await user.update({ id, loginAttempts: 0, loginTimeout: null });
     const token = createToken('reg', id, 600);
-    console.log(token);
     return res
       .status(status)
       .json({ user_id: id, firstName, lastName, email, access_token: token });

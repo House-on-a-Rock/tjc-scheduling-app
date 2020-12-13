@@ -18,6 +18,8 @@ import { addSchedule, addService } from '../../../store/apis/schedules';
 import { buttonTheme } from '../../../shared/styles/theme.js';
 import { showLoadingSpinner } from '../../../shared/styles/loading-spinner';
 
+import history from '../../../history';
+
 const useStyles = makeStyles(() =>
   createStyles({
     logoutButton: {
@@ -39,7 +41,6 @@ const useStyles = makeStyles(() =>
 
 export const Home = () => {
   const classes = useStyles();
-
   const dispatch = useDispatch();
 
   // React-query
@@ -128,6 +129,7 @@ export const Home = () => {
         onClick={() => {
           localStorage.removeItem('access_token');
           dispatch(logout());
+          history.push('/auth/login');
         }}
         className={classes.logoutButton}
       >

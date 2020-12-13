@@ -12,7 +12,7 @@ export default function IApp() {
         <Route path="/auth">
           <Auth />
         </Route>
-        <PrivateRoute path="/">
+        <PrivateRoute redirection="/auth/login" condition="token" path="/">
           <Main />
         </PrivateRoute>
       </Switch>

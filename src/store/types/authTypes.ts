@@ -1,9 +1,9 @@
+import { LoadingState, LoadingPayload } from '../../shared/types';
+
 /** Action Types */
 export const LOGIN = 'LOGIN';
 export const LOGOUT = 'LOGOUT';
-export const AUTH_ERROR = 'AUTH_ERROR';
-export const REMEMBER_ME = 'REMEMBER_ME';
-export const FORGET_ME = 'FORGET_ME';
+export const AUTH_LOADING = 'AUTH_LOADING';
 
 /** Action Payloads */
 export interface EmailMemory {
@@ -19,18 +19,14 @@ interface LogoutAction {
   type: typeof LOGOUT;
 }
 
-interface RememberAction {
-  type: typeof REMEMBER_ME;
-  payload: EmailMemory;
-}
-interface ForgetAction {
-  type: typeof FORGET_ME;
+interface AuthLoadingAction {
+  type: typeof AUTH_LOADING;
+  payload: LoadingPayload;
 }
 
-export type AuthActionTypes = LoginAction | LogoutAction | RememberAction | ForgetAction;
+export type AuthActionTypes = LoginAction | LogoutAction | AuthLoadingAction;
 
 /** Reducer State */
-export interface AuthState {
+export interface AuthState extends LoadingState {
   isLoggedIn: boolean;
-  isValidLogin: boolean | null;
 }

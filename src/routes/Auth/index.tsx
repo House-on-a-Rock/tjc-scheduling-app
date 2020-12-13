@@ -1,5 +1,5 @@
 import React from 'react';
-import { Route, Switch, useRouteMatch } from 'react-router-dom';
+import { Redirect, Route, Switch, useRouteMatch } from 'react-router-dom';
 import { ErrorPage, Login, ResetPassword } from '../../components/Auth';
 import { AuthEmail } from '../../components/shared';
 
@@ -26,6 +26,9 @@ const Auth = () => {
       </Route>
       <Route path={`${path}/resetPassword`}>
         <ResetPassword />
+      </Route>
+      <Route path={`${path}/`}>
+        <Redirect to={`${path}/login`} />
       </Route>
     </Switch>
   );

@@ -1,4 +1,4 @@
-export interface HttpError {
+export interface HttpResponseStatus {
   status: number;
   message: string;
 }
@@ -26,6 +26,7 @@ export interface JWTDataType {
   sub: string;
   exp: string;
   type: string;
+  access: string;
 }
 
 export interface ColumnFields {
@@ -38,7 +39,6 @@ export type DayIndexOptions = {
 };
 
 export interface WeeklyAssignmentInterface {
-  // time?: string;
   duty: string;
   [key: string]: string;
 }
@@ -154,4 +154,14 @@ export interface TextFieldState {
   valid: boolean;
   message: string;
   value: string;
+}
+
+export interface LoadingState {
+  loading: boolean;
+  response: HttpResponseStatus;
+}
+
+export interface LoadingPayload {
+  loading: boolean;
+  response: HttpResponseStatus;
 }

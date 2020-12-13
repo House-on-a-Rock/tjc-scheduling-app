@@ -1,5 +1,5 @@
 /* eslint-disable no-shadow */
-import { HttpError } from '../../shared/types/models';
+import { HttpResponseStatus } from '../../shared/types/models';
 
 /** Action Types */
 export const LOADED = 'LOADED';
@@ -24,7 +24,7 @@ interface LoadingAction {
 interface ErrorAction {
   type: typeof ERROR;
   domain: ReducerDomains;
-  error: HttpError;
+  error: HttpResponseStatus;
 }
 
 interface ErrorHandledAction {
@@ -44,7 +44,7 @@ export interface LoadStatusType {
 }
 
 export interface LoadErrorType {
-  [ReducerDomains.AUTH]: HttpError | null;
+  [ReducerDomains.AUTH]: HttpResponseStatus | null;
 }
 
 export interface LoadReducerState {

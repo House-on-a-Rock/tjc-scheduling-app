@@ -1,8 +1,12 @@
-import { AuthActionTypes, LOGIN, LOGOUT, AuthState } from '../types';
+import { AuthActionTypes, LOGIN, LOGOUT, AuthState, AUTH_LOADING } from '../types';
 
 const initialState: AuthState = {
   isLoggedIn: false,
-  isValidLogin: null,
+  loading: false,
+  response: {
+    status: 0,
+    message: '',
+  },
 };
 
 export const authReducer = (state = initialState, action: AuthActionTypes): AuthState => {
@@ -11,14 +15,15 @@ export const authReducer = (state = initialState, action: AuthActionTypes): Auth
       return {
         ...state,
         isLoggedIn: true,
-        isValidLogin: true,
       };
     case LOGOUT:
       return {
         ...state,
         isLoggedIn: false,
-        isValidLogin: null,
       };
+    case AUTH_LOADING:
+      const { loading, response } = action.payload;
+      return { ...state, loading, response };
 
     default:
       return state;

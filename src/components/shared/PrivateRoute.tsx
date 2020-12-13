@@ -1,19 +1,30 @@
 import React from 'react';
-import { Route, Redirect, useLocation } from 'react-router-dom';
-import { useSelector } from '../../shared/utilities';
+import { Route, Redirect } from 'react-router-dom';
+import {
+  extractTokenInfo,
+  getLocalStorageItem,
+  useSelector,
+} from '../../shared/utilities';
 
-function useQuery() {
-  return new URLSearchParams(useLocation().search);
-}
+const validateUser = (condition: string): boolean => {
+  const token =
+    typeof getLocalStorageItem('access_token') === 'string'
+      ? getLocalStorageItem('access_token')
+      : null;
+  const validToken = token && extractTokenInfo(token, 'userId');
+  // const isAdmin = extractTokenInfo(token, 'access');
+  return condition === 'token' ?? !!validToken;
+};
 
-export const PrivateRoute = ({ children, ...rest }: any) => {
-  const query = useQuery();
+export const PrivateRoute = ({ children, redirection, condition, ...rest }: any) => {
   const isLoggedIn = useSelector(({ auth }) => auth.isLoggedIn);
+  const isValidToken = validateUser(condition);
+
   return (
     <Route
       // eslint-disable-next-line react/jsx-props-no-spreading
       {...rest}
-      render={({ location }) => (isLoggedIn ? children : <Redirect to="/auth/login" />)}
+      render={({ location }) => (isLoggedIn ? children : <Redirect to={redirection} />)}
     />
   );
 };

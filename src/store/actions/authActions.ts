@@ -1,14 +1,7 @@
 import axios from 'axios';
 import { Action } from 'redux';
 import { ThunkAction } from 'redux-thunk';
-import {
-  AuthActionTypes,
-  LOGIN,
-  LOGOUT,
-  REMEMBER_ME,
-  EmailMemory,
-  FORGET_ME,
-} from '../types';
+import { AuthActionTypes, LOGIN, LOGOUT, AUTH_LOADING } from '../types';
 import history from '../../history';
 import { AuthStateActions } from './loadActions';
 import {
@@ -17,20 +10,21 @@ import {
   authenticateLogin,
   sendNewPassword,
 } from '../apis';
-import { errorDataExtractor } from '../../shared/utilities';
+import { errorDataExtractor, setLocalStorageState } from '../../shared/utilities';
+import { LoadingPayload } from '../../shared/types';
 
 export const login = (): AuthActionTypes => ({ type: LOGIN });
 export const logout = (): AuthActionTypes => ({ type: LOGOUT });
-export const rememberMe = (remember: EmailMemory): AuthActionTypes => ({
-  type: REMEMBER_ME,
-  payload: remember,
+
+export const authLoading = (payload: LoadingPayload): AuthActionTypes => ({
+  type: AUTH_LOADING,
+  payload,
 });
-export const forgetMe = (): AuthActionTypes => ({ type: FORGET_ME });
 
 /* Thunk */
 export const onValidated = (): ThunkAction<any, any, any, Action> => (dispatch) => {
+  dispatch(authLoading({ loading: false, response: { status: 0, message: '' } }));
   dispatch(login());
-  dispatch(AuthStateActions.Loaded());
   history.push('/');
 };
 
@@ -40,22 +34,21 @@ export const checkCredentials = (
 ): ThunkAction<any, any, any, Action> => {
   return async (dispatch) => {
     try {
+      dispatch(authLoading({ loading: true, response: { status: 0, message: '' } }));
       const res = await authenticateLogin(email, password);
       const { data, status, statusText } = res;
-      console.log('123123123', res, status, res.headers);
-      dispatch(AuthStateActions.Loading());
-      localStorage.setItem('access_token', data.access_token);
-      axios.defaults.headers.commonauthorization = data.access_token;
-      // if (status === 200) window.location = res.headers.Location;
-      if (status === 200) dispatch(onValidated());
-      else dispatch(AuthStateActions.Error({ status, message: statusText }));
+      const { token } = data;
+      if (token) {
+        axios.defaults.headers.common.authorization = token;
+        setLocalStorageState('access_token', token);
+        dispatch(onValidated());
+      }
     } catch (error) {
       const errorData = errorDataExtractor(error);
-      dispatch(AuthStateActions.Error(errorData));
+      console.error(errorData);
     }
   };
 };
-
 export const validateResetToken = (token: string): ThunkAction<any, any, any, Action> => {
   return async (dispatch) => {
     dispatch(AuthStateActions.Loading());

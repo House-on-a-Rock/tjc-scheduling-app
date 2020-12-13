@@ -1,5 +1,5 @@
 import React, { useState, FormEvent } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 import { Link as RouterLink, Redirect } from 'react-router-dom';
 
@@ -19,19 +19,19 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 
 // Custom Components
 import { Copyright } from '../shared/Copyright';
+import { PasswordForm } from '../shared';
 
 // Actions
 import { checkCredentials } from '../../store/actions';
+import { RootState } from '../../store';
 
 // Types
-import { HttpError, PasswordState, EmailState } from '../../shared/types/models';
-import { PasswordForm } from '../shared';
+import { HttpResponseStatus, PasswordState, EmailState } from '../../shared/types/models';
 import {
   setLocalStorageState,
   removeLocalStorageState,
-  getLocalStorageState,
+  getLocalStorageItem,
   isValidEmail,
-  useSelector,
 } from '../../shared/utilities';
 import { EmailForm } from '../shared/EmailForm';
 
@@ -64,20 +64,19 @@ const useStyles = makeStyles((theme) => ({
 export const Login = () => {
   const classes = useStyles();
   const dispatch = useDispatch();
-
   const rememberedEmailState: EmailState = {
-    value: getLocalStorageState('auth')?.email,
+    value: getLocalStorageItem('rmmbrshvs')?.email,
     valid: true,
     message: '',
   };
 
-  const isLoggedIn: boolean = useSelector(({ auth }) => auth.isLoggedIn);
-  const errorMessage: HttpError | null = useSelector(
-    ({ load }) => load.loadErrorStatus.AUTH,
+  const { isLoggedIn, loading, response: error } = useSelector(
+    ({ auth }: RootState) => auth,
   );
-  const loadState: string | null = useSelector(({ load }) => load.loadStatus.AUTH);
-  const [remembered, setRemembered] = useState<boolean>(!!getLocalStorageState('auth'));
 
+  const [remembered, setRemembered] = useState<boolean>(
+    !!getLocalStorageItem('rmmbrshvs'),
+  );
   const [email, setEmail] = useState<EmailState>(
     rememberedEmailState.value
       ? rememberedEmailState
@@ -121,8 +120,12 @@ export const Login = () => {
 
   if (isLoggedIn) {
     if (remembered)
-      setLocalStorageState('auth', { email: email.value, password: password.value });
+      setLocalStorageState('rmmbrshvs', {
+        email: email.value,
+        password: password.value,
+      });
     else removeLocalStorageState('auth');
+    return <Redirect to="/" />;
   }
 
   return (
@@ -135,8 +138,8 @@ export const Login = () => {
         <Typography component="h1" variant="h5">
           Login
         </Typography>
-        {errorMessage && (
-          <Typography color="error">{`${errorMessage?.status}: ${errorMessage?.message}`}</Typography>
+        {error && (
+          <Typography color="error">{`${error?.status}: ${error?.message}`}</Typography>
         )}
 
         <form className={classes.form} noValidate onSubmit={handleLogin}>
@@ -166,7 +169,7 @@ export const Login = () => {
             type="submit"
             onClick={() => handleLogin()}
           >
-            {loadState === 'LOADING' ? <CircularProgress /> : 'Sign In'}
+            {loading ? <CircularProgress /> : 'Sign In'}
           </Button>
         </form>
       </div>

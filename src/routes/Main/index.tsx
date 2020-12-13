@@ -9,7 +9,7 @@ import { ThemeProvider } from '@material-ui/core';
 import { Home, Teams, Members } from '../../components/Main';
 import { Header } from '../../components/shared/Header';
 import theme from '../../shared/styles/theme';
-import { extractUserId } from '../../shared/utilities';
+import { extractTokenInfo, getLocalStorageItem } from '../../shared/utilities';
 import { getUserData, getScheduleData } from '../../query';
 import { loadProfile } from '../../store/actions/profileActions';
 
@@ -28,7 +28,7 @@ const Main = () => {
 
   // Need a better handle of isLoading, error, data
   const { isLoading, error: userError, data: profile } = useQuery(
-    ['profile', extractUserId(localStorage.getItem('access_token') ?? '')],
+    ['profile', extractTokenInfo(getLocalStorageItem('access_token'), 'userId')],
     getUserData,
     { refetchOnWindowFocus: false, staleTime: 100000000000000 },
   );
@@ -44,7 +44,6 @@ const Main = () => {
         <Router>
           <ThemeProvider theme={theme}>
             <Header />
-
             <Switch>
               <Route path="/home">
                 <Home />

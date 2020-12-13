@@ -1,6 +1,6 @@
 import axios, { AxiosResponse } from 'axios';
 import { secretIp } from '../../../secrets/secretStuff';
-import { extractUserId } from '../../shared/utilities';
+import { extractTokenInfo } from '../../shared/utilities';
 import { AddUserProps } from '../../shared/types';
 
 const accessToken = localStorage.getItem('access_token') ?? '';
@@ -19,7 +19,7 @@ export function getUser(userId: number): Promise<AxiosResponse> {
 }
 
 export function deleteUser(userId: number): Promise<AxiosResponse | void> {
-  const loggedInUserId = extractUserId(accessToken);
+  const loggedInUserId = extractTokenInfo(accessToken, 'userId');
   if (loggedInUserId === userId)
     return new Promise(() => console.error("bruh, you can't delete yourself what"));
   return axios.delete(`${secretIp}/api/users/${userId}`);

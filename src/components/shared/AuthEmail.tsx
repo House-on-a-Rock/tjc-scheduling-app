@@ -12,7 +12,7 @@ import Container from '@material-ui/core/Container';
 import { TransitionsModal } from './TransitionsModal';
 import { EmailForm } from './EmailForm';
 import { sendAuthEmail } from '../../store/actions';
-import { HttpError, EmailState } from '../../shared/types/models';
+import { HttpResponseStatus, EmailState } from '../../shared/types/models';
 import { useQuery, isValidEmail } from '../../shared/utilities/helperFunctions';
 
 const useStyles = makeStyles((theme) => ({
@@ -59,11 +59,11 @@ export const AuthEmail = ({ data }: AuthEmailProps) => {
   });
   const [openModal, setOpenModal] = useState(false);
 
-  const query = JSON.parse(useQuery().get('message') ?? '');
-  const errorMessage: HttpError = query && {
-    status: query?.status,
-    message: query?.message,
-  };
+  // const query = JSON.parse(useQuery().get('message') ?? '');
+  // const errorMessage: HttpResponseStatus = query && {
+  //   status: query?.status,
+  //   message: query?.message,
+  // };
 
   function handleClick(event?: FormEvent<HTMLFormElement>): void {
     event?.preventDefault();
@@ -99,9 +99,9 @@ export const AuthEmail = ({ data }: AuthEmailProps) => {
           {data.title}
         </Typography>
         {data.description && <Typography>{data.description}</Typography>}
-        {errorMessage && (
+        {/* {errorMessage && (
           <Typography>{`${errorMessage.status}: ${errorMessage.message}`}</Typography>
-        )}
+        )} */}
         <form className={classes.form} noValidate onSubmit={handleClick}>
           <EmailForm
             name="email"

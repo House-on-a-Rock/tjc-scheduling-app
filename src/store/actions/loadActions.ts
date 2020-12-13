@@ -1,5 +1,5 @@
 import { ReducerDomains, LoadStateTypes } from '../types';
-import { HttpError } from '../../shared/types/models';
+import { HttpResponseStatus } from '../../shared/types/models';
 
 export const AuthStateActions = mapLoadStateActions(ReducerDomains.AUTH)();
 
@@ -9,7 +9,7 @@ function mapLoadStateActions(domain: ReducerDomains) {
     return {
       Loaded: () => ({ domain, type: LoadStateTypes.LOADED }),
       Loading: () => ({ domain, type: LoadStateTypes.LOADING }),
-      Error: (error: HttpError) => ({
+      Error: (error: HttpResponseStatus) => ({
         domain,
         type: LoadStateTypes.ERROR,
         error: error,

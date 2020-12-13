@@ -152,12 +152,6 @@ function dataToData(schedules) {
       }
     });
   });
-  // data.userRoles.map((userRole) => {
-  //     const { teamLead, roleId, userId, userRoleId } = userRole;
-  //     const user = data.users.filter((el) => el.id === userId)[0];
-  //     const role = data.roles.filter((el) => el.id === roleId)[0];
-  //     console.log(userRoleId, user.firstName, user.lastName, role.name, 'teamLead:', teamLead);
-  // });
 
   const returnString = JSON.stringify(data);
   fs.writeFile('data.json', returnString, function (err) {
