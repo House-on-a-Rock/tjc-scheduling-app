@@ -3,7 +3,8 @@ import crypto from 'crypto';
 import jwt, { Algorithm, TokenExpiredError, JsonWebTokenError } from 'jsonwebtoken';
 import fs from 'fs';
 import { DateTime } from 'luxon';
-import { RoleAttributes } from 'shared/SequelizeTypings/models';
+import { RoleAttributes, ServiceInstance, TaskInstance } from 'shared/SequelizeTypings/models';
+import db from '../index';
 
 const privateKey = fs.readFileSync('tjcschedule.pem');
 let cert;
@@ -276,4 +277,68 @@ export function createColumns(start: Date, end: Date) {
         },
         ...columnizedDates(determineWeeks(start, end)),
     ];
+}
+
+export async function populateServiceData({ name, day, id }: ServiceInstance): Promise<any> {
+    const events = await db.Event.findAll({ where: { serviceId: id }, order: [['order', 'ASC']] }); //returns events in ascending order
+    // for each event, retrieve role data and associated task data
+    const eventData = await Promise.all(
+        events.map(async (event) => {
+            const { time, title, roleId, displayTime, id: eventId } = event;
+            const role = await retrieveEventRole(roleId);
+            const tasks = await retrieveTaskData(eventId, role);
+            const timeColumn = timeDisplay(time, displayTime);
+            const dutyColumn = dutyDisplay(title, role);
+            return {
+                time,
+                title,
+                roleId,
+                displayTime,
+                eventId,
+                cells: [timeColumn, dutyColumn, ...tasks],
+            };
+        }),
+    );
+    return { name: name, day: day, eventData };
+}
+
+function timeDisplay(time, displayTime) {
+    return { display: displayTime ? time : '', time, displayTime };
+}
+
+function dutyDisplay(title, role) {
+    return { display: title, role: role };
+}
+
+async function retrieveEventRole(roleId) {
+    return db.Role.findOne({
+        where: { id: roleId },
+        attributes: ['id', 'name'],
+    });
+}
+
+async function retrieveTaskData(eventId, role) {
+    const tasks = await db.Task.findAll({
+        where: { eventId },
+        attributes: ['id', 'date', 'userId'],
+        include: [
+            {
+                model: db.User,
+                as: 'user',
+                attributes: ['firstName', 'lastName'],
+            },
+        ],
+        order: [['date', 'ASC']],
+    });
+    const organizedTasks = tasks.map((task: any) => {
+        return {
+            id: task.id,
+            date: task.date,
+            display: `${task.user.firstName} ${task.user.lastName}`,
+            user: task.user,
+            userId: task.userId,
+            role: role,
+        };
+    });
+    return organizedTasks;
 }

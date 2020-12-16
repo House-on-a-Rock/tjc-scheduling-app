@@ -2,7 +2,7 @@
 /* eslint-disable array-callback-return */
 import express, { Request, Response, NextFunction } from 'express';
 import db from '../index';
-import { certify, createColumns, matchKey } from '../utilities/helperFunctions';
+import { certify, createColumns, matchKey, populateServiceData } from '../utilities/helperFunctions';
 
 const router = express.Router();
 module.exports = router;
@@ -32,57 +32,16 @@ router.get('/schedules', certify, async (req: Request, res: Response, next: Next
         }); //toString fixes parsedQ's issue
         const columns = createColumns(schedule.start, schedule.end);
 
-        const servicesData = await Promise.all(
-            services.map(async (service) => {
-                const events = await db.Event.findAll({ where: { serviceId: service.id }, order: [['order', 'ASC']] }); //returns events in ascending order
+        // for each service, populate data
+        const servicesData = await Promise.all(services.map(async (service) => await populateServiceData(service)));
 
-                const data = await Promise.all(
-                    events.map(async (event) => {
-                        const { time, title, roleId, displayTime, id: eventId } = event;
-                        const role = await db.Role.findOne({
-                            where: { id: roleId },
-                            attributes: ['id', 'name'],
-                        });
-                        const tasks = await db.Task.findAll({
-                            where: { eventId },
-                            attributes: ['id', 'date', 'userId'],
-                            // include: [
-                            //     {
-                            //         model: db.User,
-                            //         as: 'user',
-                            //         attributes: ['firstName', 'lastName'],
-                            //     },
-                            // ],
-                        });
-
-                        const tasksData = await Promise.all(
-                            tasks.map(async ({ date, userId, id }) => {
-                                const { firstName, lastName } = await db.User.findOne({
-                                    where: { id: userId },
-                                });
-                                return { date, firstName, lastName, userId, role, taskId: id };
-                            }),
-                        );
-                        const serviceData: any = { duty: { data: { display: title } } };
-
-                        if (displayTime) serviceData.time = { data: { display: time } };
-
-                        tasksData.map((task) => {
-                            const { date, firstName, lastName, userId, role: taskRole, taskId } = task;
-                            const key = matchKey(date);
-                            const value = {
-                                data: { firstName, lastName, userId, role: taskRole, taskId },
-                            };
-                            serviceData[key] = value;
-                        });
-                        return serviceData;
-                    }),
-                );
-
-                return { columns: columns, name: service.name, day: service.day, data: data };
-            }),
-        );
-        const response = { services: servicesData, title: schedule.title, view: schedule.view, role: scheduleRole };
+        const response = {
+            columns: columns,
+            services: servicesData,
+            title: schedule.title,
+            view: schedule.view,
+            role: scheduleRole,
+        };
 
         if (!response) return res.status(404).send({ message: 'No schedules found' });
         return res.status(200).json(response);
