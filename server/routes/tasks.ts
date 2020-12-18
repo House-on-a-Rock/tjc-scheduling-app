@@ -90,37 +90,23 @@ router.delete('/tasks/:taskId', certify, async (req: Request, res: Response, nex
     }
 });
 
+// used for updating schedule (changing who is assigned to a task), no swapping involved
 router.patch(
-    '/tasks/switchTask/:targetTaskId/switchWith/:switchTaskId',
+    '/tasks/updateTask/:targetTaskId/assignTo/:assigneeId',
     certify,
     async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const { targetTaskId, switchTaskId } = req.params;
+            const { targetTaskId, assigneeId } = req.params;
             const targetTask = await db.Task.findOne({
                 where: { id: targetTaskId },
-                attributes: ['id', 'date', 'churchId', 'userId'],
+                attributes: ['id', 'userId'],
             });
 
-            const switchTask = await db.Task.findOne({
-                where: { id: switchTaskId },
-                attributes: ['id', 'date', 'churchId', 'userId'],
-            });
-
-            const [message, status] =
-                !targetTask || !switchTask ? ['Task switch successful', 200] : ['Task not found', 404];
-
-            if (status === 200) {
-                await targetTask.update({
-                    id: targetTask.id,
-                    userId: switchTask.userId,
-                });
-
-                await switchTask.update({
-                    id: switchTask.id,
-                    userId: targetTask.userId,
-                });
+            if (targetTask && targetTask.userId !== parseInt(assigneeId)) {
+                await targetTask.update({ userId: assigneeId });
+                return res.status(200).send(targetTask);
             }
-            return res.status(status).send({ message });
+            return res.status(400).send({ message: 'error' });
         } catch (err) {
             next(err);
             return res.status(503).send({ message: 'Server error, try again later' });

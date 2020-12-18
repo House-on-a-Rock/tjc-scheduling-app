@@ -206,17 +206,6 @@ export function correctOrder(arr, lastIdx, target, type) {
     return correctOrder(arr, lastIdx - 1, target, type);
 }
 
-// unused?
-const dayIndex = {
-    Sunday: 0,
-    Monday: 1,
-    Tuesday: 2,
-    Wednesday: 3,
-    Thursday: 4,
-    Friday: 5,
-    Saturday: 6,
-};
-
 // adds 0 in front of single-digit months
 const zeroPaddingDates = (date: Date): string => {
     let month = (date.getMonth() + 1).toString();
@@ -299,7 +288,7 @@ export async function populateServiceData({ name, day, id }: ServiceInstance): P
             };
         }),
     );
-    return { name: name, day: day, eventData };
+    return { name: name, day: day, eventData, serviceId: id };
 }
 
 function timeDisplay(time, displayTime) {
@@ -332,10 +321,10 @@ async function retrieveTaskData(eventId, role) {
     });
     const organizedTasks = tasks.map((task: any) => {
         return {
-            id: task.id,
+            taskId: task.id,
             date: task.date,
-            display: `${task.user.firstName} ${task.user.lastName}`,
-            user: task.user,
+            firstName: task.user.firstName,
+            lastName: task.user.lastName,
             userId: task.userId,
             role: role,
         };
