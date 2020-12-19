@@ -1,25 +1,26 @@
 {
-    "compilerOptions": {
-        "target": "es6",
-        "module": "commonjs",
-        "lib": ["es6", "es2020"],
-        "allowJs": true,
-        "isolatedModules": true,
-        "jsx": "react",
-        "noEmit": true,
-        "moduleResolution": "node",
-        "baseUrl": "./",
-        "allowSyntheticDefaultImports": true,
-        "esModuleInterop": true,
-        "paths": {
-            "shared/*": ["shared/*"],
-            "*": ["node_modules/*"],
-            "store/*": ["src/store/*"],
-            "secrets/*": ["secrets/*"],
-            "components/*": ["src/components/*"],
-            "services/*": ["src/services/*"],
-            "screens/*": ["src/screens/*"]
-        }
-    },
-    "exclude": ["node_modules", ".vscode", ".expo"]
+  "compilerOptions": {
+    "outDir": "./dist/",
+    "jsx": "react",
+    "target": "es6",
+    "module": "commonjs",
+    "lib": ["es6", "dom", "es2020"],
+    "allowJs": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "moduleResolution": "node",
+    "baseUrl": "./",
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "paths": {
+      "shared/*": ["shared/*"],
+      "*": ["node_modules/*"],
+      "store/*": ["src/store/*"],
+      "secrets/*": ["secrets/*"],
+      "components/*": ["src/components/*"],
+      "services/*": ["src/services/*"],
+      "screens/*": ["src/screens/*"]
+    }
+  },
+  "exclude": ["node_modules", ".vscode", ".expo"]
 }

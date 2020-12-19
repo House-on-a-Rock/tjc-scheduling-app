@@ -3,9 +3,11 @@ import { CommonSequelizeAttributes } from '.';
 import { UserAttributes } from './UserModel';
 
 export interface RoleAttributes extends CommonSequelizeAttributes {
-    name: string;
-    churchId?: number;
-    member?: UserAttributes[] | UserAttributes['id'];
+  name: string;
+  churchId?: number;
+  member?: UserAttributes[] | UserAttributes['id'];
 }
 
-export interface RoleInstance extends Sequelize.Instance<RoleAttributes>, RoleAttributes {}
+export interface RoleInstance
+  extends Sequelize.Instance<RoleAttributes>,
+    RoleAttributes {}

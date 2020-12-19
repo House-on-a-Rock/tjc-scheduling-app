@@ -1,43 +1,43 @@
 // ParamList
 export type DrawerStackParamList = {
-    HomeStack: undefined;
-    ProfileStack: undefined;
-    SettingsStack: undefined;
-    LogoutStack: undefined;
+  HomeStack: undefined;
+  ProfileStack: undefined;
+  SettingsStack: undefined;
+  LogoutStack: undefined;
 };
 
 export type LogoutStackParamList = {
-    Logout: undefined;
+  Logout: undefined;
 };
 
 export type ProfileStackParamList = {
-    Profile: undefined;
+  Profile: undefined;
 };
 
 export type SettingsStackParamList = {
-    Settings: undefined;
+  Settings: undefined;
 };
 
 // HomeStack / Tab
 
 export type HomeStackTabParamList = {
-    CalendarStack: undefined;
-    ScheduleStack: undefined;
+  CalendarStack: undefined;
+  ScheduleStack: undefined;
 };
 
 export type CalendarStackParamList = {
-    Calendar: undefined;
-    Tasks: { name: string; taskDetails: [] };
+  Calendar: undefined;
+  Tasks: { name: string; taskDetails: [] };
 };
 
 export type ScheduleStackParamList = {
-    Schedule: undefined;
+  Schedule: undefined;
 };
 
 // Auth
 
 export type AuthStackParamList = {
-    Login: undefined;
-    RecoverLogin: undefined;
-    SignUp: undefined;
+  Login: undefined;
+  RecoverLogin: undefined;
+  SignUp: undefined;
 };

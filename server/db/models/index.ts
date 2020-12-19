@@ -13,31 +13,31 @@ import UserRoleFactory from './User_Role';
 import TokenFactory from './Token';
 
 const createModels = (database, username, password, config): DbInterface => {
-    const sequelize = new Sequelize(database, username, password, config);
+  const sequelize = new Sequelize(database, username, password, config);
 
-    const db: DbInterface = {
-        sequelize,
-        Sequelize,
-        Church: ChurchFactory(sequelize, Sequelize),
-        Event: EventFactory(sequelize, Sequelize),
-        Notification: NotificationFactory(sequelize, Sequelize),
-        Request: RequestFactory(sequelize, Sequelize),
-        Role: RoleFactory(sequelize, Sequelize),
-        Schedule: ScheduleFactory(sequelize, Sequelize),
-        Task: TaskFactory(sequelize, Sequelize),
-        Service: ServiceFactory(sequelize, Sequelize),
-        Token: TokenFactory(sequelize, Sequelize),
-        User: UserFactory(sequelize, Sequelize),
-        UserRole: UserRoleFactory(sequelize, Sequelize),
-    };
+  const db: DbInterface = {
+    sequelize,
+    Sequelize,
+    Church: ChurchFactory(sequelize, Sequelize),
+    Event: EventFactory(sequelize, Sequelize),
+    Notification: NotificationFactory(sequelize, Sequelize),
+    Request: RequestFactory(sequelize, Sequelize),
+    Role: RoleFactory(sequelize, Sequelize),
+    Schedule: ScheduleFactory(sequelize, Sequelize),
+    Task: TaskFactory(sequelize, Sequelize),
+    Service: ServiceFactory(sequelize, Sequelize),
+    Token: TokenFactory(sequelize, Sequelize),
+    User: UserFactory(sequelize, Sequelize),
+    UserRole: UserRoleFactory(sequelize, Sequelize),
+  };
 
-    Object.keys(db).forEach((modelName) => {
-        if (db[modelName].associate) {
-            db[modelName].associate(db);
-        }
-    });
+  Object.keys(db).forEach((modelName) => {
+    if (db[modelName].associate) {
+      db[modelName].associate(db);
+    }
+  });
 
-    return db;
+  return db;
 };
 
 export default createModels;

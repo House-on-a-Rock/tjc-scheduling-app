@@ -4,16 +4,18 @@ import { UserAttributes } from './UserModel';
 import { CommonSequelizeAttributes } from './index';
 
 export interface RequestAttributes extends CommonSequelizeAttributes {
-    requesteeUserId: number;
-    type: string;
-    taskId?: number;
-    accepted?: boolean;
-    approved?: boolean;
-    task?: TaskAttributes;
-    message?: string;
-    replace?: boolean;
-    userId?: number;
-    user?: UserAttributes;
+  requesteeUserId: number;
+  type: string;
+  taskId?: number;
+  accepted?: boolean;
+  approved?: boolean;
+  task?: TaskAttributes;
+  message?: string;
+  replace?: boolean;
+  userId?: number;
+  user?: UserAttributes;
 }
 
-export interface RequestInstance extends Sequelize.Instance<RequestAttributes>, RequestAttributes {}
+export interface RequestInstance
+  extends Sequelize.Instance<RequestAttributes>,
+    RequestAttributes {}

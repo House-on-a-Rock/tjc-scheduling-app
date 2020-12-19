@@ -7,93 +7,102 @@ import { UserAttributes, UserInstance, UserModel } from 'shared/SequelizeTypings
 dotenv.config();
 
 const UserFactory = (
-    sequelize: Sequelize.Sequelize,
-    DataTypes: Sequelize.DataTypes,
+  sequelize: Sequelize.Sequelize,
+  DataTypes: Sequelize.DataTypes,
 ): Sequelize.Model<UserInstance, UserAttributes> => {
-    const attributes: SequelizeAttributes<UserAttributes> = {
-        firstName: {
-            type: DataTypes.STRING,
-        },
-        lastName: {
-            type: DataTypes.STRING,
-        },
-        email: {
-            type: DataTypes.STRING(255),
-            allowNull: false,
-            unique: true,
-        },
-        password: {
-            type: DataTypes.STRING(255),
-            allowNull: false,
-        },
-        isVerified: {
-            type: DataTypes.BOOLEAN,
-            defaultValue: false,
-        },
-        disabled: {
-            type: DataTypes.BOOLEAN,
-            defaultValue: false,
-        },
-        loginAttempts: {
-            type: DataTypes.INTEGER,
-            allowNull: false,
-            defaultValue: 0,
-        },
-        loginTimeout: {
-            type: DataTypes.DATE,
-        },
-        salt: {
-            type: DataTypes.STRING,
-        },
-        createdAt: {
-            type: DataTypes.DATE,
-            allowNull: true,
-        },
-        updatedAt: {
-            type: DataTypes.DATE,
-            allowNull: true,
-        },
-        expoPushToken: {
-            type: DataTypes.STRING,
-            allowNull: true,
-        },
-        isAdmin: {
-            type: DataTypes.BOOLEAN,
-            defaultValue: false,
-        },
-    };
+  const attributes: SequelizeAttributes<UserAttributes> = {
+    firstName: {
+      type: DataTypes.STRING,
+    },
+    lastName: {
+      type: DataTypes.STRING,
+    },
+    email: {
+      type: DataTypes.STRING(255),
+      allowNull: false,
+      unique: true,
+    },
+    password: {
+      type: DataTypes.STRING(255),
+      allowNull: false,
+    },
+    isVerified: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+    },
+    disabled: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+    },
+    loginAttempts: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 0,
+    },
+    loginTimeout: {
+      type: DataTypes.DATE,
+    },
+    salt: {
+      type: DataTypes.STRING,
+    },
+    createdAt: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+    updatedAt: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+    expoPushToken: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    isAdmin: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+    },
+  };
 
-    const User = sequelize.define<UserInstance, UserAttributes>('User', attributes) as UserModel;
+  const User = sequelize.define<UserInstance, UserAttributes>(
+    'User',
+    attributes,
+  ) as UserModel;
 
-    User.prototype.verifyPassword = function (candidatePwd: string): boolean {
-        return User.encryptPassword(candidatePwd, this.salt) === this.password;
-    };
+  User.prototype.verifyPassword = function (candidatePwd: string): boolean {
+    return User.encryptPassword(candidatePwd, this.salt) === this.password;
+  };
 
-    User.generateSalt = function () {
-        return crypto.randomBytes(16).toString('base64');
-    };
+  User.generateSalt = function () {
+    return crypto.randomBytes(16).toString('base64');
+  };
 
-    User.encryptPassword = function (plainText, salt) {
-        return crypto.createHash(process.env.SECRET_HASH).update(plainText).update(salt).digest('hex');
-    };
+  User.encryptPassword = function (plainText, salt) {
+    return crypto
+      .createHash(process.env.SECRET_HASH)
+      .update(plainText)
+      .update(salt)
+      .digest('hex');
+  };
 
-    const createSaltyPassword = (user: UserInstance) => {
-        if (user.changed('password')) {
-            const verySalty = User.generateSalt();
-            user.salt = verySalty;
-            user.password = User.encryptPassword(user.password, verySalty);
-        }
-    };
+  const createSaltyPassword = (user: UserInstance) => {
+    if (user.changed('password')) {
+      const verySalty = User.generateSalt();
+      user.salt = verySalty;
+      user.password = User.encryptPassword(user.password, verySalty);
+    }
+  };
 
-    User.beforeBulkCreate((users: UserInstance[]) => users.map((user) => createSaltyPassword(user)));
-    User.beforeCreate(createSaltyPassword);
-    User.beforeUpdate(createSaltyPassword);
+  User.beforeBulkCreate((users: UserInstance[]) =>
+    users.map((user) => createSaltyPassword(user)),
+  );
+  User.beforeCreate(createSaltyPassword);
+  User.beforeUpdate(createSaltyPassword);
 
-    User.associate = (models) => {
-        User.belongsTo(models.Church, { as: 'church', foreignKey: 'churchId' });
-    };
+  User.associate = (models) => {
+    User.belongsTo(models.Church, { as: 'church', foreignKey: 'churchId' });
+  };
 
-    return User;
+  return User;
 };
 
 export default UserFactory;

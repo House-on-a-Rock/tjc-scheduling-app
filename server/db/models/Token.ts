@@ -3,29 +3,29 @@ import { SequelizeAttributes } from 'shared/SequelizeTypings/typings/SequelizeAt
 import { TokenInstance, TokenAttributes } from 'shared/SequelizeTypings/models';
 
 function addMinutes(date: Date, minutes) {
-    return new Date(date.getTime() + minutes * 60000);
+  return new Date(date.getTime() + minutes * 60000);
 }
 
 const TokenFactory = (
-    sequelize: Sequelize.Sequelize,
-    DataTypes: Sequelize.DataTypes,
+  sequelize: Sequelize.Sequelize,
+  DataTypes: Sequelize.DataTypes,
 ): Sequelize.Model<TokenInstance, TokenAttributes> => {
-    const attributes: SequelizeAttributes<TokenAttributes> = {
-        userId: { type: DataTypes.INTEGER },
-        token: { type: DataTypes.STRING },
-        expiresIn: {
-            type: DataTypes.DATE,
-            defaultValue: addMinutes(new Date(), 30),
-        },
-        createdAt: {
-            type: DataTypes.DATE,
-            defaultValue: Date.now(),
-        },
-    };
+  const attributes: SequelizeAttributes<TokenAttributes> = {
+    userId: { type: DataTypes.INTEGER },
+    token: { type: DataTypes.STRING },
+    expiresIn: {
+      type: DataTypes.DATE,
+      defaultValue: addMinutes(new Date(), 30),
+    },
+    createdAt: {
+      type: DataTypes.DATE,
+      defaultValue: Date.now(),
+    },
+  };
 
-    const Token = sequelize.define<TokenInstance, TokenAttributes>('Token', attributes);
+  const Token = sequelize.define<TokenInstance, TokenAttributes>('Token', attributes);
 
-    return Token;
+  return Token;
 };
 
 export default TokenFactory;
