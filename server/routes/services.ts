@@ -7,6 +7,7 @@ import { certify } from '../utilities/helperFunctions';
 
 const router = express.Router();
 // const { Op } = Sequelize;
+const { green, red, blue } = require('chalk');
 
 module.exports = router;
 
@@ -32,7 +33,8 @@ router.post(
         scheduleId: scheduleId,
       });
 
-      return res.status(200).json(newService);
+      // return res.status(200).json(newService);
+      return res.status(200).send(`Service ${newService.name} successfully added`);
     } catch (err) {
       next(err);
       return res.status(503).send({ message: 'Server error, try again later' });
