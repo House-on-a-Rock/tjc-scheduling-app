@@ -6,7 +6,7 @@ export const Copyright = () => (
   <Typography variant="body2" color="textSecondary" align="center">
     {'Copyright © '}
     <Link color="inherit" href="https://tjc.org/">
-      TJC Scheduling Platform
+      Sheaves
     </Link>{' '}
     {new Date().getFullYear()}.
   </Typography>

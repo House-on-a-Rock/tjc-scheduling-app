@@ -6,7 +6,7 @@ import db from './db';
 
 const port = process.env.PORT || 8080;
 const app: express.Application = express();
-const DIST_DIR = path.join(__dirname, '../public/');
+const DIST_DIR = path.join(__dirname, '../dist/');
 const HTML_FILE = path.join(DIST_DIR, 'index.html');
 
 app.use(bodyParser.json());

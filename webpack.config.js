@@ -41,8 +41,8 @@ module.exports = {
     extensions: ['.tsx', '.ts', '.js', 'css', 'scss'],
   },
   output: {
-    path: path.resolve(__dirname, 'public'),
-    filename: 'bundle.js',
+    path: path.resolve(__dirname, 'dist'),
+    filename: 'bundle.[hash].js',
     publicPath: '/',
   },
   devtool: 'source-map',

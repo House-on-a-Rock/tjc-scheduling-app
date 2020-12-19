@@ -59,11 +59,11 @@ export const AuthEmail = ({ data }: AuthEmailProps) => {
   });
   const [openModal, setOpenModal] = useState(false);
 
-  // const query = JSON.parse(useQuery().get('message') ?? '');
-  // const errorMessage: HttpResponseStatus = query && {
-  //   status: query?.status,
-  //   message: query?.message,
-  // };
+  const query = JSON.parse(useQuery().get('message') ?? '');
+  const error: HttpResponseStatus = query && {
+    status: query?.status,
+    message: query?.message,
+  };
 
   function handleClick(event?: FormEvent<HTMLFormElement>): void {
     event?.preventDefault();
@@ -99,9 +99,7 @@ export const AuthEmail = ({ data }: AuthEmailProps) => {
           {data.title}
         </Typography>
         {data.description && <Typography>{data.description}</Typography>}
-        {/* {errorMessage && (
-          <Typography>{`${errorMessage.status}: ${errorMessage.message}`}</Typography>
-        )} */}
+        {error && <Typography>{`${error.status}: ${error.message}`}</Typography>}
         <form className={classes.form} noValidate onSubmit={handleClick}>
           <EmailForm
             name="email"
