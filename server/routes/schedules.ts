@@ -2,7 +2,7 @@
 /* eslint-disable array-callback-return */
 import express, { Request, Response, NextFunction } from 'express';
 import db from '../index';
-import { certify, createColumns, matchKey, populateServiceData } from '../utilities/helperFunctions';
+import { certify, createColumns, populateServiceData } from '../utilities/helperFunctions';
 
 const router = express.Router();
 module.exports = router;
@@ -74,7 +74,6 @@ router.post('/schedules', certify, async (req: Request, res: Response, next: Nex
             roleId: team,
         });
 
-        // return res.status(200).json(newSchedule);
         return res.status(200).send(`Schedule ${newSchedule.title} successfully added`);
     } catch (err) {
         next(err);
