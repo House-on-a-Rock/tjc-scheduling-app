@@ -25,11 +25,11 @@ router.get('/schedules', certify, async (req: Request, res: Response, next: Next
     try {
         const { scheduleId } = req.query;
         const schedule = await db.Schedule.findOne({ where: { id: scheduleId.toString() } });
-        const scheduleRole = await db.Role.findOne({ where: { id: schedule.roleId } });
+        const role = await db.Role.findOne({ where: { id: schedule.roleId } });
         const services = await db.Service.findAll({
             where: { scheduleId: scheduleId.toString() },
             order: [['order', 'ASC']],
-        }); //toString fixes parsedQ's issue
+        }); // toString fixes parsedQ's issue
         const columns = createColumns(schedule.start, schedule.end);
 
         // for each service, populate data
@@ -40,7 +40,7 @@ router.get('/schedules', certify, async (req: Request, res: Response, next: Next
             services: servicesData,
             title: schedule.title,
             view: schedule.view,
-            role: scheduleRole,
+            role: role,
         };
 
         if (!response) return res.status(404).send({ message: 'No schedules found' });
@@ -53,7 +53,7 @@ router.get('/schedules', certify, async (req: Request, res: Response, next: Next
 
 router.post('/schedules', certify, async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { title, view, startDate, endDate, churchId, team } = req.body; //roleId still team on webapp
+        const { title, view, startDate, endDate, churchId, team } = req.body; // roleId still team on webapp
         const dbSchedule = await db.Schedule.findOne({
             where: { churchId, title },
             attributes: ['churchId', 'title'],
