@@ -90,7 +90,7 @@ router.delete('/tasks/:taskId', certify, async (req: Request, res: Response, nex
     }
 });
 
-// used for updating schedule (changing who is assigned to a task), no swapping involved
+// update schedule (changing who is assigned to a task), no swapping involved
 router.patch(
     '/tasks/updateTask/:targetTaskId/assignTo/:assigneeId',
     certify,
@@ -104,7 +104,7 @@ router.patch(
 
             if (targetTask && targetTask.userId !== parseInt(assigneeId)) {
                 await targetTask.update({ userId: assigneeId });
-                return res.status(200).send(targetTask);
+                return res.status(200).send('Tasks updated');
             }
             return res.status(400).send({ message: 'error' });
         } catch (err) {
