@@ -3,7 +3,6 @@
   "main": "node_modules/expo/AppEntry.js",
   "scripts": {
     "test": "mocha -r ts-node/register tests/*.ts --reporter spec --exit",
-    "dev": "",
     "server": "node -r ts-node/register ./server/index.ts",
     "server:watch": "nodemon -r ts-node/register ./server/index.ts",
     "seed": "ts-node scripts/seed.js",
