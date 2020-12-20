@@ -33,11 +33,6 @@ app.use((req, res, next) => {
   } else next();
 });
 
-app.get('*', (req, res) => {
-  console.log('SENDING HTML FILE', req.path, path.extname(req.path));
-  res.sendFile(HTML_FILE);
-});
-
 class HttpException extends Error {
   status: number;
 

@@ -43,8 +43,11 @@ export type DayIndexOptions = {
 };
 
 export interface WeeklyAssignmentInterface {
-  duty: string;
-  [key: string]: string;
+  title: string;
+  view: string;
+  role: any;
+  columns: any;
+  services: any;
 }
 export interface MappedScheduleInterface {
   day: string;

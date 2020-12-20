@@ -7,3 +7,7 @@ axios.defaults.headers.common.authorization = accessToken;
 export function getUserRoles(userId: number): Promise<AxiosResponse> {
   return axios.get(`${secretIp}/api/user-roles/${userId}`);
 }
+
+// export function getAllUserRoles(userId: number): Promise<AxiosResponse> {
+//   return axios.get(`${secretIp}/api/user-roles/${userId}`);
+// }

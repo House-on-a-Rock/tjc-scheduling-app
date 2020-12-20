@@ -16,11 +16,7 @@ import { ServiceDisplay } from './ServiceDisplay';
 import { AccessTypes, WeeklyAssignmentInterface } from '../../../shared/types';
 
 // Styles
-import {
-  typographyTheme,
-  buttonTheme,
-  paletteTheme,
-} from '../../../shared/styles/theme.js';
+import { typographyTheme, paletteTheme } from '../../../shared/styles/theme.js';
 
 interface TableProps {
   data: WeeklyAssignmentInterface;
@@ -34,6 +30,7 @@ export const Table = ({ data, access, onTaskModified }: TableProps) => {
   // const [dataRows, setDataRows] = useState([...data]);
 
   const { columns, services } = data;
+  console.log('data', data);
 
   return (
     <>

@@ -55,7 +55,7 @@ export const Home = () => {
   function closeDialogHandler(response?: any) {
     // TODO for some reason theres a lot of rerenders for just this alert. nothing visible to client, very low priority
     setIsNewScheduleVisible(false);
-    if (response.data) setAlert({ message: response.data, status: 'success' }); // response.statusText = "OK", response.status == 200
+    if (response?.data) setAlert({ message: response.data, status: 'success' }); // response.statusText = "OK", response.status == 200
   }
 
   async function onNewScheduleSubmit(

@@ -1,26 +1,21 @@
-import React, { useState } from 'react';
-import { Select } from '@material-ui/core';
-import MenuItem from '@material-ui/core/MenuItem';
-import FormControl from '@material-ui/core/FormControl';
-import FormHelperText from '@material-ui/core/FormHelperText';
-import InputLabel from '@material-ui/core/InputLabel';
+import React from 'react';
+
+import { MenuItem, Button } from '@material-ui/core/';
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 
-import { Tooltip } from '../../shared/Tooltip';
-import {
-  ValidatedTextField,
-  createTextFieldState,
-  constructError,
-} from '../../shared/ValidatedTextField';
-import { TextFieldState } from '../../../shared/types';
+import { ValidatedTextField, stringLengthCheck } from '../../shared/ValidatedTextField';
+import { ValidatedSelect } from '../../shared/ValidatedSelect';
+import { useValidatedField } from '../../hooks';
+
+import { buttonTheme } from '../../../shared/styles/theme.js';
 
 interface NewServiceFormProps {
   order: number;
   onSubmit: (name: string, order: number, dayOfWeek: number) => void;
-  onClose: () => void;
+  onClose: (arg: any) => void;
+  error: any;
 }
 
-// are these used anywhere else?
 const daysOfWeek = [
   'Sunday',
   'Monday',
@@ -31,94 +26,107 @@ const daysOfWeek = [
   'Saturday',
 ];
 
-const useStyles = makeStyles(() =>
-  createStyles({
-    root: {
-      height: 400,
-      width: 400,
-      display: 'flex',
-      flexDirection: 'column',
-      justifyContent: 'center',
-      alignItems: 'center',
-      padding: 10,
-    },
-    formInput: { width: 300 },
-    selectInput: {
-      width: 300,
-    },
-  }),
-);
-
-export const NewServiceForm = ({ order, onSubmit, onClose }: NewServiceFormProps) => {
-  const classes = useStyles();
-  const [serviceName, setServiceName] = useState<TextFieldState>(
-    createTextFieldState(''),
+export const NewServiceForm = ({
+  order,
+  onSubmit,
+  onClose,
+  error,
+}: NewServiceFormProps) => {
+  const [
+    serviceName,
+    setServiceName,
+    setServiceNameError,
+    resetServiceNameError,
+  ] = useValidatedField('', 'Must have a name that is less than 32 characters');
+  const [dayOfWeek, setDayOfWeek, setDayWeekError, resetDayWeekError] = useValidatedField(
+    -1,
+    'Must select a day of the week',
   );
-  const [dayOfWeek, setDayOfWeek] = useState<TextFieldState>(createTextFieldState('-1'));
+
+  const classes = useStyles();
+  const serviceOrder = order + 1;
 
   function onSubmitForm() {
-    setServiceName({ ...serviceName, valid: true, message: '' });
-    setDayOfWeek({ ...dayOfWeek, valid: true, message: '' });
+    resetServiceNameError();
+    resetDayWeekError();
 
-    const dayInt = parseInt(dayOfWeek.value, 10);
-
-    if (serviceName.value.length && serviceName.value.length < 32 && dayInt >= 0)
-      onSubmit(serviceName.value, order + 1, dayInt);
-
-    constructError(
-      serviceName.value.length === 0 || serviceName.value.length >= 32,
-      'Title must be not be blank and be under 32 characters long',
-      serviceName,
-      setServiceName,
-    );
-    constructError(dayInt < 0, 'Must select a day of the week', dayOfWeek, setDayOfWeek);
+    if (
+      serviceName.value.length > 0 &&
+      serviceName.value.length < 32 &&
+      dayOfWeek.value >= 0
+    )
+      onSubmit(serviceName.value, serviceOrder, dayOfWeek.value);
+    setServiceNameError(stringLengthCheck(serviceName.value));
+    setDayWeekError(dayOfWeek.value < 0);
   }
 
   return (
     <div className={classes.root}>
-      New Service Form
+      <h2>New Service Form</h2>
+      {error && <div style={{ color: 'red' }}>Service name already exists</div>}
       <form>
         <ValidatedTextField
-          className={classes.formInput}
           name="Service Name"
           label="Service Name"
           input={serviceName}
           handleChange={setServiceName}
-          autofocus
+          autoFocus
         />
-        <FormControl>
-          <InputLabel>Day of the Week</InputLabel>
-          <Select
-            className={classes.selectInput}
-            required
-            value={dayOfWeek.value}
-            variant="outlined"
-            onChange={(e) =>
-              setDayOfWeek({ ...dayOfWeek, value: e.target.value as string })
-            }
-          >
-            <MenuItem value={-1}>
-              Select which day of the week this schedule is for
+        <ValidatedSelect
+          input={dayOfWeek}
+          onChange={setDayOfWeek}
+          toolTip={{
+            id: 'Day of Week',
+            text: 'Select the day of the week this schedule is for',
+          }}
+          className={classes.selectContainer}
+        >
+          <MenuItem value={-1}>
+            Select which day of the week this schedule is for
+          </MenuItem>
+          {daysOfWeek.map((day, index) => (
+            <MenuItem key={index.toString()} value={index}>
+              {day}
             </MenuItem>
-            {daysOfWeek.map((day, index) => (
-              <MenuItem key={index.toString()} value={index}>
-                {day}
-              </MenuItem>
-            ))}
-          </Select>
-          <FormHelperText style={{ color: 'red' }}>{dayOfWeek.message}</FormHelperText>
-          <Tooltip
-            id="Day of week"
-            text="Select on which day of the week this service occurs"
-          />
-        </FormControl>
+          ))}
+        </ValidatedSelect>
       </form>
-      <button type="submit" onClick={onSubmitForm}>
+      <Button onClick={onSubmitForm} className={classes.button}>
         Create new service
-      </button>
-      <button type="button" onClick={onClose}>
+      </Button>
+      <Button onClick={onClose} className={classes.button}>
         Cancel
-      </button>
+      </Button>
     </div>
   );
 };
+
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    root: {
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'center',
+      alignItems: 'center',
+      width: 'max-content',
+      margin: 'auto',
+      textAlign: 'center',
+      padding: 10,
+    },
+    selectContainer: {
+      display: 'flex',
+      flexDirection: 'row',
+      width: '100%',
+      minWidth: 400,
+    },
+    button: {
+      padding: '10px',
+      borderRadius: '5px',
+      border: 'none',
+      margin: '5px',
+      '&:hover, &:focus': {
+        ...buttonTheme.filled,
+      },
+    },
+  }),
+);

@@ -1,21 +1,22 @@
 import React, { useState, useRef, useEffect } from 'react';
-
-// react query and data manipulation
 import { useQuery, useMutation, useQueryCache } from 'react-query';
+
+// Material UI Components
 import { Prompt } from 'react-router-dom';
 import { Dialog, Button } from '@material-ui/core/';
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 import AddIcon from '@material-ui/icons/Add';
-import { addService, updateScheduleAssignments } from '../../../store/apis/schedules';
-// components
+
+// Custom Components
 import { NewServiceForm } from './NewServiceForm';
-import { AlertInterface } from '../../../shared/types';
-// material ui and styling
+import { Table } from './Table';
 import { showLoadingSpinner } from '../../../shared/styles/loading-spinner';
+
+// Utilities
+import { addService, updateScheduleAssignments } from '../../../store/apis/schedules';
+import { AlertInterface } from '../../../shared/types';
 import { buttonTheme } from '../../../shared/styles/theme.js';
 import { getScheduleData } from '../../../query/schedules';
-// import { extractRoleIds } from '../../../shared/utilities';
-import { Table } from './Table';
 
 interface ScheduleContainerProps {
   scheduleId: number;
@@ -64,10 +65,6 @@ export const ScheduleContainer = ({
   const [isAddServiceVisible, setIsAddServiceVisible] = useState<boolean>(false);
   const [isScheduleModified, setIsScheduleModified] = useState<boolean>(false);
   const changedTasks = useRef<any>({});
-
-  // unused for now
-  // const accessLevel = extractRoleIds(localStorage.getItem('access_token')); // must log out/in
-  // const role = { id: 1 };
 
   showLoadingSpinner(isLoading);
 
@@ -121,9 +118,8 @@ export const ScheduleContainer = ({
       const updatedChangedTasks = { ...changedTasks.current, [taskId]: newAssignee };
       changedTasks.current = updatedChangedTasks;
     } else if (changedTasks.current[taskId]) delete changedTasks.current[taskId];
-    Object.keys(changedTasks.current).length > 0
-      ? setIsScheduleModified(true)
-      : setIsScheduleModified(false);
+
+    setIsScheduleModified(Object.keys(changedTasks.current).length > 0);
   }
 
   async function onNewServiceSubmit(name: string, order: number, dayOfWeek: number) {

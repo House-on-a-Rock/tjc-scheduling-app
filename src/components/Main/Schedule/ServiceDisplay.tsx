@@ -36,7 +36,7 @@ export const ServiceDisplay = ({ service, onTaskModified }: any) => {
 
   const frozenColumn = ['time', 'duty'];
 
-  const eventRows = service.eventData.map((event: any, rowIndex: number) => {
+  const eventRows = service.events.map((event: any, rowIndex: number) => {
     const potentialMembers = userData.filter((user: any) =>
       user.roles.some((role: any) => role.id === event.roleId),
     );
