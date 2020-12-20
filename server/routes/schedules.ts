@@ -11,9 +11,8 @@ import {
 import db from '../index';
 import {
   certify,
-  contrivedDate,
   createColumns,
-  ReactTableColumnInterface,
+  populateServiceData,
 } from '../utilities/helperFunctions';
 
 const router = express.Router();
@@ -46,55 +45,24 @@ router.get(
       const schedule = await db.Schedule.findOne({
         where: { id: scheduleId.toString() },
       });
-      const scheduleRole = await db.Role.findOne({ where: { id: schedule.roleId } });
+      const role = await db.Role.findOne({ where: { id: schedule.roleId } });
       const services = await db.Service.findAll({
         where: { scheduleId: scheduleId.toString() },
+        order: [['order', 'ASC']],
       }); // toString fixes parsedQ's issue
+      const columns = createColumns(schedule.start, schedule.end);
+
+      // for each service, populate data
       const servicesData = await Promise.all(
-        services.map(async (service) => {
-          const events = await db.Event.findAll({ where: { serviceId: service.id } });
-          const columns = createColumns(schedule.start, schedule.end, service.day);
-          const data = await Promise.all(
-            events.map(async (event) => {
-              const { time, title, roleId, displayTime, id: eventId } = event;
-
-              const tasks = await db.Task.findAll({ where: { eventId } });
-              const role = await db.Role.findOne({
-                where: { id: roleId },
-                attributes: ['id', 'name'],
-              });
-              const tasksData = await Promise.all(
-                tasks.map(async ({ date, userId }) => {
-                  const { firstName, lastName } = await db.User.findOne({
-                    where: { id: userId },
-                  });
-                  return { date, firstName, lastName, userId, role };
-                }),
-              );
-              const serviceData: any = { duty: { data: { display: title } } };
-
-              if (displayTime) serviceData.time = { data: { display: time } };
-
-              tasksData.map((task) => {
-                const { date, firstName, lastName, userId, role: taskRole } = task;
-                const key = contrivedDate(date);
-                const value = {
-                  data: { firstName, lastName, userId, role: taskRole },
-                };
-                serviceData[key] = value;
-              });
-              return serviceData;
-            }),
-          );
-
-          return { columns: columns, name: service.name, day: service.day, data: data };
-        }),
+        services.map(async (service) => await populateServiceData(service)),
       );
+
       const response = {
+        columns: columns,
         services: servicesData,
         title: schedule.title,
         view: schedule.view,
-        role: scheduleRole,
+        role: role,
       };
 
       if (!response) return res.status(404).send({ message: 'No schedules found' });
@@ -132,7 +100,6 @@ router.post(
         roleId: team,
       });
 
-      // return res.status(200).json(newSchedule);
       return res.status(200).send(`Schedule ${newSchedule.title} successfully added`);
     } catch (err) {
       next(err);
