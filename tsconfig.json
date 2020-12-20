@@ -10,7 +10,7 @@
     "isolatedModules": true,
     "noEmit": false,
     "sourceMap": true,
-    "strict": true,
+    // "strict": true,
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "skipLibCheck": true,

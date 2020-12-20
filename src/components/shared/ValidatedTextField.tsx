@@ -16,6 +16,9 @@ export const createTextFieldState = (value: string): TextFieldState => ({
   valid: true,
 });
 
+export const stringLengthCheck: (arg: string) => boolean = (title: string) =>
+  title.length === 0 || title.length >= 32;
+
 export const constructError = (
   condition: boolean,
   message: string,

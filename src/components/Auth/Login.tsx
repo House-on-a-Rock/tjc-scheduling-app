@@ -69,6 +69,12 @@ export const Login = () => {
     valid: true,
     message: '',
   };
+  const rememberedPasswordState: PasswordState = {
+    value: getLocalStorageItem('rmmbrshvs')?.password,
+    valid: true,
+    message: '',
+    visible: false,
+  };
 
   const { isLoggedIn, loading, response: error } = useSelector(
     ({ auth }: RootState) => auth,
@@ -82,12 +88,16 @@ export const Login = () => {
       ? rememberedEmailState
       : { value: '', valid: true, message: null },
   );
-  const [password, setPassword] = useState<PasswordState>({
-    value: '',
-    valid: true,
-    visible: false,
-    message: null,
-  });
+  const [password, setPassword] = useState<PasswordState>(
+    rememberedPasswordState.value
+      ? rememberedPasswordState
+      : {
+          value: '',
+          valid: true,
+          visible: false,
+          message: null,
+        },
+  );
 
   function handleLogin(event?: FormEvent<HTMLFormElement>): void {
     event?.preventDefault();

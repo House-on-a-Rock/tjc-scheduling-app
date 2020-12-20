@@ -1,146 +1,99 @@
-import React, { useState } from 'react';
-import { Select } from '@material-ui/core';
-import MenuItem from '@material-ui/core/MenuItem';
-import FormControl from '@material-ui/core/FormControl';
-import InputLabel from '@material-ui/core/InputLabel';
-
+import React from 'react';
+import { MenuItem, Button } from '@material-ui/core';
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 import FormHelperText from '@material-ui/core/FormHelperText';
-import { toDateString } from '../../../shared/utilities';
+import { ValidatedTextField, stringLengthCheck } from '../../shared/ValidatedTextField';
+import { ValidatedSelect } from '../../shared/ValidatedSelect';
+import { useValidatedField } from '../../hooks';
 
-import {
-  ValidatedTextField,
-  createTextFieldState,
-  constructError,
-} from '../../shared/ValidatedTextField';
-import { TextFieldState } from '../../../shared/types/models';
+import { buttonTheme } from '../../../shared/styles/theme.js';
+
 import { Tooltip } from '../../shared/Tooltip';
-
 // TODO hook up teams with data from DB
 
 interface NewScheduleFormProps {
+  onClose: (data: any) => void;
+  error: any;
   onSubmit: (
-    scheduleTitle: string,
+    title: string,
     startDate: string,
     endDate: string,
     view: string,
     team: number,
   ) => void;
-  onClose: () => void;
 }
 
-const useStyles = makeStyles(() =>
-  createStyles({
-    root: {
-      position: 'fixed',
-      top: '25%',
-      left: '25%',
-      display: 'flex',
-      flexDirection: 'column',
-      justifyContent: 'space-around',
-      alignItems: 'center',
-      height: '50%',
-      width: '50%',
-      backgroundColor: 'white',
-      padding: 20,
-      zIndex: 10,
-    },
-    formStyle: {
-      display: 'flex',
-      flexDirection: 'column',
-      justifyContent: 'center',
-      alignItems: 'center',
-    },
-    datePicker: {
-      margin: 5,
-    },
-    tooltipContainer: {
-      display: 'flex',
-      flexDirection: 'row',
-    },
-    nameInput: {
-      width: 300,
-    },
-    selectContainer: {
-      width: 400,
-    },
-    selectInput: {
-      width: 300,
-    },
-  }),
-);
-
-export const NewScheduleForm = ({ onSubmit, onClose }: NewScheduleFormProps) => {
-  const today = new Date();
-  const tomorrow = new Date(today.setDate(today.getDate() + 1));
-  const [scheduleTitle, setScheduleTitle] = useState<TextFieldState>(
-    createTextFieldState(''),
-  );
-  const [startDate, setStartDate] = useState<TextFieldState>(
-    createTextFieldState(toDateString(new Date())),
-  );
-  const [endDate, setEndDate] = useState<TextFieldState>(
-    createTextFieldState(toDateString(new Date(tomorrow))),
-  );
-  const view = 'weekly';
-  const [team, setTeam] = useState<TextFieldState>(createTextFieldState('0'));
+export const NewScheduleForm = ({ onClose, error, onSubmit }: NewScheduleFormProps) => {
+  const tomorrow = new Date(new Date().setDate(new Date().getDate() + 1));
   const classes = useStyles();
 
-  function onSubmitForm() {
-    // this need to be reworked now that the button type is submit
-    setScheduleTitle({ ...scheduleTitle, valid: true, message: '' });
-    setStartDate({ ...startDate, valid: true, message: '' });
-    setEndDate({ ...endDate, valid: true, message: '' });
-    setTeam({ ...team, valid: true, message: '' });
-    const teamInt = parseInt(team.value, 10);
-    if (
-      scheduleTitle.value.length &&
-      scheduleTitle.value.length < 32 &&
-      endDate.value > startDate.value &&
-      teamInt > 0
-    )
-      onSubmit(scheduleTitle.value, startDate.value, endDate.value, view, teamInt);
+  const [title, setTitle, setTitleError, resetTitleError] = useValidatedField(
+    '',
+    'Must have a title that is less than 32 characters',
+  );
+  const [startDate, setStartDate, setStartError, resetStartError] = useValidatedField(
+    toDateString(new Date()),
+    'Invalid date range',
+  );
+  const [endDate, setEndDate, setEndError, resetEndError] = useValidatedField(
+    toDateString(new Date(tomorrow)),
+    'Invalid date range',
+  );
+  const [team, setTeam, setTeamError, resetTeamError] = useValidatedField(
+    0,
+    'Please assign a team to this schedule',
+  );
 
-    constructError(
-      scheduleTitle.value.length === 0 || scheduleTitle.value.length >= 32,
-      'Title must not be blank and be under 32 characters long',
-      scheduleTitle,
-      setScheduleTitle,
-    );
-    constructError(
-      endDate.value < startDate.value,
-      'Invalid date range',
-      endDate,
-      setEndDate,
-    );
-    constructError(
-      endDate.value < startDate.value,
-      'Invalid date range',
-      startDate,
-      setStartDate,
-    );
-    constructError(teamInt === 0, 'Please assign a team to this schedule', team, setTeam);
+  // needed to format date so that the date picker can display it properly
+  function toDateString(date: Date): string {
+    // need to pad months/dates with 0s if single digit
+    let month = (date.getMonth() + 1).toString();
+    let day = date.getDate().toString();
+    month = month.length > 1 ? month : `0${month}`;
+    day = day.length > 1 ? day : `0${day}`;
+
+    return `${date.getFullYear()}-${month}-${day}`;
+  }
+
+  function onSubmitForm() {
+    resetTitleError();
+    resetStartError();
+    resetEndError();
+    resetTeamError();
+
+    if (
+      title.value.length > 0 &&
+      title.value.length < 32 &&
+      endDate.value > startDate.value &&
+      team.value > 0
+    )
+      onSubmit(title.value, startDate.value, endDate.value, 'weekly', team.value);
+
+    setTitleError(stringLengthCheck(title.value));
+    setStartError(endDate.value < startDate.value);
+    setEndError(endDate.value < startDate.value);
+    setTeamError(team.value === 0);
   }
 
   return (
     <div className={classes.root}>
-      New Schedule Form
+      <h2>New Schedule Form</h2>
       <form className={classes.formStyle}>
+        {error && <div style={{ color: 'red' }}>Schedule title is not unique</div>}
         <div className={classes.tooltipContainer}>
           <ValidatedTextField
             className={classes.nameInput}
-            name="Schedule Title"
             label="Schedule Title"
-            input={scheduleTitle}
-            handleChange={setScheduleTitle}
-            autofocus
+            input={title}
+            handleChange={setTitle}
+            autoFocus
           />
           <Tooltip
             id="scheduleName"
             text="Example name: Jan-Mar Schedule. Must be unique"
           />
         </div>
-        <div className={classes.tooltipContainer}>
+        <div className={`${classes.tooltipContainer} ${classes.dateAdjustment}`}>
           <ValidatedTextField
             className={classes.datePicker}
             label="Start Date"
@@ -166,30 +119,81 @@ export const NewScheduleForm = ({ onSubmit, onClose }: NewScheduleFormProps) => 
             text="Select the begin date and end date for this schedule"
           />
         </div>
-
-        <FormControl className={classes.selectContainer} error={!team.valid}>
-          <InputLabel>Team</InputLabel>
-          <Select
-            className={classes.selectInput}
-            value={team.value}
-            required
-            variant="outlined"
-            onChange={(e) => setTeam({ ...team, value: e.target.value as string })}
-          >
-            <MenuItem value={0}>Assign this schedule to a team</MenuItem>
-            <MenuItem value={1}>Church Council</MenuItem>
-            <MenuItem value={2}>RE</MenuItem>
-          </Select>
-          <FormHelperText style={{ color: 'red' }}>{team.message}</FormHelperText>
-          <Tooltip id="Team" text="Select who is able to edit this schedule" />
-        </FormControl>
+        <ValidatedSelect
+          className={classes.selectContainer}
+          input={team}
+          onChange={setTeam}
+          toolTip={{ id: 'team', text: 'Assign a team to this schedule' }}
+        >
+          <MenuItem value={0}>Assign this schedule to a team</MenuItem>
+          <MenuItem value={1}>Church Council</MenuItem>
+          <MenuItem value={2}>RE</MenuItem>
+        </ValidatedSelect>
       </form>
-      <button type="submit" onClick={onSubmitForm}>
+      <Button onClick={onSubmitForm} className={classes.button}>
         Create a new schedule!
-      </button>
-      <button type="button" onClick={onClose}>
+      </Button>
+      <Button onClick={onClose} className={classes.button}>
         Cancel
-      </button>
+      </Button>
     </div>
   );
 };
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    root: {
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'space-around',
+      alignItems: 'center',
+      width: 'max-content',
+      margin: 'auto',
+      textAlign: 'center',
+      backgroundColor: 'white',
+      padding: 20,
+      zIndex: 10,
+    },
+    formStyle: {
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    datePicker: {
+      margin: 5,
+    },
+    tooltipContainer: {
+      display: 'flex',
+      flexDirection: 'row',
+      width: '100%',
+    },
+    nameInput: {
+      display: 'flex',
+      flexDirection: 'row',
+      width: '100%',
+    },
+    selectContainer: {
+      display: 'flex',
+      flexDirection: 'row',
+      width: '100%',
+    },
+    selectInput: {
+      display: 'flex',
+      flexDirection: 'row',
+      width: '100%',
+    },
+    dateAdjustment: {
+      marginLeft: '-0.6rem',
+      marginBottom: '0.5rem',
+    },
+    button: {
+      padding: '10px',
+      borderRadius: '5px',
+      border: 'none',
+      margin: '5px',
+      '&:hover, &:focus': {
+        ...buttonTheme.filled,
+      },
+    },
+  }),
+);

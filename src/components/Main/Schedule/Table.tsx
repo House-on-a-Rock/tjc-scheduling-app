@@ -1,18 +1,19 @@
-import React from 'react';
-import { useTable } from 'react-table';
-
-// Components
-import { DataCell } from './TableCell';
+import React, { useState, useRef } from 'react';
 
 // Material-UI Components
 import MaUTable from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
+import TableBody from '@material-ui/core/TableBody';
 import TableRow from '@material-ui/core/TableRow';
+import TableCell from '@material-ui/core/TableCell';
+import { makeStyles, Theme, createStyles, fade, darken } from '@material-ui/core/styles';
+
+// Components
+import { ContextMenu } from '../../shared/ContextMenu';
+import { ServiceDisplay } from './ServiceDisplay';
 
 // Types
-import { TableProps } from '../../../shared/types';
+import { AccessTypes, WeeklyAssignmentInterface } from '../../../shared/types';
 
 // Styles
 import {
@@ -20,57 +21,82 @@ import {
   buttonTheme,
   paletteTheme,
 } from '../../../shared/styles/theme.js';
-import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
-import { fade, darken } from '@material-ui/core/styles';
-// import { horizontalScrollIndicatorShadow } from '../../../shared/styles/scroll-indicator-shadow';
 
-export const Table = (props: TableProps) => {
+interface TableProps {
+  data: WeeklyAssignmentInterface;
+  access: AccessTypes;
+  onTaskModified: any; // any
+}
+
+export const Table = ({ data, access, onTaskModified }: TableProps) => {
+  const outerRef = useRef(null);
   const classes = useStyles();
+  // const [dataRows, setDataRows] = useState([...data]);
 
-  const { columns, data, updateMyData, title } = props;
-  const { getTableProps, headerGroups, rows, prepareRow } = useTable({
-    columns,
-    data,
-    defaultColumn: { Cell: DataCell },
-    updateMyData,
-  });
+  const { columns, services } = data;
 
   return (
     <>
-      {title && (
-        <h3 className={classes.titleContainer}>
-          <span className={classes.titleText}>{title}</span>
-        </h3>
-      )}
-      <MaUTable {...getTableProps()} className={classes.table}>
+      <ContextMenu
+        outerRef={outerRef}
+        addRowHandler={insertRow}
+        deleteRowHandler={deleteRow}
+      />
+      <MaUTable className={classes.table} ref={outerRef}>
         <TableHead>
-          {headerGroups.map((headerGroup) => (
-            <TableRow {...headerGroup.getHeaderGroupProps()}>
-              {headerGroup.headers.map((column) => (
-                <TableCell className={classes.headerCell} {...column.getHeaderProps()}>
-                  {column.render('Header')}
-                </TableCell>
-              ))}
-            </TableRow>
-          ))}
+          <TableRow key="Column header">
+            {columns.map((column: any, index: number) => (
+              // eslint-disable-next-line react/no-array-index-key
+              <TableCell key={`${column.header}_${index}`} className={classes.headerCell}>
+                {column.Header}
+              </TableCell>
+            ))}
+          </TableRow>
         </TableHead>
         <TableBody>
-          {rows.map((row, i) => {
-            prepareRow(row);
-            return (
-              <TableRow {...row.getRowProps()}>
-                {row.cells.map((cell) => (
-                  <TableCell className={classes.cell} {...cell.getCellProps()}>
-                    {cell.render('Cell')}
-                  </TableCell>
-                ))}
-              </TableRow>
-            );
-          })}
+          {services.map((service: any, index: number) => (
+            <ServiceDisplay
+              service={service}
+              onTaskModified={onTaskModified}
+              // eslint-disable-next-line react/no-array-index-key
+              key={index}
+            />
+          ))}
         </TableBody>
       </MaUTable>
     </>
   );
+
+  // make these blank later
+  function cleanRow(row: any) {
+    Object.keys(row).forEach(function (key) {
+      if (key !== 'duty' && key !== 'time')
+        row[key] = {
+          data: {
+            firstName: 'Mike',
+            lastName: 'Wazowski',
+            userId: 5,
+            role: { id: 2, name: 'Interpreter' },
+          },
+        };
+      else row[key] = { data: { display: '' } };
+    });
+    return row;
+  }
+
+  // these broke :(
+  function deleteRow(rowIndex: number) {
+    // const newData = [...dataRows];
+    // newData.splice(rowIndex, 1);
+    // setDataRows(newData);
+  }
+
+  function insertRow(rowIndex: number) {
+    // const newRow = cleanRow({ ...dataRows[rowIndex] });
+    // const tempData = [...dataRows];
+    // tempData.splice(rowIndex, 0, newRow);
+    // setDataRows(tempData);
+  }
 };
 
 const normalCellBorderColor = 'rgba(234, 234, 234, 1)';
@@ -93,7 +119,7 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     headerCell: {
       textAlign: 'center',
-      padding: '1px 5px',
+      padding: '1px 2px',
       color: typographyTheme.common.color,
       border: normalCellBorder,
       fontWeight: 'bold',
@@ -101,21 +127,22 @@ const useStyles = makeStyles((theme: Theme) =>
     cell: {
       padding: '0px 0px 1px',
       border: normalCellBorder,
+      width: '20ch',
       '&:not(:first-child)': {
-        minWidth: '12ch',
+        minWidth: '2ch',
       },
-      '& div:before': {
-        borderBottom: 'none',
-      },
-      '&:hover': {
-        background: `${buttonTheme.filled.hover.backgroundColor} !important`,
-        '& input': {
-          color: 'white',
-        },
-      },
+      // '& > div': {
+      //   width: '100%',
+      //   padding: 0,
+      //   margin: 0,
+      // },
       '& input': {
-        width: '20ch',
-        padding: '10px 15px 3px',
+        // width: '20ch',
+        // padding: '10px 15px 3px',
+        width: '100%',
+        padding: 0,
+        margin: 0,
+        textAlign: 'center',
         // ...horizontalScrollIndicatorShadow('transparent'),
       },
     },
@@ -124,13 +151,13 @@ const useStyles = makeStyles((theme: Theme) =>
       marginBottom: '1rem',
 
       // first two columns:
-      '& td:first-child, td:nth-child(2), th:first-child, th:nth-child(2)': {
-        background: 'white',
-        position: 'sticky',
-        zIndex: 1,
-        border: normalCellBorder,
-        boxSizing: 'border-box',
-      },
+      // '& td:first-child, td:nth-child(2), th:first-child, th:nth-child(2)': {
+      //   background: 'white',
+      //   position: 'sticky',
+      //   zIndex: 1,
+      //   border: normalCellBorder,
+      //   boxSizing: 'border-box',
+      // },
 
       // first column:
       '& td:first-child, th:first-child': {

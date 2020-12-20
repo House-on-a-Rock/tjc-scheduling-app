@@ -2,17 +2,49 @@ import React from 'react';
 
 import Tab from '@material-ui/core/Tab';
 import Tabs from '@material-ui/core/Tabs';
-import { makeStyles, createStyles } from '@material-ui/core/styles';
 import AddIcon from '@material-ui/icons/Add';
+import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 
-import { ScheduleTabsProps } from '../../../shared/types';
 import {
   tabGroupTheme,
   tabTheme,
   tabIndicatorTheme,
 } from '../../../shared/styles/theme.js';
 
-const useStyles = makeStyles(() =>
+interface ScheduleTabsProps {
+  titles: string[];
+  tabIdx: number;
+  onTabClick: (value: number) => void;
+}
+
+export const ScheduleTabs = ({ tabIdx, onTabClick, titles }: ScheduleTabsProps) => {
+  const classes = useStyles();
+
+  return (
+    <div className={classes.root}>
+      <Tabs
+        value={tabIdx}
+        onChange={(e, value) => onTabClick(value)}
+        textColor="primary"
+        centered
+        className={classes.tabs}
+        TabIndicatorProps={{
+          style: {
+            ...tabIndicatorTheme,
+          },
+        }}
+      >
+        {titles.map((title, index) => (
+          // eslint-disable-next-line react/no-array-index-key
+          <Tab key={`${title}-${index}`} label={title} className={classes.tab} />
+        ))}
+        <Tab label={<AddIcon />} className={classes.tab} />
+      </Tabs>
+    </div>
+  );
+};
+
+const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
       height: '3.5rem',
@@ -25,36 +57,10 @@ const useStyles = makeStyles(() =>
       top: '4rem',
       paddingTop: '1rem',
       background: 'white',
-      zIndex: 9001,
+      zIndex: 100,
     },
     tab: {
       ...tabTheme,
     },
   }),
 );
-
-export const ScheduleTabs = ({ tabIdx, onTabClick, titles }: ScheduleTabsProps) => {
-  const classes = useStyles();
-
-  return (
-    <div className={classes.root}>
-      <Tabs
-        value={tabIdx}
-        onChange={onTabClick}
-        textColor="primary"
-        centered
-        className={classes.tabs}
-        TabIndicatorProps={{
-          style: {
-            ...tabIndicatorTheme,
-          },
-        }}
-      >
-        {titles.map((title) => (
-          <Tab key={`ScheduleTabs-${title}`} label={title} className={classes.tab} />
-        ))}
-        <Tab label={<AddIcon />} className={classes.tab} />
-      </Tabs>
-    </div>
-  );
-};

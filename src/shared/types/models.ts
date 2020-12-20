@@ -7,6 +7,10 @@ export interface HttpErrorProps {
   status: number;
   message: string;
 }
+export interface AlertInterface {
+  message: string;
+  status: string;
+}
 
 export interface PasswordState {
   value: string;
@@ -108,12 +112,14 @@ export interface DataCellProps {
   updateMyData: (rowIndex: number, columnId: string, value: string) => void;
 }
 
-export interface TableProps {
-  columns: ColumnFields[];
-  data: WeeklyAssignmentInterface[];
-  updateMyData: (rowIndex: number, columnId: string, value: string) => void;
-  title: string;
-}
+// export interface TableProps {
+//   columns: ColumnFields[];
+//   data: WeeklyAssignmentInterface[];
+//   updateMyData: (rowIndex: number, columnId: string, value: string) => void;
+//   title: string;
+// }
+
+export type AccessTypes = 'read' | 'write';
 
 export interface SchedulerProps {
   schedule: MappedScheduleInterface;
@@ -148,6 +154,12 @@ export interface AddServiceProps {
   order: number;
   dayOfWeek: number;
   scheduleId: number;
+}
+
+export interface ValidatedFieldState<T> {
+  valid: boolean;
+  message: string;
+  value: T;
 }
 
 export interface TextFieldState {

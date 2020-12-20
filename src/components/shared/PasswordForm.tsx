@@ -27,6 +27,7 @@ export const PasswordForm = ({
     label={label}
     name={name}
     type={password.visible ? 'text' : 'password'}
+    autoComplete="current-password"
     helperText={password.valid ? '' : password.message}
     error={!password.valid}
     InputProps={{

@@ -1,30 +1,126 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
+// react query
 import { useQuery, useMutation, useQueryCache } from 'react-query';
-import { Dialog } from '@material-ui/core';
-import { makeStyles, createStyles } from '@material-ui/core/styles';
-import AddIcon from '@material-ui/icons/Add';
 
-import { Scheduler } from './Scheduler';
+import { Dialog, Button } from '@material-ui/core';
+import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
+import { getTabData } from '../../../query/schedules';
+import { addSchedule } from '../../../store/apis/schedules';
+
 import { ScheduleTabs } from './ScheduleTabs';
 import { NewScheduleForm } from './NewScheduleForm';
-import { NewServiceForm } from './NewServiceForm';
-
+import { ScheduleContainer } from './ScheduleContainer';
+import { Alert } from '../../shared/Alert';
 import { logout } from '../../../store/actions';
 import { useSelector } from '../../../shared/utilities';
-import { getScheduleData } from '../../../query/schedules';
-import { addSchedule, addService } from '../../../store/apis/schedules';
-
 import { buttonTheme } from '../../../shared/styles/theme.js';
-import { showLoadingSpinner } from '../../../shared/styles/loading-spinner';
 
-import history from '../../../history';
+import { AlertInterface } from '../../../shared/types';
 
-const useStyles = makeStyles(() =>
+export const Home = () => {
+  const classes = useStyles();
+  const dispatch = useDispatch();
+  const cache = useQueryCache();
+
+  // queries
+  const { churchId, name: churchName } = useSelector((state) => state.profile);
+  const { isLoading, error, data } = useQuery(['scheduleTabs', churchId], getTabData, {
+    enabled: churchId,
+    refetchOnWindowFocus: false,
+    staleTime: 100000000000000,
+  });
+  const [mutateAddSchedule, { error: mutateScheduleError }] = useMutation(addSchedule, {
+    onSuccess: (response) => {
+      cache.invalidateQueries('scheduleTabs');
+      closeDialogHandler(response);
+    },
+  });
+
+  // state
+  const [tabIdx, setTabIdx] = useState(0);
+  const [isNewScheduleVisible, setIsNewScheduleVisible] = useState<boolean>(false);
+  const [openedTabs, setOpenedTabs] = useState<number[]>([0]);
+  const [alert, setAlert] = useState<AlertInterface>();
+
+  function onTabClick(value: number) {
+    if (value <= data.length - 1) {
+      // if not the last tab, open that tab
+      setTabIdx(value);
+      const isOpened = openedTabs.indexOf(value);
+      if (isOpened < 0) setOpenedTabs([...openedTabs, value]); // adds unopened tabs to array. need way to handle lots of tabs
+    } else setIsNewScheduleVisible(true); // if last tab, open dialog to make new schedule
+  }
+
+  function closeDialogHandler(response?: any) {
+    // TODO for some reason theres a lot of rerenders for just this alert. nothing visible to client, very low priority
+    setIsNewScheduleVisible(false);
+    if (response.data) setAlert({ message: response.data, status: 'success' }); // response.statusText = "OK", response.status == 200
+  }
+
+  async function onNewScheduleSubmit(
+    scheduleTitle: string,
+    startDate: string,
+    endDate: string,
+    view: string,
+    team: number,
+  ) {
+    await mutateAddSchedule({
+      scheduleTitle,
+      startDate,
+      endDate,
+      view,
+      team,
+      churchId,
+    });
+  }
+
+  return (
+    <>
+      <Button
+        onClick={() => {
+          localStorage.removeItem('access_token');
+          dispatch(logout());
+        }}
+        className={classes.logoutButton}
+      >
+        Log Out
+      </Button>
+      <Dialog open={isNewScheduleVisible} onClose={() => closeDialogHandler()}>
+        <NewScheduleForm
+          onClose={() => closeDialogHandler()}
+          error={mutateScheduleError}
+          onSubmit={onNewScheduleSubmit}
+        />
+      </Dialog>
+      {alert && <Alert alert={alert} unMountAlert={() => setAlert(null)} />}
+      {data && (
+        <div>
+          <ScheduleTabs
+            tabIdx={tabIdx}
+            onTabClick={onTabClick}
+            titles={data.map((schedule: any) => schedule.title)}
+          />
+          {openedTabs.map((tab) => (
+            <ScheduleContainer
+              churchId={churchId}
+              setAlert={setAlert}
+              scheduleId={data[tab].id}
+              isViewed={tab === tabIdx}
+              key={tab.toString()}
+            />
+          ))}
+        </div>
+      )}
+    </>
+  );
+};
+
+const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     logoutButton: {
       position: 'fixed',
-      zIndex: 9002,
+      zIndex: 200,
       padding: '10px',
       borderRadius: '5px',
       border: 'none',
@@ -38,126 +134,3 @@ const useStyles = makeStyles(() =>
     },
   }),
 );
-
-export const Home = () => {
-  const classes = useStyles();
-  const dispatch = useDispatch();
-
-  // React-query
-  const cache = useQueryCache();
-  const { churchId, name: churchName } = useSelector((state) => state.profile);
-  const { isLoading, error, data = [] } = useQuery(
-    ['schedulesData', churchId],
-    getScheduleData,
-    {
-      enabled: churchId,
-      refetchOnWindowFocus: false,
-      staleTime: 100000000000000,
-    },
-  );
-
-  showLoadingSpinner(isLoading);
-
-  const [mutateAddSchedule] = useMutation(addSchedule, {
-    onSuccess: () => cache.invalidateQueries('schedulesData'),
-  });
-  const [mutateAddService] = useMutation(addService, {
-    onSuccess: () => cache.invalidateQueries('schedulesData'),
-  });
-
-  // Component state
-  const [tabIdx, setTabIdx] = useState(0);
-  const [displayedSchedule, setDisplayedSchedule] = useState(data[tabIdx]);
-  const [isAddScheduleVisible, setIsAddScheduleVisible] = useState(false);
-  const [isAddServiceVisible, setIsAddServiceVisible] = useState(false);
-
-  function onTabClick(e: React.ChangeEvent<{}>, value: number) {
-    if (value <= data.length - 1) {
-      // if not the last tab, display that tab
-      setTabIdx(value);
-      setDisplayedSchedule(data[tabIdx]?.services);
-    } else setIsAddScheduleVisible(true); // if last tab, open dialog to make new schedule
-  }
-
-  useEffect(() => {
-    setDisplayedSchedule(data[tabIdx]?.services);
-  }, [data, tabIdx]);
-
-  async function onNewScheduleSubmit(
-    scheduleTitle: string,
-    startDate: string,
-    endDate: string,
-    view: string,
-    team: number,
-  ) {
-    // validations needed
-    setIsAddScheduleVisible(false);
-    if (churchId)
-      await mutateAddSchedule({
-        scheduleTitle,
-        startDate,
-        endDate,
-        view,
-        team,
-        churchId,
-      });
-    // display error messages if needed
-  }
-
-  async function onNewServiceSubmit(name: string, order: number, dayOfWeek: number) {
-    // validations
-    setIsAddServiceVisible(false);
-    const response = await mutateAddService({
-      name,
-      order,
-      dayOfWeek,
-      scheduleId: tabIdx + 1, // since these aren't 0 based, need to add 1
-    });
-    // need an error/alert reporting system
-  }
-
-  const closeDialogHandler = () => {
-    setIsAddScheduleVisible(false);
-    setIsAddServiceVisible(false);
-  };
-  const onAddServiceClick = () => setIsAddServiceVisible(true);
-
-  return (
-    <>
-      <button
-        type="button"
-        onClick={() => {
-          localStorage.removeItem('access_token');
-          dispatch(logout());
-          history.push('/auth/login');
-        }}
-        className={classes.logoutButton}
-      >
-        Log Out
-      </button>
-      <Dialog open={isAddScheduleVisible} onClose={closeDialogHandler}>
-        <NewScheduleForm onSubmit={onNewScheduleSubmit} onClose={closeDialogHandler} />
-      </Dialog>
-      <Dialog open={isAddServiceVisible} onClose={closeDialogHandler}>
-        <NewServiceForm
-          order={displayedSchedule?.length || 0}
-          onSubmit={onNewServiceSubmit}
-          onClose={closeDialogHandler}
-        />
-      </Dialog>
-      <ScheduleTabs
-        tabIdx={tabIdx}
-        onTabClick={onTabClick}
-        titles={data.map((schedule: any) => schedule.title)}
-      />
-      <div className={classes.schedulesContainer}>
-        <button type="button" onClick={onAddServiceClick}>
-          <AddIcon height={50} width={50} /> Add New Service
-        </button>
-        {displayedSchedule?.map((schedule: any, idx: any) => (
-          <Scheduler schedule={schedule} key={idx} />
-        ))}
-      </div>
-    </>
-  );
-};

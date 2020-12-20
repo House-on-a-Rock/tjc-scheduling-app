@@ -1,15 +1,11 @@
 import nodemailer from 'nodemailer';
 import crypto from 'crypto';
 import jwt, { Algorithm, TokenExpiredError, JsonWebTokenError } from 'jsonwebtoken';
+import { Request, Response, NextFunction } from 'express';
 import fs from 'fs';
 import { DateTime } from 'luxon';
-import {
-  RoleAttributes,
-  ServiceInstance,
-  TaskInstance,
-} from 'shared/SequelizeTypings/models';
+import { RoleAttributes, ServiceInstance } from 'shared/SequelizeTypings/models';
 import db from '../index';
-import { Request, Response, NextFunction } from 'express';
 
 const privateKey = fs.readFileSync('tjcschedule.pem');
 let cert: Buffer;
@@ -214,24 +210,6 @@ export function isTimeBefore(comparing: string, target: string): boolean {
   return comparingTime < targetTime;
 }
 
-// Recursively checks if the order is correct by checking from last element to first.
-// export function correctOrder(arr, lastIdx, target, type) {
-//   if (lastIdx === -1) {
-//     arr.unshift(target);
-//     return arr;
-//   }
-//   const condition =
-//     type === 'order'
-//       ? target.order < arr[lastIdx].order
-//       : !isTimeBefore(arr[lastIdx].time, target.time);
-//   if (!condition) {
-//     arr.splice(lastIdx + 1, 0, target);
-//     return arr;
-//   }
-//   return correctOrder(arr, lastIdx - 1, target, type);
-// }
-
-// adds 0 in front of single-digit months
 const zeroPaddingDates = (date: Date): string => {
   let month = (date.getMonth() + 1).toString();
   let day = date.getDate().toString();
@@ -242,11 +220,16 @@ const zeroPaddingDates = (date: Date): string => {
   return `${month}/${day}`;
 };
 
-export const matchKey = (date: Date) => {
-  let start = new Date(date);
-  start.setDate(start.getDate() - start.getDay()); //sets start to sunday
-  let end = new Date(start);
+const setStartAndEnd = (arg1: Date, arg2?: Date) => {
+  const start = new Date(arg1);
+  start.setDate(start.getDate() - start.getDay()); // sets start to sunday
+  const end = arg2 ? new Date(arg2) : new Date(start);
   end.setDate(start.getDate() + 6);
+  return [start, end];
+};
+
+export const matchKey = (date: Date) => {
+  const [start, end] = setStartAndEnd(date);
   return `${zeroPaddingDates(start)}-${zeroPaddingDates(end)}`;
 };
 
@@ -265,13 +248,8 @@ export function columnizedDates(everyRepeatingDay: Date[]) {
 
 export function determineWeeks(startDate: Date, endDate: Date) {
   const weeks = [];
-  let start = new Date(startDate);
-  start.setDate(start.getDate() - start.getDay()); //sets start to sunday
-  let end = new Date(endDate);
-  end.setDate(end.getDate() + (6 - end.getDay()));
-
+  const [start, end] = setStartAndEnd(startDate, endDate);
   let current = new Date(start);
-
   while (current <= end) {
     weeks.push(current);
     current = new Date(current.setDate(current.getDate() + 7));
@@ -301,7 +279,7 @@ export async function populateServiceData({
   const events = await db.Event.findAll({
     where: { serviceId: id },
     order: [['order', 'ASC']],
-  }); //returns events in ascending order
+  }); // returns events in ascending order
   // for each event, retrieve role data and associated task data
   const eventData = await Promise.all(
     events.map(async (event) => {
@@ -331,7 +309,7 @@ function dutyDisplay(title, role) {
   return { display: title, role: role };
 }
 
-async function retrieveEventRole(roleId) {
+function retrieveEventRole(roleId) {
   return db.Role.findOne({
     where: { id: roleId },
     attributes: ['id', 'name'],

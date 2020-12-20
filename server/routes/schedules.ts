@@ -1,13 +1,7 @@
 /* eslint-disable consistent-return */
 /* eslint-disable array-callback-return */
 import express, { Request, Response, NextFunction } from 'express';
-import {
-  EventInstance,
-  ScheduleInstance,
-  ServiceInstance,
-  TaskInstance,
-} from 'shared/SequelizeTypings/models';
-// import Sequelize from 'sequelize';
+import { ScheduleInstance } from 'shared/SequelizeTypings/models';
 import db from '../index';
 import {
   certify,
@@ -54,7 +48,7 @@ router.get(
 
       // for each service, populate data
       const servicesData = await Promise.all(
-        services.map(async (service) => await populateServiceData(service)),
+        services.map(async (service) => populateServiceData(service)),
       );
 
       const response = {
@@ -64,7 +58,6 @@ router.get(
         view: schedule.view,
         role: role,
       };
-
       if (!response) return res.status(404).send({ message: 'No schedules found' });
       return res.status(200).json(response);
     } catch (err) {
