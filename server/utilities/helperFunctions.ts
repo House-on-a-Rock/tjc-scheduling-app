@@ -3,7 +3,12 @@ import crypto from 'crypto';
 import jwt, { Algorithm, TokenExpiredError, JsonWebTokenError } from 'jsonwebtoken';
 import fs from 'fs';
 import { DateTime } from 'luxon';
-import { RoleAttributes } from 'shared/SequelizeTypings/models';
+import {
+  RoleAttributes,
+  ServiceInstance,
+  TaskInstance,
+} from 'shared/SequelizeTypings/models';
+import db from '../index';
 
 const privateKey = fs.readFileSync('tjcschedule.pem');
 let cert;
@@ -217,19 +222,10 @@ export function correctOrder(arr, lastIdx, target, type) {
   return correctOrder(arr, lastIdx - 1, target, type);
 }
 
-const dayIndex = {
-  Sunday: 0,
-  Monday: 1,
-  Tuesday: 2,
-  Wednesday: 3,
-  Thursday: 4,
-  Friday: 5,
-  Saturday: 6,
-};
-
-const zeroPaddingDates = (monthIdx: number, dayIdx: number): string => {
-  let month = (monthIdx + 1).toString();
-  let day = dayIdx.toString();
+// adds 0 in front of single-digit months
+const zeroPaddingDates = (date: Date): string => {
+  let month = (date.getMonth() + 1).toString();
+  let day = date.getDate().toString();
 
   month = month.length > 1 ? month : `0${month}`;
   day = day.length > 1 ? day : `0${day}`;
@@ -237,59 +233,44 @@ const zeroPaddingDates = (monthIdx: number, dayIdx: number): string => {
   return `${month}/${day}`;
 };
 
-export const contrivedDate = (date: string | Date) => {
-  const jsDate = new Date(date);
-  const monthIdx = jsDate.getMonth();
-  const dayIdx = jsDate.getDate();
-  return zeroPaddingDates(monthIdx, dayIdx);
+export const matchKey = (date: Date) => {
+  let start = new Date(date);
+  start.setDate(start.getDate() - start.getDay()); //sets start to sunday
+  let end = new Date(start);
+  end.setDate(start.getDate() + 6);
+  return `${zeroPaddingDates(start)}-${zeroPaddingDates(end)}`;
 };
 
-const readableDate = (unreadableDate: Date) =>
-  `${
-    unreadableDate.getMonth() + 1
-  }/${unreadableDate.getDate()}/${unreadableDate.getFullYear()}`;
+export function columnizedDates(everyRepeatingDay: Date[]) {
+  return everyRepeatingDay.map((date: Date) => {
+    const startDate = new Date(date);
+    const endDate = new Date(date);
+    endDate.setDate(startDate.getDate() + 6);
 
-const incrementDay = (date: Date) => new Date(date.setDate(date.getDate() + 1));
-
-function determineStartDate(startDate: string, day: number) {
-  let current = incrementDay(new Date(startDate));
-  while (current.getDay() !== day) current = incrementDay(current);
-  return current;
-}
-
-export function columnizedDates(everyRepeatingDay: string[]) {
-  return everyRepeatingDay.map((date: string) => {
-    const jsDate = new Date(date);
-    const monthIdx = jsDate.getMonth();
-    const dayIdx = jsDate.getDate();
     return {
-      Header: zeroPaddingDates(monthIdx, dayIdx),
-      accessor: zeroPaddingDates(monthIdx, dayIdx),
+      Header: `${zeroPaddingDates(startDate)}-${zeroPaddingDates(endDate)}`,
+      accessor: `${zeroPaddingDates(startDate)}-${zeroPaddingDates(endDate)}`,
     };
   });
 }
 
-export function everyRepeatingDayBetweenTwoDates(
-  startDate: string,
-  endDate: string,
-  day: number,
-) {
-  const everyRepeatingDay = [];
+export function determineWeeks(startDate: Date, endDate: Date) {
+  const weeks = [];
   let start = new Date(startDate);
-
-  if (start.getDay() !== day) start = determineStartDate(startDate, day);
+  start.setDate(start.getDate() - start.getDay()); //sets start to sunday
+  let end = new Date(endDate);
+  end.setDate(end.getDate() + (6 - end.getDay()));
 
   let current = new Date(start);
-  const end = new Date(endDate);
 
   while (current <= end) {
-    everyRepeatingDay.push(readableDate(current));
+    weeks.push(current);
     current = new Date(current.setDate(current.getDate() + 7));
   }
-  return everyRepeatingDay;
+  return weeks;
 }
 
-export function createColumns(start: any, end: any, day: any) {
+export function createColumns(start: Date, end: Date) {
   return [
     {
       Header: 'Time',
@@ -299,6 +280,77 @@ export function createColumns(start: any, end: any, day: any) {
       Header: 'Duty',
       accessor: 'duty',
     },
-    ...columnizedDates(everyRepeatingDayBetweenTwoDates(start, end, day)),
+    ...columnizedDates(determineWeeks(start, end)),
   ];
+}
+
+export async function populateServiceData({
+  name,
+  day,
+  id,
+}: ServiceInstance): Promise<any> {
+  const events = await db.Event.findAll({
+    where: { serviceId: id },
+    order: [['order', 'ASC']],
+  }); //returns events in ascending order
+  // for each event, retrieve role data and associated task data
+  const eventData = await Promise.all(
+    events.map(async (event) => {
+      const { time, title, roleId, displayTime, id: eventId } = event;
+      const role = await retrieveEventRole(roleId);
+      const tasks = await retrieveTaskData(eventId, role);
+      const timeColumn = timeDisplay(time, displayTime);
+      const dutyColumn = dutyDisplay(title, role);
+      return {
+        time,
+        title,
+        roleId,
+        displayTime,
+        eventId,
+        cells: [timeColumn, dutyColumn, ...tasks],
+      };
+    }),
+  );
+  return { name: name, day: day, eventData, serviceId: id };
+}
+
+function timeDisplay(time, displayTime) {
+  return { display: displayTime ? time : '', time, displayTime };
+}
+
+function dutyDisplay(title, role) {
+  return { display: title, role: role };
+}
+
+async function retrieveEventRole(roleId) {
+  return db.Role.findOne({
+    where: { id: roleId },
+    attributes: ['id', 'name'],
+  });
+}
+
+async function retrieveTaskData(eventId, role) {
+  const tasks = await db.Task.findAll({
+    where: { eventId },
+    attributes: ['id', 'date', 'userId'],
+    include: [
+      {
+        model: db.User,
+        as: 'user',
+        attributes: ['firstName', 'lastName'],
+      },
+    ],
+    order: [['date', 'ASC']],
+  });
+  const organizedTasks = tasks.map((task: any) => {
+    return {
+      taskId: task.id,
+      date: task.date,
+      firstName: task.user.firstName,
+      lastName: task.user.lastName,
+      userId: task.userId,
+      role: role,
+    };
+  });
+  return organizedTasks;
 }
