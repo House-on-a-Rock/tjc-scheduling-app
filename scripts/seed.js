@@ -56,6 +56,7 @@ async function seed() {
   console.log(blue(`seeded ${seedTasks.length} tasks`));
   console.log(blue(`seeded ${seedNotifications.length} notifications`));
   console.log(blue(`seeded succesfully`));
+  await db.sequelize.close();
 }
 
 async function runSeed() {
