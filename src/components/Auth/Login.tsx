@@ -19,7 +19,7 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 
 // Custom Components
 import { Copyright } from '../shared/Copyright';
-import { PasswordForm } from '../shared';
+import { PasswordForm, ValidatedTextField } from '../shared';
 
 // Actions
 import { checkCredentials } from '../../store/actions';
@@ -153,11 +153,13 @@ export const Login = () => {
         )}
 
         <form className={classes.form} noValidate onSubmit={handleLogin}>
-          <EmailForm
+          <ValidatedTextField
             name="email"
             label="Email Address"
-            email={email}
-            handleEmail={setEmail}
+            input={email}
+            handleChange={setEmail}
+            type="email"
+            autoComplete="email"
           />
           <PasswordForm
             name="Password"
@@ -187,11 +189,6 @@ export const Login = () => {
       <Grid container>
         <Grid item xs>
           <RouterLink to="/auth/forgotPassword">Forgot password</RouterLink>
-        </Grid>
-        <Grid item>
-          {/* <Link href="#" variant="body2">
-            "Don't have an account?"
-          </Link> */}
         </Grid>
       </Grid>
 

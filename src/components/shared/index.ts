@@ -8,3 +8,5 @@ export * from './AuthEmail';
 export * from './PasswordStrengthMeter';
 export * from './PasswordForm';
 export * from './Error404';
+export * from './ValidatedTextField';
+export * from './ValidatedSelect';

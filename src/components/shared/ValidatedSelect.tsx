@@ -7,8 +7,8 @@ import { Tooltip } from './Tooltip';
 
 import { ValidatedFieldState } from '../../shared/types/models';
 
-interface IValidatedSelectProps {
-  className?: string;
+interface ValidatedSelectProps {
+  className: string;
   input: ValidatedFieldState<number>;
   onChange: (arg: ValidatedFieldState<number>) => void;
   toolTip: { id: string; text: string };
@@ -23,14 +23,14 @@ export const ValidatedSelect = ({
   toolTip,
   children,
   ...restProps
-}: IValidatedSelectProps) => {
+}: ValidatedSelectProps) => {
   return (
     <FormControl className={className} error={!input.valid}>
       <InputLabel>Team</InputLabel>
       <Select
         className={className}
         value={input.value}
-        required={true}
+        required
         variant="outlined"
         onChange={(e: React.ChangeEvent<{ name: string; value: number }>) =>
           onChange({ valid: true, message: '', value: e.target.value })

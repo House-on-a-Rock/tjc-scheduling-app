@@ -68,6 +68,40 @@ export const ScheduleContainer = ({
 
   showLoadingSpinner(isLoading);
 
+  function closeDialogHandler(response: any) {
+    setIsAddServiceVisible(false);
+    if (response.data) setAlert({ message: response.data, status: 'success' });
+  }
+
+  function onAddServiceClick() {
+    setIsAddServiceVisible(true);
+  }
+
+  function onTaskModified(taskId: number, newAssignee: number, isChanged: boolean) {
+    if (isChanged) {
+      const updatedChangedTasks = { ...changedTasks.current, [taskId]: newAssignee };
+      changedTasks.current = updatedChangedTasks;
+    } else if (changedTasks.current[taskId]) delete changedTasks.current[taskId];
+
+    setIsScheduleModified(Object.keys(changedTasks.current).length > 0);
+  }
+
+  async function onNewServiceSubmit(name: string, order: number, dayOfWeek: number) {
+    await mutateAddService({
+      name,
+      order: order,
+      dayOfWeek,
+      scheduleId: scheduleId,
+    });
+    // cleanup
+    setIsScheduleModified(false);
+  }
+
+  async function onSaveScheduleChanges() {
+    await mutateUpdateSchedule(changedTasks.current);
+    setIsScheduleModified(false);
+  }
+
   return (
     <div
       className={classes.scheduleContainer}
@@ -103,40 +137,6 @@ export const ScheduleContainer = ({
       </div>
     </div>
   );
-
-  function closeDialogHandler(response: any) {
-    setIsAddServiceVisible(false);
-    if (response.data) setAlert({ message: response.data, status: 'success' });
-  }
-
-  function onAddServiceClick() {
-    setIsAddServiceVisible(true);
-  }
-
-  function onTaskModified(taskId: number, newAssignee: number, isChanged: boolean) {
-    if (isChanged) {
-      const updatedChangedTasks = { ...changedTasks.current, [taskId]: newAssignee };
-      changedTasks.current = updatedChangedTasks;
-    } else if (changedTasks.current[taskId]) delete changedTasks.current[taskId];
-
-    setIsScheduleModified(Object.keys(changedTasks.current).length > 0);
-  }
-
-  async function onNewServiceSubmit(name: string, order: number, dayOfWeek: number) {
-    await mutateAddService({
-      name,
-      order: order,
-      dayOfWeek,
-      scheduleId: scheduleId,
-    });
-    // cleanup
-    setIsScheduleModified(false);
-  }
-
-  async function onSaveScheduleChanges() {
-    await mutateUpdateSchedule(changedTasks.current);
-    setIsScheduleModified(false);
-  }
 };
 
 const useStyles = makeStyles((theme: Theme) =>

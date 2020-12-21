@@ -43,20 +43,18 @@ router.get(
       const services = await db.Service.findAll({
         where: { scheduleId: scheduleId.toString() },
         order: [['order', 'ASC']],
-      }); // toString fixes parsedQ's issue
+      });
       const columns = createColumns(schedule.start, schedule.end);
-
-      // for each service, populate data
       const servicesData = await Promise.all(
         services.map(async (service) => populateServiceData(service)),
       );
 
       const response = {
-        columns: columns,
+        columns,
         services: servicesData,
         title: schedule.title,
         view: schedule.view,
-        role: role,
+        role,
       };
       if (!response) return res.status(404).send({ message: 'No schedules found' });
       return res.status(200).json(response);

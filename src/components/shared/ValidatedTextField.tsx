@@ -37,7 +37,7 @@ export const ValidatedTextField = ({
   label,
   input,
   handleChange,
-  ...extraProps
+  ...props
 }: ValidatedTextField) => (
   <TextField
     variant="outlined"
@@ -52,6 +52,6 @@ export const ValidatedTextField = ({
     // className={className}
     error={!input.valid}
     helperText={input.valid ? '' : input.message}
-    {...extraProps}
+    {...props}
   />
 );

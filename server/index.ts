@@ -33,6 +33,11 @@ app.use((req, res, next) => {
   } else next();
 });
 
+app.use('*', (req, res) => {
+  console.log('sending file');
+  res.sendFile(path.join(__dirname, '..', 'dist/index.html'));
+});
+
 class HttpException extends Error {
   status: number;
 

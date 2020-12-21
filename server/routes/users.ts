@@ -87,7 +87,6 @@ router.post('/users', certify, async (req: Request, res: Response, next) => {
       where: { email },
       attributes: ['id', 'email'],
     });
-    // const userExists = !!user;
     const { id }: UserInstance =
       !userExists &&
       (await db.User.create({

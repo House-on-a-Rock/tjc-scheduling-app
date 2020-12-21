@@ -224,13 +224,8 @@ const setStartAndEnd = (arg1: Date, arg2?: Date) => {
   const start = new Date(arg1);
   start.setDate(start.getDate() - start.getDay()); // sets start to sunday
   const end = arg2 ? new Date(arg2) : new Date(start);
-  end.setDate(start.getDate() + 6);
+  end.setDate(end.getDate() + (6 - end.getDay()));
   return [start, end];
-};
-
-export const matchKey = (date: Date) => {
-  const [start, end] = setStartAndEnd(date);
-  return `${zeroPaddingDates(start)}-${zeroPaddingDates(end)}`;
 };
 
 export function columnizedDates(everyRepeatingDay: Date[]) {
@@ -247,11 +242,11 @@ export function columnizedDates(everyRepeatingDay: Date[]) {
 }
 
 export function determineWeeks(startDate: Date, endDate: Date) {
-  const weeks = [];
   const [start, end] = setStartAndEnd(startDate, endDate);
+  const weeks: Date[] = [];
   let current = new Date(start);
   while (current <= end) {
-    weeks.push(current);
+    weeks.push(new Date(current));
     current = new Date(current.setDate(current.getDate() + 7));
   }
   return weeks;
