@@ -71,7 +71,7 @@ router.get(
           },
         ],
       });
-      return notifications.length > 0
+      return notifications.length
         ? res.status(200).json(notifications)
         : res.status(404).send({ message: 'No Notifications Found' });
     } catch (err) {
@@ -88,6 +88,7 @@ router.post(
     try {
       const loggedInId: number = determineLoginId(req.headers.authorization);
       const { requestId, notification } = req.body;
+      // userId isn't being used: /server/routes/requests postNotification()
 
       // will have to be edited, notification doesn't necessarily have to depend on request
       const request = await db.Request.findOne({
@@ -145,7 +146,7 @@ router.post(
             ? `${myFirstName} wants to switch with you`
             : `${myFirstName} requested to switch with someone. An open request has been sent out.`;
         receivers.map(async ({ id: theirId, expoPushToken }) => {
-          if (theirId !== loggedInId) {
+          if (theirId && theirId !== loggedInId && expoPushToken) {
             await db.Notification.create({
               userId: theirId,
               message: theirNotificationMessage,

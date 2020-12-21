@@ -1,32 +1,19 @@
-import express from 'express';
+import express, { NextFunction, Request, Response } from 'express';
 import bodyParser from 'body-parser';
 import cors from 'cors';
-import session from 'express-session';
 import path from 'path';
 import db from './db';
 
 const port = process.env.PORT || 8080;
 const app: express.Application = express();
-
-app.use(
-  session({
-    secret: 't-rex',
-    cookie: { maxAge: 7 * 24 * 60 * 60 * 1000 },
-    resave: false,
-    saveUninitialized: true,
-  }),
-);
+const DIST_DIR = path.join(__dirname, '../dist/');
+const HTML_FILE = path.join(DIST_DIR, 'index.html');
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors());
 
-app.get('/', (req: any, res) => {
-  const msg = 'Welcome to this API. ';
-  res.status(200).send({ message: msg });
-});
-
-app.use(express.static(path.join(__dirname, 'dist')));
+app.use(express.static(DIST_DIR));
 
 app.use('/api', require('./routes'));
 app.use('/api', require('./routes/churches'));
@@ -39,9 +26,35 @@ app.use('/api', require('./routes/schedules'));
 app.use('/api', require('./routes/services'));
 
 app.use((req, res, next) => {
-  const error = new Error('Not Found');
-  res.status(404);
-  next(error);
+  if (path.extname(req.path).length) {
+    const error = new Error('Not Found');
+    // res.status(404);
+    next(error);
+  } else next();
+});
+
+app.use('*', (req, res) => {
+  console.log('sending file');
+  res.sendFile(path.join(__dirname, '..', 'dist/index.html'));
+});
+
+class HttpException extends Error {
+  status: number;
+
+  message: string;
+
+  constructor(status: number, message: string) {
+    super(message);
+    this.status = status;
+    this.message = message;
+  }
+}
+
+// error handling endware
+app.use((err: HttpException, req: Request, res: Response, next: NextFunction) => {
+  console.error(err);
+  console.error(err.stack);
+  res.status(err.status || 500).send(err.message || 'Internal server error.');
 });
 
 const syncDb = () =>

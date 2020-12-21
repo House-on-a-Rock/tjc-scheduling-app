@@ -1,0 +1,100 @@
+:root {
+  --w: 1px; /* text outline width */
+  --c: #024b8d40; /* text outline color */
+}
+
+body {
+  font-family: 'Source Sans Pro';
+}
+
+body.loading {
+  margin: 0;
+}
+
+body.loading > * {
+  pointer-events: none;
+  -webkit-animation: focus-in-and-out 2s linear forwards;
+  animation: focus-in-and-out 2s linear forwards;
+}
+
+body.loading:before {
+  z-index: 9001; /* it's over 9000 */
+  content: '';
+  position: absolute;
+  width: 120px;
+  height: 120px;
+  top: calc(50% - 120px / 2); /* -1/2 of height */
+  left: calc(50% - 120px / 2); /* -1/2 of width */
+  box-sizing: border-box;
+  border: 16px solid #f3f3f3;
+  border-radius: 50%;
+  border-top: 16px solid #0083a9;
+  box-shadow: 0 0 20px 0 #00000050, inset 0 0 20px 0 #00000050;
+  -webkit-animation: spin 2s linear infinite; /* Safari */
+  animation: spin 2s linear infinite;
+}
+
+body.loading.message:after {
+  z-index: 9002;
+  position: absolute;
+  font-size: 3rem;
+  color: white;
+  text-align: center;
+  text-shadow: var(--w) var(--w) 0 var(--c),
+    calc(-1 * var(--w)) calc(-1 * var(--w)) 0 var(--c),
+    var(--w) calc(-1 * var(--w)) 0 var(--c), calc(-1 * var(--w)) var(--w) 0 var(--c),
+    0 var(--w) 0 var(--c), 0 calc(-1 * var(--w)) 0 var(--c), var(--w) 0 0 var(--c),
+    calc(-1 * var(--w)) 0 0 var(--c);
+  width: 100%;
+}
+
+body.loading.message.message-1:after {
+  /* KJV = public domain */
+  content: 'Wait on the Lord: be of good courage, and he shall strengthen thine heart: wait, I say, on the Lord. (Psalm 27:14)';
+}
+
+body.loading.message.message-2:after {
+  /* KJV = public domain */
+  content: 'With all lowliness and meekness, with longsuffering, forbearing one another in love; (Ephesians 4:2)';
+}
+
+body.loading.message.message-3:after {
+  /* KJV = public domain */
+  content: 'I wait for the Lord, my soul doth wait, and in his word do I hope. (Psalm 130:5)';
+}
+
+/* Safari */
+@-webkit-keyframes spin {
+  0% {
+    -webkit-transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(360deg);
+  }
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes focus-in-and-out {
+  0% {
+    -webkit-filter: blur(5rem);
+    -moz-filter: blur(5rem);
+    -o-filter: blur(5rem);
+    -ms-filter: blur(5rem);
+    filter: blur(5rem);
+  }
+  100% {
+    -webkit-filter: blur(3px);
+    -moz-filter: blur(3px);
+    -o-filter: blur(3px);
+    -ms-filter: blur(3px);
+    filter: blur(3px);
+  }
+}

@@ -24,18 +24,33 @@ import {
   UserRoleInstance,
 } from 'shared/SequelizeTypings/models';
 
+const { Model } = Sequelize;
+
+export interface DbOptions {
+  Church: string;
+  Event: string;
+  Notification: string;
+  Request: string;
+  Role: string;
+  Schedule: string;
+  Task: string;
+  Service: string;
+  Token: string;
+  User: string;
+  UserRole: string;
+}
 export interface DbInterface {
   sequelize: Sequelize.Sequelize;
   Sequelize: Sequelize.SequelizeStatic;
-  Church: Sequelize.Model<ChurchInstance, ChurchAttributes>;
-  Event: Sequelize.Model<EventInstance, EventAttributes>;
-  Notification: Sequelize.Model<NotificationInstance, NotificationAttributes>;
-  Request: Sequelize.Model<RequestInstance, RequestAttributes>;
-  Role: Sequelize.Model<RoleInstance, RoleAttributes>;
-  Schedule: Sequelize.Model<ScheduleInstance, ScheduleAttributes>;
-  Task: Sequelize.Model<TaskInstance, TaskAttributes>;
-  Service: Sequelize.Model<ServiceInstance, ServiceAttributes>;
-  Token: Sequelize.Model<TokenInstance, TokenAttributes>;
-  User: Sequelize.Model<UserInstance, UserAttributes>;
-  UserRole: Sequelize.Model<UserRoleInstance, UserRoleAttributes>;
+  Church: Model<ChurchInstance, ChurchAttributes>;
+  Event: Model<EventInstance, EventAttributes>;
+  Notification: Model<NotificationInstance, NotificationAttributes>;
+  Request: Model<RequestInstance, RequestAttributes>;
+  Role: Model<RoleInstance, RoleAttributes>;
+  Schedule: Model<ScheduleInstance, ScheduleAttributes>;
+  Task: Model<TaskInstance, TaskAttributes>;
+  Service: Model<ServiceInstance, ServiceAttributes>;
+  Token: Model<TokenInstance, TokenAttributes>;
+  User: Model<UserInstance, UserAttributes>;
+  UserRole: Model<UserRoleInstance, UserRoleAttributes>;
 }

@@ -7,6 +7,7 @@ const RoleFactory = (
   DataTypes: Sequelize.DataTypes,
 ): Sequelize.Model<RoleInstance, RoleAttributes> => {
   const attributes: SequelizeAttributes<RoleAttributes> = {
+    id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     name: { type: DataTypes.STRING },
   };
 

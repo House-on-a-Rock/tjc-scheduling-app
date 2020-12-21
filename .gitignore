@@ -1,5 +1,6 @@
 node_modules/**/*
-.expo/*
+dist/
+
 npm-debug.*
 *.jks
 *.p8
@@ -10,6 +11,7 @@ npm-debug.*
 web-build/
 web-report/
 dist/
+data.json
 
 
 # secrets

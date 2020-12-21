@@ -1,25 +1,22 @@
 import nodemailer from 'nodemailer';
 import crypto from 'crypto';
 import jwt, { Algorithm, TokenExpiredError, JsonWebTokenError } from 'jsonwebtoken';
+import { Request, Response, NextFunction } from 'express';
 import fs from 'fs';
 import { DateTime } from 'luxon';
-import {
-  RoleAttributes,
-  ServiceInstance,
-  TaskInstance,
-} from 'shared/SequelizeTypings/models';
+import { RoleAttributes, ServiceInstance } from 'shared/SequelizeTypings/models';
 import db from '../index';
 
 const privateKey = fs.readFileSync('tjcschedule.pem');
-let cert;
-fs.readFile('tjcschedule_pub.pem', function read(err, data) {
+let cert: Buffer;
+fs.readFile('tjcschedule_pub.pem', function read(err, data: Buffer) {
   if (err) throw err;
   cert = data;
 });
 
-export function certify(req, res, next) {
+export function certify(req: Request, res: Response, next: NextFunction) {
   try {
-    const { authorization } = req.headers;
+    const { authorization = '' } = req.headers;
     jwt.verify(authorization, cert);
     next();
   } catch (err) {
@@ -32,7 +29,7 @@ export function certify(req, res, next) {
   }
 }
 
-export function sendGenericEmail(username, link) {
+export function sendGenericEmail(username: string, link: string) {
   try {
     console.log('Sending email..');
     const transporter = nodemailer.createTransport({
@@ -61,7 +58,12 @@ export function sendGenericEmail(username, link) {
   }
 }
 
-export function sendVerEmail(username, headers, token, api): [string, number] {
+export function sendVerEmail(
+  username: string,
+  { hostname }: Request, // https://github.com/getsentry/raven-node/issues/96
+  token: string,
+  api: string,
+): [string, number] {
   try {
     console.log('Sending email..');
     const message =
@@ -81,7 +83,7 @@ export function sendVerEmail(username, headers, token, api): [string, number] {
       from: 'shaun.tung@gmail.com',
       to: username,
       subject: 'Account Verification Token',
-      text: `Hello,\n\n Please verify your account by clicking the link: \nhttp://${headers.host}/api/authentication/${api}?token=${token}`,
+      text: `Hello,\n\n Please verify your account by clicking the link: \nhttp://${hostname}/api/authentication/${api}?token=${token}`,
     };
     transporter.sendMail(mailOptions, function (err) {
       return !err ? console.log('success') : console.log(err.message);
@@ -93,22 +95,24 @@ export function sendVerEmail(username, headers, token, api): [string, number] {
   }
 }
 
-export function addMinutes(date: Date, minutes) {
+export function addMinutes(date: Date, minutes: number) {
   return new Date(date.getTime() + minutes * 60000);
 }
 
 export function createToken(
-  tokenType,
-  userId,
-  expiresInMinutes,
+  tokenType: string,
+  userId: number,
+  expiresInMinutes: number,
   isAdmin = false,
-  roleIds: (number | RoleAttributes)[] = [],
+  roleIds: (number | RoleAttributes | undefined)[] = [],
 ) {
   console.log('Creating token');
   let mappedRoleIds = '';
   roleIds.forEach((roleId, id) => {
-    if (id === 0) mappedRoleIds += roleId.toString();
-    else mappedRoleIds += `|${roleId.toString()}`;
+    if (roleId) {
+      if (id === 0) mappedRoleIds += roleId.toString();
+      else mappedRoleIds += `|${roleId.toString()}`;
+    }
   });
   if (isAdmin) mappedRoleIds += '0';
   const token = jwt.sign(
@@ -121,15 +125,19 @@ export function createToken(
     },
     {
       key: privateKey,
-      passphrase: process.env.PRIVATEKEY_PASS,
+      passphrase: process.env.PRIVATEKEY_PASS ?? '',
     },
     { algorithm: process.env.JWT_ALGORITHM as Algorithm },
   );
 
   return token;
 }
-export function createResetToken(userId, expiresInMinutes, secret) {
-  console.log('Creating token');
+export function createResetToken(
+  userId: number,
+  expiresInMinutes: number,
+  secret: string,
+) {
+  console.log('Creating reset token');
   const token = jwt.sign(
     {
       iss: process.env.AUDIENCE,
@@ -150,11 +158,8 @@ export function setDate(date: string, time: string, timeZone: string) {
 }
 
 export function hashPassword(password: string, salt: string) {
-  return crypto
-    .createHash(process.env.SECRET_HASH)
-    .update(password)
-    .update(salt)
-    .digest('hex');
+  const hashbrown = process.env.SECRET_HASH ?? '';
+  return crypto.createHash(hashbrown).update(password).update(salt).digest('hex');
 }
 export function makeMyNotificationMessage(
   notification: string,
@@ -177,12 +182,12 @@ export function makeMyNotificationMessage(
   }
 }
 
-export function determineLoginId(auth) {
+export function determineLoginId(auth = '') {
   const decodedToken = jwt.decode(auth, { json: true });
-  return parseInt(decodedToken.sub.split('|')[1], 10);
+  return parseInt(decodedToken?.sub.split('|')[1], 10);
 }
 
-export function timeToMilliSeconds(time: string) {
+export function timeToMilliSeconds(time = '') {
   const [hourMin, period] = time.split(' ');
   const [hour, min] = hourMin.split(':');
   const convertedHour = hour === '12' ? 0 : 3600000 * parseInt(hour, 10);
@@ -205,24 +210,6 @@ export function isTimeBefore(comparing: string, target: string): boolean {
   return comparingTime < targetTime;
 }
 
-// Recursively checks if the order is correct by checking from last element to first.
-export function correctOrder(arr, lastIdx, target, type) {
-  if (lastIdx === -1) {
-    arr.unshift(target);
-    return arr;
-  }
-  const condition =
-    type === 'order'
-      ? target.order < arr[lastIdx].order
-      : !isTimeBefore(arr[lastIdx].time, target.time);
-  if (!condition) {
-    arr.splice(lastIdx + 1, 0, target);
-    return arr;
-  }
-  return correctOrder(arr, lastIdx - 1, target, type);
-}
-
-// adds 0 in front of single-digit months
 const zeroPaddingDates = (date: Date): string => {
   let month = (date.getMonth() + 1).toString();
   let day = date.getDate().toString();
@@ -233,12 +220,12 @@ const zeroPaddingDates = (date: Date): string => {
   return `${month}/${day}`;
 };
 
-export const matchKey = (date: Date) => {
-  let start = new Date(date);
-  start.setDate(start.getDate() - start.getDay()); //sets start to sunday
-  let end = new Date(start);
-  end.setDate(start.getDate() + 6);
-  return `${zeroPaddingDates(start)}-${zeroPaddingDates(end)}`;
+const setStartAndEnd = (arg1: Date, arg2?: Date) => {
+  const start = new Date(arg1);
+  start.setDate(start.getDate() - start.getDay()); // sets start to sunday
+  const end = arg2 ? new Date(arg2) : new Date(start);
+  end.setDate(end.getDate() + (6 - end.getDay()));
+  return [start, end];
 };
 
 export function columnizedDates(everyRepeatingDay: Date[]) {
@@ -255,16 +242,11 @@ export function columnizedDates(everyRepeatingDay: Date[]) {
 }
 
 export function determineWeeks(startDate: Date, endDate: Date) {
-  const weeks = [];
-  let start = new Date(startDate);
-  start.setDate(start.getDate() - start.getDay()); //sets start to sunday
-  let end = new Date(endDate);
-  end.setDate(end.getDate() + (6 - end.getDay()));
-
+  const [start, end] = setStartAndEnd(startDate, endDate);
+  const weeks: Date[] = [];
   let current = new Date(start);
-
   while (current <= end) {
-    weeks.push(current);
+    weeks.push(new Date(current));
     current = new Date(current.setDate(current.getDate() + 7));
   }
   return weeks;
@@ -292,7 +274,7 @@ export async function populateServiceData({
   const events = await db.Event.findAll({
     where: { serviceId: id },
     order: [['order', 'ASC']],
-  }); //returns events in ascending order
+  }); // returns events in ascending order
   // for each event, retrieve role data and associated task data
   const eventData = await Promise.all(
     events.map(async (event) => {
@@ -311,7 +293,7 @@ export async function populateServiceData({
       };
     }),
   );
-  return { name: name, day: day, eventData, serviceId: id };
+  return { name: name, day: day, events: eventData, serviceId: id };
 }
 
 function timeDisplay(time, displayTime) {
@@ -322,7 +304,7 @@ function dutyDisplay(title, role) {
   return { display: title, role: role };
 }
 
-async function retrieveEventRole(roleId) {
+function retrieveEventRole(roleId) {
   return db.Role.findOne({
     where: { id: roleId },
     attributes: ['id', 'name'],

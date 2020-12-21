@@ -7,6 +7,7 @@ const TaskFactory = (
   DataTypes: Sequelize.DataTypes,
 ): Sequelize.Model<TaskInstance, TaskAttributes> => {
   const attributes: SequelizeAttributes<TaskAttributes> = {
+    id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     date: { type: DataTypes.DATE },
     status: { type: DataTypes.STRING, defaultValue: 'active' },
   };

@@ -1,0 +1,19 @@
+.react-beautiful-dnd-copy {
+  background: lightblue;
+  border-radius: 0.5rem;
+}
+
+.react-beautiful-dnd-copy ~ * {
+  transform: none !important;
+}
+
+.react-beautiful-dnd-copy ~ [data-rbd-placeholder-context-id] {
+  display: none !important;
+}
+
+.dragging {
+  background: #0684ab;
+  box-shadow: #000b44 0 3px 10px;
+  border-radius: 0.5rem;
+  color: white;
+}

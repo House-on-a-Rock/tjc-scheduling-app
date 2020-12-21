@@ -1,5 +1,6 @@
 import express, { Request, Response, NextFunction } from 'express';
 import Sequelize from 'sequelize';
+import { UserInstance } from 'shared/SequelizeTypings/models';
 import db from '../index';
 import { certify, setDate } from '../utilities/helperFunctions';
 
@@ -24,7 +25,7 @@ router.get('/tasks', certify, async (req: Request, res: Response, next: NextFunc
     const tasks = [];
     if (userId) {
       // and not role
-      const users = await db.User.findAll({ where: searchParams });
+      const users: UserInstance[] = await db.User.findAll({ where: searchParams });
       const query = users.map(async ({ id }) => {
         const task = await db.Task.findOne({ where: { user: id } });
         tasks.push(task);
