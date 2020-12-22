@@ -48,14 +48,14 @@ const Main = () => {
               <Route path="/home">
                 <Home />
               </Route>
-              <Route exact path="/">
-                <Redirect to="/home" />
-              </Route>
               <Route path="/teams">
                 <Teams />
               </Route>
               <Route path="/members">
                 <Members />
+              </Route>
+              <Route path="/">
+                <Redirect to="/home" />
               </Route>
               {/* <Route>
               <Error404 />

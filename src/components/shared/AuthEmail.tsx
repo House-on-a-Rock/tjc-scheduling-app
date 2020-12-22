@@ -1,6 +1,5 @@
 import React, { useState, FormEvent } from 'react';
 import { useDispatch } from 'react-redux';
-import { useHistory } from 'react-router-dom';
 
 // Material UI
 import { makeStyles } from '@material-ui/core/styles';
@@ -14,6 +13,7 @@ import { EmailForm } from './EmailForm';
 import { sendAuthEmail } from '../../store/actions';
 import { HttpResponseStatus, EmailState } from '../../shared/types/models';
 import { useQuery, isValidEmail } from '../../shared/utilities/helperFunctions';
+import history from '../../history';
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -48,7 +48,6 @@ interface AuthEmailDataProps {
 }
 
 export const AuthEmail = ({ data }: AuthEmailProps) => {
-  const history = useHistory();
   const dispatch = useDispatch();
   const classes = useStyles();
 
