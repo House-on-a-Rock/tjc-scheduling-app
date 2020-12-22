@@ -38,7 +38,7 @@ export const ServiceDisplay = ({ service, onTaskModified }: any) => {
 
   const eventRows = service.events.map((event: any, rowIndex: number) => {
     const potentialMembers = userData.filter((user: any) =>
-      user.roles.some((role: any) => role.id === event.roleId),
+      user.teams.some((role: any) => role.id === event.roleId),
     );
     const eventCells = event.cells.map((cell: any, columnIndex: number) => {
       return columnIndex < 2 ? (
