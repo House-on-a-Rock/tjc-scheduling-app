@@ -4,16 +4,22 @@ import cors from 'cors';
 import path from 'path';
 import db from './db';
 
-const port = process.env.PORT || 8080;
+const port = process.env.PORT || 8081;
 const app: express.Application = express();
-const DIST_DIR = path.join(__dirname, '../dist/');
-const HTML_FILE = path.join(DIST_DIR, 'index.html');
+// const DIST_DIR = path.join(__dirname, '../dist/');
+// const HTML_FILE = path.join(DIST_DIR, 'index.html');
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors());
 
-app.use(express.static(DIST_DIR));
+// app.use(express.static(DIST_DIR));
+
+app.get('/', (req, res, next) => {
+  console.log('Hello World');
+  res.send('Hello World');
+  next();
+});
 
 app.use('/api', require('./routes'));
 app.use('/api', require('./routes/churches'));
@@ -34,10 +40,10 @@ app.use((req, res, next) => {
   } else next();
 });
 
-app.use('*', (req, res) => {
-  console.log('sending file');
-  res.sendFile(path.join(__dirname, '..', 'dist/index.html'));
-});
+// app.use('*', (req, res) => {
+//   console.log('sending file');
+//   res.sendFile(path.join(__dirname, '..', 'dist/index.html'));
+// });
 
 class HttpException extends Error {
   status: number;
