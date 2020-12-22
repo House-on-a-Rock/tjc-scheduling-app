@@ -1,11 +1,15 @@
 {
   "name": "tjc-scheduling-app",
   "scripts": {
+    "build-windows-watch": "webpack -w",
+    "build-windows-removeDist": "rd /s /q dist",
+    "set-windows-env": "SET NODE_ENV='development'",
+    "dev-windows": "npm run set-windows-env & npm run build-windows-removeDist & npm run build-windows-watch & npm run server-watch",
     "build": "rm -rf dist && webpack",
     "build-watch": "rm -rf dist && webpack -w",
     "server": "node -r ts-node/register ./server/index.ts  -e html,js,scss --ignore dist --ignore client",
     "server-watch": "nodemon -r ts-node/register ./server/index.ts  -e html,js,jsx,ts,tsx,css --ignore dist --ignore client",
-    "dev": "NODE_ENV='development' npm run build-watch & npm run server-watch",
+    "dev": "NODE_ENV='development' & npm run build-watch & npm run server-watch",
     "prettier:base": "prettier",
     "prettier:check": "npm run prettier:base -- --list-different \"**/*\"",
     "prettier:write": "npm run prettier:base -- --write \"**/*\"",
