@@ -54,7 +54,7 @@ router.get('/users', certify, async (req: Request, res: Response, next) => {
   }
 });
 
-router.get('/users/:userId', certify, async (req, res, next) => {
+router.get('/user/:userId', certify, async (req, res, next) => {
   try {
     const parsedId = req.params.userId.toString();
     const user = await db.User.findOne({
@@ -79,7 +79,7 @@ router.get('/users/:userId', certify, async (req, res, next) => {
   }
 });
 
-router.post('/users', certify, async (req: Request, res: Response, next) => {
+router.post('/user', certify, async (req: Request, res: Response, next) => {
   try {
     const { email, firstName, lastName, password, churchId } = req.body;
     const token = crypto.randomBytes(16).toString('hex');
@@ -138,7 +138,7 @@ router.post('/users', certify, async (req: Request, res: Response, next) => {
   }
 });
 
-router.delete('/users/:userId', certify, async (req: Request, res: Response, next) => {
+router.delete('/user/:userId', certify, async (req: Request, res: Response, next) => {
   try {
     const user = await db.User.findOne({
       where: { id: req.params.userId },
@@ -155,7 +155,7 @@ router.delete('/users/:userId', certify, async (req: Request, res: Response, nex
 
 // updates expoPushToken on login, may need cleanup or be moved around
 router.patch(
-  '/users/expoPushToken/:userId',
+  '/user/expoPushToken/:userId',
   certify,
   async (req: Request, res: Response, next) => {
     try {

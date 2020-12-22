@@ -1,19 +1,27 @@
-import { getAllLocalMembers, getUserRoles } from '../store/apis';
-import { NewMembersData, RolesData } from './types';
+import { getAllUsers, getAllRoles, getAllUserRoles } from '../store/apis';
 
 export const getChurchMembersData = async (key: string, churchId: number) => {
   if (churchId) {
-    const { data } = await getAllLocalMembers(churchId);
-    const members: NewMembersData[] = await Promise.all(
-      data.map(async (member: NewMembersData) => {
-        const { data: userRolesData } = await getUserRoles(member.userId);
-        return {
-          ...member,
-          roles: userRolesData.map(({ role }: RolesData) => role.name),
-        };
-      }),
-    );
-    return members;
+    const { data: users } = await getAllUsers(churchId);
+    const { data: userRoles } = await getAllUserRoles(churchId);
+    const { data: roles } = await getAllRoles(churchId);
+    const usersWithTeammates = [];
+    users.forEach((user) => {
+      if (user.firstName) {
+        const teams = [];
+        userRoles.forEach((ur) => {
+          if (user.userId === ur.user.id) {
+            let teammates: any = {};
+            roles.forEach((role) => {
+              if (role.id === ur.roleId) teammates = { ...role };
+            });
+            if (teammates.id) teams.push(teammates);
+          }
+        });
+        usersWithTeammates.push({ ...user, teams });
+      }
+    });
+    return usersWithTeammates;
   }
   return [];
 };
