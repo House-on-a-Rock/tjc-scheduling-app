@@ -1,4 +1,5 @@
 import { Configuration } from 'webpack';
+import { Configuration as DevServerConfiguration } from 'webpack-dev-server';
 import HtmlWebPackPlugin from 'html-webpack-plugin';
 import path from 'path';
 
@@ -9,7 +10,11 @@ const htmlPlugin = new HtmlWebPackPlugin({
 
 console.log(path.join(__dirname, 'dist'));
 
-const config: Configuration = {
+interface SheavesWebpackConfig extends Configuration {
+  devServer: DevServerConfiguration;
+}
+
+const config: SheavesWebpackConfig = {
   mode: 'development',
   entry: './index.tsx',
   resolve: {
@@ -20,11 +25,11 @@ const config: Configuration = {
     publicPath: '/',
     filename: 'bundle.[hash].js',
   },
-  // devServer: {
-  //   port: 8080,
-  //   inline: true,
-  //   writeToDisk: true,
-  // },
+  devServer: {
+    port: 8080,
+    inline: true,
+    historyApiFallback: true,
+  },
   module: {
     rules: [
       { test: /\.tsx?$/, loader: 'awesome-typescript-loader' },
