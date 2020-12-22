@@ -27,10 +27,8 @@ interface TableProps {
 export const Table = ({ data, access, onTaskModified }: TableProps) => {
   const outerRef = useRef(null);
   const classes = useStyles();
-  // const [dataRows, setDataRows] = useState([...data]);
 
   const { columns, services } = data;
-  console.log('data', data);
 
   return (
     <>
