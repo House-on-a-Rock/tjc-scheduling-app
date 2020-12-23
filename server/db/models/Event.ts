@@ -23,7 +23,11 @@ const EventFactory = (
   const Event = sequelize.define<EventInstance, EventAttributes>('Event', attributes);
 
   Event.associate = (models) => {
-    Event.belongsTo(models.Service, { foreignKey: 'serviceId' });
+    Event.belongsTo(models.Service, {
+      foreignKey: 'serviceId',
+      onDelete: 'cascade',
+      hooks: true,
+    });
     Event.belongsTo(models.Role, { foreignKey: 'roleId' });
   };
 

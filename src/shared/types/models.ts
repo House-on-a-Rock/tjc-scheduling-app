@@ -152,6 +152,11 @@ export interface AddScheduleProps {
   churchId: number;
 }
 
+export interface DeleteScheduleProps {
+  scheduleId: string;
+  title: string;
+}
+
 export interface AddServiceProps {
   name: string;
   order: number;

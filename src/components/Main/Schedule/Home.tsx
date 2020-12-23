@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
-// react query
+// react useQueryClient
 import { useQuery, useMutation, useQueryCache } from 'react-query';
 
 import { Dialog, Button } from '@material-ui/core';
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 import { getTabData } from '../../../query/schedules';
-import { addSchedule } from '../../../store/apis/schedules';
+import { addSchedule, deleteSchedule } from '../../../store/apis/schedules';
 
 import { ScheduleTabs } from './ScheduleTabs';
 import { NewScheduleForm } from './NewScheduleForm';
@@ -25,17 +25,31 @@ export const Home = () => {
 
   // queries
   const { churchId, name: churchName } = useSelector((state) => state.profile);
-  const { isLoading, error, data } = useQuery(['scheduleTabs', churchId], getTabData, {
-    enabled: churchId,
-    refetchOnWindowFocus: false,
-    staleTime: 100000000000000,
-  });
+  const { isLoading, error, data, refetch } = useQuery(
+    ['scheduleTabs', churchId],
+    getTabData,
+    {
+      enabled: churchId,
+      refetchOnWindowFocus: false,
+      staleTime: 100000000000000,
+    },
+  );
   const [mutateAddSchedule, { error: mutateScheduleError }] = useMutation(addSchedule, {
     onSuccess: (response) => {
       cache.invalidateQueries('scheduleTabs');
       closeDialogHandler(response);
     },
   });
+
+  const [mutateDeleteSchedule, { error: deleteScheduleError }] = useMutation(
+    deleteSchedule,
+    {
+      onSuccess: (response) => {
+        console.log(response);
+        cache.invalidateQueries('scheduleTabs');
+      },
+    },
+  );
 
   // state
   const [tabIdx, setTabIdx] = useState(0);
@@ -75,6 +89,10 @@ export const Home = () => {
     });
   }
 
+  async function onScheduleDelete(scheduleId: string, title: string) {
+    await mutateDeleteSchedule({ scheduleId, title });
+  }
+  console.log(openedTabs);
   return (
     <>
       <Button
@@ -88,7 +106,8 @@ export const Home = () => {
       </Button>
       <Button
         onClick={() => {
-          console.log('delete clicked');
+          setOpenedTabs([0]);
+          onScheduleDelete(data[tabIdx].id, data[tabIdx].title);
         }}
         className={classes.logoutButton}
       >
@@ -102,7 +121,7 @@ export const Home = () => {
         />
       </Dialog>
       {alert && <Alert alert={alert} unMountAlert={() => setAlert(null)} />}
-      {data && (
+      {data && data.length > 0 && (
         <div>
           <ScheduleTabs
             tabIdx={tabIdx}
