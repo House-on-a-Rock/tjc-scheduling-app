@@ -75,6 +75,8 @@ export const Home = () => {
     });
   }
 
+  // TODO move logout to header component
+
   return (
     <>
       <Button
