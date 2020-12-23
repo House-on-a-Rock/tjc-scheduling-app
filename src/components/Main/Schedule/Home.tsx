@@ -86,6 +86,14 @@ export const Home = () => {
       >
         Log Out
       </Button>
+      <Button
+        onClick={() => {
+          console.log('delete clicked');
+        }}
+        className={classes.logoutButton}
+      >
+        DELETE SCHEDULE
+      </Button>
       <Dialog open={isNewScheduleVisible} onClose={() => closeDialogHandler()}>
         <NewScheduleForm
           onClose={() => closeDialogHandler()}
@@ -119,7 +127,6 @@ export const Home = () => {
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     logoutButton: {
-      position: 'fixed',
       zIndex: 200,
       padding: '10px',
       borderRadius: '5px',
@@ -131,6 +138,14 @@ const useStyles = makeStyles((theme: Theme) =>
     schedulesContainer: {
       position: 'absolute',
       paddingTop: 10,
+    },
+    deleteButton: {
+      padding: '10px',
+      borderRadius: '5px',
+      border: 'none',
+      '&:hover, &:focus': {
+        ...buttonTheme.filled,
+      },
     },
   }),
 );
