@@ -15,6 +15,7 @@ import { loadProfile } from '../../store/actions/profileActions';
 
 import '../../assets/fonts.css';
 import '../../assets/global.css';
+import { Templates } from '../../components/Main/Templates/Templates';
 
 const Main = () => {
   const queryCache = new QueryCache({
@@ -47,6 +48,9 @@ const Main = () => {
             <Switch>
               <Route path="/home">
                 <Home />
+              </Route>
+              <Route path="/templates">
+                <Templates />
               </Route>
               <Route path="/teams">
                 <Teams />

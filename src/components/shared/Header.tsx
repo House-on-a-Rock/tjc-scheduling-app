@@ -27,44 +27,6 @@ function ElevationScroll(props: any) {
   });
 }
 
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    menuButton: {
-      marginRight: theme.spacing(2),
-    },
-    title: {
-      display: 'inline',
-      [theme.breakpoints.up('sm')]: {
-        display: 'block',
-      },
-      color: 'white',
-    },
-    logo: { height: '2em' },
-    routerButtonGroup: {
-      marginLeft: 'auto',
-    },
-    routerButtons: {
-      color: 'white',
-    },
-    sectionDesktop: {
-      display: 'none',
-      [theme.breakpoints.up('md')]: {
-        display: 'flex',
-      },
-    },
-    sectionMobile: {
-      display: 'flex',
-      [theme.breakpoints.up('md')]: {
-        display: 'none',
-      },
-    },
-    toolbarMargin: {
-      ...theme.mixins.toolbar,
-    },
-    titleContainer: {},
-  }),
-);
-
 export const Header = (props: any) => {
   const classes = useStyles();
   return (
@@ -92,11 +54,14 @@ export const Header = (props: any) => {
             </Button>
 
             <div className={classes.routerButtonGroup}>
+              <Button component={Link} to="/templates" className={classes.routerButtons}>
+                Templates
+              </Button>
               <Button component={Link} to="/members" className={classes.routerButtons}>
-                Manage Workers
+                Workers
               </Button>
               <Button component={Link} to="/teams" className={classes.routerButtons}>
-                Manage Teams
+                Teams
               </Button>
             </div>
             <div className={classes.sectionDesktop}>
@@ -137,3 +102,41 @@ export const Header = (props: any) => {
     </>
   );
 };
+
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    menuButton: {
+      marginRight: theme.spacing(2),
+    },
+    title: {
+      display: 'inline',
+      [theme.breakpoints.up('sm')]: {
+        display: 'block',
+      },
+      color: 'white',
+    },
+    logo: { height: '2em' },
+    routerButtonGroup: {
+      marginLeft: 'auto',
+    },
+    routerButtons: {
+      color: 'white',
+    },
+    sectionDesktop: {
+      display: 'none',
+      [theme.breakpoints.up('md')]: {
+        display: 'flex',
+      },
+    },
+    sectionMobile: {
+      display: 'flex',
+      [theme.breakpoints.up('md')]: {
+        display: 'none',
+      },
+    },
+    toolbarMargin: {
+      ...theme.mixins.toolbar,
+    },
+    titleContainer: {},
+  }),
+);

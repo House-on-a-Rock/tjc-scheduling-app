@@ -10,6 +10,7 @@ import {
   userRoles,
   schedules,
   events,
+  templates,
 } from './database';
 
 const { green, red, blue } = require('chalk');
@@ -45,6 +46,7 @@ async function seed() {
   const seedUserRoles = await db.UserRole.bulkCreate(userRoles);
   const seedTasks = await db.Task.bulkCreate(tasks);
   const seedNotifications = await db.Notification.bulkCreate(notifications);
+  const seedTemplates = await db.Template.bulkCreate(templates);
 
   console.log(blue(`seeded ${seedChurches.length} churches`));
   console.log(blue(`seeded ${seedSchedules.length} schedules`));
@@ -55,6 +57,7 @@ async function seed() {
   console.log(blue(`seeded ${seedUserRoles.length} user roles`));
   console.log(blue(`seeded ${seedTasks.length} tasks`));
   console.log(blue(`seeded ${seedNotifications.length} notifications`));
+  console.log(blue(`seeded ${seedTemplates.length} templates`));
   console.log(blue(`seeded succesfully`));
   await db.sequelize.close();
 }

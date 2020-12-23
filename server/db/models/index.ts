@@ -11,6 +11,7 @@ import ServiceFactory from './Services';
 import UserFactory from './User';
 import UserRoleFactory from './User_Role';
 import TokenFactory from './Token';
+import TemplateFactory from './Template';
 
 const createModels = (
   database: string,
@@ -34,6 +35,7 @@ const createModels = (
     Token: TokenFactory(sequelize, Sequelize),
     User: UserFactory(sequelize, Sequelize),
     UserRole: UserRoleFactory(sequelize, Sequelize),
+    Template: TemplateFactory(sequelize, Sequelize),
   };
 
   Object.keys(db).forEach((modelName) => {

@@ -22,6 +22,8 @@ import {
   UserInstance,
   UserRoleAttributes,
   UserRoleInstance,
+  TemplateInstance,
+  TemplateAttributes,
 } from 'shared/SequelizeTypings/models';
 
 const { Model } = Sequelize;
@@ -53,4 +55,5 @@ export interface DbInterface {
   Token: Model<TokenInstance, TokenAttributes>;
   User: Model<UserInstance, UserAttributes>;
   UserRole: Model<UserRoleInstance, UserRoleAttributes>;
+  Template: Model<TemplateInstance, TemplateAttributes>;
 }
