@@ -9,7 +9,7 @@ const TemplateFactory = (
   const attributes: SequelizeAttributes<TemplateAttributes> = {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     name: { type: DataTypes.STRING },
-    data: { type: DataTypes.STRING },
+    data: { type: DataTypes.JSON },
   };
 
   const Template = sequelize.define<TemplateInstance, TemplateAttributes>(
