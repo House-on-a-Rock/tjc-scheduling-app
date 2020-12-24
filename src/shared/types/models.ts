@@ -177,3 +177,18 @@ export interface LoadingPayload {
   loading: boolean;
   response: HttpResponseStatus;
 }
+
+export interface MemberStateData {
+  userId: number;
+  firstName: string;
+  lastName: string;
+  email: string;
+  ChurchId?: number;
+  church: ChurchAttribute;
+  disabled: boolean;
+  roles: string[];
+}
+
+interface ChurchAttribute {
+  name: string;
+}

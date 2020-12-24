@@ -1,5 +1,4 @@
 import React, { useState, FormEvent } from 'react';
-import { useDispatch } from 'react-redux';
 import zxcvbn from 'zxcvbn';
 
 // Material UI
@@ -10,15 +9,14 @@ import CssBaseline from '@material-ui/core/CssBaseline';
 import Container from '@material-ui/core/Container';
 
 // Custom
-import { resetPassword } from '../../store/actions';
 import { TransitionsModal } from '../shared/TransitionsModal';
 import { PasswordStrengthMeter, PasswordForm } from '../FormControl';
 import { PasswordState } from '../../shared/types/models';
 import { useQuery } from '../../shared/utilities/helperFunctions';
+import { sendNewPassword } from '../../query/apis';
 
 export const ResetPassword = () => {
   const classes = useStyles();
-  const dispatch = useDispatch();
   const query = useQuery();
   const token = query.get('token') ?? '';
 
@@ -36,6 +34,7 @@ export const ResetPassword = () => {
   });
   const [passwordMessage, setPasswordMessage] = useState<string>('');
   const [openModal, setOpenModal] = useState<boolean>(false);
+  const [loading, setLoading] = useState(null);
   const testedResult = zxcvbn(password.value);
 
   function onHandlePassword(newPassword: PasswordState) {
@@ -75,12 +74,13 @@ export const ResetPassword = () => {
         return 'Weak';
     }
   }
-  function submitNewPassword(
+  async function submitNewPassword(
     newPasswordValue: string,
     confirmPasswordValue: string,
     event?: FormEvent<HTMLFormElement>,
   ) {
     event?.preventDefault();
+    setLoading('LOADING');
     if (newPasswordValue.length === 0)
       setPassword({
         ...password,
@@ -120,7 +120,8 @@ export const ResetPassword = () => {
         valid: true,
         message: '',
       });
-      dispatch(resetPassword(token, newPasswordValue));
+      const { status, statusText } = await sendNewPassword(token, newPasswordValue);
+      if (status < 300) setLoading('LOADED');
     }
   }
   return (
@@ -130,6 +131,7 @@ export const ResetPassword = () => {
         open={openModal}
         setOpen={setOpenModal}
         description={"You've successfully changed your password!"}
+        status={loading}
       />
       <div className={classes.paper}>
         <Typography component="h1" variant="h5">

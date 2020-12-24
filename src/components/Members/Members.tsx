@@ -16,10 +16,8 @@ import history from '../../shared/services/history';
 import { addUser, deleteUser } from '../../query/apis';
 import { isValidEmail } from '../../shared/utilities';
 import { updateSelectedRows } from './utilities';
-import { MemberStateData } from '../../store/types';
 import { getChurchMembersData } from '../../query';
-import { AddUserProps } from '../../shared/types';
-// import { deleteMembers } from '../../../store/actions';
+import { AddUserProps, MemberStateData } from '../../shared/types';
 
 interface MembersProps {
   churchId: number;

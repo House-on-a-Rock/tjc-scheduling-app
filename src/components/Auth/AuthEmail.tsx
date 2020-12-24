@@ -1,5 +1,4 @@
 import React, { useState, FormEvent } from 'react';
-import { useDispatch } from 'react-redux';
 
 // Material UI
 import { makeStyles } from '@material-ui/core/styles';
@@ -10,31 +9,10 @@ import Container from '@material-ui/core/Container';
 // Custom
 import { TransitionsModal } from '../shared/TransitionsModal';
 import { EmailForm } from '../FormControl';
-import { sendAuthEmail } from '../../store/actions';
 import { HttpResponseStatus, EmailState } from '../../shared/types/models';
 import { useQuery, isValidEmail } from '../../shared/utilities/helperFunctions';
 import history from '../../shared/services/history';
-
-const useStyles = makeStyles((theme) => ({
-  paper: {
-    marginTop: theme.spacing(25),
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-  },
-  avatar: {
-    margin: theme.spacing(1),
-    backgroundColor: theme.palette.secondary.main,
-  },
-  form: {
-    width: '100%', // Fix IE 11 issue.
-    marginTop: theme.spacing(1),
-  },
-  submit: {
-    margin: theme.spacing(3, 0, 2),
-  },
-  buttonRow: { display: 'flex', justifyContent: 'space-between' },
-}));
+import { recoverEmail } from '../../query/apis';
 
 interface AuthEmailProps {
   data: AuthEmailDataProps;
@@ -48,7 +26,6 @@ interface AuthEmailDataProps {
 }
 
 export const AuthEmail = ({ data }: AuthEmailProps) => {
-  const dispatch = useDispatch();
   const classes = useStyles();
 
   const [email, setEmail] = useState<EmailState>({
@@ -57,18 +34,21 @@ export const AuthEmail = ({ data }: AuthEmailProps) => {
     message: null,
   });
   const [openModal, setOpenModal] = useState(false);
+  const [loadingState, setLoadingState] = useState(null);
 
-  const query = JSON.parse(useQuery().get('message') ?? '');
+  const query = JSON.parse(useQuery().get('message'));
   const error: HttpResponseStatus = query && {
     status: query?.status,
     message: query?.message,
   };
 
-  function handleClick(event?: FormEvent<HTMLFormElement>): void {
+  async function handleClick(event?: FormEvent<HTMLFormElement>) {
     event?.preventDefault();
     setEmail({ ...email, valid: true, message: '' });
     if (isValidEmail(email.value)) {
-      dispatch(sendAuthEmail(email.value));
+      setLoadingState('LOADING');
+      await recoverEmail(email.value);
+      setLoadingState('LOADED');
       setOpenModal(true);
     } else {
       if (!isValidEmail(email.value))
@@ -92,6 +72,7 @@ export const AuthEmail = ({ data }: AuthEmailProps) => {
         open={openModal}
         setOpen={setOpenModal}
         description="A recovery email has been sent to your email"
+        status={loadingState}
       />
       <div className={classes.paper}>
         <Typography component="h1" variant="h5">
@@ -115,3 +96,24 @@ export const AuthEmail = ({ data }: AuthEmailProps) => {
     </Container>
   );
 };
+
+const useStyles = makeStyles((theme) => ({
+  paper: {
+    marginTop: theme.spacing(25),
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+  },
+  avatar: {
+    margin: theme.spacing(1),
+    backgroundColor: theme.palette.secondary.main,
+  },
+  form: {
+    width: '100%', // Fix IE 11 issue.
+    marginTop: theme.spacing(1),
+  },
+  submit: {
+    margin: theme.spacing(3, 0, 2),
+  },
+  buttonRow: { display: 'flex', justifyContent: 'space-between' },
+}));

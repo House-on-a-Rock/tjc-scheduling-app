@@ -11,7 +11,7 @@ import TableRow from '@material-ui/core/TableRow';
 import Checkbox from '@material-ui/core/Checkbox';
 
 import { cardTheme } from '../../shared/styles/theme.js';
-import { MemberStateData } from '../../store/types';
+import { MemberStateData } from '../../shared/types';
 
 const styleHead: CSSProperties = {
   fontWeight: 'bold',
