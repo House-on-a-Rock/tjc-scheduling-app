@@ -1,30 +1,21 @@
 import React from 'react';
 import { Route, Redirect } from 'react-router-dom';
-import {
-  extractTokenInfo,
-  getLocalStorageItem,
-  useSelector,
-} from '../../shared/utilities';
+import { extractTokenInfo, useToken } from '../../shared/utilities';
 
-const validateUser = (condition: string): boolean => {
-  const token =
-    typeof getLocalStorageItem('access_token') === 'string'
-      ? getLocalStorageItem('access_token')
-      : null;
-  const validToken = token && extractTokenInfo(token, 'userId');
-  // const isAdmin = extractTokenInfo(token, 'access');
-  return condition === 'token' ?? !!validToken;
+const validateUser = (condition: string, token): boolean => {
+  const userId = token && extractTokenInfo(token, 'userId');
+  const access = token && extractTokenInfo(token, 'access');
+  const exp = token && extractTokenInfo(token, 'exp');
+  return token && !!userId;
 };
 
 export const PrivateRoute = ({ children, redirection, condition, ...rest }: any) => {
-  const isLoggedIn = useSelector(({ auth }) => auth.isLoggedIn);
-  const isValidToken = validateUser(condition);
-
+  const token = useToken();
+  const isValidToken = validateUser(condition, token);
   return (
     <Route
-      // eslint-disable-next-line react/jsx-props-no-spreading
       {...rest}
-      render={({ location }) => (isLoggedIn ? children : <Redirect to={redirection} />)}
+      render={({ location }) => (isValidToken ? children : <Redirect to={redirection} />)}
     />
   );
 };

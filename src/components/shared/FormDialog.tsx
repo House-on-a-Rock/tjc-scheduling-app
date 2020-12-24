@@ -12,8 +12,7 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 
-import { EmailForm } from './EmailForm';
-import { PasswordForm } from './PasswordForm';
+import { EmailForm, PasswordForm } from '../FormControl';
 import { FormField } from './FormField';
 import { EmailState, PasswordState } from '../../shared/types/models';
 import { isValidEmail } from '../../shared/utilities';

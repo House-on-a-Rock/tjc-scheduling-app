@@ -2,7 +2,11 @@
 import express, { Request, Response, NextFunction } from 'express';
 import crypto from 'crypto';
 import jwt, { TokenExpiredError, JsonWebTokenError } from 'jsonwebtoken';
-import { RoleAttributes, UserRoleInstance } from 'shared/SequelizeTypings/models';
+import {
+  RoleAttributes,
+  UserInstance,
+  UserRoleInstance,
+} from 'shared/SequelizeTypings/models';
 import {
   addMinutes,
   createToken,
@@ -81,10 +85,26 @@ router.post('/resendConfirm', async (req: Request, res: Response, next: NextFunc
 router.post('/webLogin', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { email: loginEmail, password: loginPassword } = req.body;
-    const user = await db.User.findOne({
+    const user: UserInstance = await db.User.findOne({
       where: { email: loginEmail },
+      include: [
+        {
+          model: db.Church,
+          as: 'church',
+          attributes: ['id'],
+        },
+      ],
     });
-    const { password, salt, loginTimeout, loginAttempts, id, isVerified, isAdmin } = user;
+    const {
+      password,
+      salt,
+      loginTimeout,
+      loginAttempts,
+      id,
+      isVerified,
+      isAdmin,
+      church,
+    } = user;
 
     const userRoles: UserRoleInstance[] = await db.UserRole.findAll({
       where: { userId: id },
@@ -126,7 +146,7 @@ router.post('/webLogin', async (req: Request, res: Response, next: NextFunction)
       await user.update(updatedAttempts);
     }
     await user.update({ id, loginAttempts: 0, loginTimeout: null });
-    const token = createToken('reg', id, 600, isAdmin, roleIds);
+    const token = createToken('reg', id, church.id, 600, isAdmin, roleIds);
 
     return res.status(200).json({ redirectUrl: '/', token });
   } catch (err) {
@@ -138,8 +158,15 @@ router.post('/webLogin', async (req: Request, res: Response, next: NextFunction)
 router.post('/login', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { email: loginEmail, password: loginPassword } = req.body;
-    const user = await db.User.findOne({
+    const user: UserInstance = await db.User.findOne({
       where: { email: loginEmail },
+      include: [
+        {
+          model: db.Church,
+          as: 'church',
+          attributes: ['id'],
+        },
+      ],
     });
     const {
       password,
@@ -151,6 +178,7 @@ router.post('/login', async (req: Request, res: Response, next: NextFunction) =>
       firstName,
       lastName,
       email,
+      church,
     } = user;
     const hashedLoginPassword = hashPassword(loginPassword, salt);
     const determineMessageStatus: () => [string, number] = () => {
@@ -184,7 +212,7 @@ router.post('/login', async (req: Request, res: Response, next: NextFunction) =>
     }
 
     await user.update({ id, loginAttempts: 0, loginTimeout: null });
-    const token = createToken('reg', id, 600);
+    const token = createToken('reg', id, church.id, 600);
     return res
       .status(status)
       .json({ user_id: id, firstName, lastName, email, access_token: token });

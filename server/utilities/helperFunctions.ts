@@ -102,6 +102,7 @@ export function addMinutes(date: Date, minutes: number) {
 export function createToken(
   tokenType: string,
   userId: number,
+  churchId: number,
   expiresInMinutes: number,
   isAdmin = false,
   roleIds: (number | RoleAttributes | undefined)[] = [],
@@ -114,11 +115,11 @@ export function createToken(
       else mappedRoleIds += `|${roleId.toString()}`;
     }
   });
-  if (isAdmin) mappedRoleIds += '0';
+  if (isAdmin) mappedRoleIds = '0';
   const token = jwt.sign(
     {
       iss: process.env.AUDIENCE,
-      sub: `tjc-scheduling|${userId}`,
+      sub: `tjc-scheduling|${userId}|${churchId}`,
       exp: Math.floor(Date.now() / 1000) + expiresInMinutes * 60 * 60,
       type: tokenType,
       access: mappedRoleIds,

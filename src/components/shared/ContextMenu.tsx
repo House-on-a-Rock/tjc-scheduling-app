@@ -3,7 +3,7 @@
 import React from 'react';
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 
-import { useContextMenu } from '../hooks';
+import { useContextMenu } from '../../hooks';
 
 interface ContextMenuProps {
   outerRef: any;

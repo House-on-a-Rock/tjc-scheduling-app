@@ -12,11 +12,8 @@ export interface AlertInterface {
   status: string;
 }
 
-export interface PasswordState {
-  value: string;
+export interface PasswordState extends TextFieldState {
   visible: boolean;
-  valid: boolean;
-  message: string | null;
 }
 
 export interface EmailState {
@@ -167,7 +164,7 @@ export interface ValidatedFieldState<T> {
 
 export interface TextFieldState {
   valid: boolean;
-  message: string;
+  message: string | null;
   value: string;
 }
 

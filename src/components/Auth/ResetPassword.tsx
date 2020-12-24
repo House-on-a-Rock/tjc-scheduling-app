@@ -12,7 +12,7 @@ import Container from '@material-ui/core/Container';
 // Custom
 import { resetPassword } from '../../store/actions';
 import { TransitionsModal } from '../shared/TransitionsModal';
-import { PasswordStrengthMeter, PasswordForm } from '../shared';
+import { PasswordStrengthMeter, PasswordForm } from '../FormControl';
 import { PasswordState } from '../../shared/types/models';
 import { useQuery } from '../../shared/utilities/helperFunctions';
 

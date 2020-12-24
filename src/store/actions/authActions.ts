@@ -2,14 +2,14 @@ import axios from 'axios';
 import { Action } from 'redux';
 import { ThunkAction } from 'redux-thunk';
 import { AuthActionTypes, LOGIN, LOGOUT, AUTH_LOADING } from '../types';
-import history from '../../history';
+import history from '../../shared/services/history';
 import { AuthStateActions } from './loadActions';
 import {
   recoverEmail,
   checkResetToken,
   authenticateLogin,
   sendNewPassword,
-} from '../apis';
+} from '../../query/apis';
 import { errorDataExtractor, setLocalStorageState } from '../../shared/utilities';
 import { LoadingPayload } from '../../shared/types';
 

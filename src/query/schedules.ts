@@ -1,4 +1,4 @@
-import { getSchedule, getTabs } from '../store/apis/schedules';
+import { getSchedule, getTabs } from './apis/schedules';
 
 export const getScheduleData = async (key: string, scheduleId: number) =>
   (await getSchedule(scheduleId)).data;
