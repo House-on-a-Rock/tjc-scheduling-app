@@ -98,3 +98,25 @@ router.post(
     }
   },
 );
+
+router.delete(
+  '/schedules',
+  certify,
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { scheduleId, title } = req.body;
+      console.log(scheduleId, title);
+      const schedule = await db.Schedule.destroy({
+        where: {
+          id: scheduleId,
+          title: title,
+        },
+        attributes: ['title'],
+      });
+      return res.status(200).send(`Schedule ${schedule.title} successfully deleted`);
+    } catch (err) {
+      next(err);
+      return res.status(503).send({ message: 'Server error, try again later' });
+    }
+  },
+);

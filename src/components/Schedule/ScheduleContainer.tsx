@@ -1,16 +1,17 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryCache } from 'react-query';
-import { Dialog } from '@material-ui/core';
+import { Dialog, Button } from '@material-ui/core';
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 
 import { getTabData } from '../../query/schedules';
-import { addSchedule } from '../../query/apis/schedules';
+import { addSchedule, deleteSchedule } from '../../query/apis/schedules';
 
 import { ScheduleTabs } from './ScheduleTabs';
 import { NewScheduleForm } from './NewScheduleForm';
 import { ScheduleComponent } from './ScheduleComponent';
 import { Alert } from '../shared/Alert';
 import { AlertInterface } from '../../shared/types';
+import { buttonTheme } from '../../shared/styles/theme';
 
 interface ScheduleContainerProps {
   churchId: number;
@@ -20,17 +21,31 @@ export const ScheduleContainer = ({ churchId }: ScheduleContainerProps) => {
   const classes = useStyles();
   const cache = useQueryCache();
 
-  const { isLoading, error, data } = useQuery(['scheduleTabs', churchId], getTabData, {
-    enabled: churchId,
-    refetchOnWindowFocus: false,
-    staleTime: 100000000000000,
-  });
+  const { isLoading, error, data, refetch } = useQuery(
+    ['scheduleTabs', churchId],
+    getTabData,
+    {
+      enabled: churchId,
+      refetchOnWindowFocus: false,
+      staleTime: 100000000000000,
+    },
+  );
   const [mutateAddSchedule, { error: mutateScheduleError }] = useMutation(addSchedule, {
     onSuccess: (response) => {
       cache.invalidateQueries('scheduleTabs');
       closeDialogHandler(response);
     },
   });
+
+  const [mutateDeleteSchedule, { error: deleteScheduleError }] = useMutation(
+    deleteSchedule,
+    {
+      onSuccess: (response) => {
+        console.log(response);
+        cache.invalidateQueries('scheduleTabs');
+      },
+    },
+  );
 
   // state
   const [tabIdx, setTabIdx] = useState(0);
@@ -70,13 +85,21 @@ export const ScheduleContainer = ({ churchId }: ScheduleContainerProps) => {
     });
   }
 
-  // function logout() {
-  //   localStorage.removeItem('access_token');
-  //   return <Redirect to="/auth/login" />;
-  // }
-
+  async function onScheduleDelete(scheduleId: string, title: string) {
+    await mutateDeleteSchedule({ scheduleId, title });
+  }
+  console.log(openedTabs);
   return (
     <>
+      <Button
+        onClick={() => {
+          setOpenedTabs([0]);
+          onScheduleDelete(data[tabIdx].id, data[tabIdx].title);
+        }}
+        className={classes.deleteButton}
+      >
+        DELETE SCHEDULE
+      </Button>
       <Dialog open={isNewScheduleVisible} onClose={() => closeDialogHandler()}>
         <NewScheduleForm
           onClose={() => closeDialogHandler()}
@@ -85,7 +108,7 @@ export const ScheduleContainer = ({ churchId }: ScheduleContainerProps) => {
         />
       </Dialog>
       {alert && <Alert alert={alert} unMountAlert={() => setAlert(null)} />}
-      {data && (
+      {data && data.length > 0 && (
         <div>
           <ScheduleTabs
             tabIdx={tabIdx}
@@ -112,6 +135,14 @@ const useStyles = makeStyles((theme: Theme) =>
     schedulesContainer: {
       position: 'absolute',
       paddingTop: 10,
+    },
+    deleteButton: {
+      padding: '10px',
+      borderRadius: '5px',
+      border: 'none',
+      '&:hover, &:focus': {
+        ...buttonTheme.filled,
+      },
     },
   }),
 );

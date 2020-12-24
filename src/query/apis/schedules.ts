@@ -1,6 +1,10 @@
 import axios, { AxiosResponse } from 'axios';
 import { secretIp } from '../../../secrets/secretStuff';
-import { AddScheduleProps, AddServiceProps } from '../../shared/types/models';
+import {
+  AddScheduleProps,
+  AddServiceProps,
+  DeleteScheduleProps,
+} from '../../shared/types/models';
 import { getLocalStorageItem } from '../../shared/utilities';
 
 export const getTabs = (churchId: number): Promise<AxiosResponse> => {
@@ -27,6 +31,14 @@ export const addSchedule = ({
     view,
     team,
     churchId,
+  });
+
+export const deleteSchedule = ({ scheduleId, title }: DeleteScheduleProps) =>
+  axios.delete(`${secretIp}/api/schedules`, {
+    data: {
+      scheduleId,
+      title,
+    },
   });
 
 export const addService = ({ name, order, dayOfWeek, scheduleId }: AddServiceProps) =>
