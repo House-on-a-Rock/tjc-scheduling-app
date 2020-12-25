@@ -40,10 +40,7 @@ export const ScheduleContainer = ({ churchId }: ScheduleContainerProps) => {
   const [mutateDeleteSchedule, { error: deleteScheduleError }] = useMutation(
     deleteSchedule,
     {
-      onSuccess: (response) => {
-        console.log(response);
-        cache.invalidateQueries('scheduleTabs');
-      },
+      onSuccess: () => cache.invalidateQueries('scheduleTabs'),
     },
   );
 
@@ -85,10 +82,9 @@ export const ScheduleContainer = ({ churchId }: ScheduleContainerProps) => {
     });
   }
 
-  async function onScheduleDelete(scheduleId: string, title: string) {
-    await mutateDeleteSchedule({ scheduleId, title });
+  function onScheduleDelete(scheduleId: string, title: string) {
+    mutateDeleteSchedule({ scheduleId, title });
   }
-  console.log(openedTabs);
   return (
     <>
       <Button
@@ -108,7 +104,7 @@ export const ScheduleContainer = ({ churchId }: ScheduleContainerProps) => {
         />
       </Dialog>
       {alert && <Alert alert={alert} unMountAlert={() => setAlert(null)} />}
-      {data && data.length > 0 && (
+      {data.length > 0 && (
         <div>
           <ScheduleTabs
             tabIdx={tabIdx}

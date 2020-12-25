@@ -105,7 +105,6 @@ router.delete(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { scheduleId, title } = req.body;
-      console.log(scheduleId, title);
       const schedule = await db.Schedule.destroy({
         where: {
           id: scheduleId,
