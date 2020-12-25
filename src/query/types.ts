@@ -1,4 +1,4 @@
-import { MemberStateData } from '../store/types';
+import { MemberStateData } from '../shared/types';
 
 export type IRole = {
   name: string;

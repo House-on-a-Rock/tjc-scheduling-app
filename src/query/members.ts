@@ -1,4 +1,4 @@
-import { getAllUsers, getAllRoles, getAllUserRoles } from '../store/apis';
+import { getAllUsers, getAllRoles, getAllUserRoles } from './apis';
 
 export const getChurchMembersData = async (key: string, churchId: number) => {
   if (churchId) {

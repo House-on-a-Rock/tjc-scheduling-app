@@ -27,6 +27,12 @@ const ScheduleFactory = (
   Schedule.associate = (models) => {
     Schedule.belongsTo(models.Church, { as: 'church', foreignKey: 'churchId' });
     Schedule.hasOne(models.Role, { as: 'role', foreignKey: 'roleId' });
+    Schedule.hasMany(models.Service, {
+      as: 'schedule',
+      foreignKey: 'scheduleId',
+      onDelete: 'cascade',
+      hooks: true,
+    });
     // Schedule.hasMany(models.Events)
   };
 

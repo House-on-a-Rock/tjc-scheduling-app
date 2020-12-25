@@ -1,6 +1,5 @@
-import React, { useState, FormEvent } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-
+import React, { useState, FormEvent, useContext } from 'react';
+import axios from 'axios';
 import { Link as RouterLink, Redirect } from 'react-router-dom';
 
 // Material UI
@@ -18,12 +17,9 @@ import Container from '@material-ui/core/Container';
 import CircularProgress from '@material-ui/core/CircularProgress';
 
 // Custom Components
-import { Copyright } from '../shared/Copyright';
-import { PasswordForm, ValidatedTextField } from '../shared';
-
-// Actions
-import { checkCredentials } from '../../store/actions';
-import { RootState } from '../../store';
+import { Copyright } from '../shared';
+import { PasswordForm, ValidatedTextField, VisiblePassword } from '../FormControl';
+import history from '../../shared/services/history';
 
 // Types
 import { HttpResponseStatus, PasswordState, EmailState } from '../../shared/types/models';
@@ -33,37 +29,11 @@ import {
   getLocalStorageItem,
   isValidEmail,
 } from '../../shared/utilities';
-import { EmailForm } from '../shared/EmailForm';
-
-const useStyles = makeStyles((theme) => ({
-  root: {
-    [theme.breakpoints.down('xs')]: {
-      position: 'absolute',
-      bottom: 0,
-    },
-  },
-  paper: {
-    marginTop: '20%',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-  },
-  avatar: {
-    margin: theme.spacing(1),
-    backgroundColor: theme.palette.secondary.main,
-  },
-  form: {
-    width: '100%',
-    marginTop: theme.spacing(1),
-  },
-  submit: {
-    margin: theme.spacing(3, 0, 2),
-  },
-}));
+import { AuthContext } from '../../shared/services/AuthContext';
+import { authenticateLogin } from '../../query/apis';
 
 export const Login = () => {
   const classes = useStyles();
-  const dispatch = useDispatch();
   const rememberedEmailState: EmailState = {
     value: getLocalStorageItem('rmmbrshvs')?.email,
     valid: true,
@@ -75,10 +45,6 @@ export const Login = () => {
     message: '',
     visible: false,
   };
-
-  const { isLoggedIn, loading, response: error } = useSelector(
-    ({ auth }: RootState) => auth,
-  );
 
   const [remembered, setRemembered] = useState<boolean>(
     !!getLocalStorageItem('rmmbrshvs'),
@@ -99,12 +65,20 @@ export const Login = () => {
         },
   );
 
-  function handleLogin(event?: FormEvent<HTMLFormElement>): void {
+  async function handleLogin(event?: FormEvent<HTMLFormElement>) {
     event?.preventDefault();
     setEmail({ ...email, valid: true, message: '' });
     setPassword({ ...password, valid: true, message: '' });
     if (isValidEmail(email.value) && password.value.length) {
-      dispatch(checkCredentials(email.value, password.value));
+      const res = await authenticateLogin(email.value, password.value);
+      const { data, status, statusText } = res;
+      const { token } = data;
+      if (token) {
+        axios.defaults.headers.common.authorization = token;
+        setLocalStorageState('access_token', token);
+        history.push('/');
+        loginHandler();
+      }
     } else {
       if (password.value.length === 0)
         setPassword({
@@ -128,7 +102,12 @@ export const Login = () => {
     }
   }
 
-  if (isLoggedIn) {
+  const auth = useContext(AuthContext);
+  const loginHandler = () => {
+    auth.login();
+  };
+
+  if (auth.isLoggedIn) {
     if (remembered)
       setLocalStorageState('rmmbrshvs', {
         email: email.value,
@@ -148,9 +127,9 @@ export const Login = () => {
         <Typography component="h1" variant="h5">
           Login
         </Typography>
-        {error && (
+        {/* {error && (
           <Typography color="error">{`${error?.status}: ${error?.message}`}</Typography>
-        )}
+        )} */}
 
         <form className={classes.form} noValidate onSubmit={handleLogin}>
           <ValidatedTextField
@@ -181,7 +160,8 @@ export const Login = () => {
             type="submit"
             onClick={() => handleLogin()}
           >
-            {loading ? <CircularProgress /> : 'Sign In'}
+            Sign In
+            {/* {loading ? <CircularProgress /> : 'Sign In'} */}
           </Button>
         </form>
       </div>
@@ -198,3 +178,29 @@ export const Login = () => {
     </Container>
   );
 };
+
+const useStyles = makeStyles((theme) => ({
+  root: {
+    [theme.breakpoints.down('xs')]: {
+      position: 'absolute',
+      bottom: 0,
+    },
+  },
+  paper: {
+    marginTop: '20%',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+  },
+  avatar: {
+    margin: theme.spacing(1),
+    backgroundColor: theme.palette.secondary.main,
+  },
+  form: {
+    width: '100%',
+    marginTop: theme.spacing(1),
+  },
+  submit: {
+    margin: theme.spacing(3, 0, 2),
+  },
+}));

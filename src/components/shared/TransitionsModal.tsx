@@ -9,8 +9,6 @@ import Fade from '@material-ui/core/Fade';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Button from '@material-ui/core/Button';
 
-import { useSelector } from '../../shared/utilities/useSelector';
-
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     modal: {
@@ -31,16 +29,16 @@ interface TransitionsModalProps {
   open: boolean;
   setOpen: (arg0: boolean) => void;
   description: string;
+  status: string | null;
 }
 
 export const TransitionsModal = ({
   open,
   setOpen,
   description,
+  status,
 }: TransitionsModalProps) => {
   const classes = useStyles();
-  const status = useSelector(({ load }) => load.loadStatus.AUTH);
-
   return (
     <>
       <Modal
