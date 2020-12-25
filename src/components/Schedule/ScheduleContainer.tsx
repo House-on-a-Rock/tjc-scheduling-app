@@ -41,7 +41,12 @@ export const ScheduleContainer = ({ churchId }: ScheduleContainerProps) => {
   const [mutateDeleteSchedule, { error: deleteScheduleError }] = useMutation(
     deleteSchedule,
     {
-      onSuccess: () => cache.invalidateQueries('scheduleTabs'),
+      onSuccess: (response) => {
+        console.log(response.data);
+        cache.invalidateQueries('scheduleTabs');
+        setAlert({ message: response.data, status: 'success' });
+        console.log(alert !== null);
+      },
     },
   );
 

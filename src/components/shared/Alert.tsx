@@ -2,9 +2,7 @@ import React, { useEffect } from 'react';
 
 import Snackbar from '@material-ui/core/Snackbar';
 import MuiAlert, { AlertProps } from '@material-ui/lab/Alert';
-import { Alert as MuIAlert, Color } from '@material-ui/lab';
-import CheckIcon from '@material-ui/icons/Check';
-import ErrorIcon from '@material-ui/icons/Error';
+
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 
 export interface CustomSnackbarProps {
@@ -18,15 +16,6 @@ function Alert(props: AlertProps) {
 }
 
 export const CustomSnackbar = ({ alert, isOpen, handleClose }: CustomSnackbarProps) => {
-  const classes = useStyles();
-  console.log('alert', alert);
-
-  // only success has been implemented, since error is handled inside each form. But we'll pbly run into use cases for the error alert
-  // const muiAlertProps: { icon: JSX.Element; severity: Color } =
-  //   alert.status === 'success'
-  //     ? { severity: 'success', icon: <CheckIcon fontSize="inherit" /> }
-  //     : { severity: 'error', icon: <ErrorIcon fontSize="inherit" /> };
-
   return (
     <Snackbar open={isOpen} autoHideDuration={2000} onClose={handleClose}>
       <Alert
