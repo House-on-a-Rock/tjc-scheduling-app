@@ -9,7 +9,8 @@ import { addSchedule, deleteSchedule } from '../../query/apis/schedules';
 import { ScheduleTabs } from './ScheduleTabs';
 import { NewScheduleForm } from './NewScheduleForm';
 import { ScheduleComponent } from './ScheduleComponent';
-import { Alert } from '../shared/Alert';
+import { CustomSnackbar } from '../shared/Alert';
+import { ConfirmationDialog } from '../shared/ConfirmationDialog';
 import { AlertInterface } from '../../shared/types';
 import { buttonTheme } from '../../shared/styles/theme';
 
@@ -45,6 +46,7 @@ export const ScheduleContainer = ({ churchId }: ScheduleContainerProps) => {
   );
 
   // state
+  const [isDeleteDialogOpen, setDeleteDialogOpen] = useState<boolean>(false);
   const [tabIdx, setTabIdx] = useState(0);
   const [isNewScheduleVisible, setIsNewScheduleVisible] = useState<boolean>(false);
   const [openedTabs, setOpenedTabs] = useState<number[]>([0]);
@@ -88,10 +90,7 @@ export const ScheduleContainer = ({ churchId }: ScheduleContainerProps) => {
   return (
     <>
       <Button
-        onClick={() => {
-          setOpenedTabs([0]);
-          onScheduleDelete(data[tabIdx].id, data[tabIdx].title);
-        }}
+        onClick={() => setDeleteDialogOpen(!isDeleteDialogOpen)}
         className={classes.deleteButton}
       >
         DELETE SCHEDULE
@@ -103,8 +102,25 @@ export const ScheduleContainer = ({ churchId }: ScheduleContainerProps) => {
           onSubmit={onNewScheduleSubmit}
         />
       </Dialog>
-      {alert && <Alert alert={alert} unMountAlert={() => setAlert(null)} />}
-      {data.length > 0 && (
+      <ConfirmationDialog
+        title="Are you sure you want to delete?"
+        isOpen={isDeleteDialogOpen}
+        handleClick={(yesOrNo) => {
+          if (yesOrNo === true) {
+            setOpenedTabs([0]);
+            onScheduleDelete(data[tabIdx].id, data[tabIdx].title);
+            setDeleteDialogOpen(!isDeleteDialogOpen);
+          }
+        }}
+      />
+      {alert && (
+        <CustomSnackbar
+          alert={alert}
+          isOpen={alert !== null}
+          handleClose={() => setAlert(null)}
+        />
+      )}
+      {data && data.length > 0 && (
         <div>
           <ScheduleTabs
             tabIdx={tabIdx}
@@ -133,6 +149,7 @@ const useStyles = makeStyles((theme: Theme) =>
       paddingTop: 10,
     },
     deleteButton: {
+      zIndex: 200,
       padding: '10px',
       borderRadius: '5px',
       border: 'none',
