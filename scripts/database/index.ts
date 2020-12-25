@@ -7,3 +7,4 @@ export * from './tasks';
 export * from './services';
 export * from './users';
 export * from './userRoles';
+export * from './templates';

@@ -55,11 +55,14 @@ export const Header = (props: any) => {
               <Button onClick={() => logoutHandler()} className={classes.routerButtons}>
                 Log Out
               </Button>
+              <Button component={Link} to="/templates" className={classes.routerButtons}>
+                Templates
+              </Button>
               <Button component={Link} to="/members" className={classes.routerButtons}>
-                Manage Workers
+                Workers
               </Button>
               <Button component={Link} to="/teams" className={classes.routerButtons}>
-                Manage Teams
+                Teams
               </Button>
             </div>
             <div className={classes.sectionDesktop}>

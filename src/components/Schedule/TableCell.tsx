@@ -36,6 +36,8 @@ export const DataCell = React.memo(
       (member: any) => member.userId !== value.userId,
     );
 
+    // TODO debug the autocomplete warning
+
     return (
       <TableCell className={cellStyle}>
         <Autocomplete
