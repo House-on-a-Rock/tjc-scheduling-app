@@ -5,7 +5,7 @@ import { QueryCache, ReactQueryCacheProvider, useQuery } from 'react-query';
 import { ReactQueryDevtools } from 'react-query-devtools';
 import { ThemeProvider } from '@material-ui/core';
 
-import { ScheduleContainer, Teams, Members } from '../components';
+import { ScheduleContainer, Teams, Members, Templates } from '../components';
 import { Header } from '../components/shared/Header';
 import theme from '../shared/styles/theme';
 import { extractTokenInfo, useToken } from '../shared/utilities';
@@ -34,6 +34,9 @@ const Main = () => {
               </Route>
               <Route path="/teams">
                 <Teams churchId={churchId} />
+              </Route>
+              <Route path="/templates">
+                <Templates churchId={churchId} />
               </Route>
               <Route path="/members">
                 <Members churchId={churchId} />
