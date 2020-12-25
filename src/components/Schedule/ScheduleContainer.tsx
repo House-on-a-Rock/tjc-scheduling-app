@@ -41,7 +41,6 @@ export const ScheduleContainer = ({ churchId }: ScheduleContainerProps) => {
     deleteSchedule,
     {
       onSuccess: (response) => {
-        console.log(response);
         cache.invalidateQueries('scheduleTabs');
       },
     },
@@ -88,7 +87,6 @@ export const ScheduleContainer = ({ churchId }: ScheduleContainerProps) => {
   async function onScheduleDelete(scheduleId: string, title: string) {
     await mutateDeleteSchedule({ scheduleId, title });
   }
-  console.log(openedTabs);
   return (
     <>
       <Button

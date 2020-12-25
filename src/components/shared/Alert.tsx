@@ -13,7 +13,6 @@ export interface AlertProps {
 export const Alert = ({ alert, unMountAlert }: AlertProps) => {
   const classes = useStyles();
   const displayTimer = 2000;
-  console.log('alert', alert);
 
   useEffect(() => {
     setTimeout(unMountAlert, displayTimer); // unmount after 2 seconds

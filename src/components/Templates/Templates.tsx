@@ -1,71 +1,48 @@
 import React from 'react';
-// import { useSelector } from '../../shared/utilities';
 
 // queries
 import { useQuery, useMutation, useQueryCache } from 'react-query';
 
 // mat ui
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
-import Accordion from '@material-ui/core/Accordion';
-import AccordionDetails from '@material-ui/core/AccordionDetails';
-import AccordionSummary from '@material-ui/core/AccordionSummary';
+import { Dialog, Button } from '@material-ui/core/';
+import AddIcon from '@material-ui/icons/Add';
+
 // api
 import { getTemplateData } from '../../query';
 import { TemplateDisplay } from './TemplateDisplay';
+
+// utilities
+import { buttonTheme } from '../../shared/styles/theme.js';
 /*
   1. Retrieve and display saved template data from db
-    a. create db table -d
-    b. structure of template object - (id, churchId, template name, template data)
-      i. template data - array of { services: { [ name: serviceName, events: { eventId, time } ] } }  stringified?
+    a. create db table 
+    b. structure of template object - ( id, churchId, name, data)
+      i. template data - array of { services: { [ name: serviceName, events: { roleId, time, title } ] } }  JSON.stringified, storage type: JSON
       ii. are these services associated with anything? pbly not
       iii. schedules are associated with a specific template so changes to template will reflect in the schedule
-      iv. when a schedule is created with a template, it will create services with that name, and add events to that schedule according to template
-    
-    data: {
-      name: Weekly Services,      
-      services: [
-        {
-          name: Friday Evening Service,
-          day: Friday,
-          events: [
-            {
-              role: Usher,
-              time: '7:00 PM'
-            },
-            {
-              role: Hymn Leading,
-              time: '7:45 PM'
-            },
-            {
-              role: Piano,
-              time: '7:45 PM'
-            },
-            {
-              role: Sermon Speaker,
-              time: '8:00 PM'
-            },
-            {
-              role: Interpreter,
-              time: '8:00 PM'
-            },
-            
-          ]
-        }
-      ]
-    }
+      iv. when a schedule is created with a template, it will create services with that name, and add events to that schedule according to template    
 
   2. Creation of new template data
     a. create new template
-      i. add services - new service form? or different input method
-      ii. add events to services 
-  3. Editing of template data
+      i. inputs: 
+        1. name
+        2. services - reuse new service form?
+        3. add events to services -- autocomplete with pre-made roles ( roleId -->title, order, )
+
+  3. Events
+    a. display roles from DB
+    b. "events" - ( roleId, day, order, time, title ) will be filled in. When
+    c. edit events
+    
+
+  4. Editing of template data
     a. inside accordion display, have edit button
 */
 
 export const Templates = ({ churchId }: any) => {
   const classes = useStyles();
 
-  // const { churchId, name: churchName } = useSelector((state) => state.profile);
   const { isLoading, error, data: templateData } = useQuery(
     ['templates', churchId],
     getTemplateData,
@@ -76,33 +53,45 @@ export const Templates = ({ churchId }: any) => {
     },
   );
 
+  function createNewTemplate() {}
+
   if (isLoading) return <div>Loading</div>;
-  // console.log('data', templateData);
 
   return (
     <div>
-      <p>Create, Manage, and Update Schedule Templates</p>
+      <h1>Create, Manage, and Update Schedule Templates</h1>
       <br />
-      <div>
+      <div className={classes.templateContainer}>
         {templateData.map((template, index) => (
-          <Accordion>
-            <AccordionSummary>{template.name}</AccordionSummary>
-            <AccordionDetails>details here</AccordionDetails>
-          </Accordion>
+          <TemplateDisplay template={template} key={`${index}_TemplateDisplay`} />
         ))}
       </div>
+      <h2>Create New Template</h2>
+      <Button onClick={createNewTemplate} className={classes.button}>
+        <AddIcon height={50} width={50} />
+        <span>Add New Service</span>
+      </Button>
     </div>
   );
 };
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
-    titleContainer: {
-      margin: '5px 0 2px',
-      height: '2rem',
-      width: '200vw',
+    templateContainer: {
+      width: '75%',
+    },
+    button: {
       position: 'sticky',
-      left: '8px',
+      padding: '10px',
+      borderRadius: '5px',
+      border: 'none',
+      '&:hover, &:focus': {
+        ...buttonTheme.filled,
+      },
+      display: 'flex',
+      '& *': {
+        margin: 'auto',
+      },
     },
   }),
 );
