@@ -4,11 +4,18 @@ import React from 'react';
 import Accordion from '@material-ui/core/Accordion';
 import AccordionDetails from '@material-ui/core/AccordionDetails';
 import AccordionSummary from '@material-ui/core/AccordionSummary';
+import EditIcon from '@material-ui/icons/Edit';
+
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 import { WeekDisplay } from './WeekDisplay';
 
-// TODO make pretty, maybe use a
-export const TemplateDisplay = ({ template }: any) => {
+interface TemplateDisplay {
+  template: any;
+  setIsFormOpen: (boolean) => void;
+}
+
+// TODO make pretty
+export const TemplateDisplay = ({ template, setIsFormOpen }: any) => {
   const classes = useStyles();
 
   const { data } = template;
@@ -19,6 +26,7 @@ export const TemplateDisplay = ({ template }: any) => {
           {template.name}
         </AccordionSummary>
         <AccordionDetails>
+          <EditIcon height={20} width={20} onClick={() => setIsFormOpen(true)} />
           <WeekDisplay templateData={data} />
         </AccordionDetails>
       </Accordion>

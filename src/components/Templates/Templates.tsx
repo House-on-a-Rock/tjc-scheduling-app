@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 // queries
 import { useQuery, useMutation, useQueryCache } from 'react-query';
@@ -14,6 +14,9 @@ import { TemplateDisplay } from './TemplateDisplay';
 
 // utilities
 import { buttonTheme } from '../../shared/styles/theme.js';
+
+// components
+import { TemplateForm } from './TemplateForm';
 /*
   1. Retrieve and display saved template data from db
     a. create db table 
@@ -42,8 +45,10 @@ import { buttonTheme } from '../../shared/styles/theme.js';
 
 export const Templates = ({ churchId }: any) => {
   const classes = useStyles();
+  const [isFormOpen, setIsFormOpen] = useState<boolean>(false);
 
-  const { isLoading, error, data: templateData } = useQuery(
+  // queries
+  const { isLoading: isTemplatesLoading, error, data: templateData } = useQuery(
     ['templates', churchId],
     getTemplateData,
     {
@@ -52,18 +57,39 @@ export const Templates = ({ churchId }: any) => {
       staleTime: 100000000000000,
     },
   );
+  // mutation
 
   function createNewTemplate() {}
 
-  if (isLoading) return <div>Loading</div>;
+  function closeFormHandler() {
+    setIsFormOpen(false);
+  }
+
+  function onTemplateFormSubmit() {
+    // run mutation
+  }
+
+  if (isTemplatesLoading) return <div>Loading</div>;
 
   return (
     <div>
+      <Dialog open={isFormOpen} onClose={() => closeFormHandler()}>
+        <TemplateForm
+          onClose={() => closeFormHandler()}
+          // error={mutateScheduleError}
+          onSubmit={onTemplateFormSubmit}
+        />
+      </Dialog>
       <h1>Create, Manage, and Update Schedule Templates</h1>
       <br />
       <div className={classes.templateContainer}>
+        <p>Saved Templates</p>
         {templateData.map((template, index) => (
-          <TemplateDisplay template={template} key={`${index}_TemplateDisplay`} />
+          <TemplateDisplay
+            template={template}
+            key={`${index}_TemplateDisplay`}
+            setIsFormOpen={setIsFormOpen}
+          />
         ))}
       </div>
       <h2>Create New Template</h2>

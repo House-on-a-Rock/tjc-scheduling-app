@@ -1,7 +1,6 @@
 import React from 'react';
 import { days } from '../../shared/utilities/dates';
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
-import EditIcon from '@material-ui/icons/Edit';
 
 export const WeekDisplay = ({ templateData }) => {
   console.log('templateData', templateData);
@@ -19,12 +18,12 @@ export const WeekDisplay = ({ templateData }) => {
           {day}
           {populateDay(day).map((service) => (
             <div className={classes.dataContainer} key={`${service.name}_day`}>
-              <p>
-                {service.name}
-                <EditIcon height={20} width={20} />
-              </p>
+              <p>{service.name}</p>
               {service.events.map((event) => (
-                <p style={{ paddingLeft: 10, margin: 0 }}>
+                <p
+                  style={{ paddingLeft: 10, margin: 0 }}
+                  key={`${event.time}_${event.title}`}
+                >
                   {event.time} {event.title}
                 </p>
               ))}
@@ -40,11 +39,11 @@ const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     weekContainer: {
       display: 'flex',
-      flexDirection: 'row',
-      width: '100%',
+      flexDirection: 'column',
+      width: '50%',
     },
     dayContainer: {
-      width: '14%',
+      // width: '14%',
       border: '2px solid #f3f3f3',
     },
     dataContainer: {
