@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { useQuery, useMutation, useQueryCache } from 'react-query';
 
 // Material UI Components
@@ -87,12 +87,7 @@ export const ScheduleComponent = ({
   }
 
   async function onNewServiceSubmit(name: string, order: number, dayOfWeek: number) {
-    await mutateAddService({
-      name,
-      order: order,
-      dayOfWeek,
-      scheduleId: scheduleId,
-    });
+    await mutateAddService({ name, order, dayOfWeek, scheduleId });
     // cleanup
     setIsScheduleModified(false);
   }

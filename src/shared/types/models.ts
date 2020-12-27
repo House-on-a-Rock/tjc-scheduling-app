@@ -140,7 +140,7 @@ export interface AddUserProps {
   churchId: number;
 }
 
-export interface AddScheduleProps {
+export interface NewScheduleData {
   scheduleTitle: string;
   startDate: string;
   endDate: string;

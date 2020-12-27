@@ -1,7 +1,7 @@
 import axios, { AxiosResponse } from 'axios';
 import { secretIp } from '../../../secrets/secretStuff';
 import {
-  AddScheduleProps,
+  NewScheduleData,
   AddServiceProps,
   DeleteScheduleProps,
 } from '../../shared/types/models';
@@ -14,17 +14,17 @@ export const getTabs = (churchId: number): Promise<AxiosResponse> => {
 };
 
 export const getSchedule = (scheduleId: number): Promise<AxiosResponse> =>
-  axios.get(`${secretIp}/api/schedules?scheduleId=${scheduleId}`);
+  axios.get(`${secretIp}/api/schedule?scheduleId=${scheduleId}`);
 
-export const addSchedule = ({
+export const postSchedule = ({
   scheduleTitle,
   startDate,
   endDate,
   view,
   team,
   churchId,
-}: AddScheduleProps) =>
-  axios.post(`${secretIp}/api/schedules`, {
+}: NewScheduleData) =>
+  axios.post(`${secretIp}/api/schedule`, {
     title: scheduleTitle,
     startDate,
     endDate,
@@ -33,8 +33,8 @@ export const addSchedule = ({
     churchId,
   });
 
-export const deleteSchedule = ({ scheduleId, title }: DeleteScheduleProps) =>
-  axios.delete(`${secretIp}/api/schedules`, {
+export const destroySchedule = ({ scheduleId, title }: DeleteScheduleProps) =>
+  axios.delete(`${secretIp}/api/schedule`, {
     data: {
       scheduleId,
       title,

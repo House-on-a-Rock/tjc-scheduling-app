@@ -5,6 +5,7 @@
     "build-windows-removeDist": "rd /s /q dist",
     "set-windows-env": "SET NODE_ENV='development'",
     "dev-windows": "npm run set-windows-env & npm run build-windows-removeDist & npm run build-windows-watch & npm run server-watch",
+    "dev": "SET NODE_ENV='development' & npm run build-watch & npm run server-watch",
     "build": "rm -rf dist && webpack",
     "build-watch": "rm -rf dist && webpack -w",
     "server": "node -r ts-node/register ./server/index.ts  -e html,js,scss --ignore dist --ignore client",

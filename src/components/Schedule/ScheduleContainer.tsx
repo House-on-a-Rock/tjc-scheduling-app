@@ -4,7 +4,7 @@ import { Dialog, Button } from '@material-ui/core';
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 
 import { getTabData } from '../../query/schedules';
-import { addSchedule, deleteSchedule } from '../../query/apis/schedules';
+import { postSchedule, destroySchedule } from '../../query/apis/schedules';
 
 import { ScheduleTabs } from './ScheduleTabs';
 import { NewScheduleForm } from './NewScheduleForm';
@@ -12,6 +12,7 @@ import { ScheduleComponent } from './ScheduleComponent';
 import { Alert } from '../shared/Alert';
 import { AlertInterface } from '../../shared/types';
 import { buttonTheme } from '../../shared/styles/theme';
+import { NewServiceForm } from './NewServiceForm';
 
 interface ScheduleContainerProps {
   churchId: number;
@@ -30,7 +31,7 @@ export const ScheduleContainer = ({ churchId }: ScheduleContainerProps) => {
       staleTime: 100000000000000,
     },
   );
-  const [mutateAddSchedule, { error: mutateScheduleError }] = useMutation(addSchedule, {
+  const [mutateAddSchedule, { error: mutateScheduleError }] = useMutation(postSchedule, {
     onSuccess: (response) => {
       cache.invalidateQueries('scheduleTabs');
       closeDialogHandler(response);
@@ -38,7 +39,7 @@ export const ScheduleContainer = ({ churchId }: ScheduleContainerProps) => {
   });
 
   const [mutateDeleteSchedule, { error: deleteScheduleError }] = useMutation(
-    deleteSchedule,
+    destroySchedule,
     {
       onSuccess: (response) => {
         console.log(response);
@@ -52,6 +53,7 @@ export const ScheduleContainer = ({ churchId }: ScheduleContainerProps) => {
   const [isNewScheduleVisible, setIsNewScheduleVisible] = useState<boolean>(false);
   const [openedTabs, setOpenedTabs] = useState<number[]>([0]);
   const [alert, setAlert] = useState<AlertInterface>();
+  const [isAddServiceVisible, setIsAddServiceVisible] = useState<boolean>(false);
 
   function onTabClick(value: number) {
     if (value <= data.length - 1) {
@@ -88,7 +90,7 @@ export const ScheduleContainer = ({ churchId }: ScheduleContainerProps) => {
   async function onScheduleDelete(scheduleId: string, title: string) {
     await mutateDeleteSchedule({ scheduleId, title });
   }
-  console.log(openedTabs);
+
   return (
     <>
       <Button
@@ -116,13 +118,21 @@ export const ScheduleContainer = ({ churchId }: ScheduleContainerProps) => {
             titles={data.map((schedule: any) => schedule.title)}
           />
           {openedTabs.map((tab) => (
-            <ScheduleComponent
-              churchId={churchId}
-              setAlert={setAlert}
-              scheduleId={data[tab].id}
-              isViewed={tab === tabIdx}
-              key={tab.toString()}
-            />
+            <>
+              <ScheduleComponent
+                churchId={churchId}
+                setAlert={setAlert}
+                scheduleId={data[tab].id}
+                isViewed={tab === tabIdx}
+                key={tab.toString()}
+              />
+              {/* <NewServiceForm
+                error={mutateAddServiceError}
+                order={data.services?.length || 0}
+                onSubmit={onNewServiceSubmit}
+                onClose={closeDialogHandler}
+              /> */}
+            </>
           ))}
         </div>
       )}
