@@ -11,10 +11,6 @@ export interface CustomSnackbarProps {
   handleClose: () => void;
 }
 
-// function Alert(props: AlertProps) {
-//   return <MuiAlert  {...props} />;
-// }
-
 export const Alert = ({ alert, isOpen, handleClose }: CustomSnackbarProps) => {
   return (
     <Snackbar open={isOpen} autoHideDuration={2000} onClose={handleClose}>
