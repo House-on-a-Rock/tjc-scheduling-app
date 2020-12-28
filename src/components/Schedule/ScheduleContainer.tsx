@@ -9,7 +9,7 @@ import { addSchedule, deleteSchedule } from '../../query/apis/schedules';
 import { ScheduleTabs } from './ScheduleTabs';
 import { NewScheduleForm } from './NewScheduleForm';
 import { ScheduleComponent } from './ScheduleComponent';
-import { CustomSnackbar } from '../shared/Alert';
+import { Alert } from '../shared/Alert';
 import { ConfirmationDialog } from '../shared/ConfirmationDialog';
 import { AlertInterface } from '../../shared/types';
 import { buttonTheme } from '../../shared/styles/theme';
@@ -42,10 +42,8 @@ export const ScheduleContainer = ({ churchId }: ScheduleContainerProps) => {
     deleteSchedule,
     {
       onSuccess: (response) => {
-        console.log(response.data);
         cache.invalidateQueries('scheduleTabs');
         setAlert({ message: response.data, status: 'success' });
-        console.log(alert !== null);
       },
     },
   );
@@ -89,9 +87,6 @@ export const ScheduleContainer = ({ churchId }: ScheduleContainerProps) => {
     });
   }
 
-  function onScheduleDelete(scheduleId: string, title: string) {
-    mutateDeleteSchedule({ scheduleId, title });
-  }
   return (
     <>
       <Button
@@ -111,36 +106,37 @@ export const ScheduleContainer = ({ churchId }: ScheduleContainerProps) => {
         title="Are you sure you want to delete?"
         isOpen={isDeleteDialogOpen}
         handleClick={(yesOrNo) => {
+          setDeleteDialogOpen(!isDeleteDialogOpen);
           if (yesOrNo === true) {
             setOpenedTabs([0]);
-            onScheduleDelete(data[tabIdx].id, data[tabIdx].title);
-            setDeleteDialogOpen(!isDeleteDialogOpen);
+            mutateDeleteSchedule({
+              scheduleId: data[tabIdx].id,
+              title: data[tabIdx].title,
+            });
           }
         }}
       />
       {alert && (
-        <CustomSnackbar
-          alert={alert}
-          isOpen={alert !== null}
-          handleClose={() => setAlert(null)}
-        />
+        <Alert alert={alert} isOpen={alert !== null} handleClose={() => setAlert(null)} />
       )}
-      {data && data.length > 0 && (
+      {data && (
         <div>
           <ScheduleTabs
             tabIdx={tabIdx}
             onTabClick={onTabClick}
             titles={data.map((schedule: any) => schedule.title)}
           />
-          {openedTabs.map((tab) => (
-            <ScheduleComponent
-              churchId={churchId}
-              setAlert={setAlert}
-              scheduleId={data[tab].id}
-              isViewed={tab === tabIdx}
-              key={tab.toString()}
-            />
-          ))}
+          {data.length > 0
+            ? openedTabs.map((tab) => (
+                <ScheduleComponent
+                  churchId={churchId}
+                  setAlert={setAlert}
+                  scheduleId={data[tab].id}
+                  isViewed={tab === tabIdx}
+                  key={tab.toString()}
+                />
+              ))
+            : null}
         </div>
       )}
     </>
@@ -154,6 +150,7 @@ const useStyles = makeStyles((theme: Theme) =>
       paddingTop: 10,
     },
     deleteButton: {
+      position: 'fixed',
       zIndex: 200,
       padding: '10px',
       borderRadius: '5px',
