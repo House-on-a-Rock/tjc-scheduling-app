@@ -156,6 +156,10 @@ export interface DeleteScheduleProps {
   title: string;
 }
 
+export interface DeleteEventProps {
+  eventId: string;
+}
+
 export interface AddServiceProps {
   name: string;
   order: number;

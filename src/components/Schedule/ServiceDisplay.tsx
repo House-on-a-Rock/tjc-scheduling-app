@@ -10,7 +10,12 @@ import { extractTokenInfo, days, useToken } from '../../shared/utilities';
 // query
 import { getChurchMembersData } from '../../query';
 
-export const ServiceDisplay = ({ service, onTaskModified }: any) => {
+export const ServiceDisplay = ({
+  service,
+  onTaskModified,
+  handleClick,
+  currentSelected,
+}: any) => {
   const classes = useStyles();
   const token = useToken();
 
@@ -59,7 +64,14 @@ export const ServiceDisplay = ({ service, onTaskModified }: any) => {
 
     return (
       // eslint-disable-next-line react/no-array-index-key
-      <TableRow key={`${service.name}_${service.serviceId}_${event.eventId}_${rowIndex}`}>
+      <TableRow
+        hover
+        onClick={() => {
+          handleClick(event.eventId);
+        }}
+        selected={currentSelected === event.eventId}
+        key={`${service.name}_${service.serviceId}_${event.eventId}_${rowIndex}`}
+      >
         {eventCells}
       </TableRow>
     );
