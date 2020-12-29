@@ -105,9 +105,9 @@ export const ScheduleContainer = ({ churchId }: ScheduleContainerProps) => {
       <ConfirmationDialog
         title="Are you sure you want to delete?"
         isOpen={isDeleteDialogOpen}
-        handleClick={(yesOrNo) => {
+        handleClick={(clickedYes) => {
           setDeleteDialogOpen(!isDeleteDialogOpen);
-          if (yesOrNo) {
+          if (clickedYes) {
             setOpenedTabs([0]);
             mutateDeleteSchedule({
               scheduleId: data[tabIdx].id,
