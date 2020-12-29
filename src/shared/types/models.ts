@@ -1,3 +1,5 @@
+import { Color } from '@material-ui/lab/Alert';
+
 export interface HttpResponseStatus {
   status: number;
   message: string;
@@ -9,7 +11,7 @@ export interface HttpErrorProps {
 }
 export interface AlertInterface {
   message: string;
-  status: string;
+  status: Color;
 }
 
 export interface PasswordState extends TextFieldState {

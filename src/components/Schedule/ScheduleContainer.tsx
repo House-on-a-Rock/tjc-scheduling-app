@@ -10,6 +10,7 @@ import { ScheduleTabs } from './ScheduleTabs';
 import { NewScheduleForm } from './NewScheduleForm';
 import { ScheduleComponent } from './ScheduleComponent';
 import { Alert } from '../shared/Alert';
+import { ConfirmationDialog } from '../shared/ConfirmationDialog';
 import { AlertInterface } from '../../shared/types';
 import { buttonTheme } from '../../shared/styles/theme';
 
@@ -41,13 +42,14 @@ export const ScheduleContainer = ({ churchId }: ScheduleContainerProps) => {
     deleteSchedule,
     {
       onSuccess: (response) => {
-        console.log(response);
         cache.invalidateQueries('scheduleTabs');
+        setAlert({ message: response.data, status: 'success' });
       },
     },
   );
 
   // state
+  const [isDeleteDialogOpen, setDeleteDialogOpen] = useState<boolean>(false);
   const [tabIdx, setTabIdx] = useState(0);
   const [isNewScheduleVisible, setIsNewScheduleVisible] = useState<boolean>(false);
   const [openedTabs, setOpenedTabs] = useState<number[]>([0]);
@@ -85,17 +87,10 @@ export const ScheduleContainer = ({ churchId }: ScheduleContainerProps) => {
     });
   }
 
-  async function onScheduleDelete(scheduleId: string, title: string) {
-    await mutateDeleteSchedule({ scheduleId, title });
-  }
-  console.log(openedTabs);
   return (
     <>
       <Button
-        onClick={() => {
-          setOpenedTabs([0]);
-          onScheduleDelete(data[tabIdx].id, data[tabIdx].title);
-        }}
+        onClick={() => setDeleteDialogOpen(!isDeleteDialogOpen)}
         className={classes.deleteButton}
       >
         DELETE SCHEDULE
@@ -107,23 +102,41 @@ export const ScheduleContainer = ({ churchId }: ScheduleContainerProps) => {
           onSubmit={onNewScheduleSubmit}
         />
       </Dialog>
-      {alert && <Alert alert={alert} unMountAlert={() => setAlert(null)} />}
-      {data && data.length > 0 && (
+      <ConfirmationDialog
+        title="Are you sure you want to delete?"
+        isOpen={isDeleteDialogOpen}
+        handleClick={(clickedYes) => {
+          setDeleteDialogOpen(!isDeleteDialogOpen);
+          if (clickedYes) {
+            setOpenedTabs([0]);
+            mutateDeleteSchedule({
+              scheduleId: data[tabIdx].id,
+              title: data[tabIdx].title,
+            });
+          }
+        }}
+      />
+      {alert && (
+        <Alert alert={alert} isOpen={alert !== null} handleClose={() => setAlert(null)} />
+      )}
+      {data && (
         <div>
           <ScheduleTabs
             tabIdx={tabIdx}
             onTabClick={onTabClick}
             titles={data.map((schedule: any) => schedule.title)}
           />
-          {openedTabs.map((tab) => (
-            <ScheduleComponent
-              churchId={churchId}
-              setAlert={setAlert}
-              scheduleId={data[tab].id}
-              isViewed={tab === tabIdx}
-              key={tab.toString()}
-            />
-          ))}
+          {data.length > 0
+            ? openedTabs.map((tab) => (
+                <ScheduleComponent
+                  churchId={churchId}
+                  setAlert={setAlert}
+                  scheduleId={data[tab].id}
+                  isViewed={tab === tabIdx}
+                  key={tab.toString()}
+                />
+              ))
+            : null}
         </div>
       )}
     </>
@@ -137,6 +150,8 @@ const useStyles = makeStyles((theme: Theme) =>
       paddingTop: 10,
     },
     deleteButton: {
+      position: 'fixed',
+      zIndex: 200,
       padding: '10px',
       borderRadius: '5px',
       border: 'none',
