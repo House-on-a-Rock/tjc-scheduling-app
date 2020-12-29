@@ -107,7 +107,7 @@ export const ScheduleContainer = ({ churchId }: ScheduleContainerProps) => {
         isOpen={isDeleteDialogOpen}
         handleClick={(yesOrNo) => {
           setDeleteDialogOpen(!isDeleteDialogOpen);
-          if (yesOrNo === true) {
+          if (yesOrNo) {
             setOpenedTabs([0]);
             mutateDeleteSchedule({
               scheduleId: data[tabIdx].id,
