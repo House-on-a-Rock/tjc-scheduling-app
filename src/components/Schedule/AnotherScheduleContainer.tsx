@@ -2,7 +2,7 @@
 /* eslint-disable react/self-closing-comp */
 /* eslint-disable react/no-array-index-key */
 import React, { useEffect, useRef, useState } from 'react';
-import { Button, CircularProgress, Dialog } from '@material-ui/core';
+import { CircularProgress, Dialog } from '@material-ui/core';
 import { SchedulesDataInterface } from '../../query';
 import { ScheduleTabs } from './ScheduleTabs';
 import { AnotherScheduleComponent } from './AnotherScheduleComponent';
@@ -64,7 +64,7 @@ export const AnotherScheduleContainer = ({
   function onChangeTabs(value: number) {
     if (value === tabs.length) return;
     // fetchSchedule(value);
-    // **I think I need to wait for data to fetch
+    // I think I need to wait for data to refetch, can't test until we have more schedules to work with
     setTab(value);
   }
   // Save Data
@@ -81,13 +81,6 @@ export const AnotherScheduleContainer = ({
   }
 
   // Service Body
-  function createService(newInfo: NewServiceData) {
-    addService({
-      ...newInfo,
-      scheduleId: tabs[tab].id,
-      order: data.schedules[tab].services.length + 1,
-    });
-  }
   function deleteRow(rowIndex: number) {}
   function insertRow(rowIndex: number) {}
 
@@ -179,7 +172,13 @@ export const AnotherScheduleContainer = ({
       </Dialog>
       <Dialog open={isNewServiceOpen} onClose={() => setIsNewServiceOpen(false)}>
         <NewServiceForm
-          onSubmit={(newScheduleData) => createService(newScheduleData)}
+          onSubmit={(newInfo) =>
+            addService({
+              ...newInfo,
+              scheduleId: tabs[tab].id,
+              order: data.schedules[tab].services.length + 1, // need a better way to grab scheduleId and order
+            })
+          }
           onClose={() => setIsNewServiceOpen(false)}
           error={error}
         />
