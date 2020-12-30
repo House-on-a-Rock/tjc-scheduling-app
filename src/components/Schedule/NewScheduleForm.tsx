@@ -77,7 +77,7 @@ export const NewScheduleForm = ({ onClose, error, onSubmit }: NewScheduleFormPro
 
   return (
     <div className={classes.root}>
-      <h2>Create a new schedule</h2>
+      <h2>Create a New Schedule</h2>
       <form className={classes.formStyle}>
         {error && (
           <div style={{ color: 'red' }}>

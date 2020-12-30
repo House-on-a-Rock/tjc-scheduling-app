@@ -8,12 +8,12 @@ import { useValidatedField } from '../../hooks';
 
 import { buttonTheme } from '../../shared/styles/theme.js';
 import { stringLengthCheck } from '../../shared/utilities';
-import { NewServiceData } from '../../shared/types';
+import { HttpErrorProps, NewServiceData } from '../../shared/types';
 
 interface NewServiceFormProps {
   onSubmit: (newServiceData: NewServiceData) => void;
   onClose: () => void;
-  error: any;
+  error: HttpErrorProps;
 }
 
 const daysOfWeek = [
@@ -60,7 +60,11 @@ export const NewServiceForm = ({ onSubmit, onClose, error }: NewServiceFormProps
   return (
     <div className={classes.root}>
       <h2>Add A New Event</h2>
-      {error && <div style={{ color: 'red' }}>Service name already exists</div>}
+      {error && (
+        <div style={{ color: 'red' }}>
+          {`Status code ${error.status}: ${error.message}`}
+        </div>
+      )}
       <form>
         <ValidatedTextField
           name="Service Name"

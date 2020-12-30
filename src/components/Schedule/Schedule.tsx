@@ -24,7 +24,7 @@ import { DataCell } from './TableCell';
 
 interface BootstrapData {
   schedules: ScheduleTableInterface[];
-  users: any;
+  users: UsersDataInterface[];
 }
 interface ContainerStateProp {
   data: BootstrapData;
@@ -105,7 +105,7 @@ export const Schedule = ({
   }, [isSuccess]);
 
   const teammates = (roleId) =>
-    data.users.filter((user: any) => user.teams.some((role: any) => role.id === roleId));
+    data.users.filter((user) => user.teams.some((team) => team.id === roleId));
 
   return (
     <>
@@ -267,4 +267,37 @@ interface AssignmentDataInterface {
 interface RoleAssociation {
   id: number;
   name: string;
+}
+
+interface UsersDataInterface {
+  church: ChurchInterface;
+  churchId: number;
+  disabled: boolean;
+  email: string;
+  firstName: string;
+  lastName: string;
+  userId: number;
+  teams: TeamsInterface[];
+}
+interface ChurchInterface {
+  name: string;
+}
+
+interface TeamsInterface {
+  id: number;
+  name: string;
+  users: Teammates[];
+}
+
+interface Teammates {
+  id: number;
+  roleId: number;
+  teamLead: boolean;
+  user: UserInterface;
+}
+
+interface UserInterface {
+  id: number;
+  firstName: string;
+  lastName: string;
 }

@@ -10,7 +10,18 @@ const validateUser = (condition: string, token): boolean => {
   return token && !!userId;
 };
 
-export const PrivateRoute = ({ children, redirection, condition, ...rest }: any) => {
+interface PrivateRouteProps {
+  redirection: string;
+  path: string;
+  condition: string;
+}
+
+export const PrivateRoute: React.FC<PrivateRouteProps> = ({
+  children,
+  redirection,
+  condition,
+  ...rest
+}) => {
   const auth = useContext(AuthContext);
   const logout = () => {
     auth.logout();

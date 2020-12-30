@@ -31,12 +31,19 @@ const TooltipForDisabledButton = ({
   );
 };
 
+interface ScheduleToolbar {
+  isScheduleModified: boolean;
+  destroySchedule: () => void;
+  handleNewServiceClicked: () => void;
+  onSaveScheduleChanges: () => void;
+}
+
 export const ScheduleToolbar = ({
   handleNewServiceClicked,
   destroySchedule,
   isScheduleModified,
   onSaveScheduleChanges,
-}: any) => {
+}: ScheduleToolbar) => {
   const classes = useStyles();
   const [isSaveIconOpen, setIsSaveIconOpen] = useState(false);
   const [isPublishIconOpen, setIsPublishIconOpen] = useState(false);

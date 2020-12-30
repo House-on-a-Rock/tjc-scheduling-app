@@ -1,5 +1,5 @@
 /* eslint-disable react/no-array-index-key */
-import React from 'react';
+import React, { ReactNode } from 'react';
 
 // Material UI
 import MaUTable from '@material-ui/core/Table';
@@ -11,7 +11,17 @@ import { makeStyles, Theme, createStyles, fade, darken } from '@material-ui/core
 // Styles
 import { paletteTheme } from '../../shared/styles/theme.js';
 
-export const ScheduleTable = ({ title, hidden, children }: any) => {
+interface ScheduleTableProps {
+  title: string;
+  hidden: boolean;
+  children: ReactNode[];
+}
+
+export const ScheduleTable: React.FC<ScheduleTableProps> = ({
+  title,
+  hidden,
+  children,
+}) => {
   const classes = useStyles();
   const [header, body] = children;
 
@@ -52,6 +62,7 @@ const useStyles = makeStyles((theme: Theme) =>
           textAlign: 'center',
         },
         '&:before': {
+          // use a pseudo-element to cover left-side gap when scrolling
           content: '""',
           background: 'white',
           position: 'absolute',
@@ -71,6 +82,7 @@ const useStyles = makeStyles((theme: Theme) =>
         },
         borderRightWidth: 0,
         '&:after': {
+          // use a pseudo-element to cover right-side gap when scrolling
           content: '""',
           background: fade(paletteTheme.common.lightBlue, 0.15),
           position: 'absolute',
