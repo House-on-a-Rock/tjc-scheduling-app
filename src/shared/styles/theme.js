@@ -159,7 +159,7 @@ export const themeExtension = {
       color: 'black',
       fontWeight: 'bold',
     },
-    '&:hover, &:focus': {
+    '&:hover': {
       color: 'white',
       background: tjcLightBlue,
       zIndex: 3,

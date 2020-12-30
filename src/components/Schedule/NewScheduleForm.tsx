@@ -9,18 +9,24 @@ import { buttonTheme } from '../../shared/styles/theme.js';
 
 import { Tooltip } from '../shared/Tooltip';
 import { stringLengthCheck } from '../../shared/utilities';
+import { HttpErrorProps, NewScheduleData } from '../../shared/types';
 // TODO hook up teams with data from DB
 
 interface NewScheduleFormProps {
   onClose: (data: any) => void;
-  error: any;
-  onSubmit: (
-    title: string,
-    startDate: string,
-    endDate: string,
-    view: string,
-    team: number,
-  ) => void;
+  error: HttpErrorProps;
+  onSubmit: (newScheduleData: NewScheduleData) => void;
+}
+
+// needed to format date so that the date picker can display it properly
+function toDateString(date: Date): string {
+  // need to pad months/dates with 0s if single digit
+  let month = (date.getMonth() + 1).toString();
+  let day = date.getDate().toString();
+  month = month.length > 1 ? month : `0${month}`;
+  day = day.length > 1 ? day : `0${day}`;
+
+  return `${date.getFullYear()}-${month}-${day}`;
 }
 
 export const NewScheduleForm = ({ onClose, error, onSubmit }: NewScheduleFormProps) => {
@@ -43,18 +49,6 @@ export const NewScheduleForm = ({ onClose, error, onSubmit }: NewScheduleFormPro
     0,
     'Please assign a team to this schedule',
   );
-
-  // needed to format date so that the date picker can display it properly
-  function toDateString(date: Date): string {
-    // need to pad months/dates with 0s if single digit
-    let month = (date.getMonth() + 1).toString();
-    let day = date.getDate().toString();
-    month = month.length > 1 ? month : `0${month}`;
-    day = day.length > 1 ? day : `0${day}`;
-
-    return `${date.getFullYear()}-${month}-${day}`;
-  }
-
   function onSubmitForm() {
     resetTitleError();
     resetStartError();
@@ -67,7 +61,13 @@ export const NewScheduleForm = ({ onClose, error, onSubmit }: NewScheduleFormPro
       endDate.value > startDate.value &&
       team.value > 0
     )
-      onSubmit(title.value, startDate.value, endDate.value, 'weekly', team.value);
+      onSubmit({
+        title: title.value,
+        startDate: startDate.value,
+        endDate: endDate.value,
+        view: 'weekly',
+        team: team.value,
+      });
 
     setTitleError(stringLengthCheck(title.value));
     setStartError(endDate.value < startDate.value);
@@ -77,9 +77,13 @@ export const NewScheduleForm = ({ onClose, error, onSubmit }: NewScheduleFormPro
 
   return (
     <div className={classes.root}>
-      <h2>New Schedule Form</h2>
+      <h2>Create a new schedule</h2>
       <form className={classes.formStyle}>
-        {error && <div style={{ color: 'red' }}>Schedule title is not unique</div>}
+        {error && (
+          <div style={{ color: 'red' }}>
+            {`Status code ${error.status}: ${error.message}`}
+          </div>
+        )}
         <div className={classes.tooltipContainer}>
           <ValidatedTextField
             className={classes.nameInput}
@@ -122,6 +126,7 @@ export const NewScheduleForm = ({ onClose, error, onSubmit }: NewScheduleFormPro
         <ValidatedSelect
           className={classes.selectContainer}
           input={team}
+          label="Team"
           onChange={setTeam}
           toolTip={{ id: 'team', text: 'Assign a team to this schedule' }}
         >
@@ -130,12 +135,14 @@ export const NewScheduleForm = ({ onClose, error, onSubmit }: NewScheduleFormPro
           <MenuItem value={2}>RE</MenuItem>
         </ValidatedSelect>
       </form>
-      <Button onClick={onSubmitForm} className={classes.button}>
-        Create a new schedule!
-      </Button>
-      <Button onClick={onClose} className={classes.button}>
-        Cancel
-      </Button>
+      <div className={classes.buttonBottomBar}>
+        <Button onClick={onSubmitForm} variant="contained" className={classes.button}>
+          Create a new schedule!
+        </Button>
+        <Button onClick={onClose} className={classes.button}>
+          Cancel
+        </Button>
+      </div>
     </div>
   );
 };
@@ -194,6 +201,11 @@ const useStyles = makeStyles((theme: Theme) =>
       '&:hover, &:focus': {
         ...buttonTheme.filled,
       },
+    },
+    buttonBottomBar: {
+      minHeight: 'unset',
+      flexWrap: 'wrap',
+      alignSelf: 'end',
     },
   }),
 );

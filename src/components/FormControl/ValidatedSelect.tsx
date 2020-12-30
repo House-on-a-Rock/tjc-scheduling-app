@@ -22,11 +22,12 @@ export const ValidatedSelect = ({
   onChange,
   toolTip,
   children,
+  label,
   ...restProps
 }: ValidatedSelectProps) => {
   return (
     <FormControl className={className} error={!input.valid}>
-      <InputLabel>Team</InputLabel>
+      <InputLabel>{label}</InputLabel>
       <Select
         className={className}
         value={input.value}

@@ -27,22 +27,16 @@ export const DataCell = React.memo(
       setValue(newValue);
     }
 
-    const cellStyle = isCellModified ? classes.modified : classes.cell; // normally i'd combine styling objects to reduce repetition, but these are strings so idk
-
     // resets background color when new data is received
     useEffect(() => setIsCellModified(false), [data]);
-
-    const filteredOptions = options.filter(
-      (member: any) => member.userId !== value.userId,
-    );
 
     // TODO debug the autocomplete warning
 
     return (
-      <TableCell className={cellStyle}>
+      <TableCell className={isCellModified ? classes.modified : classes.cell}>
         <Autocomplete
           id="combo-box"
-          options={filteredOptions}
+          options={options.filter((member: any) => member.userId !== value.userId)}
           renderInput={(params: any) => (
             <TextField
               {...params}
@@ -52,9 +46,10 @@ export const DataCell = React.memo(
               }}
             />
           )}
-          getOptionLabel={(option: any) => `${option.firstName} ${option.lastName}`}
-          getOptionSelected={(option: any, val: any) => option.userId === val.userId}
+          getOptionLabel={({ firstName, lastName }: any) => `${firstName} ${lastName}`}
+          getOptionSelected={({ userId }: any, val: any) => userId === val.userId}
           renderOption={(option: any, state: any) => {
+            const { firstName, lastName, userId } = option;
             // would like this to autosize so each option is just a single line
             return (
               <div
@@ -64,8 +59,8 @@ export const DataCell = React.memo(
                   alignItems: 'center',
                 }}
               >
-                {`${option.firstName} ${option.lastName}`}
-                {option.userId === data.userId && (
+                {`${firstName} ${lastName}`}
+                {userId === data.userId && (
                   <RemoveIcon style={{ height: 10, width: 10, paddingLeft: 4 }} /> // icon to show which one the original assignee is. any ideas on a more appropriate icon?
                 )}
               </div>

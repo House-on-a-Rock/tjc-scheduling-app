@@ -90,7 +90,7 @@
     "react-contextmenu": "^2.14.0",
     "react-dom": "^16.9.0",
     "react-navigation": "^4.3.9",
-    "react-query": "^2.26.2",
+    "react-query": "^3.5.0",
     "react-query-devtools": "^2.6.3",
     "react-router-dom": "^5.2.0",
     "redux": "^4.0.5",

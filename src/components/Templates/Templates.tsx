@@ -2,7 +2,7 @@ import React from 'react';
 // import { useSelector } from '../../shared/utilities';
 
 // queries
-import { useQuery, useMutation, useQueryCache } from 'react-query';
+import { useQuery, useMutation } from 'react-query';
 
 // mat ui
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
@@ -68,7 +68,7 @@ export const Templates = ({ churchId }: any) => {
   // const { churchId, name: churchName } = useSelector((state) => state.profile);
   const { isLoading, error, data: templateData } = useQuery(
     ['templates', churchId],
-    getTemplateData,
+    () => getTemplateData(churchId),
     {
       enabled: churchId,
       refetchOnWindowFocus: false,

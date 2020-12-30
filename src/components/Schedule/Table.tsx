@@ -1,3 +1,4 @@
+/* eslint-disable react/no-array-index-key */
 import React, { useState, useRef } from 'react';
 
 // Material-UI Components
@@ -10,7 +11,7 @@ import { makeStyles, Theme, createStyles, fade, darken } from '@material-ui/core
 
 // Components
 import { ContextMenu } from '../shared/ContextMenu';
-import { ServiceDisplay } from './ServiceDisplay';
+import { ScheduleTableBody } from './ScheduleTableBody';
 
 // Types
 import { AccessTypes, WeeklyAssignmentInterface } from '../../shared/types';
@@ -27,7 +28,6 @@ interface TableProps {
 export const Table = ({ data, access, onTaskModified }: TableProps) => {
   const outerRef = useRef(null);
   const classes = useStyles();
-
   const { columns, services } = data;
 
   return (
@@ -41,7 +41,6 @@ export const Table = ({ data, access, onTaskModified }: TableProps) => {
         <TableHead>
           <TableRow key="Column header">
             {columns.map((column: any, index: number) => (
-              // eslint-disable-next-line react/no-array-index-key
               <TableCell key={`${column.header}_${index}`} className={classes.headerCell}>
                 {column.Header}
               </TableCell>
@@ -49,14 +48,13 @@ export const Table = ({ data, access, onTaskModified }: TableProps) => {
           </TableRow>
         </TableHead>
         <TableBody>
-          {services.map((service: any, index: number) => (
-            <ServiceDisplay
+          {/* {services.map((service: any, index: number) => (
+            <ScheduleTableBody
+              key={index}
               service={service}
               onTaskModified={onTaskModified}
-              // eslint-disable-next-line react/no-array-index-key
-              key={index}
             />
-          ))}
+          ))} */}
         </TableBody>
       </MaUTable>
     </>

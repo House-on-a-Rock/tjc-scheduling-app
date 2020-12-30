@@ -7,47 +7,23 @@ import {
 } from '../../shared/types/models';
 import { getLocalStorageItem } from '../../shared/utilities';
 
-export const getTabs = (churchId: number): Promise<AxiosResponse> => {
+export const getSchedules = (churchId: number): Promise<AxiosResponse> => {
   const token = getLocalStorageItem('access_token')?.token;
   axios.defaults.headers.common.authorization = token;
-  return axios.get(`${secretIp}/api/schedules/tabs?churchId=${churchId}`);
+  return axios.get(`${secretIp}/api/schedules?churchId=${churchId}`);
 };
 
-export const getSchedule = (scheduleId: number): Promise<AxiosResponse> =>
+export const getScheduleAndData = (scheduleId: number): Promise<AxiosResponse> =>
   axios.get(`${secretIp}/api/schedule?scheduleId=${scheduleId}`);
 
-export const postSchedule = ({
-  scheduleTitle,
-  startDate,
-  endDate,
-  view,
-  team,
-  churchId,
-}: NewScheduleData) =>
-  axios.post(`${secretIp}/api/schedule`, {
-    title: scheduleTitle,
-    startDate,
-    endDate,
-    view,
-    team,
-    churchId,
-  });
+export const postSchedule = (data: NewScheduleData) =>
+  axios.post(`${secretIp}/api/schedule`, data);
 
-export const destroySchedule = ({ scheduleId, title }: DeleteScheduleProps) =>
-  axios.delete(`${secretIp}/api/schedule`, {
-    data: {
-      scheduleId,
-      title,
-    },
-  });
+export const destroySchedule = (data: DeleteScheduleProps) =>
+  axios.delete(`${secretIp}/api/schedule`, { data });
 
-export const addService = ({ name, order, dayOfWeek, scheduleId }: AddServiceProps) =>
-  axios.post(`${secretIp}/api/services`, {
-    name,
-    order,
-    dayOfWeek,
-    scheduleId,
-  });
+export const addService = (data: AddServiceProps) =>
+  axios.post(`${secretIp}/api/service`, data);
 
 export const updateScheduleAssignments = async (changedTasks: any) => {
   const response = await Promise.all(
