@@ -1,38 +1,28 @@
 import React, { useEffect } from 'react';
 
-import { Alert as MuIAlert, Color } from '@material-ui/lab';
-import CheckIcon from '@material-ui/icons/Check';
-import ErrorIcon from '@material-ui/icons/Error';
+import Snackbar from '@material-ui/core/Snackbar';
+import MuiAlert, { AlertProps, Color } from '@material-ui/lab/Alert';
+
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 
-export interface AlertProps {
-  alert: { message: string; status: string };
-  unMountAlert: () => void;
+export interface CustomSnackbarProps {
+  alert: { message: string; status: Color };
+  isOpen: boolean;
+  handleClose: () => void;
 }
 
-export const Alert = ({ alert, unMountAlert }: AlertProps) => {
-  const classes = useStyles();
-  const displayTimer = 2000;
-  console.log('alert', alert);
-
-  useEffect(() => {
-    setTimeout(unMountAlert, displayTimer); // unmount after 2 seconds
-  });
-  // only success has been implemented, since error is handled inside each form. But we'll pbly run into use cases for the error alert
-  const muiAlertProps: { icon: JSX.Element; severity: Color } =
-    alert.status === 'success'
-      ? { severity: 'success', icon: <CheckIcon fontSize="inherit" /> }
-      : { severity: 'error', icon: <ErrorIcon fontSize="inherit" /> };
-
+export const Alert = ({ alert, isOpen, handleClose }: CustomSnackbarProps) => {
   return (
-    <MuIAlert
-      icon={muiAlertProps.icon}
-      severity={muiAlertProps.severity}
-      className={classes.root}
-      variant="filled"
-    >
-      {alert.message}
-    </MuIAlert>
+    <Snackbar open={isOpen} autoHideDuration={2000} onClose={handleClose}>
+      <MuiAlert
+        elevation={6}
+        variant="filled"
+        severity={alert.status}
+        onClose={handleClose}
+      >
+        {alert.message}
+      </MuiAlert>
+    </Snackbar>
   );
 };
 
@@ -48,7 +38,6 @@ const useStyles = makeStyles((theme: Theme) =>
       right: 20,
       zIndex: 100000, // too much?
       padding: 2,
-      transform: 'translateY(-100vh)',
       animation: `slide-in-from-top 0.5s forwards`,
     },
   }),
