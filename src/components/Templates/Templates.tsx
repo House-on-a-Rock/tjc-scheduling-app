@@ -11,12 +11,13 @@ import AddIcon from '@material-ui/icons/Add';
 // api
 import { getTemplateData } from '../../query';
 import { TemplateDisplay } from './TemplateDisplay';
-
+import { addSchedule } from '../../query/apis/schedules';
 // utilities
 import { buttonTheme } from '../../shared/styles/theme.js';
 
 // components
 import { TemplateForm } from './TemplateForm';
+import { NewScheduleForm } from '../shared/NewScheduleForm';
 /*
   1. Retrieve and display saved template data from db
     a. create db table 
@@ -45,7 +46,9 @@ import { TemplateForm } from './TemplateForm';
 
 export const Templates = ({ churchId }: any) => {
   const classes = useStyles();
-  const [isFormOpen, setIsFormOpen] = useState<boolean>(false);
+  const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
+  const [selectedTemplate, setSelectedTemplate] = useState<number>(null);
+  const cache = useQueryCache();
 
   // queries
   const { isLoading: isTemplatesLoading, error, data: templateData } = useQuery(
@@ -58,37 +61,53 @@ export const Templates = ({ churchId }: any) => {
     },
   );
   // mutation
+  const [mutateAddSchedule, { error: mutateScheduleError }] = useMutation(addSchedule, {
+    onSuccess: (response) => {
+      cache.invalidateQueries('scheduleTabs');
+      closeDialogHandler(response);
+    },
+  });
 
   function createNewTemplate() {}
 
-  function closeFormHandler() {
-    setIsFormOpen(false);
+  function closeDialogHandler(response?: any) {
+    setIsDialogOpen(false);
+    // setAlert({ message: response.data, status: 'success' });
   }
 
-  function onTemplateFormSubmit() {
+  function onTemplateDialogSubmit() {
     // run mutation
+  }
+
+  function createScheduleFromTemplate(templateId: number) {
+    setSelectedTemplate(templateId);
+    setIsDialogOpen(true);
   }
 
   if (isTemplatesLoading) return <div>Loading</div>;
 
+  // TODO add confirmation alerts
   return (
     <div>
-      <Dialog open={isFormOpen} onClose={() => closeFormHandler()}>
-        <TemplateForm
-          onClose={() => closeFormHandler()}
-          // error={mutateScheduleError}
-          onSubmit={onTemplateFormSubmit}
+      <Dialog open={isDialogOpen} onClose={() => closeDialogHandler()}>
+        <NewScheduleForm
+          onClose={() => closeDialogHandler()}
+          error={mutateScheduleError}
+          onSubmit={mutateAddSchedule}
+          churchId={churchId}
+          templateId={selectedTemplate}
+          templates={templateData}
         />
       </Dialog>
       <h1>Create, Manage, and Update Schedule Templates</h1>
       <br />
+      <h2>Saved Templates</h2>
       <div className={classes.templateContainer}>
-        <p>Saved Templates</p>
         {templateData.map((template, index) => (
           <TemplateDisplay
             template={template}
             key={`${index}_TemplateDisplay`}
-            setIsFormOpen={setIsFormOpen}
+            createNewScheduleHandler={createScheduleFromTemplate}
           />
         ))}
       </div>
@@ -104,7 +123,9 @@ export const Templates = ({ churchId }: any) => {
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     templateContainer: {
-      width: '75%',
+      width: '100%',
+      display: 'grid',
+      'grid-template-columns': '25% 25% 25% 25%',
     },
     button: {
       position: 'sticky',

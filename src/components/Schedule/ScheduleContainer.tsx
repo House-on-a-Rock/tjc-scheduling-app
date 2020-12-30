@@ -7,7 +7,7 @@ import { getTabData } from '../../query/schedules';
 import { addSchedule, deleteSchedule } from '../../query/apis/schedules';
 
 import { ScheduleTabs } from './ScheduleTabs';
-import { NewScheduleForm } from './NewScheduleForm';
+import { NewScheduleForm } from '../shared/NewScheduleForm';
 import { ScheduleComponent } from './ScheduleComponent';
 import { Alert } from '../shared/Alert';
 import { ConfirmationDialog } from '../shared/ConfirmationDialog';
@@ -70,23 +70,6 @@ export const ScheduleContainer = ({ churchId }: ScheduleContainerProps) => {
     if (response?.data) setAlert({ message: response.data, status: 'success' }); // response.statusText = "OK", response.status == 200
   }
 
-  async function onNewScheduleSubmit(
-    scheduleTitle: string,
-    startDate: string,
-    endDate: string,
-    view: string,
-    team: number,
-  ) {
-    await mutateAddSchedule({
-      scheduleTitle,
-      startDate,
-      endDate,
-      view,
-      team,
-      churchId,
-    });
-  }
-
   return (
     <>
       <Button
@@ -99,7 +82,8 @@ export const ScheduleContainer = ({ churchId }: ScheduleContainerProps) => {
         <NewScheduleForm
           onClose={() => closeDialogHandler()}
           error={mutateScheduleError}
-          onSubmit={onNewScheduleSubmit}
+          onSubmit={mutateAddSchedule}
+          churchId={churchId}
         />
       </Dialog>
       <ConfirmationDialog

@@ -79,6 +79,7 @@ export const NewServiceForm = ({
             id: 'Day of Week',
             text: 'Select the day of the week this schedule is for',
           }}
+          label="Day of Week"
           className={classes.selectContainer}
         >
           <MenuItem value={-1}>

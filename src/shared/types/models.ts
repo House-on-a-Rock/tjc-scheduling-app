@@ -149,6 +149,7 @@ export interface AddScheduleProps {
   view: string;
   team: number;
   churchId: number;
+  templateId: number;
 }
 
 export interface DeleteScheduleProps {

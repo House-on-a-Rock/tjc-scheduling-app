@@ -4,7 +4,7 @@ export const templates = [
     name: 'Weekly Services',
     data: [
       {
-        name: 'Friday Evening Service',
+        name: 'Friday Evening',
         day: 'Friday',
         events: [
           { roleId: 1, title: 'Usher', time: '7:00 PM' },
@@ -15,7 +15,7 @@ export const templates = [
         ],
       },
       {
-        name: 'Saturday Morning Service',
+        name: 'Saturday Morning',
         day: 'Saturday',
         events: [
           { roleId: 1, title: 'Usher', time: '10:15 AM' },
@@ -28,7 +28,7 @@ export const templates = [
         ],
       },
       {
-        name: 'Saturday Afternoon Service',
+        name: 'Saturday Afternoon',
         day: 'Saturday',
         events: [
           { roleId: 2, title: 'Hymn Leading', time: '1:45 PM' },
@@ -70,7 +70,7 @@ export const templates = [
     name: 'Weekday Services template',
     data: [
       {
-        name: 'Tuesday Evening Service',
+        name: 'Tuesday Evening',
         day: 'Tuesday',
         events: [
           { roleId: 1, title: 'Usher', time: '10:15 AM' },
@@ -83,7 +83,7 @@ export const templates = [
         ],
       },
       {
-        name: 'Wednesday Evening Service',
+        name: 'Wednesday Evening',
         day: 'Wednesday',
         events: [
           { roleId: 2, title: 'Hymn Leading', time: '1:45 PM' },
@@ -126,7 +126,7 @@ export const templates = [
     name: 'ESSC Schedule template',
     data: [
       {
-        name: 'ESSC Service',
+        name: 'ESSC',
         day: 'Friday',
         events: [
           { roleId: 1, title: 'Usher', time: '7:00 PM' },

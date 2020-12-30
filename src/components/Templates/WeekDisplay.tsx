@@ -3,7 +3,6 @@ import { days } from '../../shared/utilities/dates';
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 
 export const WeekDisplay = ({ templateData }) => {
-  console.log('templateData', templateData);
   const classes = useStyles();
 
   function populateDay(day) {

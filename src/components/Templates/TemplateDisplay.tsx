@@ -1,47 +1,94 @@
 import React from 'react';
 
 // mat ui
-import Accordion from '@material-ui/core/Accordion';
-import AccordionDetails from '@material-ui/core/AccordionDetails';
-import AccordionSummary from '@material-ui/core/AccordionSummary';
+import Tooltip from '@material-ui/core/Tooltip';
+import AddIcon from '@material-ui/icons/Add';
 import EditIcon from '@material-ui/icons/Edit';
+import Card from '@material-ui/core/Card';
+import MaUTable from '@material-ui/core/Table';
+import TableHead from '@material-ui/core/TableHead';
+import TableBody from '@material-ui/core/TableBody';
+import TableRow from '@material-ui/core/TableRow';
+import TableCell from '@material-ui/core/TableCell';
+import Button from '@material-ui/core/Button';
 
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
-import { WeekDisplay } from './WeekDisplay';
 
-interface TemplateDisplay {
+interface TemplateDisplayProps {
   template: any;
-  setIsFormOpen: (boolean) => void;
+  createNewScheduleHandler: (boolean) => void;
 }
 
 // TODO make pretty
-export const TemplateDisplay = ({ template, setIsFormOpen }: any) => {
+export const TemplateDisplay = ({
+  template,
+  createNewScheduleHandler,
+}: TemplateDisplayProps) => {
   const classes = useStyles();
+  const { data, name, templateId } = template;
 
-  const { data } = template;
   return (
-    <div>
-      <Accordion>
-        <AccordionSummary className={classes.accordionSummary}>
-          {template.name}
-        </AccordionSummary>
-        <AccordionDetails>
-          <EditIcon height={20} width={20} onClick={() => setIsFormOpen(true)} />
-          <WeekDisplay templateData={data} />
-        </AccordionDetails>
-      </Accordion>
-    </div>
+    <Card raised className={classes.card}>
+      <Tooltip title="Create a new schedule using this template">
+        <Button
+          style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}
+          onClick={() => createNewScheduleHandler(templateId)}
+        >
+          Create new Schedule
+          <AddIcon />
+        </Button>
+      </Tooltip>
+      <Tooltip title="Edit this template">
+        <EditIcon />
+      </Tooltip>
+      <h3 style={{ margin: 5 }}>{template.name}</h3>
+      <MaUTable>
+        <TableHead>
+          <TableRow>
+            <TableCell key="time">Time</TableCell>
+            <TableCell key="duty">Duty</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {data.map((service) => (
+            <>
+              <TableRow key={`${service.name}_name`}>
+                <TableCell className={classes.tableCell}>
+                  <h4 style={{ margin: 1 }}>{service.name}</h4>
+                </TableCell>
+              </TableRow>
+              {service.events.map((event, eventIndex) => (
+                <TableRow key={`${event}_${eventIndex}`}>
+                  <TableCell
+                    key={`${event}_time_${eventIndex}`}
+                    className={classes.tableCell}
+                    style={{ width: '50%' }}
+                  >
+                    {event.time}
+                  </TableCell>
+                  <TableCell
+                    key={`${event}_title_${eventIndex}`}
+                    className={classes.tableCell}
+                  >
+                    {event.title}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </>
+          ))}
+        </TableBody>
+      </MaUTable>
+    </Card>
   );
 };
-// howard u can work ur magic here hehe, i think the components have some shadows out of the box but I didn't spend a lotta time here
+// howard u can work ur magic here hehe
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
-    accordionSummary: {
-      backgroundColor: 'white',
-      borderRadius: '5px',
-      border: '1px solid',
-      borderColor: theme.palette.primary.main,
-      margin: 4,
+    card: { width: '80%', padding: 10, margin: 5 },
+    tableCell: {
+      fontSize: 12,
+      margin: 0,
+      padding: 4,
     },
   }),
 );

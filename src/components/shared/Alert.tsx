@@ -2,11 +2,11 @@ import React, { useEffect } from 'react';
 
 import Snackbar from '@material-ui/core/Snackbar';
 import MuiAlert, { AlertProps, Color } from '@material-ui/lab/Alert';
-
+import { AlertInterface } from '../../shared/types';
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 
 export interface CustomSnackbarProps {
-  alert: { message: string; status: Color };
+  alert: AlertInterface;
   isOpen: boolean;
   handleClose: () => void;
 }

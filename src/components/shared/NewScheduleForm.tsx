@@ -7,23 +7,37 @@ import { useValidatedField } from '../../hooks';
 
 import { buttonTheme } from '../../shared/styles/theme.js';
 
-import { Tooltip } from '../shared/Tooltip';
+import { Tooltip } from './Tooltip';
 import { stringLengthCheck } from '../../shared/utilities';
 // TODO hook up teams with data from DB
+
+import { AddScheduleProps } from '../../shared/types/models';
 
 interface NewScheduleFormProps {
   onClose: (data: any) => void;
   error: any;
-  onSubmit: (
-    title: string,
-    startDate: string,
-    endDate: string,
-    view: string,
-    team: number,
-  ) => void;
+  onSubmit: ({
+    scheduleTitle,
+    startDate,
+    endDate,
+    view,
+    team,
+    churchId,
+    templateId,
+  }) => Promise<any>;
+  templateId?: number;
+  templates?: any;
+  churchId: number;
 }
 
-export const NewScheduleForm = ({ onClose, error, onSubmit }: NewScheduleFormProps) => {
+export const NewScheduleForm = ({
+  onClose,
+  error,
+  onSubmit,
+  templateId,
+  templates,
+  churchId,
+}: NewScheduleFormProps) => {
   const tomorrow = new Date(new Date().setDate(new Date().getDate() + 1));
   const classes = useStyles();
 
@@ -43,6 +57,12 @@ export const NewScheduleForm = ({ onClose, error, onSubmit }: NewScheduleFormPro
     0,
     'Please assign a team to this schedule',
   );
+  const [template, setTemplate, setTemplateError, resetTemplateError] = useValidatedField(
+    templateId ? templateId : 0,
+    '',
+  );
+
+  // pass in roles
 
   // needed to format date so that the date picker can display it properly
   function toDateString(date: Date): string {
@@ -60,19 +80,30 @@ export const NewScheduleForm = ({ onClose, error, onSubmit }: NewScheduleFormPro
     resetStartError();
     resetEndError();
     resetTeamError();
+    resetTemplateError();
 
     if (
       title.value.length > 0 &&
       title.value.length < 32 &&
       endDate.value > startDate.value &&
       team.value > 0
+      // template can be zero
     )
-      onSubmit(title.value, startDate.value, endDate.value, 'weekly', team.value);
+      onSubmit({
+        scheduleTitle: title.value,
+        startDate: startDate.value,
+        endDate: endDate.value,
+        view: 'weekly',
+        team: team.value,
+        churchId,
+        templateId: template.value,
+      });
 
     setTitleError(stringLengthCheck(title.value));
     setStartError(endDate.value < startDate.value);
     setEndError(endDate.value < startDate.value);
     setTeamError(team.value === 0);
+    // setTemplateError(template.value === 0)
   }
 
   return (
@@ -124,10 +155,32 @@ export const NewScheduleForm = ({ onClose, error, onSubmit }: NewScheduleFormPro
           input={team}
           onChange={setTeam}
           toolTip={{ id: 'team', text: 'Assign a team to this schedule' }}
+          label="Team"
         >
           <MenuItem value={0}>Assign this schedule to a team</MenuItem>
           <MenuItem value={1}>Church Council</MenuItem>
           <MenuItem value={2}>RE</MenuItem>
+        </ValidatedSelect>
+        <ValidatedSelect
+          className={classes.selectContainer}
+          input={template}
+          onChange={setTemplate}
+          label="Template"
+          toolTip={{ id: 'template', text: 'Assign a template to this schedule' }}
+        >
+          <MenuItem value={0}>Pick a template</MenuItem>
+          {templates ? (
+            templates.map(({ templateId, name }) => (
+              <MenuItem key={templateId} value={templateId}>
+                {name}
+              </MenuItem>
+            ))
+          ) : (
+            <>
+              <MenuItem value={1}>Weekly Services</MenuItem>
+              <MenuItem value={2}>RE</MenuItem>
+            </>
+          )}
         </ValidatedSelect>
       </form>
       <Button onClick={onSubmitForm} className={classes.button}>

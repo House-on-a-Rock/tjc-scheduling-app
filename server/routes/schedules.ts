@@ -70,6 +70,7 @@ router.post(
   certify,
   async (req: Request, res: Response, next: NextFunction) => {
     try {
+      console.log('req.body', req.body);
       const { title, view, startDate, endDate, churchId, team } = req.body; // roleId still team on webapp
       const dbSchedule = await db.Schedule.findOne({
         where: { churchId, title },
