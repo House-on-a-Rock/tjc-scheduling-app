@@ -105,7 +105,6 @@ router.delete(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { scheduleId, title } = req.body;
-      console.log(scheduleId, title);
       const schedule = await db.Schedule.destroy({
         where: {
           id: scheduleId,
@@ -113,7 +112,7 @@ router.delete(
         },
         attributes: ['title'],
       });
-      return res.status(200).send(`Schedule ${schedule.title} successfully deleted`);
+      return res.status(200).send(`Schedule ${title} successfully deleted`);
     } catch (err) {
       next(err);
       return res.status(503).send({ message: 'Server error, try again later' });
