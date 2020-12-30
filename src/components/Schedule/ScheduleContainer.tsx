@@ -1,159 +1,142 @@
-export {};
-// import React, { useState } from 'react';
-// import { useQuery, useMutation, useQueryCache } from 'react-query';
-// import { Dialog, Button } from '@material-ui/core';
-// import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
+import React, { useEffect, useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from 'react-query';
+// the queries aren't very consistent....
+import { postSchedule, destroySchedule, postService } from '../../query/apis';
+import { getChurchMembersData, getAllSchedules, getScheduleData } from '../../query';
+import { DeleteScheduleProps, NewScheduleData, NewServiceData } from '../../shared/types';
+import { Schedule } from './Schedule';
 
-// import { getScheduleData } from '../../query/schedules';
-// import { postSchedule, destroySchedule } from '../../query/apis/schedules';
+interface ScheduleContainerProps {
+  churchId: number;
+}
 
-// import { ScheduleTabs } from './ScheduleTabs';
-// import { NewScheduleForm } from './NewScheduleForm';
-// import { ScheduleComponent } from './ScheduleComponent';
-// import { Alert } from '../shared/Alert';
-// import { AlertInterface } from '../../shared/types';
-// import { buttonTheme } from '../../shared/styles/theme';
-// import { NewServiceForm } from './NewServiceForm';
+export const ScheduleContainer = ({ churchId }: ScheduleContainerProps) => {
+  const queryClient = useQueryClient();
+  const [isLoading, setIsLoading] = useState(false);
+  const [data, setData] = useState<any>();
+  const [error, setError] = useState(null);
+  const [fetchedSchedules, setFetchedSchedules] = useState<number[]>([]);
+  // testing this out for mutation success
+  const [isSuccess, setIsSuccess] = useState<string>();
 
-// interface ScheduleContainerProps {
-//   churchId: number;
-// }
+  // Gets all schedules' id
+  // There are some undefined queries in here
+  const tabs = useQuery(['tabs', churchId], () => getAllSchedules(churchId), {
+    enabled: !!churchId,
+    refetchOnWindowFocus: false,
+    staleTime: 100000000000000,
+  });
 
-// export const ScheduleContainer = ({ churchId }: ScheduleContainerProps) => {
-//   const classes = useStyles();
-//   const cache = useQueryCache();
+  const schedules = useQuery(
+    ['schedules', fetchedSchedules],
+    () =>
+      getScheduleData(
+        fetchedSchedules.length > 0 ? makeScheduleIdxs(tabs.data) : fetchedSchedules,
+      ),
+    {
+      enabled: !!tabs.data,
+      refetchOnWindowFocus: false,
+      staleTime: 100000000000000,
+      keepPreviousData: true,
+    },
+  );
 
-//   const { isLoading, error, data, refetch } = useQuery(
-//     ['scheduleTabs', churchId],
-//     getScheduleData,
-//     {
-//       enabled: churchId,
-//       refetchOnWindowFocus: false,
-//       staleTime: 100000000000000,
-//     },
-//   );
-//   const [mutateAddSchedule, { error: mutateScheduleError }] = useMutation(postSchedule, {
-//     onSuccess: (response) => {
-//       cache.invalidateQueries('scheduleTabs');
-//       closeDialogHandler(response);
-//     },
-//   });
+  // Users with their teammates (for autocomplete)
+  // Will need to add availabilities (or unavailabilities)
+  const users = useQuery(['roleData', churchId], () => getChurchMembersData(churchId), {
+    enabled: !!churchId,
+    staleTime: 300000,
+    cacheTime: 3000000,
+  });
 
-//   const [mutateDeleteSchedule, { error: deleteScheduleError }] = useMutation(
-//     destroySchedule,
-//     {
-//       onSuccess: (response) => {
-//         console.log(response);
-//         cache.invalidateQueries('scheduleTabs');
-//       },
-//     },
-//   );
+  // CRUD Mutations
+  const createSchedule = useMutation(postSchedule, {
+    onSuccess: () => {
+      queryClient.invalidateQueries('tabs');
+      queryClient.invalidateQueries('schedules');
+      setIsSuccess('NewScheduleForm');
+    },
+    onError: (result: any) => {
+      setError({
+        status: result.response.status,
+        message: result.response.statusText,
+      });
+    },
+  });
+  const deleteSchedule = useMutation(destroySchedule, {
+    onSuccess: () => {
+      queryClient.invalidateQueries('tabs');
+      setIsSuccess('DeleteSchedule');
+      // BUG: part 1: deleting incorrectly is successful; part 2: rerenders component
+    },
+    onError: (result: any) => {
+      setError({
+        status: result.response.status,
+        message: result.response.statusText,
+      });
+    },
+  });
 
-//   // state
-//   const [tabIdx, setTabIdx] = useState(0);
-//   const [isNewScheduleVisible, setIsNewScheduleVisible] = useState<boolean>(false);
-//   const [openedTabs, setOpenedTabs] = useState<number[]>([0]);
-//   const [alert, setAlert] = useState<AlertInterface>();
-//   const [isAddServiceVisible, setIsAddServiceVisible] = useState<boolean>(false);
+  const createService = useMutation(postService, {
+    onSuccess: (response) => {
+      queryClient.invalidateQueries('schedules');
+      setIsSuccess('NewServiceForm');
+    },
+    onError: (result: any) => {
+      setError({
+        status: result.response.status,
+        message: result.response.statusText,
+      });
+    },
+  });
 
-//   function onTabClick(value: number) {
-//     if (value <= data.length - 1) {
-//       // if not the last tab, open that tab
-//       setTabIdx(value);
-//       const isOpened = openedTabs.indexOf(value);
-//       if (isOpened < 0) setOpenedTabs([...openedTabs, value]); // adds unopened tabs to array. need way to handle lots of tabs
-//     } else setIsNewScheduleVisible(true); // if last tab, open dialog to make new schedule
-//   }
+  useEffect(() => {
+    if (tabs.data) {
+      // handles created or deleted schedules
+      setFetchedSchedules(makeScheduleIdxs(tabs.data));
+    }
+  }, [tabs]);
 
-//   function closeDialogHandler(response?: any) {
-//     // TODO for some reason theres a lot of rerenders for just this alert. nothing visible to client, very low priority
-//     setIsNewScheduleVisible(false);
-//     if (response?.data) setAlert({ message: response.data, status: 'success' }); // response.statusText = "OK", response.status == 200
-//   }
+  // function fetchSchedule(tabIdx) {
+  //   if (tabIdx < tabs.data.length) {
+  //     setFetchedSchedule(tabIdx);
+  //     console.log(tabIdx, 'hello there');
+  //   }
+  // }
 
-//   function onNewScheduleSubmit(
-//     scheduleTitle: string,
-//     startDate: string,
-//     endDate: string,
-//     view: string,
-//     team: number,
-//   ) {
-//     mutateAddSchedule({
-//       scheduleTitle,
-//       startDate,
-//       endDate,
-//       view,
-//       team,
-//       churchId,
-//     });
-//   }
+  useEffect(() => {
+    if (schedules.isSuccess) setError(null);
+    if (schedules.isError) setError(schedules.error);
+    if (schedules.data) setData({ ...data, schedules: schedules.data });
+    if (schedules.isLoading !== isLoading) setIsLoading(schedules.isLoading);
+  }, [schedules]);
 
-//   function onScheduleDelete(scheduleId: string, title: string) {
-//     mutateDeleteSchedule({ scheduleId, title });
-//   }
+  useEffect(() => {
+    if (users.isSuccess) setError(null);
+    if (users.isError) setError(users.error);
+    if (users.data) setData({ ...data, users: users.data });
+    if (users.isLoading !== isLoading) setIsLoading(users.isLoading);
+  }, [users]);
 
-//   return (
-//     <>
-//       <Button
-//         onClick={() => {
-//           setOpenedTabs([0]);
-//           onScheduleDelete(data[tabIdx].id, data[tabIdx].title);
-//         }}
-//         className={classes.deleteButton}
-//       >
-//         DELETE SCHEDULE
-//       </Button>
-//       <Dialog open={isNewScheduleVisible} onClose={() => closeDialogHandler()}>
-//         <NewScheduleForm
-//           onClose={() => closeDialogHandler()}
-//           error={mutateScheduleError}
-//           onSubmit={onNewScheduleSubmit}
-//         />
-//       </Dialog>
-//       {alert && <Alert alert={alert} unMountAlert={() => setAlert(null)} />}
-//       {data && data.length > 0 && (
-//         <div>
-//           {/* <ScheduleTabs
-//             tabIdx={tabIdx}
-//             onTabClick={onTabClick}
-//             titles={data.map((schedule: any) => schedule.title)}
-//           /> */}
-//           {openedTabs.map((tab) => (
-//             <>
-//               <ScheduleComponent
-//                 churchId={churchId}
-//                 setAlert={setAlert}
-//                 scheduleId={data[tab].id}
-//                 isViewed={tab === tabIdx}
-//                 key={tab.toString()}
-//               />
-//               {/* <NewServiceForm
-//                 error={mutateAddServiceError}
-//                 order={data.services?.length || 0}
-//                 onSubmit={onNewServiceSubmit}
-//                 onClose={closeDialogHandler}
-//               /> */}
-//             </>
-//           ))}
-//         </div>
-//       )}
-//     </>
-//   );
-// };
+  return (
+    <>
+      <Schedule
+        tabs={tabs.data}
+        state={{ data, isLoading, error, isSuccess }}
+        addSchedule={(newInfo: NewScheduleData) =>
+          createSchedule.mutate({ ...newInfo, churchId })
+        }
+        removeSchedule={(info: DeleteScheduleProps) => deleteSchedule.mutate(info)}
+        addService={(newInfo: NewServiceData) => createService.mutate(newInfo)}
+      />
+    </>
+  );
+};
 
-// const useStyles = makeStyles((theme: Theme) =>
-//   createStyles({
-//     schedulesContainer: {
-//       position: 'absolute',
-//       paddingTop: 10,
-//     },
-//     deleteButton: {
-//       padding: '10px',
-//       borderRadius: '5px',
-//       border: 'none',
-//       '&:hover, &:focus': {
-//         ...buttonTheme.filled,
-//       },
-//     },
-//   }),
-// );
+function makeScheduleIdxs(tabsData) {
+  const scheduleIdxs = [];
+  for (let i = 0; i < tabsData.length && i < 3; i++) {
+    scheduleIdxs.push(tabsData[i].id);
+  }
+  return scheduleIdxs;
+}

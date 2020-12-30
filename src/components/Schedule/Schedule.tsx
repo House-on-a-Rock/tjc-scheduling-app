@@ -2,13 +2,13 @@
 /* eslint-disable react/self-closing-comp */
 /* eslint-disable react/no-array-index-key */
 import React, { useEffect, useRef, useState } from 'react';
-import { CircularProgress, Dialog } from '@material-ui/core';
+import { Prompt } from 'react-router-dom';
+import { CircularProgress, Dialog, TableCell, TableRow } from '@material-ui/core';
 import { SchedulesDataInterface } from '../../query';
 import { ScheduleTabs } from './ScheduleTabs';
-import { AnotherScheduleComponent } from './AnotherScheduleComponent';
+import { ScheduleTable } from './ScheduleTable';
 import { NewScheduleForm } from './NewScheduleForm';
 import { ScheduleTableHeader } from './ScheduleTableHeader';
-import { ScheduleTableRows } from './ScheduleTableRows';
 import { ScheduleTableBody } from './ScheduleTableBody';
 import { ScheduleToolbar } from './ScheduleToolbar';
 import { NewServiceForm } from './NewServiceForm';
@@ -20,31 +20,34 @@ import {
 } from '../../shared/types';
 import { ContextMenu } from '../shared/ContextMenu';
 import { days } from '../../shared/utilities';
+import { DataCell } from './TableCell';
 
 interface BootstrapData {
-  schedules: any;
+  schedules: ScheduleTableInterface[];
   users: any;
 }
 interface ContainerStateProp {
   data: BootstrapData;
   isLoading: boolean;
   error: HttpErrorProps;
-  isSuccess: any;
+  isSuccess: string;
 }
 
 interface ScheduleProps {
-  tabs?: SchedulesDataInterface[];
-  state?: ContainerStateProp;
-  addSchedule?: (newInfo: NewScheduleData) => void;
-  addService?: (newInfo: NewServiceData) => void;
-  removeSchedule?: (info: DeleteScheduleProps) => void;
+  tabs: SchedulesDataInterface[];
+  state: ContainerStateProp;
+  addSchedule: (newInfo: NewScheduleData) => void;
+  addService: (newInfo: NewServiceData) => void;
+  removeSchedule: (info: DeleteScheduleProps) => void;
 }
 
 // Task List
 // 1. When the container has more than 3 tabs, when you select the 4th, how to handle data from data handler
 // 2. Need to update changedTask and the buttons to reflect only on the schedule selected
+// 3. Cell data poorly describes the different kinds of cells that exist. The data structure needs a revamp, and so does the Tablecell/Datacell
+// 4. Low priority but finding scheduleId and order is a pain the way I have it currently implemented because allScheduleData exists in tabs, but singular schedule data exist in schedules. Need to consolidate some of the logic together
 
-export const AnotherScheduleContainer = ({
+export const Schedule = ({
   tabs,
   state,
   addSchedule,
@@ -56,6 +59,7 @@ export const AnotherScheduleContainer = ({
   const [isScheduleModified, setIsScheduleModified] = useState<boolean>(false);
   const [isNewScheduleOpen, setIsNewScheduleOpen] = useState<boolean>(false);
   const [isNewServiceOpen, setIsNewServiceOpen] = useState<boolean>(false);
+  //   const [alert, setAlert] = useState<AlertInterface>();
 
   const changedTasks = useRef<any>({});
   const outerRef = useRef(null);
@@ -85,6 +89,7 @@ export const AnotherScheduleContainer = ({
   function insertRow(rowIndex: number) {}
 
   useEffect(() => {
+    // with react-query, there is no awaiting for a response to finish. so the results need to be handled by the mutations.isSuccess/isError/etc methods in data handler
     if (isSuccess === 'NewScheduleForm') {
       setIsNewScheduleOpen(false);
       setTab(tabs.length);
@@ -98,6 +103,9 @@ export const AnotherScheduleContainer = ({
       // setIsNewScheduleOpen(false);
     }
   }, [isSuccess]);
+
+  const teammates = (roleId) =>
+    data.users.filter((user: any) => user.teams.some((role: any) => role.id === roleId));
 
   return (
     <>
@@ -122,40 +130,58 @@ export const AnotherScheduleContainer = ({
             addRowHandler={insertRow}
             deleteRowHandler={deleteRow}
           />
-          {data.schedules?.map((schedule, idx) => {
-            const { columns, services, title, view } = schedule;
+          <Prompt
+            when={isScheduleModified}
+            message="You have unsaved changes, are you sure you want to leave? Unsaved changes will be lost"
+          />
+          {/* {alert && <Alert alert={alert} unMountAlert={() => setAlert(null)} />} */}
+          {data.schedules?.map((schedule: ScheduleTableInterface, idx) => {
+            const { columns: headers, services: bodies, title, view } = schedule;
             return (
               // This can be moved out as a "pane" component. But it's a little confusing (from my own exp working on service.tjc.org), so we'll keep this here first until everyone's accustomed to it.
               <div key={idx}>
-                <AnotherScheduleComponent
+                {/* Children of this component could possibly be moved into its own component, but until we know better how these components will be used, we won't know how to abstract them properly so for now, we'll keep these header and body components apart */}
+                <ScheduleTable
                   key={`${title}-${view}`}
                   title={title}
                   hidden={tab !== idx}
                 >
-                  {/* These children could possibly be moved into its own component, but until we know better how these components will be used, we won't know how to abstract them properly so for now, we'll keep these header and body components apart */}
-                  {columns.map((column: any, index: number) => (
-                    <ScheduleTableHeader
-                      key={`${column.Header}_${index}`}
-                      header={column.Header}
-                    />
+                  {headers.map(({ Header }, index: number) => (
+                    <ScheduleTableHeader key={`${Header}_${index}`} header={Header} />
                   ))}
-                  {services.map((service: any) => {
-                    const { day, name, index } = service;
+                  {/* This became pretty nested within each other (as a table is), but like in the above comment, abstraction is only useful when it's reusable. Splitting code into pieces is only helpful if it improves readability, and while it reduces the size of this file, that doesn't mean it'll improve readability with all the prop/function drilling that will be required */}
+                  {bodies.map((body: ServiceDataInterface, index: number) => {
+                    const { day, name, events } = body;
                     return (
                       <ScheduleTableBody
-                        key={`${day}-${name}-${index}`}
+                        key={`${day}-${name}`}
                         title={`${days[day]} ${name}`}
                       >
-                        <ScheduleTableRows
-                          key={`${name}-${day}-tablerow`}
-                          service={service}
-                          onTaskModified={onTaskModified}
-                          users={data.users}
-                        />
+                        {events.map((event, rowIdx) => {
+                          const { roleId, cells, title: cellTitle, time } = event;
+                          return (
+                            <TableRow key={`${cellTitle}-${time}`}>
+                              {cells.map((cell, columnIndex) =>
+                                columnIndex < 2 ? (
+                                  <TableCell key={`${rowIdx}_${columnIndex}`}>
+                                    {cell.display}
+                                  </TableCell>
+                                ) : (
+                                  <DataCell
+                                    data={cell}
+                                    options={teammates(roleId)}
+                                    onTaskModified={onTaskModified}
+                                    key={`${rowIdx}_${columnIndex}`}
+                                  />
+                                ),
+                              )}
+                            </TableRow>
+                          );
+                        })}
                       </ScheduleTableBody>
                     );
                   })}
-                </AnotherScheduleComponent>
+                </ScheduleTable>
               </div>
             );
           })}
@@ -186,3 +212,59 @@ export const AnotherScheduleContainer = ({
     </>
   );
 };
+
+interface ScheduleTableInterface {
+  columns: ColumnsInterface[];
+  role: RoleData;
+  title: string;
+  view: string;
+  services: ServiceDataInterface[];
+}
+
+interface RoleData {
+  churchId: number;
+  createdAt?: string;
+  updatedAt?: string;
+  id: number;
+  name: string;
+  roleId: null; // we gotta remove this
+}
+
+interface ColumnsInterface {
+  Header: string;
+  Accessor: string;
+}
+
+interface ServiceDataInterface {
+  day: number;
+  events: EventsDataInterface[];
+  name: string;
+  serviceId: number;
+}
+
+interface EventsDataInterface {
+  cells: AssignmentDataInterface[];
+  displayTime: boolean;
+  eventId: number;
+  roleId: number;
+  time: string;
+  title: string;
+}
+
+interface AssignmentDataInterface {
+  // we need a better system than this to differentiate cells that display time, and cells that are dynamic
+  role?: RoleAssociation;
+  display?: string;
+  time?: string;
+  displayTime?: boolean;
+  taskId?: number;
+  date?: string;
+  firstName?: string;
+  lastName?: string;
+  userId: number;
+}
+
+interface RoleAssociation {
+  id: number;
+  name: string;
+}

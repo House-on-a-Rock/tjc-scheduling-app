@@ -32,7 +32,7 @@ const readableDate = (unreadableDate: Date) =>
 
 const incrementDay = (date: Date) => new Date(date.setDate(date.getDate() + 1));
 
-//these look unused, i think this functionality was moved to server since I had to modify a function there
+// these look unused, i think this functionality was moved to server since I had to modify a function there
 function determineStartDate(startDate: string, day: number) {
   let current = incrementDay(new Date(startDate));
   while (current.getDay() !== day) current = incrementDay(current);
@@ -92,8 +92,8 @@ export function isInTime(target: string, start: string, end: string): boolean {
 export function timeToMilliSeconds(time: string) {
   const [hourMin, period] = time.split(' ');
   const [hour, min] = hourMin.split(':');
-  const convertedHour = hour === '12' ? 3600000 : 3600000 * parseInt(hour);
-  const convertedMin = 60000 * parseInt(min);
+  const convertedHour = hour === '12' ? 3600000 : 3600000 * parseInt(hour, 10);
+  const convertedMin = 60000 * parseInt(min, 10);
   const convertedPeriod = period === 'AM' ? 0 : 43200000;
 
   return convertedHour + convertedMin + convertedPeriod;

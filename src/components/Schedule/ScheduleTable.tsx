@@ -1,5 +1,5 @@
 /* eslint-disable react/no-array-index-key */
-import React, { useRef } from 'react';
+import React from 'react';
 
 // Material UI
 import MaUTable from '@material-ui/core/Table';
@@ -11,7 +11,7 @@ import { makeStyles, Theme, createStyles, fade, darken } from '@material-ui/core
 // Styles
 import { paletteTheme } from '../../shared/styles/theme.js';
 
-export const AnotherScheduleComponent = ({ title, hidden, children }: any) => {
+export const ScheduleTable = ({ title, hidden, children }: any) => {
   const classes = useStyles();
   const [header, body] = children;
 
@@ -42,15 +42,6 @@ const useStyles = makeStyles((theme: Theme) =>
     table: {
       borderCollapse: 'inherit',
       marginBottom: '1rem',
-
-      // first two columns:
-      // '& td:first-child, td:nth-child(2), th:first-child, th:nth-child(2)': {
-      //   background: 'white',
-      //   position: 'sticky',
-      //   zIndex: 1,
-      //   border: normalCellBorder,
-      //   boxSizing: 'border-box',
-      // },
 
       // first column:
       '& td:first-child, th:first-child': {
