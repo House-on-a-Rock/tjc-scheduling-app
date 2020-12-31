@@ -16,33 +16,9 @@ import { addSchedule } from '../../query/apis/schedules';
 import { buttonTheme } from '../../shared/styles/theme.js';
 
 // components
-import { TemplateForm } from './TemplateForm';
 import { NewScheduleForm } from '../shared/NewScheduleForm';
-/*
-  1. Retrieve and display saved template data from db
-    a. create db table 
-    b. structure of template object - ( id, churchId, name, data)
-      i. template data - array of { services: { [ name: serviceName, events: { roleId, time, title } ] } }  JSON.stringified, storage type: JSON
-      ii. are these services associated with anything? pbly not
-      iii. schedules are associated with a specific template so changes to template will reflect in the schedule
-      iv. when a schedule is created with a template, it will create services with that name, and add events to that schedule according to template    
 
-  2. Creation of new template data
-    a. create new template
-      i. inputs: 
-        1. name
-        2. services - reuse new service form?
-        3. add events to services -- autocomplete with pre-made roles ( roleId -->title, order, )
-
-  3. Events
-    a. display roles from DB
-    b. "events" - ( roleId, day, order, time, title ) will be filled in. When
-    c. edit events
-    
-
-  4. Editing of template data
-    a. inside accordion display, have edit button
-*/
+// Structure of template object - ( id, churchId, name, data)
 
 export const Templates = ({ churchId }: any) => {
   const classes = useStyles();
@@ -74,10 +50,6 @@ export const Templates = ({ churchId }: any) => {
     setIsDialogOpen(false);
     // setAlert({ message: response.data, status: 'success' });
     // TODO route to home and tab set to the newly made schedule
-  }
-
-  function onTemplateDialogSubmit() {
-    // run mutation
   }
 
   function createScheduleFromTemplate(templateId: number) {

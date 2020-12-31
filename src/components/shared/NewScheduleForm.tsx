@@ -11,8 +11,6 @@ import { Tooltip } from './Tooltip';
 import { stringLengthCheck } from '../../shared/utilities';
 // TODO hook up teams with data from DB
 
-import { AddScheduleProps } from '../../shared/types/models';
-
 interface NewScheduleFormProps {
   onClose: (data: any) => void;
   error: any;
@@ -106,6 +104,7 @@ export const NewScheduleForm = ({
     // setTemplateError(template.value === 0)
   }
 
+  // TODO display error message from server side
   return (
     <div className={classes.root}>
       <h2>New Schedule Form</h2>

@@ -72,7 +72,6 @@ router.post(
   certify,
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      // console.log('req.body', req.body);
       const { title, view, startDate, endDate, churchId, team } = req.body; // roleId still team on webapp
       const dbSchedule = await db.Schedule.findOne({
         where: { churchId, title },
@@ -94,7 +93,6 @@ router.post(
         roleId: team,
       });
 
-      // populate with events and tasks if template
       if (req.body.templateId) {
         const template = await db.Template.findOne({
           where: { id: req.body.templateId },
@@ -104,7 +102,7 @@ router.post(
           const newService = await db.Service.create({
             name: name,
             day: daysOfWeek.indexOf(day), // TODO convert this to 0-6
-            order: index,
+            order: index, // should it be zero based or 1 based? currently, others are 1 based
             scheduleId: newSchedule.id,
           });
           events.forEach(async ({ time, title, roleId }, index) => {
@@ -114,10 +112,9 @@ router.post(
               time,
               title,
               roleId,
-              displayTime: true, // may be mremoved later
+              displayTime: true, // may be removed later
             });
-            // create unassigned tasks for the period
-            const taskDays = recurringDaysOfWeek(
+            const taskDays: Date[] = recurringDaysOfWeek(
               newSchedule.start,
               newSchedule.end,
               newService.day,
