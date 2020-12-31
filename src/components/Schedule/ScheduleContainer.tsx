@@ -86,7 +86,7 @@ export const ScheduleContainer = ({ churchId }: ScheduleContainerProps) => {
       churchId,
     });
   }
-
+  console.log(data);
   return (
     <>
       <Button
@@ -103,7 +103,7 @@ export const ScheduleContainer = ({ churchId }: ScheduleContainerProps) => {
         />
       </Dialog>
       <ConfirmationDialog
-        title="Are you sure you want to delete?"
+        title="Are you sure you want to delete this schedule?"
         isOpen={isDeleteDialogOpen}
         handleClick={(clickedYes) => {
           setDeleteDialogOpen(!isDeleteDialogOpen);

@@ -32,6 +32,7 @@ app.use('/api', require('./routes/schedules'));
 app.use('/api', require('./routes/services'));
 app.use('/api', require('./routes/roles'));
 app.use('/api', require('./routes/templates'));
+app.use('/api', require('./routes/events'));
 
 app.use((req, res, next) => {
   if (path.extname(req.path).length) {
