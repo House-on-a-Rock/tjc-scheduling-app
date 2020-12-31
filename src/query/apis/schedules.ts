@@ -17,21 +17,23 @@ export const getTabs = (churchId: number): Promise<AxiosResponse> => {
 export const getSchedule = (scheduleId: number): Promise<AxiosResponse> =>
   axios.get(`${secretIp}/api/schedules?scheduleId=${scheduleId}`);
 
-export const addSchedule = ({
+export const addSchedule = async ({
   scheduleTitle,
   startDate,
   endDate,
   view,
   team,
   churchId,
-}: AddScheduleProps) =>
-  axios.post(`${secretIp}/api/schedules`, {
+  templateId,
+}: any) =>
+  await axios.post(`${secretIp}/api/schedules`, {
     title: scheduleTitle,
     startDate,
     endDate,
     view,
     team,
     churchId,
+    templateId,
   });
 
 export const deleteSchedule = ({ scheduleId, title }: DeleteScheduleProps) =>

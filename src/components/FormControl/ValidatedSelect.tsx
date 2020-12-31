@@ -13,6 +13,7 @@ interface ValidatedSelectProps {
   onChange: (arg: ValidatedFieldState<number>) => void;
   toolTip: { id: string; text: string };
   children: any[];
+  label: string;
   [x: string]: any;
 }
 
@@ -22,11 +23,12 @@ export const ValidatedSelect = ({
   onChange,
   toolTip,
   children,
+  label,
   ...restProps
 }: ValidatedSelectProps) => {
   return (
     <FormControl className={className} error={!input.valid}>
-      <InputLabel>Team</InputLabel>
+      <InputLabel>{label}</InputLabel>
       <Select
         className={className}
         value={input.value}

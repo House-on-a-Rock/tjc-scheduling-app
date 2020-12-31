@@ -1,72 +1,33 @@
-import React from 'react';
-// import { useSelector } from '../../shared/utilities';
+import React, { useState } from 'react';
 
 // queries
 import { useQuery, useMutation, useQueryCache } from 'react-query';
 
 // mat ui
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
-import Accordion from '@material-ui/core/Accordion';
-import AccordionDetails from '@material-ui/core/AccordionDetails';
-import AccordionSummary from '@material-ui/core/AccordionSummary';
+import { Dialog, Button } from '@material-ui/core/';
+import AddIcon from '@material-ui/icons/Add';
+
 // api
 import { getTemplateData } from '../../query';
 import { TemplateDisplay } from './TemplateDisplay';
-/*
-  1. Retrieve and display saved template data from db
-    a. create db table -d
-    b. structure of template object - (id, churchId, template name, template data)
-      i. template data - array of { services: { [ name: serviceName, events: { eventId, time } ] } }  stringified?
-      ii. are these services associated with anything? pbly not
-      iii. schedules are associated with a specific template so changes to template will reflect in the schedule
-      iv. when a schedule is created with a template, it will create services with that name, and add events to that schedule according to template
-    
-    data: {
-      name: Weekly Services,      
-      services: [
-        {
-          name: Friday Evening Service,
-          day: Friday,
-          events: [
-            {
-              role: Usher,
-              time: '7:00 PM'
-            },
-            {
-              role: Hymn Leading,
-              time: '7:45 PM'
-            },
-            {
-              role: Piano,
-              time: '7:45 PM'
-            },
-            {
-              role: Sermon Speaker,
-              time: '8:00 PM'
-            },
-            {
-              role: Interpreter,
-              time: '8:00 PM'
-            },
-            
-          ]
-        }
-      ]
-    }
+import { addSchedule } from '../../query/apis/schedules';
+// utilities
+import { buttonTheme } from '../../shared/styles/theme.js';
 
-  2. Creation of new template data
-    a. create new template
-      i. add services - new service form? or different input method
-      ii. add events to services 
-  3. Editing of template data
-    a. inside accordion display, have edit button
-*/
+// components
+import { NewScheduleForm } from '../shared/NewScheduleForm';
+
+// Structure of template object - ( id, churchId, name, data)
 
 export const Templates = ({ churchId }: any) => {
   const classes = useStyles();
+  const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
+  const [selectedTemplate, setSelectedTemplate] = useState<number>(null);
+  const cache = useQueryCache();
 
-  // const { churchId, name: churchName } = useSelector((state) => state.profile);
-  const { isLoading, error, data: templateData } = useQuery(
+  // queries
+  const { isLoading: isTemplatesLoading, error, data: templateData } = useQuery(
     ['templates', churchId],
     getTemplateData,
     {
@@ -75,34 +36,82 @@ export const Templates = ({ churchId }: any) => {
       staleTime: 100000000000000,
     },
   );
+  // mutation
+  const [mutateAddSchedule, { error: mutateScheduleError }] = useMutation(addSchedule, {
+    onSuccess: (response) => {
+      cache.invalidateQueries('scheduleTabs');
+      closeDialogHandler(response);
+    },
+  });
 
-  if (isLoading) return <div>Loading</div>;
-  // console.log('data', templateData);
+  function createNewTemplate() {}
 
+  function closeDialogHandler(response?: any) {
+    setIsDialogOpen(false);
+    // setAlert({ message: response.data, status: 'success' });
+    // TODO route to home and tab set to the newly made schedule
+  }
+
+  function createScheduleFromTemplate(templateId: number) {
+    setSelectedTemplate(templateId);
+    setIsDialogOpen(true);
+  }
+
+  if (isTemplatesLoading) return <div>Loading</div>;
+
+  // TODO add confirmation alerts
   return (
     <div>
-      <p>Create, Manage, and Update Schedule Templates</p>
+      <Dialog open={isDialogOpen} onClose={() => closeDialogHandler()}>
+        <NewScheduleForm
+          onClose={() => closeDialogHandler()}
+          error={mutateScheduleError}
+          onSubmit={mutateAddSchedule}
+          churchId={churchId}
+          templateId={selectedTemplate}
+          templates={templateData}
+        />
+      </Dialog>
+      <h1>Create, Manage, and Update Schedule Templates</h1>
       <br />
-      <div>
+      <h2>Saved Templates</h2>
+      <div className={classes.templateContainer}>
         {templateData.map((template, index) => (
-          <Accordion>
-            <AccordionSummary>{template.name}</AccordionSummary>
-            <AccordionDetails>details here</AccordionDetails>
-          </Accordion>
+          <TemplateDisplay
+            template={template}
+            key={`${index}_TemplateDisplay`}
+            createNewScheduleHandler={createScheduleFromTemplate}
+          />
         ))}
       </div>
+      <h2>Create New Template</h2>
+      <Button onClick={createNewTemplate} className={classes.button}>
+        <AddIcon height={50} width={50} />
+        <span>Add New Service</span>
+      </Button>
     </div>
   );
 };
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
-    titleContainer: {
-      margin: '5px 0 2px',
-      height: '2rem',
-      width: '200vw',
+    templateContainer: {
+      width: '100%',
+      display: 'grid',
+      'grid-template-columns': '25% 25% 25% 25%',
+    },
+    button: {
       position: 'sticky',
-      left: '8px',
+      padding: '10px',
+      borderRadius: '5px',
+      border: 'none',
+      '&:hover, &:focus': {
+        ...buttonTheme.filled,
+      },
+      display: 'flex',
+      '& *': {
+        margin: 'auto',
+      },
     },
   }),
 );

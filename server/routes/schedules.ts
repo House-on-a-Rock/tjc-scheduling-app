@@ -7,7 +7,9 @@ import {
   certify,
   createColumns,
   populateServiceData,
+  recurringDaysOfWeek,
 } from '../utilities/helperFunctions';
+import { daysOfWeek } from '../../shared/constants';
 
 const router = express.Router();
 module.exports = router;
@@ -90,6 +92,42 @@ router.post(
         churchId,
         roleId: team,
       });
+
+      if (req.body.templateId) {
+        const template = await db.Template.findOne({
+          where: { id: req.body.templateId },
+        });
+
+        template.data.forEach(async ({ name, day, events }, index) => {
+          const newService = await db.Service.create({
+            name: name,
+            day: daysOfWeek.indexOf(day), // TODO convert this to 0-6
+            order: index, // should it be zero based or 1 based? currently, others are 1 based
+            scheduleId: newSchedule.id,
+          });
+          events.forEach(async ({ time, title, roleId }, index) => {
+            const newEvent = await db.Event.create({
+              serviceId: newService.id,
+              order: index,
+              time,
+              title,
+              roleId,
+              displayTime: true, // may be removed later
+            });
+            const taskDays: Date[] = recurringDaysOfWeek(
+              newSchedule.start,
+              newSchedule.end,
+              newService.day,
+            );
+            taskDays.forEach(async (date, index) => {
+              const newTask = await db.Task.create({
+                date,
+                eventId: newEvent.id,
+              });
+            });
+          });
+        });
+      }
 
       return res.status(200).send(`Schedule ${newSchedule.title} successfully added`);
     } catch (err) {
