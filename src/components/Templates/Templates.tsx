@@ -73,6 +73,7 @@ export const Templates = ({ churchId }: any) => {
   function closeDialogHandler(response?: any) {
     setIsDialogOpen(false);
     // setAlert({ message: response.data, status: 'success' });
+    // TODO route to home and tab set to the newly made schedule
   }
 
   function onTemplateDialogSubmit() {

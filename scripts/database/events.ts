@@ -2,7 +2,7 @@ export const events = [
   {
     serviceId: 1,
     roleId: 1,
-    day: 'Saturday',
+    // day: 'Saturday',
     title: 'Usher',
     time: '10:15 AM',
     order: 1,
@@ -11,7 +11,7 @@ export const events = [
   {
     serviceId: 1,
     roleId: 2,
-    day: 'Saturday',
+    // day: 'Saturday',
     title: 'Hymn Leading',
     time: '10:45 AM',
     order: 2,
@@ -20,7 +20,7 @@ export const events = [
   {
     serviceId: 1,
     roleId: 3,
-    day: 'Saturday',
+    // day: 'Saturday',
     title: 'Piano',
     time: '10:45 AM',
     order: 3,
@@ -29,7 +29,7 @@ export const events = [
   {
     serviceId: 1,
     roleId: 1,
-    day: 'Saturday',
+    // day: 'Saturday',
     title: 'Sermon Speaker',
     time: '11:00 AM',
     order: 4,
@@ -38,7 +38,7 @@ export const events = [
   {
     serviceId: 1,
     roleId: 4,
-    day: 'Saturday',
+    // day: 'Saturday',
     title: 'Interpreter',
     time: '11:00 AM',
     order: 5,
@@ -47,7 +47,7 @@ export const events = [
   {
     serviceId: 1,
     roleId: 1,
-    day: 'Saturday',
+    // day: 'Saturday',
     title: 'Announcer',
     time: '12:00 PM',
     order: 6,
@@ -56,7 +56,7 @@ export const events = [
   {
     serviceId: 1,
     roleId: 5,
-    day: 'Saturday',
+    // day: 'Saturday',
     title: 'Grace',
     time: '12:00 PM',
     order: 7,
@@ -65,7 +65,7 @@ export const events = [
   {
     serviceId: 2,
     roleId: 2,
-    day: 'Saturday',
+    // day: 'Saturday',
     title: 'Hymn Leading',
     time: '1:45 PM',
     order: 1,
@@ -74,7 +74,7 @@ export const events = [
   {
     serviceId: 2,
     roleId: 3,
-    day: 'Saturday',
+    // day: 'Saturday',
     title: 'Piano',
     time: '1:45 PM',
     order: 2,
@@ -83,7 +83,7 @@ export const events = [
   {
     serviceId: 2,
     roleId: 1,
-    day: 'Saturday',
+    // day: 'Saturday',
     title: 'Sermon Speaker',
     time: '2:00 PM',
     order: 3,
@@ -92,7 +92,7 @@ export const events = [
   {
     serviceId: 2,
     roleId: 4,
-    day: 'Saturday',
+    // day: 'Saturday',
     title: 'Interpreter',
     time: '2:00 PM',
     order: 4,
@@ -101,7 +101,7 @@ export const events = [
   {
     serviceId: 3,
     roleId: 1,
-    day: 'Friday',
+    // day: 'Friday',
     title: 'Usher',
     time: '7:00 PM',
     order: 1,
@@ -110,7 +110,7 @@ export const events = [
   {
     serviceId: 3,
     roleId: 2,
-    day: 'Friday',
+    // day: 'Friday',
     title: 'Hymn Leading',
     time: '7:45 PM',
     order: 2,
@@ -119,7 +119,7 @@ export const events = [
   {
     serviceId: 3,
     roleId: 3,
-    day: 'Friday',
+    // day: 'Friday',
     title: 'Piano',
     time: '7:45 PM',
     order: 3,
@@ -128,7 +128,7 @@ export const events = [
   {
     serviceId: 3,
     roleId: 1,
-    day: 'Friday',
+    // day: 'Friday',
     title: 'Sermon Speaker',
     time: '8:00 PM',
     order: 4,
@@ -137,7 +137,7 @@ export const events = [
   {
     serviceId: 3,
     roleId: 4,
-    day: 'Friday',
+    // day: 'Friday',
     title: 'Interpreter',
     time: '8:00 PM',
     order: 5,
