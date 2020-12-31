@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import { useMutation, useQueryCache } from 'react-query';
 
 // Material-UI Components
 import MaUTable from '@material-ui/core/Table';
@@ -11,12 +12,16 @@ import { makeStyles, Theme, createStyles, fade, darken } from '@material-ui/core
 // Components
 import { ContextMenu } from '../shared/ContextMenu';
 import { ServiceDisplay } from './ServiceDisplay';
+import { ConfirmationDialog } from '../shared/ConfirmationDialog';
 
 // Types
 import { AccessTypes, WeeklyAssignmentInterface } from '../../shared/types';
 
 // Styles
 import { typographyTheme, paletteTheme } from '../../shared/styles/theme.js';
+
+// api
+import { deleteEvent } from '../../query/apis/schedules';
 
 interface TableProps {
   data: WeeklyAssignmentInterface;
@@ -26,9 +31,23 @@ interface TableProps {
 
 export const Table = ({ data, access, onTaskModified }: TableProps) => {
   const outerRef = useRef(null);
+  const cache = useQueryCache();
   const classes = useStyles();
+  const [selectedRow, setSelectedRow] = useState<string>(null);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState<boolean>(false);
+
+  const [mutateDeleteEvent, { error: mutateDeleteEventError }] = useMutation(
+    deleteEvent,
+    {
+      onSuccess: () => cache.invalidateQueries('scheduleData'),
+    },
+  );
 
   const { columns, services } = data;
+
+  function handleRowClick(eventId) {
+    setSelectedRow(eventId);
+  }
 
   return (
     <>
@@ -36,6 +55,14 @@ export const Table = ({ data, access, onTaskModified }: TableProps) => {
         outerRef={outerRef}
         addRowHandler={insertRow}
         deleteRowHandler={deleteRow}
+      />
+      <ConfirmationDialog
+        isOpen={isDeleteDialogOpen}
+        title="Are you sure you want to delete this event?"
+        handleClick={(clickedYes) => {
+          setIsDeleteDialogOpen(!isDeleteDialogOpen);
+          if (clickedYes) mutateDeleteEvent({ eventId: selectedRow });
+        }}
       />
       <MaUTable className={classes.table} ref={outerRef}>
         <TableHead>
@@ -52,7 +79,9 @@ export const Table = ({ data, access, onTaskModified }: TableProps) => {
           {services.map((service: any, index: number) => (
             <ServiceDisplay
               service={service}
+              handleClick={handleRowClick}
               onTaskModified={onTaskModified}
+              currentSelected={selectedRow}
               // eslint-disable-next-line react/no-array-index-key
               key={index}
             />
@@ -81,6 +110,7 @@ export const Table = ({ data, access, onTaskModified }: TableProps) => {
 
   // these broke :(
   function deleteRow(rowIndex: number) {
+    setIsDeleteDialogOpen(true);
     // const newData = [...dataRows];
     // newData.splice(rowIndex, 1);
     // setDataRows(newData);

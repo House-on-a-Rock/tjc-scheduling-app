@@ -29,6 +29,11 @@ const EventFactory = (
       hooks: true,
     });
     Event.belongsTo(models.Role, { foreignKey: 'roleId' });
+    Event.hasMany(models.Task, {
+      foreignKey: 'eventId',
+      onDelete: 'cascade',
+      hooks: true,
+    });
   };
 
   return Event;

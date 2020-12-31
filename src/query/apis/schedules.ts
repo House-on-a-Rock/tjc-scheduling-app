@@ -4,6 +4,7 @@ import {
   AddScheduleProps,
   AddServiceProps,
   DeleteScheduleProps,
+  DeleteEventProps,
 } from '../../shared/types/models';
 import { getLocalStorageItem } from '../../shared/utilities';
 
@@ -40,6 +41,13 @@ export const deleteSchedule = ({ scheduleId, title }: DeleteScheduleProps) =>
     data: {
       scheduleId,
       title,
+    },
+  });
+
+export const deleteEvent = ({ eventId }: DeleteEventProps) =>
+  axios.delete(`${secretIp}/api/events`, {
+    data: {
+      eventId,
     },
   });
 
