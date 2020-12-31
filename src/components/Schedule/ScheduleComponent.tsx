@@ -44,8 +44,6 @@ export const ScheduleComponent = ({
     },
   );
 
-  console.log('data', data);
-
   // mutations
   const [mutateAddService, { error: mutateAddServiceError }] = useMutation(addService, {
     onSuccess: (response) => {
