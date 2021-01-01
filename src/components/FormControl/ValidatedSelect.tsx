@@ -13,6 +13,7 @@ interface ValidatedSelectProps {
   onChange: (arg: ValidatedFieldState<number>) => void;
   toolTip: { id: string; text: string };
   children: any[];
+  label: string;
   [x: string]: any;
 }
 

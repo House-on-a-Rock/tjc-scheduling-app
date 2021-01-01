@@ -1,6 +1,8 @@
 export const tasks = [
-  { userId: 2, date: '2020/06/27', eventId: 1 },
-  { userId: 2, date: '2020/07/04', eventId: 1 },
+  // { userId: 2, date: '2020/06/27', eventId: 1 },
+  { date: '2020/06/27', eventId: 1 },
+  // { userId: 2, date: '2020/07/04', eventId: 1 },
+  { date: '2020/07/04', eventId: 1 },
   { userId: 3, date: '2020/07/11', eventId: 1 },
   { userId: 2, date: '2020/07/18', eventId: 1 },
   { userId: 3, date: '2020/07/25', eventId: 1 },

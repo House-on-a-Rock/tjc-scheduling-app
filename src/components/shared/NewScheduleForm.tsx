@@ -7,29 +7,26 @@ import { useValidatedField } from '../../hooks';
 
 import { buttonTheme } from '../../shared/styles/theme.js';
 
-import { Tooltip } from '../shared/Tooltip';
+import { Tooltip } from './Tooltip';
 import { stringLengthCheck } from '../../shared/utilities';
 import { HttpErrorProps, NewScheduleData } from '../../shared/types';
 // TODO hook up teams with data from DB
 
 interface NewScheduleFormProps {
   onClose: (data: any) => void;
-  error: HttpErrorProps;
+  error?: HttpErrorProps;
   onSubmit: (newScheduleData: NewScheduleData) => void;
+  templateId?: number;
+  templates?: any;
 }
 
-// needed to format date so that the date picker can display it properly
-function toDateString(date: Date): string {
-  // need to pad months/dates with 0s if single digit
-  let month = (date.getMonth() + 1).toString();
-  let day = date.getDate().toString();
-  month = month.length > 1 ? month : `0${month}`;
-  day = day.length > 1 ? day : `0${day}`;
-
-  return `${date.getFullYear()}-${month}-${day}`;
-}
-
-export const NewScheduleForm = ({ onClose, error, onSubmit }: NewScheduleFormProps) => {
+export const NewScheduleForm = ({
+  onClose,
+  error,
+  onSubmit,
+  templateId,
+  templates,
+}: NewScheduleFormProps) => {
   const tomorrow = new Date(new Date().setDate(new Date().getDate() + 1));
   const classes = useStyles();
 
@@ -49,17 +46,26 @@ export const NewScheduleForm = ({ onClose, error, onSubmit }: NewScheduleFormPro
     0,
     'Please assign a team to this schedule',
   );
+  const [template, setTemplate, setTemplateError, resetTemplateError] = useValidatedField(
+    templateId ?? 0,
+    '',
+  );
+
+  // pass in roles
+
   function onSubmitForm() {
     resetTitleError();
     resetStartError();
     resetEndError();
     resetTeamError();
+    resetTemplateError();
 
     if (
       title.value.length > 0 &&
       title.value.length < 32 &&
       endDate.value > startDate.value &&
       team.value > 0
+      // template can be zero
     )
       onSubmit({
         title: title.value,
@@ -67,14 +73,17 @@ export const NewScheduleForm = ({ onClose, error, onSubmit }: NewScheduleFormPro
         endDate: endDate.value,
         view: 'weekly',
         team: team.value,
+        templateId: template.value,
       });
 
     setTitleError(stringLengthCheck(title.value));
     setStartError(endDate.value < startDate.value);
     setEndError(endDate.value < startDate.value);
     setTeamError(team.value === 0);
+    // setTemplateError(template.value === 0)
   }
 
+  // TODO display error message from server side
   return (
     <div className={classes.root}>
       <h2>Create a New Schedule</h2>
@@ -134,6 +143,27 @@ export const NewScheduleForm = ({ onClose, error, onSubmit }: NewScheduleFormPro
           <MenuItem value={1}>Church Council</MenuItem>
           <MenuItem value={2}>RE</MenuItem>
         </ValidatedSelect>
+        <ValidatedSelect
+          className={classes.selectContainer}
+          input={template}
+          onChange={setTemplate}
+          label="Template"
+          toolTip={{ id: 'template', text: 'Assign a template to this schedule' }}
+        >
+          <MenuItem value={0}>Pick a template</MenuItem>
+          {templates ? (
+            templates.map(({ templateId: id, name }) => (
+              <MenuItem key={id} value={id}>
+                {name}
+              </MenuItem>
+            ))
+          ) : (
+            <>
+              <MenuItem value={1}>Weekly Services</MenuItem>
+              <MenuItem value={2}>RE</MenuItem>
+            </>
+          )}
+        </ValidatedSelect>
       </form>
       <div className={classes.buttonBottomBar}>
         <Button onClick={onSubmitForm} variant="contained" className={classes.button}>
@@ -146,6 +176,17 @@ export const NewScheduleForm = ({ onClose, error, onSubmit }: NewScheduleFormPro
     </div>
   );
 };
+
+// needed to format date so that the date picker can display it properly
+function toDateString(date: Date): string {
+  // need to pad months/dates with 0s if single digit
+  let month = (date.getMonth() + 1).toString();
+  let day = date.getDate().toString();
+  month = month.length > 1 ? month : `0${month}`;
+  day = day.length > 1 ? day : `0${day}`;
+  return `${date.getFullYear()}-${month}-${day}`;
+}
+
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {

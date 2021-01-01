@@ -75,6 +75,7 @@ export const ScheduleContainer = ({ churchId }: ScheduleContainerProps) => {
     onError: (result) => errorHandling(result, setError),
     onSettled: () => setIsSuccess(''),
   });
+
   const deleteSchedule = useMutation<
     AxiosResponse<any>,
     AxiosError,

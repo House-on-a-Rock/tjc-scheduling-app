@@ -7,7 +7,7 @@ import { CircularProgress, Dialog, TableCell, TableRow } from '@material-ui/core
 import { SchedulesDataInterface } from '../../query';
 import { ScheduleTabs } from './ScheduleTabs';
 import { ScheduleTable } from './ScheduleTable';
-import { NewScheduleForm } from './NewScheduleForm';
+// import { NewScheduleForm } from './NewScheduleForm';
 import { ScheduleTableHeader } from './ScheduleTableHeader';
 import { ScheduleTableBody } from './ScheduleTableBody';
 import { ScheduleToolbar } from './ScheduleToolbar';
@@ -23,6 +23,7 @@ import { ContextMenu } from '../shared/ContextMenu';
 import { days } from '../../shared/utilities';
 import { DataCell } from './TableCell';
 import { ConfirmationDialog } from '../shared/ConfirmationDialog';
+import { NewScheduleForm } from '../shared/NewScheduleForm';
 
 interface BootstrapData {
   schedules: ScheduleTableInterface[];

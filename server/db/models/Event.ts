@@ -12,7 +12,6 @@ const EventFactory = (
   const attributes: SequelizeAttributes<EventAttributes> = {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     serviceId: { type: DataTypes.INTEGER },
-    day: { type: DataTypes.STRING },
     order: { type: DataTypes.INTEGER },
     time: { type: DataTypes.STRING },
     title: { type: DataTypes.STRING },

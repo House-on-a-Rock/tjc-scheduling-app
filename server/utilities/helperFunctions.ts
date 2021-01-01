@@ -320,6 +320,7 @@ async function retrieveTaskData(eventId, role) {
       {
         model: db.User,
         as: 'user',
+        required: false,
         attributes: ['firstName', 'lastName'],
       },
     ],
@@ -329,11 +330,25 @@ async function retrieveTaskData(eventId, role) {
     return {
       taskId: task.id,
       date: task.date,
-      firstName: task.user.firstName,
-      lastName: task.user.lastName,
+      firstName: task.user?.firstName || '',
+      lastName: task.user?.lastName || '',
       userId: task.userId,
       role: role,
     };
   });
   return organizedTasks;
 }
+
+export const recurringDaysOfWeek = (start: Date, end: Date, dayOfWeeK: number) => {
+  const weeks = [];
+  let startDayOfWeek = new Date(start).getDay();
+  let dayModifier = dayOfWeeK - startDayOfWeek;
+  if (dayModifier < 0) dayModifier += 7;
+  let current = new Date(start);
+  current.setDate(current.getDate() + dayModifier);
+  while (current <= end) {
+    weeks.push(new Date(current));
+    current = new Date(current.setDate(current.getDate() + 7));
+  }
+  return weeks;
+};

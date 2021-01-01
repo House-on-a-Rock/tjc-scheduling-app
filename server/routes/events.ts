@@ -11,7 +11,6 @@ router.delete(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { eventId } = req.body;
-      console.log(req.body);
       await db.Event.destroy({
         where: {
           id: eventId,
