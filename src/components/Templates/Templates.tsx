@@ -1,7 +1,8 @@
+/* eslint-disable react/no-array-index-key */
 import React, { useState } from 'react';
 
 // queries
-import { useQuery, useMutation, useQueryCache } from 'react-query';
+import { useQuery, useMutation, useQueryClient } from 'react-query';
 
 // mat ui
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
@@ -11,12 +12,13 @@ import AddIcon from '@material-ui/icons/Add';
 // api
 import { getTemplateData } from '../../query';
 import { TemplateDisplay } from './TemplateDisplay';
-import { addSchedule } from '../../query/apis/schedules';
+import { postSchedule } from '../../query/apis/schedules';
 // utilities
 import { buttonTheme } from '../../shared/styles/theme.js';
 
 // components
 import { NewScheduleForm } from '../shared/NewScheduleForm';
+import { NewScheduleData } from '../../shared/types';
 
 // Structure of template object - ( id, churchId, name, data)
 
@@ -24,24 +26,24 @@ export const Templates = ({ churchId }: any) => {
   const classes = useStyles();
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
   const [selectedTemplate, setSelectedTemplate] = useState<number>(null);
-  const cache = useQueryCache();
+  const [templateData, setTemplateData] = useState(null);
+  const queryClient = useQueryClient();
 
   // queries
-  const { isLoading: isTemplatesLoading, error, data: templateData } = useQuery(
-    ['templates', churchId],
-    getTemplateData,
-    {
-      enabled: churchId,
-      refetchOnWindowFocus: false,
-      staleTime: 100000000000000,
-    },
-  );
+  const templates = useQuery(['templates', churchId], () => getTemplateData(churchId), {
+    enabled: !!churchId,
+    refetchOnWindowFocus: false,
+    staleTime: 100000000000000,
+  });
   // mutation
-  const [mutateAddSchedule, { error: mutateScheduleError }] = useMutation(addSchedule, {
-    onSuccess: (response) => {
-      cache.invalidateQueries('scheduleTabs');
-      closeDialogHandler(response);
+  const createSchedule = useMutation(postSchedule, {
+    onSuccess: () => {
+      queryClient.invalidateQueries('tabs');
+      queryClient.invalidateQueries('schedules');
+      // setIsSuccess('NewScheduleForm');
     },
+    // onError: (result) => errorHandling(result, setError),
+    // onSettled: () => setIsSuccess(''),
   });
 
   function createNewTemplate() {}
@@ -57,7 +59,14 @@ export const Templates = ({ churchId }: any) => {
     setIsDialogOpen(true);
   }
 
-  if (isTemplatesLoading) return <div>Loading</div>;
+  React.useEffect(() => {
+    if (templates.data) {
+      // handles created or deleted schedules
+      setTemplateData(templates.data);
+    }
+  }, [templates]);
+
+  // if (isTemplatesLoading) return <div>Loading</div>;
 
   // TODO add confirmation alerts
   return (
@@ -65,23 +74,26 @@ export const Templates = ({ churchId }: any) => {
       <Dialog open={isDialogOpen} onClose={() => closeDialogHandler()}>
         <NewScheduleForm
           onClose={() => closeDialogHandler()}
-          error={mutateScheduleError}
-          onSubmit={mutateAddSchedule}
-          churchId={churchId}
+          // error={createSchedule.isError}
+          onSubmit={(newInfo: NewScheduleData) =>
+            createSchedule.mutate({ ...newInfo, churchId })
+          }
           templateId={selectedTemplate}
-          templates={templateData}
+          templates={templates?.data}
         />
       </Dialog>
       <h1>Create, Manage, and Update Schedule Templates</h1>
       <br />
       <h2>Saved Templates</h2>
       <div className={classes.templateContainer}>
-        {templateData.map((template, index) => (
-          <TemplateDisplay
-            template={template}
-            key={`${index}_TemplateDisplay`}
-            createNewScheduleHandler={createScheduleFromTemplate}
-          />
+        {templateData?.map((template, index) => (
+          <>
+            <TemplateDisplay
+              template={template}
+              key={`${index}_TemplateDisplay`}
+              createNewScheduleHandler={createScheduleFromTemplate}
+            />
+          </>
         ))}
       </div>
       <h2>Create New Template</h2>

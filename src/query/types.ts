@@ -10,3 +10,9 @@ export interface RolesData {
 export interface NewMembersData extends MemberStateData {
   roles: string[];
 }
+
+export interface SchedulesDataInterface {
+  id: number;
+  title: string;
+  view: string;
+}

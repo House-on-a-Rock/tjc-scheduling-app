@@ -8,12 +8,12 @@ import { useValidatedField } from '../../hooks';
 
 import { buttonTheme } from '../../shared/styles/theme.js';
 import { stringLengthCheck } from '../../shared/utilities';
+import { HttpErrorProps, NewServiceData } from '../../shared/types';
 
 interface NewServiceFormProps {
-  order: number;
-  onSubmit: (name: string, order: number, dayOfWeek: number) => void;
-  onClose: (arg: any) => void;
-  error: any;
+  onSubmit: (newServiceData: NewServiceData) => void;
+  onClose: () => void;
+  error: HttpErrorProps;
 }
 
 const daysOfWeek = [
@@ -26,12 +26,7 @@ const daysOfWeek = [
   'Saturday',
 ];
 
-export const NewServiceForm = ({
-  order,
-  onSubmit,
-  onClose,
-  error,
-}: NewServiceFormProps) => {
+export const NewServiceForm = ({ onSubmit, onClose, error }: NewServiceFormProps) => {
   const [
     serviceName,
     setServiceName,
@@ -44,7 +39,6 @@ export const NewServiceForm = ({
   );
 
   const classes = useStyles();
-  const serviceOrder = order + 1;
 
   function onSubmitForm() {
     resetServiceNameError();
@@ -55,15 +49,22 @@ export const NewServiceForm = ({
       serviceName.value.length < 32 &&
       dayOfWeek.value >= 0
     )
-      onSubmit(serviceName.value, serviceOrder, dayOfWeek.value);
+      onSubmit({
+        name: serviceName.value,
+        dayOfWeek: dayOfWeek.value,
+      });
     setServiceNameError(stringLengthCheck(serviceName.value));
     setDayWeekError(dayOfWeek.value < 0);
   }
 
   return (
     <div className={classes.root}>
-      <h2>New Service Form</h2>
-      {error && <div style={{ color: 'red' }}>Service name already exists</div>}
+      <h2>Add A New Event</h2>
+      {error && (
+        <div style={{ color: 'red' }}>
+          {`Status code ${error.status}: ${error.message}`}
+        </div>
+      )}
       <form>
         <ValidatedTextField
           name="Service Name"
@@ -92,12 +93,15 @@ export const NewServiceForm = ({
           ))}
         </ValidatedSelect>
       </form>
-      <Button onClick={onSubmitForm} className={classes.button}>
-        Create new service
-      </Button>
-      <Button onClick={onClose} className={classes.button}>
-        Cancel
-      </Button>
+
+      <div className={classes.buttonBottomBar}>
+        <Button onClick={onSubmitForm} className={classes.button}>
+          Create new service
+        </Button>
+        <Button onClick={onClose} className={classes.button}>
+          Cancel
+        </Button>
+      </div>
     </div>
   );
 };
@@ -119,6 +123,11 @@ const useStyles = makeStyles((theme: Theme) =>
       flexDirection: 'row',
       width: '100%',
       minWidth: 400,
+    },
+    buttonBottomBar: {
+      minHeight: 'unset',
+      flexWrap: 'wrap',
+      alignSelf: 'end',
     },
     button: {
       padding: '10px',

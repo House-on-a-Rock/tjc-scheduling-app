@@ -1,12 +1,12 @@
 import React, { useContext, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Switch, Redirect } from 'react-router-dom';
-import { QueryCache, ReactQueryCacheProvider, useQuery } from 'react-query';
+import { QueryClient, QueryClientProvider } from 'react-query';
 
 import { ReactQueryDevtools } from 'react-query-devtools';
 import { ThemeProvider } from '@material-ui/core';
 
-import { ScheduleContainer, Teams, Members, Templates } from '../components';
-import { Header } from '../components/shared/Header';
+import { Teams, Members, Templates, ScheduleContainer } from '../components';
+import { Header } from '../components/shared';
 import theme from '../shared/styles/theme';
 import { extractTokenInfo, useToken } from '../shared/utilities';
 import { AuthContext } from '../shared/services/AuthContext';
@@ -18,40 +18,47 @@ const Main = () => {
 
   if (!auth.isLoggedIn) return <Redirect to="/auth/login" />;
 
-  const queryCache = new QueryCache({
-    defaultConfig: { queries: { refetchOnWindowFocus: false } },
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        refetchOnWindowFocus: false,
+      },
+      mutations: {},
+    },
   });
 
   return (
     <>
-      <ReactQueryCacheProvider queryCache={queryCache}>
+      <QueryClientProvider client={queryClient}>
         <Router>
           <ThemeProvider theme={theme}>
             <Header />
             <Switch>
-              <Route path="/home">
-                <ScheduleContainer churchId={churchId} />
-              </Route>
-              <Route path="/teams">
-                <Teams churchId={churchId} />
-              </Route>
-              <Route path="/templates">
-                <Templates churchId={churchId} />
-              </Route>
-              <Route path="/members">
-                <Members churchId={churchId} />
-              </Route>
-              <Route path="/">
-                <Redirect to="/home" />
-              </Route>
-              {/* <Route>
+              <QueryClientProvider client={queryClient}>
+                <Route path="/home">
+                  <ScheduleContainer churchId={churchId} />
+                </Route>
+                <Route path="/teams">
+                  <Teams churchId={churchId} />
+                </Route>
+                <Route path="/templates">
+                  <Templates churchId={churchId} />
+                </Route>
+                <Route path="/members">
+                  <Members churchId={churchId} />
+                </Route>
+                <Route path="/">
+                  <Redirect to="/home" />
+                </Route>
+                {/* <Route>
               <Error404 />
             </Route> */}
+              </QueryClientProvider>
             </Switch>
           </ThemeProvider>
         </Router>
-        <ReactQueryDevtools initialIsOpen={false} />
-      </ReactQueryCacheProvider>
+        {/* <ReactQueryDevtools initialIsOpen={false} /> */}
+      </QueryClientProvider>
     </>
   );
 };

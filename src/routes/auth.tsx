@@ -4,7 +4,6 @@ import { ErrorPage, Login, ResetPassword, AuthEmail } from '../components/Auth';
 
 const Auth = () => {
   const { path } = useRouteMatch();
-  console.log('auth', path);
   return (
     <Switch>
       <Route path={`${path}/login`}>

@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Route, Redirect } from 'react-router-dom';
+import { AuthContext } from '../../shared/services/AuthContext';
 import { extractTokenInfo, useToken } from '../../shared/utilities';
 
 const validateUser = (condition: string, token): boolean => {
@@ -9,9 +10,25 @@ const validateUser = (condition: string, token): boolean => {
   return token && !!userId;
 };
 
-export const PrivateRoute = ({ children, redirection, condition, ...rest }: any) => {
+interface PrivateRouteProps {
+  redirection: string;
+  path: string;
+  condition: string;
+}
+
+export const PrivateRoute: React.FC<PrivateRouteProps> = ({
+  children,
+  redirection,
+  condition,
+  ...rest
+}) => {
+  const auth = useContext(AuthContext);
+  const logout = () => {
+    auth.logout();
+  };
   const token = useToken();
   const isValidToken = validateUser(condition, token);
+  if (!isValidToken) logout();
   return (
     <Route
       {...rest}

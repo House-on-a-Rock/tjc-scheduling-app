@@ -15,7 +15,7 @@ const router = express.Router();
 module.exports = router;
 
 router.get(
-  '/schedules/tabs',
+  '/schedules',
   certify,
   async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -32,8 +32,68 @@ router.get(
   },
 );
 
+// router.get(
+//   '/schedules',
+//   certify,
+//   async (req: Request, res: Response, next: NextFunction) => {
+//     try {
+//       const { churchId } = req.query;
+//       console.log('210938471092378401928374', typeof churchId, churchId);
+//       const schedules: ScheduleInstance[] = await db.Schedule.findAll({
+//         where: { churchId: churchId.toString() },
+//       });
+//       const roles = await db.Role.findAll({
+//         where: { [Sequelize.Op.or]: schedules.map((schedule) => schedule.roleId) },
+//       });
+
+//       const allServicesInAllSchedules: ServiceInstance[][] = await Promise.all(
+//         schedules.map(async (schedule) => {
+//           console.log('@#$@#$', typeof schedule.id, schedule.id);
+//           const servicesData: ServiceInstance[] = await db.Service.findAll({
+//             where: { scheduleId: schedule.id },
+//             order: [['order', 'ASC']],
+//           });
+//           return servicesData;
+//         }),
+//       );
+//       // return res.json(services);
+//       const columns = schedules.map((schedule) =>
+//         createColumns(schedule.start, schedule.end),
+//       );
+
+//       // const schedule = await db.Schedule.findOne({
+//       //   where: { id: scheduleId.toString() },
+//       // });
+//       // const role = await db.Role.findOne({ where: { id: schedule.roleId } });
+//       // const services = await db.Service.findAll({
+//       //   where: { scheduleId: scheduleId.toString() },
+//       //   order: [['order', 'ASC']],
+//       // });
+//       // const columns = createColumns(schedule.start, schedule.end);
+//       const servicesData = await Promise.all(
+//         allServicesInAllSchedules.map((services) =>
+//           services.map((service) => populateServiceData(service)),
+//         ),
+//       );
+
+//       // const response = {
+//       //   columns,
+//       //   services: servicesData,
+//       //   title: schedule.title,
+//       //   view: schedule.view,
+//       //   role,
+//       // };
+//       // if (!response) return res.status(404).send({ message: 'No schedules found' });
+//       return res.status(200).json(servicesData);
+//     } catch (err) {
+//       next(err);
+//       return res.status(503).send({ message: 'Server error, try again later' });
+//     }
+//   },
+// );
+
 router.get(
-  '/schedules',
+  '/schedule',
   certify,
   async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -50,6 +110,9 @@ router.get(
       const servicesData = await Promise.all(
         services.map(async (service) => populateServiceData(service)),
       );
+      // const events = await db.Event.findAll({
+      //   where: { scheduleId: schedule.id },
+      // });
 
       const response = {
         columns,
@@ -68,7 +131,7 @@ router.get(
 );
 
 router.post(
-  '/schedules',
+  '/schedule',
   certify,
   async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -138,7 +201,7 @@ router.post(
 );
 
 router.delete(
-  '/schedules',
+  '/schedule',
   certify,
   async (req: Request, res: Response, next: NextFunction) => {
     try {

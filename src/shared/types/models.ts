@@ -114,13 +114,6 @@ export interface DataCellProps {
   updateMyData: (rowIndex: number, columnId: string, value: string) => void;
 }
 
-// export interface TableProps {
-//   columns: ColumnFields[];
-//   data: WeeklyAssignmentInterface[];
-//   updateMyData: (rowIndex: number, columnId: string, value: string) => void;
-//   title: string;
-// }
-
 export type AccessTypes = 'read' | 'write';
 
 export interface SchedulerProps {
@@ -142,23 +135,30 @@ export interface AddUserProps {
   churchId: number;
 }
 
-export interface AddScheduleProps {
-  scheduleTitle: string;
+export interface NewScheduleData {
+  title: string;
   startDate: string;
   endDate: string;
   view: string;
   team: number;
-  churchId: number;
+  churchId?: number;
   templateId: number;
 }
 
-export interface DeleteScheduleProps {
-  scheduleId: string;
+export interface NewServiceData {
+  name: string;
+  order?: number;
+  dayOfWeek: number;
+  scheduleId?: number;
+}
+
+export interface DeleteScheduleData {
+  scheduleId: number;
   title: string;
 }
 
-export interface DeleteEventProps {
-  eventId: string;
+export interface DeleteEventsData {
+  eventIds: string[];
 }
 
 export interface AddServiceProps {
@@ -204,3 +204,5 @@ export interface MemberStateData {
 interface ChurchAttribute {
   name: string;
 }
+
+// export interface DeleteScheduleProps

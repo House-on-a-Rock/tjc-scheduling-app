@@ -11,15 +11,14 @@ export const useContextMenu = (outerRef: any) => {
   const handleContextMenu = useCallback(
     (event) => {
       event.preventDefault();
-      if (outerRef && outerRef.current.contains(event.target)) {
+      if (!outerRef?.current.contains(event.target)) showMenu(false);
+      else {
         setXPos(`${event.x}px`); // x and y seem to work, pageX and pageY
         setYPos(`${event.y}px`);
         setCellValue(event.target.value);
         showMenu(true);
         const target = event.target.closest('tr');
         setCellRow(target.id);
-      } else {
-        showMenu(false);
       }
     },
     [showMenu, outerRef, setXPos, setYPos],

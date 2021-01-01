@@ -12,7 +12,7 @@ const { green, red, blue } = require('chalk');
 module.exports = router;
 
 router.post(
-  '/services',
+  '/service',
   certify,
   async (req: Request, res: Response, next: NextFunction) => {
     try {

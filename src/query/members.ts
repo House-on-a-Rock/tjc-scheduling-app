@@ -1,6 +1,6 @@
 import { getAllUsers, getAllRoles, getAllUserRoles } from './apis';
 
-export const getChurchMembersData = async (key: string, churchId: number) => {
+export const getChurchMembersData = async (churchId: number) => {
   if (churchId) {
     const { data: users } = await getAllUsers(churchId);
     const { data: userRoles } = await getAllUserRoles(churchId);

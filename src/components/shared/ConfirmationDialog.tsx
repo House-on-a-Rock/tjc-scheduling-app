@@ -3,15 +3,10 @@ import React from 'react';
 // material ui
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Dialog from '@material-ui/core/Dialog';
-import CheckIcon from '@material-ui/icons/Check';
-import ClearIcon from '@material-ui/icons/Clear';
-import { green } from '@material-ui/core/colors';
-import List from '@material-ui/core/List';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
-import ListItemText from '@material-ui/core/ListItemText';
 
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
+import { Button } from '@material-ui/core';
+import { buttonTheme } from '../../shared/styles/theme';
 
 export interface SimpleDialogProps {
   title: string;
@@ -24,30 +19,14 @@ export function ConfirmationDialog({ handleClick, isOpen, title }: SimpleDialogP
   return (
     <Dialog onBackdropClick={() => handleClick(!isOpen)} open={isOpen}>
       <DialogTitle id="confirm-dialog">{title}</DialogTitle>
-      <List>
-        <ListItem
-          button
-          onClick={() => handleClick(true)}
-          key="yes-button"
-          className={classes.listItem}
-        >
-          <ListItemIcon style={{ color: green[500] }}>
-            <CheckIcon />
-          </ListItemIcon>
-          <ListItemText primary="YES" />
-        </ListItem>
-        <ListItem
-          button
-          onClick={() => handleClick(false)}
-          key="no-button"
-          className={classes.listItem}
-        >
-          <ListItemIcon style={{ color: '#ba000d' }}>
-            <ClearIcon />
-          </ListItemIcon>
-          <ListItemText primary="NO" />
-        </ListItem>
-      </List>
+      <div className={classes.buttonBottomBar}>
+        <Button onClick={() => handleClick(true)} className={classes.button}>
+          Confirm
+        </Button>
+        <Button onClick={() => handleClick(false)} className={classes.button}>
+          Cancel
+        </Button>
+      </div>
     </Dialog>
   );
 }
@@ -68,6 +47,20 @@ const useStyles = makeStyles((theme: Theme) =>
         display: 'flex',
         flex: 1,
         justifyContent: 'flex-start',
+      },
+    },
+    buttonBottomBar: {
+      minHeight: 'unset',
+      flexWrap: 'wrap',
+      alignSelf: 'end',
+    },
+    button: {
+      padding: '10px',
+      borderRadius: '5px',
+      border: 'none',
+      margin: '5px',
+      '&:hover, &:focus': {
+        ...buttonTheme.filled,
       },
     },
   }),

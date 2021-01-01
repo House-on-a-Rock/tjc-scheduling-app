@@ -294,7 +294,7 @@ export async function populateServiceData({
       };
     }),
   );
-  return { name: name, day: day, events: eventData, serviceId: id };
+  return { name, day, events: eventData, serviceId: id };
 }
 
 function timeDisplay(time, displayTime) {

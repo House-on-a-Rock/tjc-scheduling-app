@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useQuery, useMutation, useQueryCache } from 'react-query';
+import { useQuery, useMutation, useQueryClient } from 'react-query';
 
 // material UI
 import Grid from '@material-ui/core/Grid';
@@ -29,11 +29,11 @@ export const Members = ({ churchId }: MembersProps) => {
 
   // useQuery hooks
   // how to handle errors or no members
-  const cache = useQueryCache();
+  const queryClient = useQueryClient();
   const { isLoading, error, data = [] } = useQuery(
     ['roleData', churchId],
     // how to handle errors or no members
-    getChurchMembersData,
+    () => getChurchMembersData(churchId),
     {
       staleTime: 300000,
       cacheTime: 3000000,
@@ -42,11 +42,11 @@ export const Members = ({ churchId }: MembersProps) => {
       enabled: !!churchId,
     },
   );
-  const [mutateAddUser] = useMutation(addUser, {
-    onSuccess: () => cache.invalidateQueries('roleData'), // causes the roleData query to call and update on success
+  const mutateAddUser = useMutation(addUser, {
+    onSuccess: () => queryClient.invalidateQueries('roleData'), // causes the roleData query to call and update on success
   });
-  const [mutateRemoveUser] = useMutation(deleteUser, {
-    onSuccess: () => cache.invalidateQueries('roleData'),
+  const mutateRemoveUser = useMutation(deleteUser, {
+    onSuccess: () => queryClient.invalidateQueries('roleData'),
   });
 
   // Component state
@@ -68,14 +68,15 @@ export const Members = ({ churchId }: MembersProps) => {
 
   const handleDeleteMembers = () => {
     try {
-      selectedRows.map(async (member) => mutateRemoveUser(member)); // removed await, unsure if this is right
+      selectedRows.map((member) => mutateRemoveUser.mutate(member));
+      // selectedRows.map(async (member) => mutateRemoveUser(member)); // removed await, unsure if this is right
     } catch (err) {
       console.log('uh oh cant delete this guy too stonks');
     }
     setSelectedRows([]);
   };
 
-  const onCloseAddMemberDialog = async (
+  const onCloseAddMemberDialog = (
     shouldAdd: boolean,
     firstName: string,
     lastName: string,
@@ -98,7 +99,7 @@ export const Members = ({ churchId }: MembersProps) => {
         password,
         churchId,
       };
-      await mutateAddUser(mutateAddUserVars);
+      mutateAddUser.mutate(mutateAddUserVars);
     }
     setIsAddMemberDialogOpen(false);
   };

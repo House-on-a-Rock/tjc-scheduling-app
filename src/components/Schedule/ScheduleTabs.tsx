@@ -2,20 +2,32 @@ import React from 'react';
 
 import Tab from '@material-ui/core/Tab';
 import Tabs from '@material-ui/core/Tabs';
+import IconButton from '@material-ui/core/IconButton';
 import AddIcon from '@material-ui/icons/Add';
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 
-import { tabGroupTheme, tabTheme, tabIndicatorTheme } from '../../shared/styles/theme.js';
+import {
+  tabGroupTheme,
+  tabTheme,
+  tabIndicatorTheme,
+  buttonTheme,
+} from '../../shared/styles/theme.js';
+import { SchedulesDataInterface } from '../../query/types.js';
 
 interface ScheduleTabsProps {
-  titles: string[];
+  tabs: SchedulesDataInterface[];
   tabIdx: number;
   onTabClick: (value: number) => void;
+  handleAddClicked: () => void;
 }
 
-export const ScheduleTabs = ({ tabIdx, onTabClick, titles }: ScheduleTabsProps) => {
+export const ScheduleTabs = ({
+  tabs,
+  tabIdx,
+  onTabClick,
+  handleAddClicked,
+}: ScheduleTabsProps) => {
   const classes = useStyles();
-
   return (
     <div className={classes.root}>
       <Tabs
@@ -30,11 +42,15 @@ export const ScheduleTabs = ({ tabIdx, onTabClick, titles }: ScheduleTabsProps) 
           },
         }}
       >
-        {titles.map((title, index) => (
-          // eslint-disable-next-line react/no-array-index-key
-          <Tab key={`${title}-${index}`} label={title} className={classes.tab} />
+        {tabs.map((schedule, index) => (
+          <Tab
+            // eslint-disable-next-line react/no-array-index-key
+            key={`${schedule.title}-${index}`}
+            label={schedule.title}
+            className={classes.tab}
+          />
         ))}
-        <Tab label={<AddIcon />} className={classes.tab} />
+        <Tab icon={<AddIcon />} onClick={() => handleAddClicked()} />
       </Tabs>
     </div>
   );
@@ -57,6 +73,9 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     tab: {
       ...tabTheme,
+    },
+    button: {
+      ...buttonTheme,
     },
   }),
 );

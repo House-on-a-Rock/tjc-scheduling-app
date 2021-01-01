@@ -1,3 +1,4 @@
+/* eslint-disable react/no-array-index-key */
 import React from 'react';
 
 // mat ui
@@ -50,7 +51,7 @@ export const TemplateDisplay = ({
           </TableRow>
         </TableHead>
         <TableBody>
-          {data.map((service) => (
+          {data?.map((service) => (
             <>
               <TableRow key={`${service.name}_name`}>
                 <TableCell className={classes.tableCell}>

@@ -1,17 +1,12 @@
 import express, { Request, Response, NextFunction } from 'express';
-import { ScheduleInstance } from 'shared/SequelizeTypings/models';
 import db from '../index';
-import {
-  certify,
-  createColumns,
-  populateServiceData,
-} from '../utilities/helperFunctions';
+import { certify } from '../utilities/helperFunctions';
 
 const router = express.Router();
 module.exports = router;
 
 router.delete(
-  '/events',
+  '/event',
   certify,
   async (req: Request, res: Response, next: NextFunction) => {
     try {
