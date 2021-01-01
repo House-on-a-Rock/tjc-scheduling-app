@@ -15,12 +15,14 @@ interface ScheduleTableProps {
   title: string;
   hidden: boolean;
   children: ReactNode[];
+  outerRef?: any;
 }
 
 export const ScheduleTable: React.FC<ScheduleTableProps> = ({
   title,
   hidden,
   children,
+  outerRef,
 }) => {
   const classes = useStyles();
   const [header, body] = children;
@@ -30,7 +32,7 @@ export const ScheduleTable: React.FC<ScheduleTableProps> = ({
       className={classes.scheduleComponent}
       style={{ display: hidden ? 'none' : 'block' }}
     >
-      <MaUTable className={classes.table}>
+      <MaUTable className={classes.table} ref={outerRef ?? null}>
         <TableHead>
           <TableRow key={`${title} Column header`}>{header}</TableRow>
         </TableHead>

@@ -18,8 +18,8 @@ export const ContextMenu = ({
 }: ContextMenuProps) => {
   const { xPos, yPos, menu, cellValue, cellRow } = useContextMenu(outerRef);
   const classes = useStyles();
-
   const rowIndex = parseInt(cellRow, 10);
+
   if (menu) {
     return (
       <ul

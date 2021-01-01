@@ -1,5 +1,4 @@
-import { NewScheduleData } from '../shared/types';
-import { getScheduleAndData, getSchedules, postSchedule } from './apis/schedules';
+import { getScheduleAndData, getSchedules } from './apis/schedules';
 
 export const getScheduleData = async (scheduleIds: number[]) => {
   return scheduleIds.length > 0
@@ -17,3 +16,10 @@ export const getAllSchedules = async (churchId: number) => {
 
 // export const createNewSchedule = async (newInfo: NewScheduleData) =>
 //   (await postSchedule(newInfo)).data;
+
+// Task Item- Pass in arrays as queries using library: qs
+// useMutation can't seem to do batched deletes
+// export const destroyEvents = ({
+//   eventIds,
+// }: DeleteEventsData): Promise<AxiosResponse<any>>[] =>
+//   eventIds.map(async (eventId) => (await deleteEvent(eventId)).data);

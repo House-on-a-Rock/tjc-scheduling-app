@@ -3,7 +3,7 @@ import { secretIp } from '../../../secrets/secretStuff';
 import {
   NewScheduleData,
   AddServiceProps,
-  DeleteScheduleProps,
+  DeleteScheduleData,
 } from '../../shared/types/models';
 import { getLocalStorageItem } from '../../shared/utilities';
 
@@ -19,11 +19,15 @@ export const getScheduleAndData = (scheduleId: number): Promise<AxiosResponse> =
 export const postSchedule = (data: NewScheduleData) =>
   axios.post(`${secretIp}/api/schedule`, data);
 
-export const destroySchedule = (data: DeleteScheduleProps) =>
+export const destroySchedule = (data: DeleteScheduleData) =>
   axios.delete(`${secretIp}/api/schedule`, { data });
 
 export const addService = (data: AddServiceProps) =>
   axios.post(`${secretIp}/api/service`, data);
+
+export const destroyEvent = (eventId: string) => {
+  return axios.delete(`${secretIp}/api/event`, { data: { eventId } });
+};
 
 export const updateScheduleAssignments = async (changedTasks: any) => {
   const response = await Promise.all(

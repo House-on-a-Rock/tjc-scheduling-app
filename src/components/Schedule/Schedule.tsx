@@ -13,7 +13,8 @@ import { ScheduleTableBody } from './ScheduleTableBody';
 import { ScheduleToolbar } from './ScheduleToolbar';
 import { NewServiceForm } from './NewServiceForm';
 import {
-  DeleteScheduleProps,
+  DeleteEventsData,
+  DeleteScheduleData,
   HttpErrorProps,
   NewScheduleData,
   NewServiceData,
@@ -21,6 +22,7 @@ import {
 import { ContextMenu } from '../shared/ContextMenu';
 import { days } from '../../shared/utilities';
 import { DataCell } from './TableCell';
+import { ConfirmationDialog } from '../shared/ConfirmationDialog';
 
 interface BootstrapData {
   schedules: ScheduleTableInterface[];
@@ -38,8 +40,13 @@ interface ScheduleProps {
   state: ContainerStateProp;
   addSchedule: (newInfo: NewScheduleData) => void;
   addService: (newInfo: NewServiceData) => void;
-  removeSchedule: (info: DeleteScheduleProps) => void;
+  removeSchedule: (info: DeleteScheduleData) => void;
+  removeEvents: (info: DeleteEventsData) => void;
 }
+
+const SERVICE = 'service';
+const EVENT = 'event';
+const SCHEDULE = 'schedule';
 
 // Task List
 // 1. When the container has more than 3 tabs, when you select the 4th, how to handle data from data handler
@@ -53,12 +60,15 @@ export const Schedule = ({
   addSchedule,
   removeSchedule,
   addService,
+  removeEvents,
 }: ScheduleProps) => {
   const { isLoading, error, data, isSuccess } = state;
   const [tab, setTab] = useState(0);
   const [isScheduleModified, setIsScheduleModified] = useState<boolean>(false);
   const [isNewScheduleOpen, setIsNewScheduleOpen] = useState<boolean>(false);
   const [isNewServiceOpen, setIsNewServiceOpen] = useState<boolean>(false);
+  const [warningDialog, setWarningDialog] = useState<string>();
+  const [selectedEvents, setSelectedEvents] = useState<string[]>([]);
   //   const [alert, setAlert] = useState<AlertInterface>();
 
   const changedTasks = useRef<any>({});
@@ -84,8 +94,10 @@ export const Schedule = ({
     setIsScheduleModified(false);
   }
 
-  // Service Body
-  function deleteRow(rowIndex: number) {}
+  // Context Menu functions
+  function deleteRow(rowIndex: number) {
+    setWarningDialog(EVENT);
+  }
   function insertRow(rowIndex: number) {}
 
   useEffect(() => {
@@ -97,9 +109,15 @@ export const Schedule = ({
     if (isSuccess === 'NewServiceForm') setIsNewServiceOpen(false);
     if (isSuccess === 'DeleteSchedule') {
       // setIsNewScheduleOpen(false);
+      setWarningDialog('');
       setTab(0);
     }
     if (isSuccess === 'DeleteService') {
+      // setIsNewScheduleOpen(false);
+    }
+    if (isSuccess === 'DeleteEvents') {
+      setWarningDialog('');
+      setSelectedEvents([]);
       // setIsNewScheduleOpen(false);
     }
   }, [isSuccess]);
@@ -107,21 +125,50 @@ export const Schedule = ({
   const teammates = (roleId) =>
     data.users.filter((user) => user.teams.some((team) => team.id === roleId));
 
+  const confirmDialogConfig = {
+    [SCHEDULE]: {
+      title: 'Are you sure you want to delete this schedule?',
+      accepted: () => {
+        setTab(0);
+        removeSchedule({ scheduleId: tabs[tab].id, title: tabs[tab].title });
+      },
+    },
+    [SERVICE]: {
+      title: 'Are you sure you want to delete this service?',
+      accepted: () => {
+        setTab(0);
+        // removeService()
+      },
+    },
+    [EVENT]: {
+      title: 'Are you sure you want to delete this event?',
+      accepted: () => {
+        removeEvents({ eventIds: selectedEvents });
+      },
+    },
+  };
+
+  const handleRowSelected = (isSelected: boolean, eventId: string) =>
+    isSelected
+      ? setSelectedEvents(selectedEvents.filter((id) => id !== eventId))
+      : setSelectedEvents([...selectedEvents, eventId]);
+
   return (
     <>
       {data?.schedules && data?.users && !isLoading ? (
-        <>
+        <div ref={outerRef}>
+          {/* 1) Add an arrow into the tab that opens context menu */}
+          {/* 2) Options in this context menu: rename schedule, delete schedule, color/style tabs */}
           <ScheduleTabs
             tabIdx={tab}
             onTabClick={onChangeTabs}
             tabs={tabs}
             handleAddClicked={() => setIsNewScheduleOpen(true)}
           />
+
           <ScheduleToolbar
             handleNewServiceClicked={() => setIsNewServiceOpen(true)}
-            destroySchedule={() =>
-              removeSchedule({ scheduleId: tabs[tab].id, title: tabs[tab].title })
-            }
+            destroySchedule={() => setWarningDialog(SCHEDULE)} // this function should actually be moved into tabs. when a user right clicks the tab, you'd expect the delete functionality to be there**
             isScheduleModified={isScheduleModified}
             onSaveScheduleChanges={onSaveScheduleChanges}
           />
@@ -158,9 +205,23 @@ export const Schedule = ({
                         title={`${days[day]} ${name}`}
                       >
                         {events.map((event, rowIdx) => {
-                          const { roleId, cells, title: cellTitle, time } = event;
+                          const {
+                            roleId,
+                            cells,
+                            title: cellTitle,
+                            time,
+                            eventId,
+                          } = event;
+                          const isSelected = selectedEvents.includes(eventId.toString());
                           return (
-                            <TableRow key={`${cellTitle}-${time}`}>
+                            <TableRow
+                              key={`${cellTitle}-${time}`}
+                              hover
+                              onClick={() =>
+                                handleRowSelected(isSelected, eventId.toString())
+                              }
+                              selected={isSelected}
+                            >
                               {cells.map((cell, columnIndex) =>
                                 columnIndex < 2 ? (
                                   <TableCell key={`${rowIdx}_${columnIndex}`}>
@@ -185,7 +246,7 @@ export const Schedule = ({
               </div>
             );
           })}
-        </>
+        </div>
       ) : (
         <CircularProgress />
       )}
@@ -209,6 +270,14 @@ export const Schedule = ({
           error={error}
         />
       </Dialog>
+      <ConfirmationDialog
+        title={confirmDialogConfig[warningDialog]?.title}
+        isOpen={!!warningDialog}
+        handleClick={(accepted) => {
+          if (accepted) confirmDialogConfig[warningDialog]?.accepted();
+          else setWarningDialog('');
+        }}
+      />
     </>
   );
 };
@@ -245,7 +314,7 @@ interface ServiceDataInterface {
 interface EventsDataInterface {
   cells: AssignmentDataInterface[];
   displayTime: boolean;
-  eventId: number;
+  eventId: number; // unsure why eventId in eventsData is not just id
   roleId: number;
   time: string;
   title: string;

@@ -1,9 +1,20 @@
 import React, { useEffect, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from 'react-query';
+import { AxiosResponse, AxiosError } from 'axios';
 // the queries aren't very consistent....
-import { postSchedule, destroySchedule, postService } from '../../query/apis';
+import {
+  postSchedule,
+  destroySchedule,
+  postService,
+  destroyEvent,
+} from '../../query/apis';
 import { getChurchMembersData, getAllSchedules, getScheduleData } from '../../query';
-import { DeleteScheduleProps, NewScheduleData, NewServiceData } from '../../shared/types';
+import {
+  DeleteScheduleData,
+  NewScheduleData,
+  NewServiceData,
+  DeleteEventsData,
+} from '../../shared/types';
 import { Schedule } from './Schedule';
 
 interface ScheduleContainerProps {
@@ -17,7 +28,7 @@ export const ScheduleContainer = ({ churchId }: ScheduleContainerProps) => {
   const [error, setError] = useState(null);
   const [fetchedSchedules, setFetchedSchedules] = useState<number[]>([]);
   // testing this out for mutation success
-  const [isSuccess, setIsSuccess] = useState<string>();
+  const [isSuccess, setIsSuccess] = useState<string>('');
 
   // Gets all schedules' id
   // There are some undefined queries in here
@@ -50,45 +61,61 @@ export const ScheduleContainer = ({ churchId }: ScheduleContainerProps) => {
   });
 
   // CRUD Mutations
-  const createSchedule = useMutation(postSchedule, {
+  const createSchedule = useMutation<
+    AxiosResponse<any>,
+    AxiosError,
+    NewScheduleData,
+    unknown
+  >(postSchedule, {
     onSuccess: () => {
       queryClient.invalidateQueries('tabs');
       queryClient.invalidateQueries('schedules');
       setIsSuccess('NewScheduleForm');
     },
-    onError: (result: any) => {
-      setError({
-        status: result.response.status,
-        message: result.response.statusText,
-      });
-    },
+    onError: (result) => errorHandling(result, setError),
+    onSettled: () => setIsSuccess(''),
   });
-  const deleteSchedule = useMutation(destroySchedule, {
+  const deleteSchedule = useMutation<
+    AxiosResponse<any>,
+    AxiosError,
+    DeleteScheduleData,
+    unknown
+  >(destroySchedule, {
     onSuccess: () => {
       queryClient.invalidateQueries('tabs');
       setIsSuccess('DeleteSchedule');
       // BUG: part 1: deleting incorrectly is successful; part 2: rerenders component
     },
-    onError: (result: any) => {
-      setError({
-        status: result.response.status,
-        message: result.response.statusText,
-      });
-    },
+    onError: (result) => errorHandling(result, setError),
+    onSettled: () => setIsSuccess(''),
   });
 
-  const createService = useMutation(postService, {
-    onSuccess: (response) => {
+  const createService = useMutation<
+    AxiosResponse<any>,
+    AxiosError,
+    NewServiceData,
+    unknown
+  >(postService, {
+    onSuccess: () => {
       queryClient.invalidateQueries('schedules');
       setIsSuccess('NewServiceForm');
     },
-    onError: (result: any) => {
-      setError({
-        status: result.response.status,
-        message: result.response.statusText,
-      });
-    },
+    onError: (result) => errorHandling(result, setError),
+    onSettled: () => setIsSuccess(''),
   });
+
+  const deleteEvent = useMutation<AxiosResponse<any>, AxiosError, string, unknown>(
+    destroyEvent,
+    {
+      onSuccess: () => {
+        setIsSuccess('DeleteEvents');
+        queryClient.invalidateQueries('schedules');
+        // BUG: part 1: deleting incorrectly is successful; part 2: rerenders component
+      },
+      onError: (result) => errorHandling(result, setError),
+      onSettled: () => setIsSuccess(''),
+    },
+  );
 
   useEffect(() => {
     if (tabs.data) {
@@ -118,18 +145,26 @@ export const ScheduleContainer = ({ churchId }: ScheduleContainerProps) => {
     if (users.isLoading !== isLoading) setIsLoading(users.isLoading);
   }, [users]);
 
+  useEffect(() => {
+    if (deleteEvent.isLoading) setIsLoading(deleteEvent.isLoading);
+    // uncomment above for an example that shows setIsLoading works
+    // Task item, decide and implement loading logic
+    // we'll have to decide whether we want the loading logic to be separated into different parts of the table body or to have it just cover the whole screen
+  }, [deleteEvent]);
+
   return (
-    <>
-      <Schedule
-        tabs={tabs.data}
-        state={{ data, isLoading, error, isSuccess }}
-        addSchedule={(newInfo: NewScheduleData) =>
-          createSchedule.mutate({ ...newInfo, churchId })
-        }
-        removeSchedule={(info: DeleteScheduleProps) => deleteSchedule.mutate(info)}
-        addService={(newInfo: NewServiceData) => createService.mutate(newInfo)}
-      />
-    </>
+    <Schedule
+      tabs={tabs.data}
+      state={{ data, isLoading, error, isSuccess }}
+      addSchedule={(newInfo: NewScheduleData) =>
+        createSchedule.mutate({ ...newInfo, churchId })
+      }
+      removeSchedule={(info: DeleteScheduleData) => deleteSchedule.mutate(info)}
+      addService={(newInfo: NewServiceData) => createService.mutate(newInfo)}
+      removeEvents={({ eventIds }: DeleteEventsData) =>
+        eventIds.map((eventId) => deleteEvent.mutate(eventId))
+      }
+    />
   );
 };
 
@@ -139,4 +174,11 @@ function makeScheduleIdxs(tabsData) {
     scheduleIdxs.push(tabsData[i].id);
   }
   return scheduleIdxs;
+}
+
+function errorHandling(result: AxiosError, setError) {
+  setError({
+    status: result.response.status,
+    message: result.response.statusText,
+  });
 }

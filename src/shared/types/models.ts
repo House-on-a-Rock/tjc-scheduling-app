@@ -151,9 +151,13 @@ export interface NewServiceData {
   scheduleId?: number;
 }
 
-export interface DeleteScheduleProps {
+export interface DeleteScheduleData {
   scheduleId: number;
   title: string;
+}
+
+export interface DeleteEventsData {
+  eventIds: string[];
 }
 
 export interface AddServiceProps {
