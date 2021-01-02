@@ -5,13 +5,17 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Prompt } from 'react-router-dom';
 import { CircularProgress, Dialog, TableCell, TableRow } from '@material-ui/core';
 import { SchedulesDataInterface } from '../../query';
-import { ScheduleTabs } from './ScheduleTabs';
-import { ScheduleTable } from './ScheduleTable';
-// import { NewScheduleForm } from './NewScheduleForm';
-import { ScheduleTableHeader } from './ScheduleTableHeader';
-import { ScheduleTableBody } from './ScheduleTableBody';
-import { ScheduleToolbar } from './ScheduleToolbar';
-import { NewServiceForm } from './NewServiceForm';
+import {
+  ScheduleTabs,
+  ScheduleTable,
+  NewScheduleForm,
+  ScheduleTableHeader,
+  ScheduleTableBody,
+  ScheduleToolbar,
+  NewServiceForm,
+  ScheduleTableCell,
+} from '../../components/Schedule';
+
 import {
   DeleteEventsData,
   DeleteScheduleData,
@@ -19,11 +23,9 @@ import {
   NewScheduleData,
   NewServiceData,
 } from '../../shared/types';
-import { ContextMenu } from '../shared/ContextMenu';
-import { days } from '../../shared/utilities';
-import { DataCell } from './TableCell';
-import { ConfirmationDialog } from '../shared/ConfirmationDialog';
-import { NewScheduleForm } from '../shared/NewScheduleForm';
+import { ContextMenu } from '../../components/shared/ContextMenu';
+import { days } from './utilities';
+import { ConfirmationDialog } from '../../components/shared/ConfirmationDialog';
 
 interface BootstrapData {
   schedules: ScheduleTableInterface[];
@@ -229,7 +231,7 @@ export const Schedule = ({
                                     {cell.display}
                                   </TableCell>
                                 ) : (
-                                  <DataCell
+                                  <ScheduleTableCell
                                     data={cell}
                                     options={teammates(roleId)}
                                     onTaskModified={onTaskModified}

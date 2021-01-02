@@ -9,14 +9,14 @@ import RemoveIcon from '@material-ui/icons/Remove';
 
 import { typographyTheme } from '../../shared/styles/theme.js';
 
-interface DataCellProps {
+interface ScheduleTableCellProps {
   data: any;
   options?: any;
   onTaskModified: any;
 }
 
-export const DataCell = React.memo(
-  ({ data, options = [], onTaskModified }: DataCellProps) => {
+export const ScheduleTableCell = React.memo(
+  ({ data, options = [], onTaskModified }: ScheduleTableCellProps) => {
     const classes = useStyles();
     const [value, setValue] = useState(data);
     const [isCellModified, setIsCellModified] = useState<boolean>(false);
@@ -84,7 +84,10 @@ export const DataCell = React.memo(
   arePropsEqual,
 );
 
-function arePropsEqual(prevProps: DataCellProps, nextProps: DataCellProps) {
+function arePropsEqual(
+  prevProps: ScheduleTableCellProps,
+  nextProps: ScheduleTableCellProps,
+) {
   return prevProps.data.userId === nextProps.data.userId;
 }
 

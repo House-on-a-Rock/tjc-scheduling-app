@@ -5,7 +5,7 @@ import { QueryClient, QueryClientProvider } from 'react-query';
 import { ReactQueryDevtools } from 'react-query-devtools';
 import { ThemeProvider } from '@material-ui/core';
 
-import { Teams, Members, Templates, ScheduleContainer } from '../components';
+import { Teams, Members, Templates, ScheduleContainer } from '../container';
 import { Header } from '../components/shared';
 import theme from '../shared/styles/theme';
 import { extractTokenInfo, useToken } from '../shared/utilities';

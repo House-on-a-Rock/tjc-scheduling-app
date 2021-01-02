@@ -7,7 +7,7 @@ import { useValidatedField } from '../../hooks';
 
 import { buttonTheme } from '../../shared/styles/theme.js';
 
-import { Tooltip } from './Tooltip';
+import { Tooltip } from '../shared/Tooltip';
 import { stringLengthCheck } from '../../shared/utilities';
 import { HttpErrorProps, NewScheduleData } from '../../shared/types';
 // TODO hook up teams with data from DB

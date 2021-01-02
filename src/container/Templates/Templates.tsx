@@ -17,7 +17,7 @@ import { postSchedule } from '../../query/apis/schedules';
 import { buttonTheme } from '../../shared/styles/theme.js';
 
 // components
-import { NewScheduleForm } from '../shared/NewScheduleForm';
+import { NewScheduleForm } from '../../components/Schedule/NewScheduleForm';
 import { NewScheduleData } from '../../shared/types';
 
 // Structure of template object - ( id, churchId, name, data)

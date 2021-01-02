@@ -42,11 +42,11 @@ export const ScheduleTabs = ({
           },
         }}
       >
-        {tabs.map((schedule, index) => (
+        {tabs.map((tabData, index) => (
           <Tab
             // eslint-disable-next-line react/no-array-index-key
-            key={`${schedule.title}-${index}`}
-            label={schedule.title}
+            key={`${tabData.title}-${index}`}
+            label={tabData.title}
             className={classes.tab}
           />
         ))}
