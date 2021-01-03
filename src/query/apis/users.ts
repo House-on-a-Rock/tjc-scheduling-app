@@ -18,16 +18,6 @@ export function destroyUser(userId: number): Promise<AxiosResponse | void> {
   return axios.delete(`${secretIp}/api/user/${userId}`);
 }
 
-export function addUser({
-  email,
-  firstName,
-  lastName,
-  churchId,
-}: NewUserData): Promise<AxiosResponse> {
-  return axios.post(`${secretIp}/api/user`, {
-    email: email,
-    firstName: firstName,
-    lastName: lastName,
-    churchId: churchId,
-  });
+export function addUser(data: NewUserData): Promise<AxiosResponse> {
+  return axios.post(`${secretIp}/api/user`, data);
 }
