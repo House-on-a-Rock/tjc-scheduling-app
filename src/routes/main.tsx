@@ -5,7 +5,7 @@ import { QueryClient, QueryClientProvider } from 'react-query';
 import { ReactQueryDevtools } from 'react-query-devtools';
 import { ThemeProvider } from '@material-ui/core';
 
-import { Teams, Members, Templates, ScheduleContainer } from '../container';
+import { Teams, Members, Template, Schedule } from '../container';
 import { Header } from '../components/shared';
 import theme from '../shared/styles/theme';
 import { extractTokenInfo, useToken } from '../shared/utilities';
@@ -36,13 +36,13 @@ const Main = () => {
             <Switch>
               <QueryClientProvider client={queryClient}>
                 <Route path="/home">
-                  <ScheduleContainer churchId={churchId} />
+                  <Schedule churchId={churchId} />
                 </Route>
                 <Route path="/teams">
                   <Teams churchId={churchId} />
                 </Route>
                 <Route path="/templates">
-                  <Templates churchId={churchId} />
+                  <Template churchId={churchId} />
                 </Route>
                 <Route path="/members">
                   <Members churchId={churchId} />

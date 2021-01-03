@@ -1,375 +1,184 @@
-/* eslint-disable react/jsx-closing-tag-location */
-/* eslint-disable react/self-closing-comp */
-/* eslint-disable react/no-array-index-key */
-import React, { useEffect, useRef, useState } from 'react';
-import { Prompt } from 'react-router-dom';
-import { CircularProgress, Dialog, TableCell, TableRow } from '@material-ui/core';
-import { SchedulesDataInterface } from '../../query';
+import React, { useEffect, useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from 'react-query';
+import { AxiosResponse, AxiosError } from 'axios';
+// the queries aren't very consistent....
 import {
-  ScheduleTabs,
-  ScheduleTable,
-  NewScheduleForm,
-  ScheduleTableHeader,
-  ScheduleTableBody,
-  ScheduleToolbar,
-  NewServiceForm,
-  ScheduleTableCell,
-} from '../../components/Schedule';
-
+  postSchedule,
+  destroySchedule,
+  postService,
+  destroyEvent,
+} from '../../query/apis';
+import { getChurchMembersData, getAllSchedules, getScheduleData } from '../../query';
 import {
-  DeleteEventsData,
   DeleteScheduleData,
-  HttpErrorProps,
   NewScheduleData,
   NewServiceData,
+  DeleteEventsData,
 } from '../../shared/types';
-import { ContextMenu } from '../../components/shared/ContextMenu';
-import { days } from './utilities';
-import { ConfirmationDialog } from '../../components/shared/ConfirmationDialog';
-
-interface BootstrapData {
-  schedules: ScheduleTableInterface[];
-  users: UsersDataInterface[];
-}
-interface ContainerStateProp {
-  data: BootstrapData;
-  isLoading: boolean;
-  error: HttpErrorProps;
-  isSuccess: string;
-}
+import { ScheduleContainer } from './ScheduleContainer';
 
 interface ScheduleProps {
-  tabs: SchedulesDataInterface[];
-  state: ContainerStateProp;
-  addSchedule: (newInfo: NewScheduleData) => void;
-  addService: (newInfo: NewServiceData) => void;
-  removeSchedule: (info: DeleteScheduleData) => void;
-  removeEvents: (info: DeleteEventsData) => void;
+  churchId: number;
 }
 
-const SERVICE = 'service';
-const EVENT = 'event';
-const SCHEDULE = 'schedule';
+export const Schedule = ({ churchId }: ScheduleProps) => {
+  const queryClient = useQueryClient();
+  const [isLoading, setIsLoading] = useState(false);
+  const [data, setData] = useState<any>();
+  const [error, setError] = useState(null);
+  const [fetchedSchedules, setFetchedSchedules] = useState<number[]>([]);
+  const [isSuccess, setIsSuccess] = useState<string>('');
 
-// Task List
-// 1. When the container has more than 3 tabs, when you select the 4th, how to handle data from data handler
-// 2. Need to update changedTask and the buttons to reflect only on the schedule selected
-// 3. Cell data poorly describes the different kinds of cells that exist. The data structure needs a revamp, and so does the Tablecell/Datacell
-// 4. Low priority but finding scheduleId and order is a pain the way I have it currently implemented because allScheduleData exists in tabs, but singular schedule data exist in schedules. Need to consolidate some of the logic together
+  // Gets all schedules' id
+  // There are some undefined queries in here
+  const tabs = useQuery(['tabs', churchId], () => getAllSchedules(churchId), {
+    enabled: !!churchId,
+    refetchOnWindowFocus: false,
+    staleTime: 100000000000000,
+  });
 
-export const Schedule = ({
-  tabs,
-  state,
-  addSchedule,
-  removeSchedule,
-  addService,
-  removeEvents,
-}: ScheduleProps) => {
-  const { isLoading, error, data, isSuccess } = state;
-  const [tab, setTab] = useState(0);
-  const [isScheduleModified, setIsScheduleModified] = useState<boolean>(false);
-  const [isNewScheduleOpen, setIsNewScheduleOpen] = useState<boolean>(false);
-  const [isNewServiceOpen, setIsNewServiceOpen] = useState<boolean>(false);
-  const [warningDialog, setWarningDialog] = useState<string>();
-  const [selectedEvents, setSelectedEvents] = useState<string[]>([]);
-  //   const [alert, setAlert] = useState<AlertInterface>();
+  const schedules = useQuery(
+    ['schedules', fetchedSchedules],
+    () =>
+      getScheduleData(
+        fetchedSchedules.length > 0 ? makeScheduleIdxs(tabs.data) : fetchedSchedules,
+      ),
+    {
+      enabled: !!tabs.data,
+      refetchOnWindowFocus: false,
+      staleTime: 100000000000000,
+      keepPreviousData: true,
+    },
+  );
 
-  const changedTasks = useRef<any>({});
-  const outerRef = useRef(null);
+  // Users with their teammates (for autocomplete)
+  // Will need to add availabilities (or unavailabilities)
+  const users = useQuery(['roleData', churchId], () => getChurchMembersData(churchId), {
+    enabled: !!churchId,
+    staleTime: 300000,
+    cacheTime: 3000000,
+  });
 
-  // Schedule
-  function onChangeTabs(value: number) {
-    if (value === tabs.length) return;
-    // fetchSchedule(value);
-    // I think I need to wait for data to refetch, can't test until we have more schedules to work with
-    setTab(value);
-  }
-  // Save Data
-  function onTaskModified(taskId: number, newAssignee: number, isChanged: boolean) {
-    if (isChanged) {
-      const updatedChangedTasks = { ...changedTasks.current, [taskId]: newAssignee };
-      changedTasks.current = updatedChangedTasks;
-    } else if (changedTasks.current[taskId]) delete changedTasks.current[taskId];
+  // CRUD Mutations
+  const createSchedule = useMutation<
+    AxiosResponse<any>,
+    AxiosError,
+    NewScheduleData,
+    unknown
+  >(postSchedule, {
+    onSuccess: () => {
+      queryClient.invalidateQueries('tabs');
+      queryClient.invalidateQueries('schedules');
+      setIsSuccess('NewScheduleForm');
+    },
+    onError: (result) => errorHandling(result, setError),
+    onSettled: () => setIsSuccess(''),
+  });
 
-    setIsScheduleModified(Object.keys(changedTasks.current).length > 0);
-  }
-  function onSaveScheduleChanges() {
-    setIsScheduleModified(false);
-  }
+  const deleteSchedule = useMutation<
+    AxiosResponse<any>,
+    AxiosError,
+    DeleteScheduleData,
+    unknown
+  >(destroySchedule, {
+    onSuccess: () => {
+      queryClient.invalidateQueries('tabs');
+      setIsSuccess('DeleteSchedule');
+      // BUG: part 1: deleting incorrectly is successful; part 2: rerenders component
+    },
+    onError: (result) => errorHandling(result, setError),
+    onSettled: () => setIsSuccess(''),
+  });
 
-  // Context Menu functions
-  function deleteRow(rowIndex: number) {
-    setWarningDialog(EVENT);
-  }
-  function insertRow(rowIndex: number) {}
+  const createService = useMutation<
+    AxiosResponse<any>,
+    AxiosError,
+    NewServiceData,
+    unknown
+  >(postService, {
+    onSuccess: () => {
+      queryClient.invalidateQueries('schedules');
+      setIsSuccess('NewServiceForm');
+    },
+    onError: (result) => errorHandling(result, setError),
+    onSettled: () => setIsSuccess(''),
+  });
+
+  const deleteEvent = useMutation<AxiosResponse<any>, AxiosError, string, unknown>(
+    destroyEvent,
+    {
+      onSuccess: () => {
+        setIsSuccess('DeleteEvents');
+        queryClient.invalidateQueries('schedules');
+        // BUG: part 1: deleting incorrectly is successful; part 2: rerenders component
+      },
+      onError: (result) => errorHandling(result, setError),
+      onSettled: () => setIsSuccess(''),
+    },
+  );
 
   useEffect(() => {
-    // with react-query, there is no awaiting for a response to finish. so the results need to be handled by the mutations.isSuccess/isError/etc methods in data handler
-    if (isSuccess === 'NewScheduleForm') {
-      setIsNewScheduleOpen(false);
-      setTab(tabs.length);
+    if (tabs.data) {
+      // handles created or deleted schedules
+      setFetchedSchedules(makeScheduleIdxs(tabs.data));
     }
-    if (isSuccess === 'NewServiceForm') setIsNewServiceOpen(false);
-    if (isSuccess === 'DeleteSchedule') {
-      // setIsNewScheduleOpen(false);
-      setWarningDialog('');
-      setTab(0);
-    }
-    if (isSuccess === 'DeleteService') {
-      // setIsNewScheduleOpen(false);
-    }
-    if (isSuccess === 'DeleteEvents') {
-      setWarningDialog('');
-      setSelectedEvents([]);
-      // setIsNewScheduleOpen(false);
-    }
-  }, [isSuccess]);
+  }, [tabs]);
 
-  const teammates = (roleId) =>
-    data.users.filter((user) => user.teams.some((team) => team.id === roleId));
+  // function fetchSchedule(tabIdx) {
+  //   if (tabIdx < tabs.data.length) {
+  //     setFetchedSchedule(tabIdx);
+  //     console.log(tabIdx, 'hello there');
+  //   }
+  // }
 
-  const confirmDialogConfig = {
-    [SCHEDULE]: {
-      title: 'Are you sure you want to delete this schedule?',
-      accepted: () => {
-        setTab(0);
-        removeSchedule({ scheduleId: tabs[tab].id, title: tabs[tab].title });
-      },
-    },
-    [SERVICE]: {
-      title: 'Are you sure you want to delete this service?',
-      accepted: () => {
-        setTab(0);
-        // removeService()
-      },
-    },
-    [EVENT]: {
-      title: 'Are you sure you want to delete this event?',
-      accepted: () => {
-        removeEvents({ eventIds: selectedEvents });
-      },
-    },
-  };
+  useEffect(() => {
+    if (schedules.isSuccess) setError(null);
+    if (schedules.isError) setError(schedules.error);
+    if (schedules.data) setData({ ...data, schedules: schedules.data });
+    if (schedules.isLoading !== isLoading) setIsLoading(schedules.isLoading);
+  }, [schedules]);
 
-  const handleRowSelected = (isSelected: boolean, eventId: string) =>
-    isSelected
-      ? setSelectedEvents(selectedEvents.filter((id) => id !== eventId))
-      : setSelectedEvents([...selectedEvents, eventId]);
+  useEffect(() => {
+    if (users.isSuccess) setError(null);
+    if (users.isError) setError(users.error);
+    if (users.data) setData({ ...data, users: users.data });
+    if (users.isLoading !== isLoading) setIsLoading(users.isLoading);
+  }, [users]);
+
+  useEffect(() => {
+    if (deleteEvent.isLoading) setIsLoading(deleteEvent.isLoading);
+    // uncomment above for an example that shows setIsLoading works
+    // Task item, decide and implement loading logic
+    // we'll have to decide whether we want the loading logic to be separated into different parts of the table body or to have it just cover the whole screen
+  }, [deleteEvent]);
 
   return (
-    <>
-      {data?.schedules && data?.users && !isLoading ? (
-        <div ref={outerRef}>
-          {/* 1) Add an arrow into the tab that opens context menu */}
-          {/* 2) Options in this context menu: rename schedule, delete schedule, color/style tabs */}
-          <ScheduleTabs
-            tabIdx={tab}
-            onTabClick={onChangeTabs}
-            tabs={tabs}
-            handleAddClicked={() => setIsNewScheduleOpen(true)}
-          />
-
-          <ScheduleToolbar
-            handleNewServiceClicked={() => setIsNewServiceOpen(true)}
-            destroySchedule={() => setWarningDialog(SCHEDULE)} // this function should actually be moved into tabs. when a user right clicks the tab, you'd expect the delete functionality to be there**
-            isScheduleModified={isScheduleModified}
-            onSaveScheduleChanges={onSaveScheduleChanges}
-          />
-          <ContextMenu
-            outerRef={outerRef}
-            addRowHandler={insertRow}
-            deleteRowHandler={deleteRow}
-          />
-          <Prompt
-            when={isScheduleModified}
-            message="You have unsaved changes, are you sure you want to leave? Unsaved changes will be lost"
-          />
-          {/* {alert && <Alert alert={alert} unMountAlert={() => setAlert(null)} />} */}
-          {data.schedules?.map((schedule: ScheduleTableInterface, idx) => {
-            const { columns: headers, services: bodies, title, view } = schedule;
-            return (
-              // This can be moved out as a "pane" component. But it's a little confusing (from my own exp working on service.tjc.org), so we'll keep this here first until everyone's accustomed to it.
-              <div key={idx}>
-                {/* Children of this component could possibly be moved into its own component, but until we know better how these components will be used, we won't know how to abstract them properly so for now, we'll keep these header and body components apart */}
-                <ScheduleTable
-                  key={`${title}-${view}`}
-                  title={title}
-                  hidden={tab !== idx}
-                >
-                  {headers.map(({ Header }, index: number) => (
-                    <ScheduleTableHeader key={`${Header}_${index}`} header={Header} />
-                  ))}
-                  {/* This became pretty nested within each other (as a table is), but like in the above comment, abstraction is only useful when it's reusable. Splitting code into pieces is only helpful if it improves readability, and while it reduces the size of this file, that doesn't mean it'll improve readability with all the prop/function drilling that will be required */}
-                  {bodies.map((body: ServiceDataInterface, index: number) => {
-                    const { day, name, events } = body;
-                    return (
-                      <ScheduleTableBody
-                        key={`${day}-${name}`}
-                        title={`${days[day]} ${name}`}
-                      >
-                        {events.map((event, rowIdx) => {
-                          const {
-                            roleId,
-                            cells,
-                            title: cellTitle,
-                            time,
-                            eventId,
-                          } = event;
-                          const isSelected = selectedEvents.includes(eventId.toString());
-                          return (
-                            <TableRow
-                              key={`${cellTitle}-${time}`}
-                              hover
-                              onClick={() =>
-                                handleRowSelected(isSelected, eventId.toString())
-                              }
-                              selected={isSelected}
-                            >
-                              {cells.map((cell, columnIndex) =>
-                                columnIndex < 2 ? (
-                                  <TableCell key={`${rowIdx}_${columnIndex}`}>
-                                    {cell.display}
-                                  </TableCell>
-                                ) : (
-                                  <ScheduleTableCell
-                                    data={cell}
-                                    options={teammates(roleId)}
-                                    onTaskModified={onTaskModified}
-                                    key={`${rowIdx}_${columnIndex}`}
-                                  />
-                                ),
-                              )}
-                            </TableRow>
-                          );
-                        })}
-                      </ScheduleTableBody>
-                    );
-                  })}
-                </ScheduleTable>
-              </div>
-            );
-          })}
-        </div>
-      ) : (
-        <CircularProgress />
-      )}
-      <Dialog open={isNewScheduleOpen} onClose={() => setIsNewScheduleOpen(false)}>
-        <NewScheduleForm
-          onClose={() => setIsNewScheduleOpen(false)}
-          onSubmit={(newScheduleData) => addSchedule(newScheduleData)}
-          error={error}
-        />
-      </Dialog>
-      <Dialog open={isNewServiceOpen} onClose={() => setIsNewServiceOpen(false)}>
-        <NewServiceForm
-          onSubmit={(newInfo) =>
-            addService({
-              ...newInfo,
-              scheduleId: tabs[tab].id,
-              order: data.schedules[tab].services.length + 1, // need a better way to grab scheduleId and order
-            })
-          }
-          onClose={() => setIsNewServiceOpen(false)}
-          error={error}
-        />
-      </Dialog>
-      <ConfirmationDialog
-        title={confirmDialogConfig[warningDialog]?.title}
-        isOpen={!!warningDialog}
-        handleClick={(accepted) => {
-          if (accepted) confirmDialogConfig[warningDialog]?.accepted();
-          else setWarningDialog('');
-        }}
-      />
-    </>
+    <ScheduleContainer
+      tabs={tabs.data}
+      state={{ data, isLoading, error, isSuccess }}
+      addSchedule={(newInfo: NewScheduleData) =>
+        createSchedule.mutate({ ...newInfo, churchId })
+      }
+      removeSchedule={(info: DeleteScheduleData) => deleteSchedule.mutate(info)}
+      addService={(newInfo: NewServiceData) => createService.mutate(newInfo)}
+      removeEvents={({ eventIds }: DeleteEventsData) =>
+        eventIds.map((eventId) => deleteEvent.mutate(eventId))
+      }
+    />
   );
 };
 
-interface ScheduleTableInterface {
-  columns: ColumnsInterface[];
-  role: RoleData;
-  title: string;
-  view: string;
-  services: ServiceDataInterface[];
+function makeScheduleIdxs(tabsData) {
+  const scheduleIdxs = [];
+  for (let i = 0; i < tabsData.length && i < 3; i++) {
+    scheduleIdxs.push(tabsData[i].id);
+  }
+  return scheduleIdxs;
 }
 
-interface RoleData {
-  churchId: number;
-  createdAt?: string;
-  updatedAt?: string;
-  id: number;
-  name: string;
-  roleId: null; // we gotta remove this
-}
-
-interface ColumnsInterface {
-  Header: string;
-  Accessor: string;
-}
-
-interface ServiceDataInterface {
-  day: number;
-  events: EventsDataInterface[];
-  name: string;
-  serviceId: number;
-}
-
-interface EventsDataInterface {
-  cells: AssignmentDataInterface[];
-  displayTime: boolean;
-  eventId: number; // unsure why eventId in eventsData is not just id
-  roleId: number;
-  time: string;
-  title: string;
-}
-
-interface AssignmentDataInterface {
-  // we need a better system than this to differentiate cells that display time, and cells that are dynamic
-  role?: RoleAssociation;
-  display?: string;
-  time?: string;
-  displayTime?: boolean;
-  taskId?: number;
-  date?: string;
-  firstName?: string;
-  lastName?: string;
-  userId: number;
-}
-
-interface RoleAssociation {
-  id: number;
-  name: string;
-}
-
-interface UsersDataInterface {
-  church: ChurchInterface;
-  churchId: number;
-  disabled: boolean;
-  email: string;
-  firstName: string;
-  lastName: string;
-  userId: number;
-  teams: TeamsInterface[];
-}
-interface ChurchInterface {
-  name: string;
-}
-
-interface TeamsInterface {
-  id: number;
-  name: string;
-  users: Teammates[];
-}
-
-interface Teammates {
-  id: number;
-  roleId: number;
-  teamLead: boolean;
-  user: UserInterface;
-}
-
-interface UserInterface {
-  id: number;
-  firstName: string;
-  lastName: string;
+function errorHandling(result: AxiosError, setError) {
+  setError({
+    status: result.response.status,
+    message: result.response.statusText,
+  });
 }
