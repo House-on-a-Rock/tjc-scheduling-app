@@ -1,4 +1,3 @@
-/* eslint-disable react/no-array-index-key */
 import React, { useState } from 'react';
 
 // mat ui
@@ -7,7 +6,7 @@ import { Button } from '@material-ui/core';
 import AddIcon from '@material-ui/icons/Add';
 
 import { DataStateProp } from '../types';
-import { TemplateDisplay } from './TemplateDisplay';
+import { TemplateDisplay } from '../../components/Template/TemplateDisplay';
 import { buttonTheme } from '../../shared/styles/theme';
 
 interface EventDataInterface {
@@ -39,17 +38,17 @@ export const TemplateContainer = ({ state }: TemplateContainerProps) => {
   const { isLoading, error, data, isSuccess } = state;
 
   return (
-    <div>
+    <>
       <h1>Templates</h1>
       <br />
-
-      <div className={classes.templateContainer}>
-        {data && console.log(data.templates)}
-        {data?.templates.map((template, index) => (
-          <TemplateDisplay template={template} key={`${index}_TemplateDisplay`} />
-        ))}
-      </div>
-    </div>
+      {data?.templates && !isLoading && (
+        <div className={classes.templateContainer}>
+          {data?.templates.map((template, index) => (
+            <TemplateDisplay template={template} key={`${index}_TemplateDisplay`} />
+          ))}
+        </div>
+      )}
+    </>
   );
 };
 

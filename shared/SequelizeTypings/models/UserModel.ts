@@ -6,7 +6,7 @@ export interface UserAttributes extends CommonSequelizeAttributes {
   firstName: string;
   lastName: string;
   email: string;
-  password: string;
+  password?: string;
   isVerified: boolean;
   loginAttempts?: number;
   loginTimeout?: Date;

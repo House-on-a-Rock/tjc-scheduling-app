@@ -1,6 +1,5 @@
 export const users = [
   {
-    id: 1,
     isAdmin: true,
     churchId: 2,
     email: 'philadelphia@tjc.org',
@@ -8,7 +7,6 @@ export const users = [
     isVerified: true,
   },
   {
-    id: 2,
     firstName: 'Kevin',
     lastName: 'Wang',
     email: 'kevin.wang@gmail.com',
@@ -18,7 +16,6 @@ export const users = [
     expoPushToken: 'ExponentPushToken[-uuepvN27WLr5fHqJoK3y8]',
   },
   {
-    id: 3,
     firstName: 'Sun-Yu',
     lastName: 'Yang',
     email: 'sun-yu.yang@gmail.com',
@@ -28,7 +25,6 @@ export const users = [
     expoPushToken: 'ExponentPushToken[-uuepvN27WLr5fHqJoK3y8]',
   },
   {
-    id: 4,
     firstName: 'Shenney',
     lastName: 'Lin',
     email: 'shenney.lin@gmail.com',
@@ -38,7 +34,6 @@ export const users = [
     expoPushToken: 'ExponentPushToken[-uuepvN27WLr5fHqJoK3y8]',
   },
   {
-    id: 5,
     firstName: 'Chloe',
     lastName: 'Lin',
     email: 'chloe.lin@gmail.com',
@@ -48,7 +43,6 @@ export const users = [
     expoPushToken: 'ExponentPushToken[-uuepvN27WLr5fHqJoK3y8]',
   },
   {
-    id: 6,
     firstName: 'Vinnie',
     lastName: 'Lin',
     email: 'vinnie.lin@gmail.com',
@@ -58,7 +52,6 @@ export const users = [
     expoPushToken: 'ExponentPushToken[-uuepvN27WLr5fHqJoK3y8]',
   },
   {
-    id: 7,
     firstName: 'Qianwei',
     lastName: 'Liu',
     email: 'qianwei.liu@gmail.com',
@@ -68,7 +61,6 @@ export const users = [
     expoPushToken: 'ExponentPushToken[-uuepvN27WLr5fHqJoK3y8]',
   },
   {
-    id: 8,
     firstName: 'Xingru',
     lastName: 'Wang',
     email: 'xingru.wang@gmail.com',
@@ -78,7 +70,6 @@ export const users = [
     expoPushToken: 'ExponentPushToken[-uuepvN27WLr5fHqJoK3y8]',
   },
   {
-    id: 9,
     firstName: 'Shaun',
     lastName: 'Tung',
     email: 'shaun.tung@gmail.com',
@@ -88,7 +79,6 @@ export const users = [
     expoPushToken: 'ExponentPushToken[-uuepvN27WLr5fHqJoK3y8]',
   },
   {
-    id: 10,
     firstName: 'Shouli',
     lastName: 'Tung',
     email: 'shouli.tung@gmail.com',
@@ -98,7 +88,6 @@ export const users = [
     expoPushToken: 'ExponentPushToken[-uuepvN27WLr5fHqJoK3y8]',
   },
   {
-    id: 11,
     firstName: 'Rebecca',
     lastName: 'Lin',
     email: 'rebecca.lin@gmail.com',
@@ -108,7 +97,6 @@ export const users = [
     expoPushToken: 'ExponentPushToken[-uuepvN27WLr5fHqJoK3y8]',
   },
   {
-    id: 12,
     firstName: 'Joseph',
     lastName: 'Wu',
     email: 'joseph.wu@gmail.com',
@@ -118,7 +106,6 @@ export const users = [
     expoPushToken: 'ExponentPushToken[-uuepvN27WLr5fHqJoK3y8]',
   },
   {
-    id: 13,
     firstName: 'Thomas',
     lastName: 'Hsu',
     email: 'thomas.hsu@gmail.com',
@@ -128,7 +115,6 @@ export const users = [
     expoPushToken: 'ExponentPushToken[-uuepvN27WLr5fHqJoK3y8]',
   },
   {
-    id: 14,
     firstName: 'Brenda',
     lastName: 'Ong',
     email: 'brenda.ong@gmail.com',
@@ -138,7 +124,6 @@ export const users = [
     expoPushToken: 'ExponentPushToken[-uuepvN27WLr5fHqJoK3y8]',
   },
   {
-    id: 15,
     firstName: 'Yvonne',
     lastName: 'Wong',
     email: 'yvonne.wong@gmail.com',

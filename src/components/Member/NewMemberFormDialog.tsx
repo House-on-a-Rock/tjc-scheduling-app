@@ -10,23 +10,99 @@ import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
-import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
+import { makeStyles, createStyles } from '@material-ui/core/styles';
 
-import { EmailForm, PasswordForm } from '../FormControl';
-import { FormField } from './FormField';
-import { EmailState, PasswordState } from '../../shared/types/models';
+import { EmailForm } from '../FormControl';
+import { FormField } from '../shared/FormField';
+import { EmailState, NewUserData } from '../../shared/types';
 import { isValidEmail } from '../../shared/utilities';
 
-export interface AddUserProps {
+export interface NewMemberFormDialogProps {
   title: string;
-  isOpen: boolean;
-  handleClose: (
-    value: boolean,
-    firstname: string,
-    lastname: string,
-    email: string,
-    password: string,
-  ) => void;
+  state: boolean;
+  handleClose: () => void;
+  handleSubmit: (args: NewUserData) => void;
+}
+
+// FormDialog is inherently tightly coupled
+export function NewMemberFormDialog({
+  handleSubmit,
+  handleClose,
+  state,
+  title,
+}: NewMemberFormDialogProps) {
+  const classes = useStyles();
+  const [firstName, setFirstName] = useState<string>('');
+  const [lastName, setLastName] = useState<string>('');
+  const [email, setEmail] = useState<EmailState>({
+    value: '',
+    valid: true,
+    message: null,
+  });
+
+  // validations needed
+  // valid email provided
+  // why are the submit/cancel buttons listitems?
+
+  return (
+    <Dialog onBackdropClick={() => handleClose()} open={state} className={classes.root}>
+      <DialogTitle id="confirm-dialog">{title} </DialogTitle>
+      <form noValidate autoComplete="off" className={classes.form}>
+        <FormField
+          name="firstname"
+          label="First Name"
+          value={firstName}
+          handleChange={setFirstName}
+          autoFocus
+        />
+        <br />
+        <FormField
+          name="lastname"
+          label="Last Name"
+          value={lastName}
+          handleChange={setLastName}
+        />
+        <br />
+        <EmailForm
+          name="email"
+          label="Email Address"
+          email={email}
+          handleEmail={setEmail}
+        />
+        <br />
+      </form>
+      <List>
+        <ListItem
+          button
+          onClick={() => {
+            if (isValidEmail(email.value)) {
+              handleSubmit({ firstName, lastName, email: email.value });
+            } else {
+              setEmail({ ...email, valid: false, message: 'Invalid email' });
+            }
+          }}
+          key="yes-button"
+          className={classes.listItem}
+        >
+          <ListItemIcon style={{ color: green[500] }}>
+            <CheckIcon />
+          </ListItemIcon>
+          <ListItemText primary="CONFIRM" />
+        </ListItem>
+        <ListItem
+          button
+          onClick={() => handleClose()}
+          key="no-button"
+          className={classes.listItem}
+        >
+          <ListItemIcon style={{ color: '#ba000d' }}>
+            <ClearIcon />
+          </ListItemIcon>
+          <ListItemText primary="CANCEL" />
+        </ListItem>
+      </List>
+    </Dialog>
+  );
 }
 
 const useStyles = makeStyles(() =>
@@ -53,107 +129,3 @@ const useStyles = makeStyles(() =>
     },
   }),
 );
-
-export function FormDialog({ handleClose, isOpen, title }: AddUserProps) {
-  const classes = useStyles();
-  const [firstName, setFirstName] = useState<string>('');
-  const [lastName, setLastName] = useState<string>('');
-  const [email, setEmail] = useState<EmailState>({
-    value: '',
-    valid: true,
-    message: null,
-  });
-  const [password, setPassword] = useState<PasswordState>({
-    value: '',
-    valid: true,
-    visible: false,
-    message: null,
-  });
-
-  const clearPresets = () => {
-    setEmail({ ...email, valid: true, value: '', message: null });
-    setFirstName('');
-    setLastName('');
-    setPassword({ ...password, value: '' });
-  };
-
-  // validations needed
-  // valid email provided
-  // why are the submit/cancel buttons listitems?
-
-  return (
-    <Dialog
-      onBackdropClick={() => {
-        handleClose(!isOpen, firstName, lastName, email.value, password.value);
-        clearPresets();
-      }}
-      open={isOpen}
-      className={classes.root}
-    >
-      <DialogTitle id="confirm-dialog">{title} </DialogTitle>
-      <form noValidate autoComplete="off" className={classes.form}>
-        <FormField
-          name="firstname"
-          label="First Name"
-          value={firstName}
-          handleChange={setFirstName}
-        />
-        <br />
-        <FormField
-          name="firstname"
-          label="First Name"
-          value={lastName}
-          handleChange={setLastName}
-        />
-        <br />
-        <EmailForm
-          name="email"
-          label="Email Address"
-          email={email}
-          handleEmail={setEmail}
-        />
-        <br />
-        <PasswordForm
-          name="Password"
-          label="Password"
-          password={password}
-          handlePassword={setPassword}
-        />
-      </form>
-      <List>
-        <ListItem
-          button
-          onClick={() => {
-            if (isValidEmail(email.value)) {
-              handleClose(true, firstName, lastName, email.value, password.value);
-              clearPresets();
-            } else {
-              setEmail({ ...email, valid: false, message: 'Invalid email' });
-            }
-          }}
-          key="yes-button"
-          className={classes.listItem}
-        >
-          <ListItemIcon style={{ color: green[500] }}>
-            <CheckIcon />
-          </ListItemIcon>
-          <ListItemText primary="CONFIRM" />
-        </ListItem>
-        <ListItem
-          button
-          onClick={() => {
-            handleClose(false, firstName, lastName, email.value, password.value);
-            clearPresets();
-          }}
-          key="no-button"
-          className={classes.listItem}
-        >
-          <ListItemIcon style={{ color: '#ba000d' }}>
-            <ClearIcon />
-          </ListItemIcon>
-          <ListItemText primary="CANCEL" />
-        </ListItem>
-      </List>
-    </Dialog>
-  );
-}

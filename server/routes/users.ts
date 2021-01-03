@@ -81,7 +81,7 @@ router.get('/user/:userId', certify, async (req, res, next) => {
 
 router.post('/user', certify, async (req: Request, res: Response, next) => {
   try {
-    const { email, firstName, lastName, password, churchId } = req.body;
+    const { email, firstName, lastName, churchId } = req.body;
     const token = crypto.randomBytes(16).toString('hex');
     const userExists: UserInstance | null = await db.User.findOne({
       where: { email },
@@ -93,7 +93,6 @@ router.post('/user', certify, async (req: Request, res: Response, next) => {
         firstName,
         lastName,
         email,
-        password,
         churchId,
         isVerified: false,
         disabled: false,
@@ -127,10 +126,9 @@ router.post('/user', certify, async (req: Request, res: Response, next) => {
           return ['', 400];
       }
     };
-    const newUser = { ...addedUser, church: addedUser.church.name };
     const [message, status] = determineMessageStatus();
     return status === 200
-      ? res.status(status).json(newUser)
+      ? res.status(status).json(addedUser)
       : res.status(status).send({ message });
   } catch (err) {
     next(err);

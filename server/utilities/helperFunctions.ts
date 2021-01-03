@@ -85,9 +85,10 @@ export function sendVerEmail(
       subject: 'Account Verification Token',
       text: `Hello,\n\n Please verify your account by clicking the link: \nhttp://${hostname}/api/authentication/${api}?token=${token}`,
     };
-    transporter.sendMail(mailOptions, function (err) {
-      return !err ? console.log('success') : console.log(err.message);
-    });
+    // lets not send emails while developing for now lol
+    // transporter.sendMail(mailOptions, function (err) {
+    //   return !err ? console.log('success') : console.log(err.message);
+    // });
     return [message, 201];
   } catch (err) {
     console.log(err);

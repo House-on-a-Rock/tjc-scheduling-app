@@ -53,7 +53,7 @@ export const Schedule = ({ churchId }: ScheduleProps) => {
 
   // Users with their teammates (for autocomplete)
   // Will need to add availabilities (or unavailabilities)
-  const users = useQuery(['roleData', churchId], () => getChurchMembersData(churchId), {
+  const users = useQuery(['users', churchId], () => getChurchMembersData(churchId), {
     enabled: !!churchId,
     staleTime: 300000,
     cacheTime: 3000000,

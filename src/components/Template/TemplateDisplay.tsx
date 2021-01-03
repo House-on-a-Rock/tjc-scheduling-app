@@ -1,4 +1,3 @@
-/* eslint-disable react/no-array-index-key */
 import React from 'react';
 
 // mat ui
@@ -13,7 +12,7 @@ import TableRow from '@material-ui/core/TableRow';
 import TableCell from '@material-ui/core/TableCell';
 
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
-import { TemplateDataInterface } from '../types';
+import { TemplateDataInterface } from '../../container/types';
 
 interface TemplateDisplayProps {
   template: TemplateDataInterface;

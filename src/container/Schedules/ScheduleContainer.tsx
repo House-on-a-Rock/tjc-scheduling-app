@@ -1,6 +1,5 @@
 /* eslint-disable react/jsx-closing-tag-location */
 /* eslint-disable react/self-closing-comp */
-/* eslint-disable react/no-array-index-key */
 import React, { useEffect, useRef, useState } from 'react';
 import { Prompt } from 'react-router-dom';
 import { CircularProgress, Dialog, TableCell, TableRow } from '@material-ui/core';
@@ -15,6 +14,7 @@ import {
   NewServiceForm,
   ScheduleTableCell,
 } from '../../components/Schedule';
+import { ContextMenu, ConfirmationDialog } from '../../components/shared';
 
 import {
   DeleteEventsData,
@@ -22,9 +22,7 @@ import {
   NewScheduleData,
   NewServiceData,
 } from '../../shared/types';
-import { ContextMenu } from '../../components/shared/ContextMenu';
 import { days } from './utilities';
-import { ConfirmationDialog } from '../../components/shared/ConfirmationDialog';
 import { DataStateProp } from '../types';
 
 interface BootstrapData {
@@ -64,7 +62,7 @@ export const ScheduleContainer = ({
   const [isScheduleModified, setIsScheduleModified] = useState<boolean>(false);
   const [isNewScheduleOpen, setIsNewScheduleOpen] = useState<boolean>(false);
   const [isNewServiceOpen, setIsNewServiceOpen] = useState<boolean>(false);
-  const [warningDialog, setWarningDialog] = useState<string>();
+  const [warningDialog, setWarningDialog] = useState<string>('');
   const [selectedEvents, setSelectedEvents] = useState<string[]>([]);
   //   const [alert, setAlert] = useState<AlertInterface>();
 
@@ -122,7 +120,7 @@ export const ScheduleContainer = ({
   const teammates = (roleId) =>
     data.users.filter((user) => user.teams.some((team) => team.id === roleId));
 
-  const confirmDialogConfig = {
+  const warningDialogConfig = {
     [SCHEDULE]: {
       title: 'Are you sure you want to delete this schedule?',
       accepted: () => {
@@ -268,10 +266,10 @@ export const ScheduleContainer = ({
         />
       </Dialog>
       <ConfirmationDialog
-        title={confirmDialogConfig[warningDialog]?.title}
-        isOpen={!!warningDialog}
+        title={warningDialogConfig[warningDialog]?.title}
+        state={!!warningDialog}
         handleClick={(accepted) => {
-          if (accepted) confirmDialogConfig[warningDialog]?.accepted();
+          if (accepted) warningDialogConfig[warningDialog]?.accepted();
           else setWarningDialog('');
         }}
       />
@@ -335,14 +333,14 @@ interface RoleAssociation {
   name: string;
 }
 
-interface UsersDataInterface {
+export interface UsersDataInterface {
+  userId: number;
+  firstName: string;
+  lastName: string;
+  email: string;
   church: ChurchInterface;
   churchId: number;
   disabled: boolean;
-  email: string;
-  firstName: string;
-  lastName: string;
-  userId: number;
   teams: TeamsInterface[];
 }
 interface ChurchInterface {

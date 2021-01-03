@@ -42,6 +42,7 @@ const Main = () => {
                   <Teams churchId={churchId} />
                 </Route>
                 <Route path="/templates">
+                  {/* history is messed up. you can't route to a page */}
                   <Template churchId={churchId} />
                 </Route>
                 <Route path="/members">

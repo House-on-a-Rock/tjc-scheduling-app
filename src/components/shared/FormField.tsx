@@ -7,6 +7,7 @@ interface FormFieldProps {
   value: string;
   className?: string;
   handleChange: (value: string) => void;
+  [x: string]: any;
 }
 
 export const FormField = ({
@@ -15,6 +16,7 @@ export const FormField = ({
   value,
   handleChange,
   className,
+  ...props
 }: FormFieldProps) => (
   <TextField
     variant="outlined"
@@ -26,7 +28,7 @@ export const FormField = ({
     name={name}
     value={value}
     onChange={(event) => handleChange(event.target.value)}
-    autoFocus
     className={className}
+    {...props}
   />
 );
