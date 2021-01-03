@@ -14,12 +14,8 @@ export function getUser(userId: string): Promise<AxiosResponse> {
 }
 
 export function destroyUser(userId: number): Promise<AxiosResponse | void> {
-  // const token = useToken();
-  // const currentUserId = extractTokenInfo(accessToken, 'userId')[0];
+  // only admins can delete, and they can't delete themselves
   return axios.delete(`${secretIp}/api/user/${userId}`);
-  // currentUserId === userId.toString()
-  //   ? new Promise(() => console.error("bruh, you can't delete yourself what"))
-  //   :
 }
 
 export function addUser({
