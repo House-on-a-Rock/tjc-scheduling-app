@@ -37,7 +37,6 @@ export const TemplateDisplay = ({ template }: TemplateDisplayProps) => {
           </TableRow>
         </TableHead>
         <TableBody>
-          {/* {data && console.log(data)} */}
           {data?.map((service) => (
             <>
               <TableRow key={`${service.name}_name`}>
