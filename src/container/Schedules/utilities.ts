@@ -14,6 +14,15 @@ const idxToMonth = [
   'Nov',
   'Dec',
 ];
+export const days: string[] = [
+  'Sunday',
+  'Monday',
+  'Tuesday',
+  'Wednesday',
+  'Thursday',
+  'Friday',
+  'Saturday',
+];
 
 const dayIndex: DayIndexOptions = {
   Sunday: 0,

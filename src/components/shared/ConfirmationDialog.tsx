@@ -10,14 +10,14 @@ import { buttonTheme } from '../../shared/styles/theme';
 
 export interface SimpleDialogProps {
   title: string;
-  isOpen: boolean;
+  state: boolean;
   handleClick: (shouldDelete: boolean) => void;
 }
 
-export function ConfirmationDialog({ handleClick, isOpen, title }: SimpleDialogProps) {
+export function ConfirmationDialog({ handleClick, state, title }: SimpleDialogProps) {
   const classes = useStyles();
   return (
-    <Dialog onBackdropClick={() => handleClick(!isOpen)} open={isOpen}>
+    <Dialog onBackdropClick={() => handleClick(!state)} open={state}>
       <DialogTitle id="confirm-dialog">{title}</DialogTitle>
       <div className={classes.buttonBottomBar}>
         <Button onClick={() => handleClick(true)} className={classes.button}>

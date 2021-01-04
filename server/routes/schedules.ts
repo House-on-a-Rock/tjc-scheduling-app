@@ -168,12 +168,12 @@ router.post(
             order: index, // should it be zero based or 1 based? currently, others are 1 based
             scheduleId: newSchedule.id,
           });
-          events.forEach(async ({ time, title, roleId }, index) => {
+          events.forEach(async ({ time, title: eventTitle, roleId }, order) => {
             const newEvent = await db.Event.create({
               serviceId: newService.id,
-              order: index,
+              order,
               time,
-              title,
+              title: eventTitle,
               roleId,
               displayTime: true, // may be removed later
             });
@@ -182,12 +182,12 @@ router.post(
               newSchedule.end,
               newService.day,
             );
-            taskDays.forEach(async (date, index) => {
-              const newTask = await db.Task.create({
+            taskDays.forEach((date) =>
+              db.Task.create({
                 date,
                 eventId: newEvent.id,
-              });
-            });
+              }),
+            );
           });
         });
       }

@@ -15,19 +15,18 @@ import {
   NewServiceData,
   DeleteEventsData,
 } from '../../shared/types';
-import { Schedule } from './Schedule';
+import { ScheduleContainer } from './ScheduleContainer';
 
-interface ScheduleContainerProps {
+interface ScheduleProps {
   churchId: number;
 }
 
-export const ScheduleContainer = ({ churchId }: ScheduleContainerProps) => {
+export const Schedule = ({ churchId }: ScheduleProps) => {
   const queryClient = useQueryClient();
   const [isLoading, setIsLoading] = useState(false);
   const [data, setData] = useState<any>();
   const [error, setError] = useState(null);
   const [fetchedSchedules, setFetchedSchedules] = useState<number[]>([]);
-  // testing this out for mutation success
   const [isSuccess, setIsSuccess] = useState<string>('');
 
   // Gets all schedules' id
@@ -54,7 +53,7 @@ export const ScheduleContainer = ({ churchId }: ScheduleContainerProps) => {
 
   // Users with their teammates (for autocomplete)
   // Will need to add availabilities (or unavailabilities)
-  const users = useQuery(['roleData', churchId], () => getChurchMembersData(churchId), {
+  const users = useQuery(['users', churchId], () => getChurchMembersData(churchId), {
     enabled: !!churchId,
     staleTime: 300000,
     cacheTime: 3000000,
@@ -154,7 +153,7 @@ export const ScheduleContainer = ({ churchId }: ScheduleContainerProps) => {
   }, [deleteEvent]);
 
   return (
-    <Schedule
+    <ScheduleContainer
       tabs={tabs.data}
       state={{ data, isLoading, error, isSuccess }}
       addSchedule={(newInfo: NewScheduleData) =>

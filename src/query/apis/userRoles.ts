@@ -1,9 +1,9 @@
 import axios, { AxiosResponse } from 'axios';
 import { secretIp } from '../../../secrets/secretStuff';
-
-const accessToken = localStorage.getItem('access_token') ?? '';
-axios.defaults.headers.common.authorization = accessToken;
+import { getLocalStorageItem } from '../../shared/utilities';
 
 export function getAllUserRoles(churchId: number): Promise<AxiosResponse> {
+  const token = getLocalStorageItem('access_token')?.token;
+  axios.defaults.headers.common.authorization = token;
   return axios.get(`${secretIp}/api/user-roles?churchId=${churchId}`);
 }

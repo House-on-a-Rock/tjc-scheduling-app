@@ -7,21 +7,15 @@ import PublishIcon from '@material-ui/icons/Publish';
 import CreateNewFolderIcon from '@material-ui/icons/CreateNewFolder';
 import Tooltip from '@material-ui/core/Tooltip';
 
-const TooltipForDisabledButton = ({
-  title,
-  state,
-  setState,
-  disabled,
-  handleClick,
-  children,
-}) => {
+const TooltipForDisabledButton = ({ title, disabled, handleClick, children }) => {
+  const [open, setOpen] = useState(false);
   return (
-    <Tooltip title={title} open={state}>
+    <Tooltip title={title} open={open}>
       <div
-        onMouseOver={() => setState(true)}
-        onMouseOut={() => setState(false)}
-        onFocus={() => setState(true)}
-        onBlur={() => setState(false)}
+        onMouseOver={() => setOpen(true)}
+        onMouseOut={() => setOpen(false)}
+        onFocus={() => setOpen(true)}
+        onBlur={() => setOpen(false)}
       >
         <IconButton disabled={disabled} onClick={() => handleClick()}>
           {children}
@@ -45,8 +39,6 @@ export const ScheduleToolbar = ({
   onSaveScheduleChanges,
 }: ScheduleToolbar) => {
   const classes = useStyles();
-  const [isSaveIconOpen, setIsSaveIconOpen] = useState(false);
-  const [isPublishIconOpen, setIsPublishIconOpen] = useState(false);
   return (
     <div className={classes.iconBar}>
       <Tooltip title="Add A New Service">
@@ -61,8 +53,6 @@ export const ScheduleToolbar = ({
       </Tooltip>
       <TooltipForDisabledButton
         title="Save Changes"
-        state={isSaveIconOpen}
-        setState={setIsSaveIconOpen}
         disabled={!isScheduleModified}
         handleClick={() => onSaveScheduleChanges()}
       >
@@ -70,8 +60,6 @@ export const ScheduleToolbar = ({
       </TooltipForDisabledButton>
       <TooltipForDisabledButton
         title="Publish changes"
-        state={isPublishIconOpen}
-        setState={setIsPublishIconOpen}
         disabled={!isScheduleModified}
         handleClick={() => onSaveScheduleChanges()}
       >

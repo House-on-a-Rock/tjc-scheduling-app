@@ -1,44 +1,38 @@
 /* eslint-disable react/jsx-closing-tag-location */
 /* eslint-disable react/self-closing-comp */
-/* eslint-disable react/no-array-index-key */
 import React, { useEffect, useRef, useState } from 'react';
 import { Prompt } from 'react-router-dom';
 import { CircularProgress, Dialog, TableCell, TableRow } from '@material-ui/core';
 import { SchedulesDataInterface } from '../../query';
-import { ScheduleTabs } from './ScheduleTabs';
-import { ScheduleTable } from './ScheduleTable';
-// import { NewScheduleForm } from './NewScheduleForm';
-import { ScheduleTableHeader } from './ScheduleTableHeader';
-import { ScheduleTableBody } from './ScheduleTableBody';
-import { ScheduleToolbar } from './ScheduleToolbar';
-import { NewServiceForm } from './NewServiceForm';
+import {
+  ScheduleTabs,
+  ScheduleTable,
+  NewScheduleForm,
+  ScheduleTableHeader,
+  ScheduleTableBody,
+  ScheduleToolbar,
+  NewServiceForm,
+  ScheduleTableCell,
+} from '../../components/Schedule';
+import { ContextMenu, ConfirmationDialog } from '../../components/shared';
+
 import {
   DeleteEventsData,
   DeleteScheduleData,
-  HttpErrorProps,
   NewScheduleData,
   NewServiceData,
 } from '../../shared/types';
-import { ContextMenu } from '../shared/ContextMenu';
-import { days } from '../../shared/utilities';
-import { DataCell } from './TableCell';
-import { ConfirmationDialog } from '../shared/ConfirmationDialog';
-import { NewScheduleForm } from '../shared/NewScheduleForm';
+import { days } from './utilities';
+import { DataStateProp } from '../types';
 
 interface BootstrapData {
   schedules: ScheduleTableInterface[];
   users: UsersDataInterface[];
 }
-interface ContainerStateProp {
-  data: BootstrapData;
-  isLoading: boolean;
-  error: HttpErrorProps;
-  isSuccess: string;
-}
 
-interface ScheduleProps {
+interface ScheduleContainerProps {
   tabs: SchedulesDataInterface[];
-  state: ContainerStateProp;
+  state: DataStateProp<BootstrapData>;
   addSchedule: (newInfo: NewScheduleData) => void;
   addService: (newInfo: NewServiceData) => void;
   removeSchedule: (info: DeleteScheduleData) => void;
@@ -55,20 +49,20 @@ const SCHEDULE = 'schedule';
 // 3. Cell data poorly describes the different kinds of cells that exist. The data structure needs a revamp, and so does the Tablecell/Datacell
 // 4. Low priority but finding scheduleId and order is a pain the way I have it currently implemented because allScheduleData exists in tabs, but singular schedule data exist in schedules. Need to consolidate some of the logic together
 
-export const Schedule = ({
+export const ScheduleContainer = ({
   tabs,
   state,
   addSchedule,
   removeSchedule,
   addService,
   removeEvents,
-}: ScheduleProps) => {
+}: ScheduleContainerProps) => {
   const { isLoading, error, data, isSuccess } = state;
   const [tab, setTab] = useState(0);
   const [isScheduleModified, setIsScheduleModified] = useState<boolean>(false);
   const [isNewScheduleOpen, setIsNewScheduleOpen] = useState<boolean>(false);
   const [isNewServiceOpen, setIsNewServiceOpen] = useState<boolean>(false);
-  const [warningDialog, setWarningDialog] = useState<string>();
+  const [warningDialog, setWarningDialog] = useState<string>('');
   const [selectedEvents, setSelectedEvents] = useState<string[]>([]);
   //   const [alert, setAlert] = useState<AlertInterface>();
 
@@ -126,7 +120,7 @@ export const Schedule = ({
   const teammates = (roleId) =>
     data.users.filter((user) => user.teams.some((team) => team.id === roleId));
 
-  const confirmDialogConfig = {
+  const warningDialogConfig = {
     [SCHEDULE]: {
       title: 'Are you sure you want to delete this schedule?',
       accepted: () => {
@@ -229,7 +223,7 @@ export const Schedule = ({
                                     {cell.display}
                                   </TableCell>
                                 ) : (
-                                  <DataCell
+                                  <ScheduleTableCell
                                     data={cell}
                                     options={teammates(roleId)}
                                     onTaskModified={onTaskModified}
@@ -272,10 +266,10 @@ export const Schedule = ({
         />
       </Dialog>
       <ConfirmationDialog
-        title={confirmDialogConfig[warningDialog]?.title}
-        isOpen={!!warningDialog}
+        title={warningDialogConfig[warningDialog]?.title}
+        state={!!warningDialog}
         handleClick={(accepted) => {
-          if (accepted) confirmDialogConfig[warningDialog]?.accepted();
+          if (accepted) warningDialogConfig[warningDialog]?.accepted();
           else setWarningDialog('');
         }}
       />
@@ -339,14 +333,14 @@ interface RoleAssociation {
   name: string;
 }
 
-interface UsersDataInterface {
+export interface UsersDataInterface {
+  userId: number;
+  firstName: string;
+  lastName: string;
+  email: string;
   church: ChurchInterface;
   churchId: number;
   disabled: boolean;
-  email: string;
-  firstName: string;
-  lastName: string;
-  userId: number;
   teams: TeamsInterface[];
 }
 interface ChurchInterface {

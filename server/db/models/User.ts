@@ -11,13 +11,8 @@ const UserFactory = (
   DataTypes: Sequelize.DataTypes,
 ): Sequelize.Model<UserInstance, UserAttributes> => {
   const attributes: SequelizeAttributes<UserAttributes> = {
-    id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
-    firstName: {
-      type: DataTypes.STRING,
-    },
-    lastName: {
-      type: DataTypes.STRING,
-    },
+    firstName: { type: DataTypes.STRING },
+    lastName: { type: DataTypes.STRING },
     email: {
       type: DataTypes.STRING(255),
       allowNull: false,
@@ -25,7 +20,7 @@ const UserFactory = (
     },
     password: {
       type: DataTypes.STRING(255),
-      allowNull: false,
+      allowNull: true,
     },
     isVerified: {
       type: DataTypes.BOOLEAN,
@@ -40,12 +35,8 @@ const UserFactory = (
       allowNull: false,
       defaultValue: 0,
     },
-    loginTimeout: {
-      type: DataTypes.DATE,
-    },
-    salt: {
-      type: DataTypes.STRING,
-    },
+    loginTimeout: { type: DataTypes.DATE },
+    salt: { type: DataTypes.STRING },
     createdAt: {
       type: DataTypes.DATE,
       allowNull: true,

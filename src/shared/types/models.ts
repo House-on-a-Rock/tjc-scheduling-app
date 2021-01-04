@@ -127,12 +127,11 @@ export interface ScheduleTabsProps {
   onTabClick: (e: React.ChangeEvent<{}>, value: number) => void;
 }
 
-export interface AddUserProps {
+export interface NewUserData {
   firstName: string;
   lastName: string;
   email: string;
-  password: string;
-  churchId: number;
+  churchId?: number;
 }
 
 export interface NewScheduleData {

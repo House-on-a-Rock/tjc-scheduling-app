@@ -1,5 +1,4 @@
 import React from 'react';
-import { themeExtension } from '../../shared/styles/theme.js';
 
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
@@ -8,26 +7,17 @@ import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableContainer from '@material-ui/core/TableContainer';
 import TableRow from '@material-ui/core/TableRow';
-import IconButton from '@material-ui/core/IconButton';
 import SearchIcon from '@material-ui/icons/Search';
 import InputBase from '@material-ui/core/InputBase';
 
-import AddCircleIcon from '@material-ui/icons/AddCircle';
-import DeleteIcon from '@material-ui/icons/Delete';
+import { themeExtension } from '../../shared/styles/theme.js';
 
 export interface MembersHeaderProps {
   localChurch: string;
   onSearchChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  handleAddOpen: () => void;
-  handleDeleteOpen: () => void;
 }
 
-export const MembersHeader = ({
-  localChurch,
-  onSearchChange,
-  handleAddOpen,
-  handleDeleteOpen,
-}: MembersHeaderProps) => {
+export const MembersHeader = ({ localChurch, onSearchChange }: MembersHeaderProps) => {
   const classes = useStyles();
 
   return (
@@ -51,14 +41,6 @@ export const MembersHeader = ({
             </TableCell>
             <TableCell className={classes.localChurchName}>
               {localChurch || 'Local Church Name'}
-            </TableCell>
-            <TableCell align="right">
-              <IconButton component="span" onClick={handleAddOpen}>
-                <AddCircleIcon className={classes.addIcon} />
-              </IconButton>
-              <IconButton component="span" onClick={handleDeleteOpen}>
-                <DeleteIcon className={classes.deleteIcon} />
-              </IconButton>
             </TableCell>
           </TableRow>
         </TableHead>
@@ -100,14 +82,6 @@ const useStyles = makeStyles((theme: Theme) =>
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-    },
-    addIcon: {
-      fontSize: 35,
-      ...themeExtension.button.icon,
-    },
-    deleteIcon: {
-      fontSize: 35,
-      ...themeExtension.button.icon,
     },
     localChurchName: {
       fontSize: 25,

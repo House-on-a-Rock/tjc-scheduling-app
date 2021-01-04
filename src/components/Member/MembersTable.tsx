@@ -1,4 +1,4 @@
-import React, { CSSProperties } from 'react';
+import React, { CSSProperties, ChangeEvent, MouseEvent } from 'react';
 
 import { makeStyles, createStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
@@ -11,38 +11,23 @@ import TableRow from '@material-ui/core/TableRow';
 import Checkbox from '@material-ui/core/Checkbox';
 
 import { cardTheme } from '../../shared/styles/theme.js';
-import { MemberStateData } from '../../shared/types';
-
-const styleHead: CSSProperties = {
-  fontWeight: 'bold',
-};
-
-const useStyles = makeStyles(() =>
-  createStyles({
-    root: {
-      backgroundColor: cardTheme.backgroundColor,
-      boxShadow: cardTheme.boxShadow,
-    },
-    table: {
-      minWidth: 650,
-    },
-  }),
-);
+import { UsersDataInterface } from '../../container/Schedules/ScheduleContainer.js';
+// import { MemberStateData } from '../../shared/types';
 
 export interface MembersTableProps {
   selectedRowLength: number;
-  handleCheck: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  members: MemberStateData[];
+  handleSelectAll: (checked: boolean) => void;
+  members: UsersDataInterface[];
   isSelected: (id: number) => boolean;
-  handleClick: (event: React.MouseEvent<unknown>, row: MemberStateData) => void;
+  handleSelect: (shiftKey: boolean, row: UsersDataInterface) => void;
 }
 
 export const MembersTable = ({
   selectedRowLength,
   members,
-  handleCheck,
   isSelected,
-  handleClick,
+  handleSelectAll,
+  handleSelect,
 }: MembersTableProps) => {
   const classes = useStyles();
   const setIndeterminate: boolean =
@@ -57,7 +42,7 @@ export const MembersTable = ({
                 indeterminate={setIndeterminate}
                 checked={!!selectedRowLength}
                 onChange={(event) => {
-                  handleCheck(event);
+                  handleSelectAll(event.target.checked);
                 }}
               />
             </TableCell>
@@ -74,14 +59,15 @@ export const MembersTable = ({
           </TableRow>
         </TableHead>
         <TableBody>
-          {members.map((row: MemberStateData) => {
+          {members.map((row: UsersDataInterface) => {
             const { userId: id, firstName, lastName, email, disabled } = row;
             const isItemSelected: boolean = isSelected(id);
             return (
               <TableRow
                 hover
-                onClick={(event) => {
-                  handleClick(event, row);
+                onClick={(event: React.MouseEvent<unknown>) => {
+                  event.stopPropagation();
+                  handleSelect(event.shiftKey, row);
                 }}
                 selected={isItemSelected}
                 key={id}
@@ -110,3 +96,19 @@ export const MembersTable = ({
     </TableContainer>
   );
 };
+
+const styleHead: CSSProperties = {
+  fontWeight: 'bold',
+};
+
+const useStyles = makeStyles(() =>
+  createStyles({
+    root: {
+      backgroundColor: cardTheme.backgroundColor,
+      boxShadow: cardTheme.boxShadow,
+    },
+    table: {
+      minWidth: 650,
+    },
+  }),
+);

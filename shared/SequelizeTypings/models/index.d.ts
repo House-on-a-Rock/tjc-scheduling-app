@@ -12,7 +12,7 @@ export * from './UserRoleModel';
 export * from './TemplateModel';
 
 export interface CommonSequelizeAttributes {
-  id: number;
+  id?: number;
   createdAt?: Date | null;
   updatedAt?: Date | null;
 }

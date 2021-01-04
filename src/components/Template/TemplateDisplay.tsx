@@ -1,4 +1,3 @@
-/* eslint-disable react/no-array-index-key */
 import React from 'react';
 
 // mat ui
@@ -11,38 +10,25 @@ import TableHead from '@material-ui/core/TableHead';
 import TableBody from '@material-ui/core/TableBody';
 import TableRow from '@material-ui/core/TableRow';
 import TableCell from '@material-ui/core/TableCell';
-import Button from '@material-ui/core/Button';
 
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
+import { TemplateDataInterface } from '../../container/types';
 
 interface TemplateDisplayProps {
-  template: any;
-  createNewScheduleHandler: (boolean) => void;
+  template: TemplateDataInterface;
 }
 
 // TODO make pretty
-export const TemplateDisplay = ({
-  template,
-  createNewScheduleHandler,
-}: TemplateDisplayProps) => {
+export const TemplateDisplay = ({ template }: TemplateDisplayProps) => {
   const classes = useStyles();
   const { data, name, templateId } = template;
 
   return (
     <Card raised className={classes.card}>
-      <Tooltip title="Create a new schedule using this template">
-        <Button
-          style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}
-          onClick={() => createNewScheduleHandler(templateId)}
-        >
-          Create new Schedule
-          <AddIcon />
-        </Button>
-      </Tooltip>
       <Tooltip title="Edit this template">
         <EditIcon />
       </Tooltip>
-      <h3 style={{ margin: 5 }}>{template.name}</h3>
+      <h3 style={{ margin: 5 }}>{name}</h3>
       <MaUTable>
         <TableHead>
           <TableRow>
