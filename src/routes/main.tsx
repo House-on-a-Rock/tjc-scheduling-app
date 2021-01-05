@@ -34,7 +34,6 @@ const Main = () => {
           <ThemeProvider theme={theme}>
             <Header />
             <Switch>
-              {/* <QueryClientProvider client={queryClient}> */}
               <Route path="/home">
                 <Schedule churchId={churchId} />
               </Route>
@@ -54,7 +53,6 @@ const Main = () => {
               {/* <Route>
               <Error404 />
             </Route> */}
-              {/* </QueryClientProvider> */}
             </Switch>
           </ThemeProvider>
         </Router>
