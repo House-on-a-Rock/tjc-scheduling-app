@@ -9,12 +9,13 @@ import { buttonTheme } from '../../shared/styles/theme.js';
 
 import { Tooltip } from '../shared/Tooltip';
 import { stringLengthCheck } from '../../shared/utilities';
-import { HttpErrorProps, NewScheduleData } from '../../shared/types';
+import { NewScheduleData } from '../../shared/types';
+import { AxiosError } from 'axios';
 // TODO hook up teams with data from DB
 
 interface NewScheduleFormProps {
   onClose: (data: any) => void;
-  error?: HttpErrorProps;
+  error: AxiosError<any>;
   onSubmit: (newScheduleData: NewScheduleData) => void;
   templateId?: number;
   templates?: any;
@@ -51,7 +52,7 @@ export const NewScheduleForm = ({
     '',
   );
 
-  // pass in roles
+  // pass in roles/teams
 
   function onSubmitForm() {
     resetTitleError();
@@ -90,7 +91,7 @@ export const NewScheduleForm = ({
       <form className={classes.formStyle}>
         {error && (
           <div style={{ color: 'red' }}>
-            {`Status code ${error.status}: ${error.message}`}
+            {`Status code ${error?.response.status}: ${error?.response.statusText}`}
           </div>
         )}
         <div className={classes.tooltipContainer}>
@@ -151,18 +152,20 @@ export const NewScheduleForm = ({
           toolTip={{ id: 'template', text: 'Assign a template to this schedule' }}
         >
           <MenuItem value={0}>Pick a template</MenuItem>
-          {templates ? (
-            templates.map(({ templateId: id, name }) => (
-              <MenuItem key={id} value={id}>
-                {name}
-              </MenuItem>
-            ))
-          ) : (
-            <>
-              <MenuItem value={1}>Weekly Services</MenuItem>
-              <MenuItem value={2}>RE</MenuItem>
-            </>
-          )}
+          {templates
+            ? templates.map(({ templateId: id, name }) => (
+                <MenuItem key={id} value={id}>
+                  {name}
+                </MenuItem>
+              ))
+            : [
+                <MenuItem value={1} key="1">
+                  Weekly Services
+                </MenuItem>,
+                <MenuItem value={2} key="2">
+                  RE
+                </MenuItem>,
+              ]}
         </ValidatedSelect>
       </form>
       <div className={classes.buttonBottomBar}>

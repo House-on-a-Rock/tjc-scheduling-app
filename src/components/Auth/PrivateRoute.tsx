@@ -23,12 +23,9 @@ export const PrivateRoute: React.FC<PrivateRouteProps> = ({
   ...rest
 }) => {
   const auth = useContext(AuthContext);
-  const logout = () => {
-    auth.logout();
-  };
   const token = useToken();
   const isValidToken = validateUser(condition, token);
-  if (!isValidToken) logout();
+  if (!isValidToken) auth.logout();
   return (
     <Route
       {...rest}
