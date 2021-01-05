@@ -152,18 +152,20 @@ export const NewScheduleForm = ({
           toolTip={{ id: 'template', text: 'Assign a template to this schedule' }}
         >
           <MenuItem value={0}>Pick a template</MenuItem>
-          {templates ? (
-            templates.map(({ templateId: id, name }) => (
-              <MenuItem key={id} value={id}>
-                {name}
-              </MenuItem>
-            ))
-          ) : (
-            <>
-              <MenuItem value={1}>Weekly Services</MenuItem>
-              <MenuItem value={2}>RE</MenuItem>
-            </>
-          )}
+          {templates
+            ? templates.map(({ templateId: id, name }) => (
+                <MenuItem key={id} value={id}>
+                  {name}
+                </MenuItem>
+              ))
+            : [
+                <MenuItem value={1} key="1">
+                  Weekly Services
+                </MenuItem>,
+                <MenuItem value={2} key="2">
+                  RE
+                </MenuItem>,
+              ]}
         </ValidatedSelect>
       </form>
       <div className={classes.buttonBottomBar}>
