@@ -9,12 +9,13 @@ import { buttonTheme } from '../../shared/styles/theme.js';
 
 import { Tooltip } from '../shared/Tooltip';
 import { stringLengthCheck } from '../../shared/utilities';
-import { HttpErrorProps, NewScheduleData } from '../../shared/types';
+import { NewScheduleData } from '../../shared/types';
+import { AxiosError } from 'axios';
 // TODO hook up teams with data from DB
 
 interface NewScheduleFormProps {
   onClose: (data: any) => void;
-  error?: any;
+  error: AxiosError<any>;
   onSubmit: (newScheduleData: NewScheduleData) => void;
   templateId?: number;
   templates?: any;
@@ -51,7 +52,7 @@ export const NewScheduleForm = ({
     '',
   );
 
-  // pass in roles
+  // pass in roles/teams
 
   function onSubmitForm() {
     resetTitleError();
@@ -82,8 +83,6 @@ export const NewScheduleForm = ({
     setTeamError(team.value === 0);
     // setTemplateError(template.value === 0)
   }
-
-  console.log('error', error?.response.status, error?.response.statusText);
 
   // TODO display error message from server side
   return (
