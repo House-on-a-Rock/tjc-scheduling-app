@@ -53,6 +53,7 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
   const [isNewServiceOpen, setIsNewServiceOpen] = useState<boolean>(false);
   const [warningDialog, setWarningDialog] = useState<string>('');
   const [selectedEvents, setSelectedEvents] = useState<string[]>([]);
+  const [dataModel, setDataModel] = useState<any>({ ...data });
   //   const [alert, setAlert] = useState<AlertInterface>();
 
   const changedTasks = useRef<any>({});
@@ -123,7 +124,43 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
       ? setSelectedEvents(selectedEvents.filter((id) => id !== eventId))
       : setSelectedEvents([...selectedEvents, eventId]);
 
-  // since the data check is handled in the parent component (where data is being queried), I think we should put the loading check there
+  const blankTask = {
+    role: { id: -1, name: '' },
+    display: '',
+    time: '',
+    displayTime: true,
+    taskId: -1,
+    date: '',
+    firstName: '',
+    lastName: '',
+    userId: -1,
+  };
+
+  const blankEvent = (cellLength: number) => {
+    const taskCells: any = [
+      { display: '', time: 'test PM', displayTime: true },
+      { display: 'test', role: { id: 4, name: 'interpreter' } },
+    ];
+    for (let i = 2; i < cellLength; i++) {
+      taskCells[i] = blankTask;
+    }
+    return {
+      cells: [...taskCells],
+      displayTime: true,
+      eventId: -1, // unsure why eventId in eventsData is not just id
+      roleId: -1,
+      time: '',
+      title: '',
+    };
+  };
+
+  function addEventHandler(scheduleIndex: number, bodyIndex: number) {
+    const dataClone = { ...dataModel };
+    const targetEvents = dataClone.schedules[scheduleIndex].services[bodyIndex].events;
+    targetEvents.push(blankEvent(targetEvents[0]?.cells.length));
+    setDataModel(dataClone);
+  }
+
   return (
     <>
       <div ref={outerRef}>
@@ -152,30 +189,34 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
           message="You have unsaved changes, are you sure you want to leave? Unsaved changes will be lost"
         />
         {/* {alert && <Alert alert={alert} unMountAlert={() => setAlert(null)} />} */}
-        {data.schedules?.map((schedule: ScheduleTableInterface, idx) => {
+        {dataModel.schedules?.map((schedule: ScheduleTableInterface, scheduleIndex) => {
           const { columns: headers, services: bodies, title, view } = schedule;
           return (
-            // This can be moved out as a "pane" component. But it's a little confusing (from my own exp working on service.tjc.org), so we'll keep this here first until everyone's accustomed to it.
-            <div key={idx}>
-              {/* Children of this component could possibly be moved into its own component, but until we know better how these components will be used, we won't know how to abstract them properly so for now, we'll keep these header and body components apart */}
-              <ScheduleTable key={`${title}-${view}`} title={title} hidden={tab !== idx}>
+            <div key={scheduleIndex}>
+              <ScheduleTable
+                key={`${title}-${view}`}
+                title={title}
+                hidden={tab !== scheduleIndex}
+              >
                 {headers.map(({ Header }, index: number) => (
                   <ScheduleTableHeader key={`${Header}_${index}`} header={Header} />
                 ))}
-                {/* This became pretty nested within each other (as a table is), but like in the above comment, abstraction is only useful when it's reusable. Splitting code into pieces is only helpful if it improves readability, and while it reduces the size of this file, that doesn't mean it'll improve readability with all the prop/function drilling that will be required */}
-                {bodies.map((body: ServiceDataInterface, index: number) => {
+                {bodies.map((body: ServiceDataInterface, bodyIndex: number) => {
                   const { day, name, events } = body;
                   return (
                     <ScheduleTableBody
                       key={`${day}-${name}`}
                       title={`${days[day]} ${name}`}
                     >
+                      <button onClick={() => addEventHandler(scheduleIndex, bodyIndex)}>
+                        Add Event
+                      </button>
                       {events.map((event, rowIdx) => {
                         const { roleId, cells, title: cellTitle, time, eventId } = event;
                         const isSelected = selectedEvents.includes(eventId.toString());
                         return (
                           <TableRow
-                            key={`${cellTitle}-${time}`}
+                            key={`${cellTitle}-${time}-${rowIdx}`}
                             hover
                             onClick={() =>
                               handleRowSelected(isSelected, eventId.toString())
@@ -223,7 +264,7 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
             createService.mutate({
               ...newInfo,
               scheduleId: tabs[tab].id,
-              order: data.schedules[tab].services.length + 1, // need a better way to grab scheduleId and order
+              order: dataModel.schedules[tab].services.length + 1, // need a better way to grab scheduleId and order
             })
           }
           onClose={() => setIsNewServiceOpen(false)}
