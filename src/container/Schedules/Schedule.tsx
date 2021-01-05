@@ -15,7 +15,7 @@ export const Schedule = ({ churchId }: ScheduleProps) => {
     enabled: !!churchId,
     refetchOnWindowFocus: false,
     staleTime: 100000000000000,
-    onSuccess: (data) => makeScheduleIdxs(data),
+    onSuccess: (data) => setFetchedSchedules(makeScheduleIdxs(data)),
   });
 
   const schedules = useQuery(
@@ -25,7 +25,7 @@ export const Schedule = ({ churchId }: ScheduleProps) => {
       enabled: !!tabs.data,
       refetchOnWindowFocus: false,
       staleTime: 100000000000000,
-      keepPreviousData: true,
+      keepPreviousData: true, // why is this true?
     },
   );
 
@@ -34,6 +34,9 @@ export const Schedule = ({ churchId }: ScheduleProps) => {
     staleTime: 300000,
     cacheTime: 3000000,
   });
+
+  // only renders schedule once data is loaded. prevents excessive multiple re-rendering of the schedule itself
+  if (!users.data) return <div>Loading</div>;
 
   return (
     <ScheduleContainer

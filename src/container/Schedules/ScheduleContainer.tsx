@@ -63,7 +63,6 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
   const createService = useCreateService(setIsNewServiceOpen);
   const deleteEvent = useDeleteEvent();
 
-  // Schedule
   function onChangeTabs(value: number) {
     if (value === tabs.length) return;
     // fetchSchedule(value);
@@ -121,8 +120,6 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
     isSelected
       ? setSelectedEvents(selectedEvents.filter((id) => id !== eventId))
       : setSelectedEvents([...selectedEvents, eventId]);
-
-  console.log('rendering container', data);
 
   return (
     <>
