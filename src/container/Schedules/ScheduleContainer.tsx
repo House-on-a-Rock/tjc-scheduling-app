@@ -121,103 +121,91 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
       ? setSelectedEvents(selectedEvents.filter((id) => id !== eventId))
       : setSelectedEvents([...selectedEvents, eventId]);
 
+  // since the data check is handled in the parent component (where data is being queried), I think we should put the loading check there
   return (
     <>
-      {data?.schedules && data?.users ? (
-        <div ref={outerRef}>
-          {/* 1) Add an arrow into the tab that opens context menu */}
-          {/* 2) Options in this context menu: rename schedule, delete schedule, color/style tabs */}
-          <ScheduleTabs
-            tabIdx={tab}
-            onTabClick={onChangeTabs}
-            tabs={tabs}
-            handleAddClicked={() => setIsNewScheduleOpen(true)}
-          />
+      <div ref={outerRef}>
+        {/* 1) Add an arrow into the tab that opens context menu */}
+        {/* 2) Options in this context menu: rename schedule, delete schedule, color/style tabs */}
+        <ScheduleTabs
+          tabIdx={tab}
+          onTabClick={onChangeTabs}
+          tabs={tabs}
+          handleAddClicked={() => setIsNewScheduleOpen(true)}
+        />
 
-          <ScheduleToolbar
-            handleNewServiceClicked={() => setIsNewServiceOpen(true)}
-            destroySchedule={() => setWarningDialog(SCHEDULE)} // this function should actually be moved into tabs. when a user right clicks the tab, you'd expect the delete functionality to be there**
-            isScheduleModified={isScheduleModified}
-            onSaveScheduleChanges={onSaveScheduleChanges}
-          />
-          <ContextMenu
-            outerRef={outerRef}
-            addRowHandler={insertRow}
-            deleteRowHandler={deleteRow}
-          />
-          <Prompt
-            when={isScheduleModified}
-            message="You have unsaved changes, are you sure you want to leave? Unsaved changes will be lost"
-          />
-          {/* {alert && <Alert alert={alert} unMountAlert={() => setAlert(null)} />} */}
-          {data.schedules?.map((schedule: ScheduleTableInterface, idx) => {
-            const { columns: headers, services: bodies, title, view } = schedule;
-            return (
-              // This can be moved out as a "pane" component. But it's a little confusing (from my own exp working on service.tjc.org), so we'll keep this here first until everyone's accustomed to it.
-              <div key={idx}>
-                {/* Children of this component could possibly be moved into its own component, but until we know better how these components will be used, we won't know how to abstract them properly so for now, we'll keep these header and body components apart */}
-                <ScheduleTable
-                  key={`${title}-${view}`}
-                  title={title}
-                  hidden={tab !== idx}
-                >
-                  {headers.map(({ Header }, index: number) => (
-                    <ScheduleTableHeader key={`${Header}_${index}`} header={Header} />
-                  ))}
-                  {/* This became pretty nested within each other (as a table is), but like in the above comment, abstraction is only useful when it's reusable. Splitting code into pieces is only helpful if it improves readability, and while it reduces the size of this file, that doesn't mean it'll improve readability with all the prop/function drilling that will be required */}
-                  {bodies.map((body: ServiceDataInterface, index: number) => {
-                    const { day, name, events } = body;
-                    return (
-                      <ScheduleTableBody
-                        key={`${day}-${name}`}
-                        title={`${days[day]} ${name}`}
-                      >
-                        {events.map((event, rowIdx) => {
-                          const {
-                            roleId,
-                            cells,
-                            title: cellTitle,
-                            time,
-                            eventId,
-                          } = event;
-                          const isSelected = selectedEvents.includes(eventId.toString());
-                          return (
-                            <TableRow
-                              key={`${cellTitle}-${time}`}
-                              hover
-                              onClick={() =>
-                                handleRowSelected(isSelected, eventId.toString())
-                              }
-                              selected={isSelected}
-                            >
-                              {cells.map((cell, columnIndex) =>
-                                columnIndex < 2 ? (
-                                  <TableCell key={`${rowIdx}_${columnIndex}`}>
-                                    {cell.display}
-                                  </TableCell>
-                                ) : (
-                                  <ScheduleTableCell
-                                    data={cell}
-                                    options={teammates(roleId)}
-                                    onTaskModified={onTaskModified}
-                                    key={`${rowIdx}_${columnIndex}`}
-                                  />
-                                ),
-                              )}
-                            </TableRow>
-                          );
-                        })}
-                      </ScheduleTableBody>
-                    );
-                  })}
-                </ScheduleTable>
-              </div>
-            );
-          })}
-        </div>
-      ) : (
-        <CircularProgress />
-      )}
+        <ScheduleToolbar
+          handleNewServiceClicked={() => setIsNewServiceOpen(true)}
+          destroySchedule={() => setWarningDialog(SCHEDULE)} // this function should actually be moved into tabs. when a user right clicks the tab, you'd expect the delete functionality to be there**
+          isScheduleModified={isScheduleModified}
+          onSaveScheduleChanges={onSaveScheduleChanges}
+        />
+        <ContextMenu
+          outerRef={outerRef}
+          addRowHandler={insertRow}
+          deleteRowHandler={deleteRow}
+        />
+        <Prompt
+          when={isScheduleModified}
+          message="You have unsaved changes, are you sure you want to leave? Unsaved changes will be lost"
+        />
+        {/* {alert && <Alert alert={alert} unMountAlert={() => setAlert(null)} />} */}
+        {data.schedules?.map((schedule: ScheduleTableInterface, idx) => {
+          const { columns: headers, services: bodies, title, view } = schedule;
+          return (
+            // This can be moved out as a "pane" component. But it's a little confusing (from my own exp working on service.tjc.org), so we'll keep this here first until everyone's accustomed to it.
+            <div key={idx}>
+              {/* Children of this component could possibly be moved into its own component, but until we know better how these components will be used, we won't know how to abstract them properly so for now, we'll keep these header and body components apart */}
+              <ScheduleTable key={`${title}-${view}`} title={title} hidden={tab !== idx}>
+                {headers.map(({ Header }, index: number) => (
+                  <ScheduleTableHeader key={`${Header}_${index}`} header={Header} />
+                ))}
+                {/* This became pretty nested within each other (as a table is), but like in the above comment, abstraction is only useful when it's reusable. Splitting code into pieces is only helpful if it improves readability, and while it reduces the size of this file, that doesn't mean it'll improve readability with all the prop/function drilling that will be required */}
+                {bodies.map((body: ServiceDataInterface, index: number) => {
+                  const { day, name, events } = body;
+                  return (
+                    <ScheduleTableBody
+                      key={`${day}-${name}`}
+                      title={`${days[day]} ${name}`}
+                    >
+                      {events.map((event, rowIdx) => {
+                        const { roleId, cells, title: cellTitle, time, eventId } = event;
+                        const isSelected = selectedEvents.includes(eventId.toString());
+                        return (
+                          <TableRow
+                            key={`${cellTitle}-${time}`}
+                            hover
+                            onClick={() =>
+                              handleRowSelected(isSelected, eventId.toString())
+                            }
+                            selected={isSelected}
+                          >
+                            {cells.map((cell, columnIndex) =>
+                              columnIndex < 2 ? (
+                                <TableCell key={`${rowIdx}_${columnIndex}`}>
+                                  {cell.display}
+                                </TableCell>
+                              ) : (
+                                <ScheduleTableCell
+                                  data={cell}
+                                  options={teammates(roleId)}
+                                  onTaskModified={onTaskModified}
+                                  key={`${rowIdx}_${columnIndex}`}
+                                />
+                              ),
+                            )}
+                          </TableRow>
+                        );
+                      })}
+                    </ScheduleTableBody>
+                  );
+                })}
+              </ScheduleTable>
+            </div>
+          );
+        })}
+      </div>
+
       <Dialog open={isNewScheduleOpen} onClose={() => setIsNewScheduleOpen(false)}>
         <NewScheduleForm
           onClose={() => setIsNewScheduleOpen(false)}

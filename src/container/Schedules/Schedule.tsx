@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useQuery } from 'react-query';
 import { getChurchMembersData, getAllSchedules, getScheduleData } from '../../query';
 import { ScheduleContainer } from './ScheduleContainer';
+import { CircularProgress } from '@material-ui/core';
 
 interface ScheduleProps {
   churchId: number;
@@ -36,7 +37,8 @@ export const Schedule = ({ churchId }: ScheduleProps) => {
   });
 
   // only renders schedule once data is loaded. prevents excessive multiple re-rendering of the schedule itself
-  if (!users.data) return <div>Loading</div>;
+  // maybe howard's css loading screen is better cause it handles being displayed/hidden better than mounting/unmounting react components?
+  if (!users.data) return <CircularProgress />;
 
   return (
     <ScheduleContainer
