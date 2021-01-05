@@ -15,30 +15,27 @@ import {
   ScheduleTableCell,
 } from '../../components/Schedule';
 import { ContextMenu, ConfirmationDialog } from '../../components/shared';
+import { days } from './utilities';
 
 import {
-  DeleteEventsData,
-  DeleteScheduleData,
-  NewScheduleData,
-  NewServiceData,
-} from '../../shared/types';
-import { days } from './utilities';
-import { DataStateProp } from '../types';
+  useCreateSchedule,
+  useDeleteSchedule,
+  useCreateService,
+  useDeleteEvent,
+} from '../utilities/useMutations';
 
 interface BootstrapData {
   schedules: ScheduleTableInterface[];
   users: UsersDataInterface[];
+  churchId: number;
 }
 
 interface ScheduleContainerProps {
   tabs: SchedulesDataInterface[];
-  state: DataStateProp<BootstrapData>;
-  addSchedule: (newInfo: NewScheduleData) => void;
-  addService: (newInfo: NewServiceData) => void;
-  removeSchedule: (info: DeleteScheduleData) => void;
-  removeEvents: (info: DeleteEventsData) => void;
+  data: BootstrapData;
 }
 
+// move these elsewhere?
 const SERVICE = 'service';
 const EVENT = 'event';
 const SCHEDULE = 'schedule';
@@ -49,15 +46,7 @@ const SCHEDULE = 'schedule';
 // 3. Cell data poorly describes the different kinds of cells that exist. The data structure needs a revamp, and so does the Tablecell/Datacell
 // 4. Low priority but finding scheduleId and order is a pain the way I have it currently implemented because allScheduleData exists in tabs, but singular schedule data exist in schedules. Need to consolidate some of the logic together
 
-export const ScheduleContainer = ({
-  tabs,
-  state,
-  addSchedule,
-  removeSchedule,
-  addService,
-  removeEvents,
-}: ScheduleContainerProps) => {
-  const { isLoading, error, data, isSuccess } = state;
+export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
   const [tab, setTab] = useState(0);
   const [isScheduleModified, setIsScheduleModified] = useState<boolean>(false);
   const [isNewScheduleOpen, setIsNewScheduleOpen] = useState<boolean>(false);
@@ -69,11 +58,15 @@ export const ScheduleContainer = ({
   const changedTasks = useRef<any>({});
   const outerRef = useRef(null);
 
+  const createSchedule = useCreateSchedule(setIsNewScheduleOpen);
+  const deleteSchedule = useDeleteSchedule(setWarningDialog);
+  const createService = useCreateService(setIsNewServiceOpen);
+  const deleteEvent = useDeleteEvent();
+
   // Schedule
   function onChangeTabs(value: number) {
     if (value === tabs.length) return;
     // fetchSchedule(value);
-    // I think I need to wait for data to refetch, can't test until we have more schedules to work with
     setTab(value);
   }
   // Save Data
@@ -95,50 +88,31 @@ export const ScheduleContainer = ({
   }
   function insertRow(rowIndex: number) {}
 
-  useEffect(() => {
-    // with react-query, there is no awaiting for a response to finish. so the results need to be handled by the mutations.isSuccess/isError/etc methods in data handler
-    if (isSuccess === 'NewScheduleForm') {
-      setIsNewScheduleOpen(false);
-      setTab(tabs.length);
-    }
-    if (isSuccess === 'NewServiceForm') setIsNewServiceOpen(false);
-    if (isSuccess === 'DeleteSchedule') {
-      // setIsNewScheduleOpen(false);
-      setWarningDialog('');
-      setTab(0);
-    }
-    if (isSuccess === 'DeleteService') {
-      // setIsNewScheduleOpen(false);
-    }
-    if (isSuccess === 'DeleteEvents') {
-      setWarningDialog('');
-      setSelectedEvents([]);
-      // setIsNewScheduleOpen(false);
-    }
-  }, [isSuccess]);
-
   const teammates = (roleId) =>
     data.users.filter((user) => user.teams.some((team) => team.id === roleId));
 
   const warningDialogConfig = {
+    // I don't think some of these actions should send you to the first tab
     [SCHEDULE]: {
-      title: 'Are you sure you want to delete this schedule?',
+      title: 'Are you sure you want to delete this schedule? This cannot be undone',
       accepted: () => {
-        setTab(0);
-        removeSchedule({ scheduleId: tabs[tab].id, title: tabs[tab].title });
+        setTab(0); // maybe this one is ok
+        deleteSchedule.mutate({ scheduleId: tabs[tab].id, title: tabs[tab].title });
       },
     },
     [SERVICE]: {
       title: 'Are you sure you want to delete this service?',
       accepted: () => {
-        setTab(0);
+        // setTab(0);
         // removeService()
       },
     },
     [EVENT]: {
       title: 'Are you sure you want to delete this event?',
       accepted: () => {
-        removeEvents({ eventIds: selectedEvents });
+        // deleteEvent.mutate({ eventIds: selectedEvents });
+        // eventIds.map((eventId) => deleteEvent.mutate(eventId))
+        // removeEvents({ eventIds: selectedEvents });
       },
     },
   };
@@ -148,9 +122,11 @@ export const ScheduleContainer = ({
       ? setSelectedEvents(selectedEvents.filter((id) => id !== eventId))
       : setSelectedEvents([...selectedEvents, eventId]);
 
+  console.log('rendering container', data);
+
   return (
     <>
-      {data?.schedules && data?.users && !isLoading ? (
+      {data?.schedules && data?.users ? (
         <div ref={outerRef}>
           {/* 1) Add an arrow into the tab that opens context menu */}
           {/* 2) Options in this context menu: rename schedule, delete schedule, color/style tabs */}
@@ -248,21 +224,23 @@ export const ScheduleContainer = ({
       <Dialog open={isNewScheduleOpen} onClose={() => setIsNewScheduleOpen(false)}>
         <NewScheduleForm
           onClose={() => setIsNewScheduleOpen(false)}
-          onSubmit={(newScheduleData) => addSchedule(newScheduleData)}
-          error={error}
+          onSubmit={(newScheduleData) =>
+            createSchedule.mutate({ ...newScheduleData, churchId: data.churchId })
+          }
+          error={createSchedule.error}
         />
       </Dialog>
       <Dialog open={isNewServiceOpen} onClose={() => setIsNewServiceOpen(false)}>
         <NewServiceForm
           onSubmit={(newInfo) =>
-            addService({
+            createService.mutate({
               ...newInfo,
               scheduleId: tabs[tab].id,
               order: data.schedules[tab].services.length + 1, // need a better way to grab scheduleId and order
             })
           }
           onClose={() => setIsNewServiceOpen(false)}
-          error={error}
+          error={createService.error}
         />
       </Dialog>
       <ConfirmationDialog

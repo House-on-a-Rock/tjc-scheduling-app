@@ -14,7 +14,7 @@ import { HttpErrorProps, NewScheduleData } from '../../shared/types';
 
 interface NewScheduleFormProps {
   onClose: (data: any) => void;
-  error?: HttpErrorProps;
+  error?: any;
   onSubmit: (newScheduleData: NewScheduleData) => void;
   templateId?: number;
   templates?: any;
@@ -83,6 +83,8 @@ export const NewScheduleForm = ({
     // setTemplateError(template.value === 0)
   }
 
+  console.log('error', error?.response.status, error?.response.statusText);
+
   // TODO display error message from server side
   return (
     <div className={classes.root}>
@@ -90,7 +92,7 @@ export const NewScheduleForm = ({
       <form className={classes.formStyle}>
         {error && (
           <div style={{ color: 'red' }}>
-            {`Status code ${error.status}: ${error.message}`}
+            {`Status code ${error?.response.status}: ${error?.response.statusText}`}
           </div>
         )}
         <div className={classes.tooltipContainer}>

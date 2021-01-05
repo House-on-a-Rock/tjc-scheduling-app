@@ -13,7 +13,8 @@ import { HttpErrorProps, NewServiceData } from '../../shared/types';
 interface NewServiceFormProps {
   onSubmit: (newServiceData: NewServiceData) => void;
   onClose: () => void;
-  error: HttpErrorProps;
+  // error: HttpErrorProps;
+  error: any;
 }
 
 const daysOfWeek = [

@@ -34,27 +34,27 @@ const Main = () => {
           <ThemeProvider theme={theme}>
             <Header />
             <Switch>
-              <QueryClientProvider client={queryClient}>
-                <Route path="/home">
-                  <Schedule churchId={churchId} />
-                </Route>
-                <Route path="/teams">
-                  <Teams churchId={churchId} />
-                </Route>
-                <Route path="/templates">
-                  {/* history is messed up. you can't route to a page */}
-                  <Template churchId={churchId} />
-                </Route>
-                <Route path="/members">
-                  <Members churchId={churchId} />
-                </Route>
-                <Route path="/">
-                  <Redirect to="/home" />
-                </Route>
-                {/* <Route>
+              {/* <QueryClientProvider client={queryClient}> */}
+              <Route path="/home">
+                <Schedule churchId={churchId} />
+              </Route>
+              <Route path="/teams">
+                <Teams churchId={churchId} />
+              </Route>
+              <Route path="/templates">
+                {/* history is messed up. you can't route to a page */}
+                <Template churchId={churchId} />
+              </Route>
+              <Route path="/members">
+                <Members churchId={churchId} />
+              </Route>
+              <Route path="/">
+                <Redirect to="/home" />
+              </Route>
+              {/* <Route>
               <Error404 />
             </Route> */}
-              </QueryClientProvider>
+              {/* </QueryClientProvider> */}
             </Switch>
           </ThemeProvider>
         </Router>
