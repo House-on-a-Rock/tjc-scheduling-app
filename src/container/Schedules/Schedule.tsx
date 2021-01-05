@@ -10,20 +10,17 @@ interface ScheduleProps {
 export const Schedule = ({ churchId }: ScheduleProps) => {
   const [fetchedSchedules, setFetchedSchedules] = useState<number[]>([]);
 
-  // Gets all schedules' id
-  // There are some undefined queries in here
+  // There are some undefined queries in here -- not sure what you're talking about
   const tabs = useQuery(['tabs', churchId], () => getAllSchedules(churchId), {
     enabled: !!churchId,
     refetchOnWindowFocus: false,
     staleTime: 100000000000000,
+    onSuccess: (data) => makeScheduleIdxs(data),
   });
 
   const schedules = useQuery(
     ['schedules', fetchedSchedules],
-    () =>
-      getScheduleData(
-        fetchedSchedules.length > 0 ? makeScheduleIdxs(tabs.data) : fetchedSchedules,
-      ),
+    () => getScheduleData(makeScheduleIdxs(tabs.data)),
     {
       enabled: !!tabs.data,
       refetchOnWindowFocus: false,
@@ -32,27 +29,11 @@ export const Schedule = ({ churchId }: ScheduleProps) => {
     },
   );
 
-  // Will need to add availabilities (or unavailabilities)
   const users = useQuery(['users', churchId], () => getChurchMembersData(churchId), {
     enabled: !!churchId,
     staleTime: 300000,
     cacheTime: 3000000,
   });
-
-  useEffect(() => {
-    if (tabs.data) {
-      // handles created or deleted schedules
-      setFetchedSchedules(makeScheduleIdxs(tabs.data));
-    }
-  }, [tabs]);
-
-  // is this dead?
-  // function fetchSchedule(tabIdx) {
-  //   if (tabIdx < tabs.data.length) {
-  //     setFetchedSchedule(tabIdx);
-  //     console.log(tabIdx, 'hello there');
-  //   }
-  // }
 
   return (
     <ScheduleContainer
@@ -69,3 +50,11 @@ function makeScheduleIdxs(tabsData) {
   }
   return scheduleIdxs;
 }
+
+// is this dead?
+// function fetchSchedule(tabIdx) {
+//   if (tabIdx < tabs.data.length) {
+//     setFetchedSchedule(tabIdx);
+//     console.log(tabIdx, 'hello there');
+//   }
+// }

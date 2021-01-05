@@ -1,10 +1,4 @@
 import { getScheduleAndData, getSchedules } from './apis/schedules';
-import { AxiosResponse, AxiosError } from 'axios';
-import { useMutation, useQueryClient } from 'react-query';
-import { DeleteScheduleData, NewScheduleData } from '../shared/types';
-import { postSchedule, destroySchedule } from './apis';
-
-// const queryClient = useQueryClient();
 
 export const getScheduleData = async (scheduleIds: number[]) => {
   return scheduleIds.length > 0
