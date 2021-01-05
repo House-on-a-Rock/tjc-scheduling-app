@@ -54,7 +54,8 @@ export const ScheduleTableCell = React.memo(
       <TableCell className={isCellModified ? classes.modified : classes.cell}>
         <Autocomplete
           id="combo-box"
-          options={options.filter((member: any) => member.userId !== value.userId)}
+          // options={options.filter((member: any) => member.userId !== value.userId)} // this fixes the warnings
+          options={options}
           renderInput={(params: any) => (
             <TextField
               {...params}
@@ -66,6 +67,8 @@ export const ScheduleTableCell = React.memo(
           )}
           getOptionLabel={({ firstName, lastName }: any) => `${firstName} ${lastName}`}
           getOptionSelected={(option: any, val: any) => option.userId === val.userId}
+          getOptionDisabled={(option) => option.userId === value.userId} // instead of completely hiding the currently selected option, the currently selected is disabled
+          // filterOptions  // can also use this prop if disabling the selectedOption is undesirable
           renderOption={renderOptions}
           value={value}
           onChange={(event, newValue) =>

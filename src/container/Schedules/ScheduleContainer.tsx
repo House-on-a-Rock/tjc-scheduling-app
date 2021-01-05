@@ -87,8 +87,10 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
   }
   function insertRow(rowIndex: number) {}
 
-  const teammates = (roleId) =>
-    data.users.filter((user) => user.teams.some((team) => team.id === roleId));
+  const teammates = (roleId: number) => {
+    // TODO add blank user to available options
+    return data.users.filter((user) => user.teams.some((team) => team.id === roleId));
+  };
 
   const warningDialogConfig = {
     // I don't think some of these actions should send you to the first tab
@@ -120,6 +122,8 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
     isSelected
       ? setSelectedEvents(selectedEvents.filter((id) => id !== eventId))
       : setSelectedEvents([...selectedEvents, eventId]);
+
+  console.log('data', data);
 
   // since the data check is handled in the parent component (where data is being queried), I think we should put the loading check there
   return (
