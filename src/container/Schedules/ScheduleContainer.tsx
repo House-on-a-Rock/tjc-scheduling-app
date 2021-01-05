@@ -123,8 +123,6 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
       ? setSelectedEvents(selectedEvents.filter((id) => id !== eventId))
       : setSelectedEvents([...selectedEvents, eventId]);
 
-  console.log('data', data);
-
   // since the data check is handled in the parent component (where data is being queried), I think we should put the loading check there
   return (
     <>
