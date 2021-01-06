@@ -180,7 +180,7 @@ export const themeExtension = {
       pointerEvents: 'none',
     },
     '&:before': {
-      // this is the actual spinner
+      // this pseudo-component is the actual spinner
       zIndex: 9001 /* it's over 9000 */,
       content: '""',
       position: 'absolute',
@@ -197,7 +197,7 @@ export const themeExtension = {
       animation: 'spin 2s linear infinite',
     },
     '&:after': {
-      // pseudo-component to block interacting with rest of page while this component loads
+      // use another pseudo-component to block interacting with rest of page while this component loads
       zIndex: 9000,
       content: '""',
       position: 'fixed',
