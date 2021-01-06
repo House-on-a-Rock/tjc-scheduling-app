@@ -170,6 +170,35 @@ export const themeExtension = {
       },
     },
   },
+  componentLoadingSpinner: {
+    margin: 0,
+    '& *': {
+      // prevent interaction with the component's innards while it loads
+      pointerEvents: 'none',
+      '-webkit-animation': 'focus-in-and-out 2s linear forwards',
+      animation: 'focus-in-and-out 2s linear forwards',
+    },
+    '&:before': {
+      // this is the actual spinner
+      zIndex: 9001 /* it's over 9000 */,
+      content: '',
+      position: 'absolute',
+      width: 120,
+      height: 120,
+      top: 'calc(50% - 120px / 2)' /* -1/2 of height */,
+      left: 'calc(50% - 120px / 2)' /* -1/2 of width */,
+      'box-sizing': 'border-box',
+      border: '16px solid #f3f3f3',
+      'border-radius': '50%',
+      'border-top': '16px solid #0083a9',
+      'box-shadow': '0 0 20px 0 #00000050, inset 0 0 20px 0 #00000050',
+      '-webkit-animation': 'spin 2s linear infinite' /* Safari */,
+      animation: 'spin 2s linear infinite',
+    },
+    '&:after': {
+      // pseudo-component to block interacting with rest of page while this component loads
+    },
+  },
 };
 
 // to avoid loading the whole object:
@@ -182,3 +211,4 @@ export const sideBarTheme = themeExtension.sideBar;
 export const tabTheme = themeExtension.tab;
 export const tabGroupTheme = themeExtension.tabs;
 export const tabIndicatorTheme = themeExtension.tabIndicator;
+export const loadingTheme = themeExtension.componentLoadingSpinner;
