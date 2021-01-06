@@ -171,7 +171,10 @@ export const themeExtension = {
     },
   },
   componentLoadingSpinner: {
-    margin: 0,
+    '&': {
+      // '&' hack to get around un-assignable type error
+      position: 'relative',
+    },
     '& *': {
       // prevent interaction with the component's innards while it loads
       pointerEvents: 'none',
@@ -181,10 +184,10 @@ export const themeExtension = {
       zIndex: 9001 /* it's over 9000 */,
       content: '""',
       position: 'absolute',
-      width: 120,
-      height: 120,
-      top: 'calc(50% - 120px / 2)' /* -1/2 of height */,
-      left: 'calc(50% - 120px / 2)' /* -1/2 of width */,
+      width: 70, // small in case component is small
+      height: 70,
+      top: 'calc(50% - 70px / 2)' /* -1/2 of height */,
+      left: 'calc(50% - 70px / 2)' /* -1/2 of width */,
       boxSizing: 'border-box',
       border: '16px solid #f3f3f3',
       borderRadius: '50%',
@@ -195,10 +198,25 @@ export const themeExtension = {
     },
     '&:after': {
       // pseudo-component to block interacting with rest of page while this component loads
-      // TODO
+      zIndex: 9000,
+      content: '""',
+      position: 'fixed',
+      width: '100vw',
+      height: '100vh',
+      top: 0,
+      left: 0,
+      background: 'transparent',
     },
   },
 };
+
+export function sizedComponentLoadingSpinner(parentWidth, parentHeight) {
+  const smallerDimension = Math.min(parentWidth, parentHeight);
+  const sizedSpinner = themeExtension.componentLoadingSpinner;
+  sizedSpinner['&:before'].width = smallerDimension / 2;
+  sizedSpinner['&:before'].height = smallerDimension / 2;
+  return sizedSpinner;
+}
 
 // to avoid loading the whole object:
 export const paletteTheme = themeExtension.palette;
