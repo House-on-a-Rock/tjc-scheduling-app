@@ -1,4 +1,4 @@
-import React, { useState, useEffect, CSSProperties } from 'react';
+import React, { useState, useEffect } from 'react';
 
 // mat ui
 import TableCell from '@material-ui/core/TableCell';
@@ -7,7 +7,7 @@ import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
 import RemoveIcon from '@material-ui/icons/Remove';
 
-import { typographyTheme, loadingTheme } from '../../shared/styles/theme.js';
+import { typographyTheme } from '../../shared/styles/theme.js';
 
 interface ScheduleTableCellProps {
   data: any;
@@ -51,9 +51,7 @@ export const ScheduleTableCell = React.memo(
     // TODO debug the autocomplete warning
 
     return (
-      <TableCell className={classes.cell + ' ' + classes.loading}>
-        {/* <TableCell className={isCellModified ? classes.modified : classes.cell}>}
-        {/* <TableCell className={classes.loading}> */}
+      <TableCell className={isCellModified ? classes.modified : classes.cell}>
         <Autocomplete
           id="combo-box"
           // options={options.filter((member: any) => member.userId !== value.userId)} // this fixes the warnings
@@ -123,9 +121,6 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     input: {
       fontSize: 50,
-    },
-    loading: {
-      ...loadingTheme,
     },
   }),
 );
