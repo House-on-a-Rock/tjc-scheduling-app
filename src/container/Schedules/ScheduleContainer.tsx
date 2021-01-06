@@ -2,7 +2,7 @@
 /* eslint-disable react/self-closing-comp */
 import React, { useEffect, useRef, useState } from 'react';
 import { Prompt } from 'react-router-dom';
-import { CircularProgress, Dialog, TableCell, TableRow } from '@material-ui/core';
+import { Dialog, TableCell, TableRow } from '@material-ui/core';
 import { SchedulesDataInterface } from '../../query';
 import {
   ScheduleTabs,

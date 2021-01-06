@@ -2,13 +2,15 @@ import React, { useEffect, useState } from 'react';
 import { useQuery } from 'react-query';
 import { getChurchMembersData, getAllSchedules, getScheduleData } from '../../query';
 import { ScheduleContainer } from './ScheduleContainer';
-import { CircularProgress } from '@material-ui/core';
+import { createStyles, makeStyles, Theme } from '@material-ui/core';
+import { loadingTheme } from '../../shared/styles/theme';
 
 interface ScheduleProps {
   churchId: number;
 }
 
 export const Schedule = ({ churchId }: ScheduleProps) => {
+  const classes = useStyles();
   const [fetchedSchedules, setFetchedSchedules] = useState<number[]>([]);
 
   // There are some undefined queries in here -- not sure what you're talking about
@@ -36,15 +38,15 @@ export const Schedule = ({ churchId }: ScheduleProps) => {
     cacheTime: 3000000,
   });
 
-  // only renders schedule once data is loaded. prevents excessive multiple re-rendering of the schedule itself
-  // maybe howard's css loading screen is better cause it handles being displayed/hidden better than mounting/unmounting react components?
-  if (!users.data) return <CircularProgress />;
-
   return (
-    <ScheduleContainer
-      tabs={tabs.data}
-      data={{ schedules: schedules.data, users: users.data, churchId }}
-    />
+    <div className={!users.data || !tabs.data || !schedules.data ? classes.loading : ''}>
+      {users.data && ( // only renders schedule once data is loaded. prevents excessive multiple re-rendering of the schedule itself
+        <ScheduleContainer
+          tabs={tabs.data}
+          data={{ schedules: schedules.data, users: users.data, churchId }}
+        />
+      )}
+    </div>
   );
 };
 
@@ -63,3 +65,11 @@ function makeScheduleIdxs(tabsData) {
 //     console.log(tabIdx, 'hello there');
 //   }
 // }
+
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    loading: {
+      ...loadingTheme,
+    },
+  }),
+);
