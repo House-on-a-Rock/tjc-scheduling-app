@@ -57,7 +57,19 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
   // manipulate events
   const [dataModel, setDataModel] = useState<any>({ ...data });
   const [isStructureModified, setIsStructureModified] = useState<boolean>(false);
-  const changedEvents = useRef<ChangedEventsInterface>();
+  const templateChanges = useRef<TemplateChangesInterface>({
+    changesSeed: 0,
+    events: {
+      changedEvents: null,
+      newEvents: null,
+      deletedEvents: null,
+    },
+    services: {
+      changedServices: null,
+      newServices: null,
+      deletedServices: null,
+    },
+  });
 
   const changedTasks = useRef<any>({});
   const outerRef = useRef(null);
@@ -86,17 +98,6 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
   }
 
   // Context Menu functions
-  // function deleteRow() {
-  //   // setWarningDialog(EVENT);
-  //   // mutate dataModel, run diff, add changes to changedEvents
-  //   const dataClone = { ...dataModel };
-  //   const mutatedData = dataClone.schedules[tab].services.map((service) =>
-  //     service.events.filter(({ eventId }) => !selectedEvents.includes(eventId)),
-  //   );
-  //   console.log('mutatedData', mutatedData);
-  //   const updatedDataModel = (dataClone.schedules[tab].services = [...mutatedData]);
-  //   setDataModel({ ...updatedDataModel });
-  // }
 
   function insertRow() {}
 
@@ -132,7 +133,7 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
     userId: -1,
   };
 
-  const blankEvent = (cellLength: number, eventsLength: number) => {
+  const blankEvent = (cellLength: number) => {
     const taskCells: any = [
       { display: '', time: 'test PM', displayTime: true },
       { display: 'test', role: { id: 4, name: 'interpreter' } },
@@ -143,43 +144,69 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
     return {
       cells: [...taskCells],
       displayTime: true,
-      eventId: -1 * eventsLength,
+      eventId: retrieveChangesSeed(),
       roleId: -1,
       time: '',
       title: '',
     };
   };
 
-  // diff function
-  function dataModelDiff() {
-    // loop through and check id, name, and order of events
-    // any modified events are added to appopriate prop in changedEvents ref
+  function retrieveChangesSeed() {
+    // used to give temporary seeds to newly made (but unsaved) events/services. they are negative to distinguish from normal stuff from db
+    // also can keep be used to keep track of number of changes made
+    // its in a useRef right now, not sure if it needs to be there. But templateChanges will be used for a lot so idk
+    return templateChanges.current.changesSeed--;
   }
 
-  function addEventHandler(
-    scheduleIndex: number,
-    serviceIndex: number,
-    eventsLength: number,
-  ) {
+  const blankService = {
+    name: 'test',
+    day: 0,
+    events: [],
+    serviceId: retrieveChangesSeed(),
+    // scheduleId: dataModel.schedules.scheduleId,
+  };
+
+  function dataModelDiff() {
+    // loop through and check id, name, and order of events
+    // any modified events are added to appopriate prop in templateChanges ref
+  }
+
+  function addEvent(serviceIndex: number) {
     const dataClone = { ...dataModel };
-    const targetEvents = dataClone.schedules[scheduleIndex].services[serviceIndex].events;
-    targetEvents.push(blankEvent(targetEvents[0]?.cells.length, eventsLength));
+    const targetEvents = dataClone.schedules[tab].services[serviceIndex].events;
+    targetEvents.push(blankEvent(dataClone.schedules[tab].columns.length));
     setDataModel(dataClone);
     // run diff function
   }
 
   function deleteRow() {
     const dataClone = { ...dataModel };
-    const targetSchedule = dataClone.schedules[tab];
-    const mutatedData = targetSchedule.services.map((service) => {
+    const target = dataClone.schedules[tab];
+    const mutatedData = target.services.map((service) => {
       return {
         ...service,
         events: service.events.filter(({ eventId }) => !selectedEvents.includes(eventId)),
       };
     });
-    targetSchedule.services = mutatedData;
+    target.services = mutatedData;
     setDataModel(dataClone);
     // diff
+  }
+
+  function addService() {
+    const dataClone = { ...dataModel };
+    const target = dataClone.schedules[tab].services;
+    target.push(blankService);
+    setDataModel(dataClone);
+  }
+
+  function deleteService(serviceId: number) {
+    const dataClone = { ...dataModel };
+    const filteredServices = dataClone.schedules[tab].services.filter(
+      (service) => service.serviceId !== serviceId,
+    );
+    dataClone.schedules[tab].services = filteredServices;
+    setDataModel(dataClone);
   }
 
   // goal
@@ -209,7 +236,7 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
         />
 
         <ScheduleToolbar
-          handleNewServiceClicked={() => setIsNewServiceOpen(true)}
+          handleNewServiceClicked={addService}
           destroySchedule={() => setWarningDialog(SCHEDULE)} // this function should actually be moved into tabs. when a user right clicks the tab, you'd expect the delete functionality to be there**
           isScheduleModified={isScheduleModified}
           onSaveScheduleChanges={onSaveScheduleChanges}
@@ -237,20 +264,17 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
                   <ScheduleTableHeader key={`${Header}_${index}`} header={Header} />
                 ))}
                 {services.map((body: ServiceDataInterface, serviceIndex: number) => {
-                  const { day, name, events } = body;
-                  console.log('rendering services');
+                  const { day, name, events, serviceId } = body;
                   return (
                     <ScheduleTableBody
                       key={`${day}-${name}`}
                       title={`${days[day]} ${name}`}
                     >
-                      <button
-                        onClick={() =>
-                          addEventHandler(scheduleIndex, serviceIndex, events.length)
-                        }
-                      >
-                        Add Event
+                      <button onClick={() => deleteService(serviceId)}>
+                        Delete Service
                       </button>
+                      <button onClick={() => addEvent(serviceIndex)}>Add Event</button>
+
                       {events.map((event, rowIdx) => {
                         const { roleId, cells, title: cellTitle, time, eventId } = event;
                         const isSelected = selectedEvents.includes(eventId);
@@ -299,11 +323,12 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
       <Dialog open={isNewServiceOpen} onClose={() => setIsNewServiceOpen(false)}>
         <NewServiceForm
           onSubmit={(newInfo) =>
-            createService.mutate({
-              ...newInfo,
-              scheduleId: tabs[tab].id,
-              order: dataModel.schedules[tab].services.length + 1, // need a better way to grab scheduleId and order
-            })
+            // createService.mutate({
+            //   ...newInfo,
+            //   scheduleId: tabs[tab].id,
+            //   order: dataModel.schedules[tab].services.length + 1, // need a better way to grab scheduleId and order
+            // })
+            addService()
           }
           onClose={() => setIsNewServiceOpen(false)}
           error={createService.error}
@@ -343,11 +368,15 @@ interface ColumnsInterface {
   Accessor: string;
 }
 
-interface ServiceDataInterface {
+interface ServiceData {
   day: number;
-  events: EventsDataInterface[];
   name: string;
   serviceId: number;
+  order?: number;
+}
+
+interface ServiceDataInterface extends ServiceData {
+  events: EventsDataInterface[];
 }
 
 interface EventData {
@@ -414,8 +443,16 @@ interface UserInterface {
   lastName: string;
 }
 
-interface ChangedEventsInterface {
-  changedEvents: EventData[];
-  newEvents: EventData[];
-  deletedEvents: EventData[];
+interface TemplateChangesInterface {
+  changesSeed: number;
+  events: {
+    changedEvents: EventData[];
+    newEvents: EventData[];
+    deletedEvents: EventData[];
+  };
+  services: {
+    changedServices: ServiceData[];
+    newServices: ServiceData[];
+    deletedServices: ServiceData[];
+  };
 }
