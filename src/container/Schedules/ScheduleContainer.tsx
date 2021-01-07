@@ -13,8 +13,10 @@ import {
   ScheduleToolbar,
   NewServiceForm,
   ScheduleTableCell,
+  TimeCell,
 } from '../../components/Schedule';
 import { ContextMenu, ConfirmationDialog } from '../../components/shared';
+
 import { days } from './utilities';
 
 import {
@@ -125,8 +127,7 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
     role: { id: -1, name: '' },
     display: '',
     time: '',
-    displayTime: true,
-    taskId: -1,
+    taskId: -retrieveChangesSeed(),
     date: '',
     firstName: '',
     lastName: '',
@@ -135,7 +136,7 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
 
   const blankEvent = (cellLength: number) => {
     const taskCells: any = [
-      { display: '', time: 'test PM', displayTime: true },
+      { time: 'test PM' },
       { display: 'test', role: { id: 4, name: 'interpreter' } },
     ];
     for (let i = 2; i < cellLength; i++) {
@@ -143,7 +144,6 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
     }
     return {
       cells: [...taskCells],
-      displayTime: true,
       eventId: retrieveChangesSeed(),
       roleId: -1,
       time: '',
@@ -174,7 +174,8 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
   function addEvent(serviceIndex: number) {
     const dataClone = { ...dataModel };
     const targetEvents = dataClone.schedules[tab].services[serviceIndex].events;
-    targetEvents.push(blankEvent(dataClone.schedules[tab].columns.length));
+    const newEvent = blankEvent(dataClone.schedules[tab].columns.length);
+    targetEvents.push(newEvent);
     setDataModel(dataClone);
     // run diff function
   }
@@ -190,6 +191,7 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
     });
     target.services = mutatedData;
     setDataModel(dataClone);
+    retrieveChangesSeed(); // called just to update changesSeed.
     // diff
   }
 
@@ -209,6 +211,14 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
     setDataModel(dataClone);
   }
 
+  function changeTime(newValue, rowIndex, serviceIndex) {
+    console.log('change time called');
+    const dataClone = { ...dataModel };
+    dataClone.schedules[tab].services[serviceIndex].events[rowIndex].time = newValue;
+
+    setDataModel(dataClone);
+  }
+
   // goal
   /*
     1. changes to the structure of the schedule are first made to a clone, not directly to db
@@ -220,6 +230,13 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
     3. Reassigning roles -- needs to determine assignable people again. maybe useeffect to listen to dataModel change? 
     4. 
   */
+
+  function isDisplayTime(time: string, rowIndex: number, serviceIndex: number): boolean {
+    if (rowIndex === 0) return true;
+    const previousEventsTime =
+      dataModel.schedules[tab].services[serviceIndex].events[rowIndex - 1].time;
+    return previousEventsTime !== time;
+  }
 
   console.log('data', data);
 
@@ -282,11 +299,24 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
                           <TableRow
                             key={`${cellTitle}-${time}-${rowIdx}`}
                             hover
-                            onClick={() => handleRowSelected(isSelected, eventId)}
+                            // double click to select a row
+                            onDoubleClick={() => handleRowSelected(isSelected, eventId)}
                             selected={isSelected}
                           >
-                            {cells.map((cell, columnIndex) =>
-                              columnIndex < 2 ? (
+                            {cells.map((cell, columnIndex) => {
+                              return columnIndex === 0 ? (
+                                <TimeCell
+                                  time={cell.time}
+                                  isDisplayed={isDisplayTime(
+                                    cell.time,
+                                    rowIdx,
+                                    serviceIndex,
+                                  )}
+                                  onChange={changeTime}
+                                  rowIndex={rowIdx}
+                                  serviceIndex={serviceIndex}
+                                />
+                              ) : columnIndex === 1 ? (
                                 <TableCell key={`${rowIdx}_${columnIndex}`}>
                                   {cell.display}
                                 </TableCell>
@@ -297,8 +327,8 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
                                   onTaskModified={onTaskModified}
                                   key={`${rowIdx}_${columnIndex}`}
                                 />
-                              ),
-                            )}
+                              );
+                            })}
                           </TableRow>
                         );
                       })}
@@ -380,7 +410,6 @@ interface ServiceDataInterface extends ServiceData {
 }
 
 interface EventData {
-  displayTime: boolean;
   eventId: number;
   roleId: number;
   time: string;
@@ -397,7 +426,6 @@ interface AssignmentDataInterface {
   role?: RoleAssociation;
   display?: string;
   time?: string;
-  displayTime?: boolean;
   taskId?: number;
   date?: string;
   firstName?: string;

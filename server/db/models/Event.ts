@@ -16,7 +16,6 @@ const EventFactory = (
     time: { type: DataTypes.STRING },
     title: { type: DataTypes.STRING },
     roleId: { type: DataTypes.INTEGER },
-    displayTime: { type: DataTypes.BOOLEAN },
   };
 
   const Event = sequelize.define<EventInstance, EventAttributes>('Event', attributes);

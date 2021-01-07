@@ -280,26 +280,21 @@ export async function populateServiceData({
   // for each event, retrieve role data and associated task data
   const eventData = await Promise.all(
     events.map(async (event) => {
-      const { time, title, roleId, displayTime, id: eventId } = event;
+      const { time, title, roleId, id: eventId } = event;
       const role = await retrieveEventRole(roleId);
       const tasks = await retrieveTaskData(eventId, role);
-      const timeColumn = timeDisplay(time, displayTime);
+      const timeColumn = { time };
       const dutyColumn = dutyDisplay(title, role);
       return {
         time,
         title,
         roleId,
-        displayTime,
         eventId,
         cells: [timeColumn, dutyColumn, ...tasks],
       };
     }),
   );
   return { name, day, events: eventData, serviceId: id };
-}
-
-function timeDisplay(time, displayTime) {
-  return { display: displayTime ? time : '', time, displayTime };
 }
 
 function dutyDisplay(title, role) {
