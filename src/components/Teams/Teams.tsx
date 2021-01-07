@@ -1,7 +1,10 @@
 import React, { useState, useCallback } from 'react';
+import { useQuery } from 'react-query';
 import { DragDropContext, DropResult } from 'react-beautiful-dnd';
 import { makeStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
+
+import { getUserRoleData } from '../../query';
 
 import { UserBank } from './UserBank';
 import { TeamList } from './TeamList';
@@ -23,12 +26,18 @@ export const Teams = ({ churchId }: TeamsProps) => {
   const initialState: TeamState = {};
   TEAMS.map((team) => (initialState[team.role] = team.members));
 
+  const userRoles = useQuery(['userRoles', churchId], () => getUserRoleData(churchId), {
+    refetchOnWindowFocus: false,
+    staleTime: 100000000000000,
+  });
+
   const [teams, setTeams] = useState<TeamState>(initialState);
   const [draggedItem, setDraggedItem] = useState<DraggedItem>({
     member: { id: '', name: '' },
     source: '',
   });
 
+  console.log(userRoles.data);
   return (
     <div className={classes.root}>
       <Grid container spacing={3}>

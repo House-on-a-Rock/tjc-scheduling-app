@@ -28,6 +28,7 @@ router.get(
         attributes: ['id', 'teamLead', 'roleId'],
         include: [
           { model: db.User, as: 'user', attributes: ['id', 'firstName', 'lastName'] },
+          { model: db.Role, as: 'role', attributes: ['name'] },
         ],
       });
       return res.status(200).json(userRoles);

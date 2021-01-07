@@ -14,8 +14,8 @@ router.get('/tasks', certify, async (req: Request, res: Response, next: NextFunc
     const searchArray = [];
     const { userId, churchId, roleId } = req.query;
     // is going to need more information like date, time --> events
-    if (userId) searchArray.push({ userId });
-    if (churchId) searchArray.push({ churchId });
+    if (userId) searchArray.push({ id: userId });
+    // if (churchId) searchArray.push({ churchId });
     if (roleId) searchArray.push({ roleId });
 
     const searchParams = {
@@ -27,7 +27,7 @@ router.get('/tasks', certify, async (req: Request, res: Response, next: NextFunc
       // and not role
       const users: UserInstance[] = await db.User.findAll({ where: searchParams });
       const query = users.map(async ({ id }) => {
-        const task = await db.Task.findOne({ where: { user: id } });
+        const task = await db.Task.findOne({ where: { userId: id } });
         tasks.push(task);
       });
       await Promise.all(query);
@@ -35,10 +35,10 @@ router.get('/tasks', certify, async (req: Request, res: Response, next: NextFunc
     // if (roleId) {
 
     // }
-    if (churchId) {
-      const query = await db.Task.findAll({ where: searchParams });
-      tasks.push(...query);
-    }
+    // if (churchId) {
+    //   const query = await db.Task.findAll({ where: searchParams });
+    //   tasks.push(...query);
+    // }
     return tasks
       ? res.status(200).json(tasks)
       : res.status(404).send({ message: 'Not found' });

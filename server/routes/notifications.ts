@@ -67,13 +67,13 @@ router.get(
           {
             model: db.Task,
             as: 'task',
-            attributes: ['id', 'date', 'status', 'churchId', 'userRoleId'],
+            attributes: ['id', 'date', 'status', 'userId', 'eventId'],
           },
         ],
       });
       return notifications.length
         ? res.status(200).json(notifications)
-        : res.status(404).send({ message: 'No Notifications Found' });
+        : res.status(200).send({ message: 'No Notifications Found' });
     } catch (err) {
       next(err);
       return res.status(503).send({ message: 'Server error, try again later' });
