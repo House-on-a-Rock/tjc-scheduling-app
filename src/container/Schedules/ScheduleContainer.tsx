@@ -1,8 +1,8 @@
 /* eslint-disable react/jsx-closing-tag-location */
 /* eslint-disable react/self-closing-comp */
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { Prompt } from 'react-router-dom';
-import { CircularProgress, Dialog, TableCell, TableRow } from '@material-ui/core';
+import { Dialog, TableCell, TableRow } from '@material-ui/core';
 import { SchedulesDataInterface } from '../../query';
 import {
   ScheduleTabs,
@@ -35,7 +35,6 @@ interface ScheduleContainerProps {
   data: BootstrapData;
 }
 
-// move these elsewhere?
 const SERVICE = 'service';
 const EVENT = 'event';
 const SCHEDULE = 'schedule';
@@ -52,9 +51,13 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
   const [isNewScheduleOpen, setIsNewScheduleOpen] = useState<boolean>(false);
   const [isNewServiceOpen, setIsNewServiceOpen] = useState<boolean>(false);
   const [warningDialog, setWarningDialog] = useState<string>('');
-  const [selectedEvents, setSelectedEvents] = useState<string[]>([]);
-  const [dataModel, setDataModel] = useState<any>({ ...data });
+  const [selectedEvents, setSelectedEvents] = useState<number[]>([]);
   //   const [alert, setAlert] = useState<AlertInterface>();
+
+  // manipulate events
+  const [dataModel, setDataModel] = useState<any>({ ...data });
+  const [isStructureModified, setIsStructureModified] = useState<boolean>(false);
+  const changedEvents = useRef<ChangedEventsInterface>();
 
   const changedTasks = useRef<any>({});
   const outerRef = useRef(null);
@@ -83,10 +86,19 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
   }
 
   // Context Menu functions
-  function deleteRow(rowIndex: number) {
-    setWarningDialog(EVENT);
-  }
-  function insertRow(rowIndex: number) {}
+  // function deleteRow() {
+  //   // setWarningDialog(EVENT);
+  //   // mutate dataModel, run diff, add changes to changedEvents
+  //   const dataClone = { ...dataModel };
+  //   const mutatedData = dataClone.schedules[tab].services.map((service) =>
+  //     service.events.filter(({ eventId }) => !selectedEvents.includes(eventId)),
+  //   );
+  //   console.log('mutatedData', mutatedData);
+  //   const updatedDataModel = (dataClone.schedules[tab].services = [...mutatedData]);
+  //   setDataModel({ ...updatedDataModel });
+  // }
+
+  function insertRow() {}
 
   const teammates = (roleId: number) => {
     // TODO add blank user to available options
@@ -94,32 +106,16 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
   };
 
   const warningDialogConfig = {
-    // I don't think some of these actions should send you to the first tab
     [SCHEDULE]: {
       title: 'Are you sure you want to delete this schedule? This cannot be undone',
       accepted: () => {
-        setTab(0); // maybe this one is ok
+        setTab(0);
         deleteSchedule.mutate({ scheduleId: tabs[tab].id, title: tabs[tab].title });
-      },
-    },
-    [SERVICE]: {
-      title: 'Are you sure you want to delete this service?',
-      accepted: () => {
-        // setTab(0);
-        // removeService()
-      },
-    },
-    [EVENT]: {
-      title: 'Are you sure you want to delete this event?',
-      accepted: () => {
-        // deleteEvent.mutate({ eventIds: selectedEvents });
-        // eventIds.map((eventId) => deleteEvent.mutate(eventId))
-        // removeEvents({ eventIds: selectedEvents });
       },
     },
   };
 
-  const handleRowSelected = (isSelected: boolean, eventId: string) =>
+  const handleRowSelected = (isSelected: boolean, eventId: number) =>
     isSelected
       ? setSelectedEvents(selectedEvents.filter((id) => id !== eventId))
       : setSelectedEvents([...selectedEvents, eventId]);
@@ -136,7 +132,7 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
     userId: -1,
   };
 
-  const blankEvent = (cellLength: number) => {
+  const blankEvent = (cellLength: number, eventsLength: number) => {
     const taskCells: any = [
       { display: '', time: 'test PM', displayTime: true },
       { display: 'test', role: { id: 4, name: 'interpreter' } },
@@ -147,19 +143,58 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
     return {
       cells: [...taskCells],
       displayTime: true,
-      eventId: -1, // unsure why eventId in eventsData is not just id
+      eventId: -1 * eventsLength,
       roleId: -1,
       time: '',
       title: '',
     };
   };
 
-  function addEventHandler(scheduleIndex: number, bodyIndex: number) {
-    const dataClone = { ...dataModel };
-    const targetEvents = dataClone.schedules[scheduleIndex].services[bodyIndex].events;
-    targetEvents.push(blankEvent(targetEvents[0]?.cells.length));
-    setDataModel(dataClone);
+  // diff function
+  function dataModelDiff() {
+    // loop through and check id, name, and order of events
+    // any modified events are added to appopriate prop in changedEvents ref
   }
+
+  function addEventHandler(
+    scheduleIndex: number,
+    serviceIndex: number,
+    eventsLength: number,
+  ) {
+    const dataClone = { ...dataModel };
+    const targetEvents = dataClone.schedules[scheduleIndex].services[serviceIndex].events;
+    targetEvents.push(blankEvent(targetEvents[0]?.cells.length, eventsLength));
+    setDataModel(dataClone);
+    // run diff function
+  }
+
+  function deleteRow() {
+    const dataClone = { ...dataModel };
+    const targetSchedule = dataClone.schedules[tab];
+    const mutatedData = targetSchedule.services.map((service) => {
+      return {
+        ...service,
+        events: service.events.filter(({ eventId }) => !selectedEvents.includes(eventId)),
+      };
+    });
+    targetSchedule.services = mutatedData;
+    setDataModel(dataClone);
+    // diff
+  }
+
+  // goal
+  /*
+    1. changes to the structure of the schedule are first made to a clone, not directly to db
+      a. Add/delete event, add/delete service, renaming time, reassigning duty (drop down)
+      b. rearranging events/services
+    2. How to check if any of those changes have been made? Is there undo function? or any change made to structure will trigger 'save changes'
+      a. separate state for structure changes - save with a separate "save as new template" dialog, or a separate button to do so?
+      b. diff function to determine this new state
+    3. Reassigning roles -- needs to determine assignable people again. maybe useeffect to listen to dataModel change? 
+    4. 
+  */
+
+  console.log('data', data);
 
   return (
     <>
@@ -189,8 +224,8 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
           message="You have unsaved changes, are you sure you want to leave? Unsaved changes will be lost"
         />
         {/* {alert && <Alert alert={alert} unMountAlert={() => setAlert(null)} />} */}
-        {dataModel.schedules?.map((schedule: ScheduleTableInterface, scheduleIndex) => {
-          const { columns: headers, services: bodies, title, view } = schedule;
+        {dataModel.schedules.map((schedule: ScheduleTableInterface, scheduleIndex) => {
+          const { columns: headers, services, title, view } = schedule;
           return (
             <div key={scheduleIndex}>
               <ScheduleTable
@@ -201,26 +236,29 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
                 {headers.map(({ Header }, index: number) => (
                   <ScheduleTableHeader key={`${Header}_${index}`} header={Header} />
                 ))}
-                {bodies.map((body: ServiceDataInterface, bodyIndex: number) => {
+                {services.map((body: ServiceDataInterface, serviceIndex: number) => {
                   const { day, name, events } = body;
+                  console.log('rendering services');
                   return (
                     <ScheduleTableBody
                       key={`${day}-${name}`}
                       title={`${days[day]} ${name}`}
                     >
-                      <button onClick={() => addEventHandler(scheduleIndex, bodyIndex)}>
+                      <button
+                        onClick={() =>
+                          addEventHandler(scheduleIndex, serviceIndex, events.length)
+                        }
+                      >
                         Add Event
                       </button>
                       {events.map((event, rowIdx) => {
                         const { roleId, cells, title: cellTitle, time, eventId } = event;
-                        const isSelected = selectedEvents.includes(eventId.toString());
+                        const isSelected = selectedEvents.includes(eventId);
                         return (
                           <TableRow
                             key={`${cellTitle}-${time}-${rowIdx}`}
                             hover
-                            onClick={() =>
-                              handleRowSelected(isSelected, eventId.toString())
-                            }
+                            onClick={() => handleRowSelected(isSelected, eventId)}
                             selected={isSelected}
                           >
                             {cells.map((cell, columnIndex) =>
@@ -312,13 +350,17 @@ interface ServiceDataInterface {
   serviceId: number;
 }
 
-interface EventsDataInterface {
-  cells: AssignmentDataInterface[];
+interface EventData {
   displayTime: boolean;
-  eventId: number; // unsure why eventId in eventsData is not just id
+  eventId: number;
   roleId: number;
   time: string;
   title: string;
+  order?: number;
+}
+
+interface EventsDataInterface extends EventData {
+  cells: AssignmentDataInterface[];
 }
 
 interface AssignmentDataInterface {
@@ -370,4 +412,10 @@ interface UserInterface {
   id: number;
   firstName: string;
   lastName: string;
+}
+
+interface ChangedEventsInterface {
+  changedEvents: EventData[];
+  newEvents: EventData[];
+  deletedEvents: EventData[];
 }

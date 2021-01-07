@@ -8,7 +8,7 @@ import { useContextMenu } from '../../hooks';
 interface ContextMenuProps {
   outerRef: any;
   addRowHandler: (row: number) => void;
-  deleteRowHandler: (row: number) => void;
+  deleteRowHandler: () => void;
 }
 
 export const ContextMenu = ({
@@ -33,7 +33,7 @@ export const ContextMenu = ({
         <li className={classes.menuItem} onClick={() => addRowHandler(rowIndex + 1)}>
           Add new row below
         </li>
-        <li className={classes.menuItem} onClick={() => deleteRowHandler(rowIndex)}>
+        <li className={classes.menuItem} onClick={deleteRowHandler}>
           Delete row
         </li>
       </ul>
