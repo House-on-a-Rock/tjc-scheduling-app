@@ -2,7 +2,7 @@
 /* eslint-disable react/self-closing-comp */
 import React, { useEffect, useRef, useState } from 'react';
 import { Prompt } from 'react-router-dom';
-import { CircularProgress, Dialog, TableCell, TableRow } from '@material-ui/core';
+import { Dialog, TableCell, TableRow } from '@material-ui/core';
 import { SchedulesDataInterface } from '../../query';
 import {
   ScheduleTabs,
@@ -151,6 +151,7 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
           when={isScheduleModified}
           message="You have unsaved changes, are you sure you want to leave? Unsaved changes will be lost"
         />
+        {!data.schedules && <div style={{ height: '50vh' }}></div>}
         {/* {alert && <Alert alert={alert} unMountAlert={() => setAlert(null)} />} */}
         {data.schedules?.map((schedule: ScheduleTableInterface, idx) => {
           const { columns: headers, services: bodies, title, view } = schedule;
