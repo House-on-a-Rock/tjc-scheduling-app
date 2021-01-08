@@ -14,9 +14,6 @@ export const getAllSchedules = async (churchId: number) => {
   return (await getSchedules(churchId)).data;
 };
 
-// export const createNewSchedule = async (newInfo: NewScheduleData) =>
-//   (await postSchedule(newInfo)).data;
-
 // Task Item- Pass in arrays as queries using library: qs
 // useMutation can't seem to do batched deletes
 // export const destroyEvents = ({

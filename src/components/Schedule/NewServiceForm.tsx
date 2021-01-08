@@ -8,12 +8,13 @@ import { useValidatedField } from '../../hooks';
 
 import { buttonTheme } from '../../shared/styles/theme.js';
 import { stringLengthCheck } from '../../shared/utilities';
-import { HttpErrorProps, NewServiceData } from '../../shared/types';
+import { NewServiceData } from '../../shared/types';
+import { AxiosError } from 'axios';
 
 interface NewServiceFormProps {
   onSubmit: (newServiceData: NewServiceData) => void;
   onClose: () => void;
-  error: HttpErrorProps;
+  error: AxiosError<any>;
 }
 
 const daysOfWeek = [
@@ -62,7 +63,7 @@ export const NewServiceForm = ({ onSubmit, onClose, error }: NewServiceFormProps
       <h2>Add A New Event</h2>
       {error && (
         <div style={{ color: 'red' }}>
-          {`Status code ${error.status}: ${error.message}`}
+          {`Status code ${error.response.status}: ${error.response.statusText}`}
         </div>
       )}
       <form>
