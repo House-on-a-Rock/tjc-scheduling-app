@@ -9,44 +9,43 @@ import TextField from '@material-ui/core/TextField';
 import { typographyTheme } from '../../shared/styles/theme.js';
 
 interface ScheduleTableCellProps {
-  data: number;
-  options?: number[];
+  dataId: number;
+  optionIds?: number[];
   dataSet: any;
   onTaskModified: any;
   dataContext: number;
-  processDataset: any;
-  renderOption?: any;
+  determineDisplay: (option: number, dataSet: any) => string;
+  renderOption?: (display: string, isIconVisible: boolean) => JSX.Element;
 }
 
 export const ScheduleTableCell = React.memo(
   ({
-    data,
-    options = [],
+    dataId,
+    optionIds = [],
     onTaskModified,
     dataSet,
     dataContext,
-    processDataset,
+    determineDisplay,
     renderOption,
   }: ScheduleTableCellProps) => {
     const classes = useStyles();
-    const [value, setValue] = useState(data);
+    const [value, setValue] = useState(dataId);
     const [isCellModified, setIsCellModified] = useState<boolean>(false);
 
     function onCellModify(isChanged: boolean, newValue: any) {
       setIsCellModified(isChanged);
-      onTaskModified(dataContext, newValue.userId, isChanged);
+      onTaskModified(dataContext, newValue, isChanged);
       setValue(newValue);
     }
 
     // resets background color when new data is received
-    useEffect(() => setIsCellModified(false), [data]);
+    useEffect(() => setIsCellModified(false), [dataId]);
 
     return (
       <TableCell className={isCellModified ? classes.modified : classes.cell}>
         <Autocomplete
           id="combo-box"
-          // options={options.filter((member: any) => member.userId !== value.userId)} // this fixes the warnings
-          options={options}
+          options={optionIds}
           renderInput={(params: any) => (
             <TextField
               {...params}
@@ -56,12 +55,13 @@ export const ScheduleTableCell = React.memo(
               }}
             />
           )}
-          getOptionLabel={(option: any) => processDataset(option, dataSet)}
-          getOptionSelected={(option: any, val: any) => option === val}
+          getOptionLabel={(option: any) => determineDisplay(option, dataSet)}
           getOptionDisabled={(option) => option === value}
-          // renderOption={(option) => renderOption(option, dataSet, data)}
+          renderOption={(option) =>
+            renderOption(determineDisplay(option, dataSet), dataId === option)
+          }
           value={value}
-          onChange={(event, newValue) => onCellModify(newValue !== data, newValue)}
+          onChange={(event, newValue) => onCellModify(newValue !== dataId, newValue)}
           disableClearable
           fullWidth
           clearOnBlur
@@ -79,7 +79,7 @@ function arePropsEqual(
   prevProps: ScheduleTableCellProps,
   nextProps: ScheduleTableCellProps,
 ) {
-  return prevProps.data === nextProps.data;
+  return prevProps.dataId === nextProps.dataId;
 }
 
 const useStyles = makeStyles((theme: Theme) =>

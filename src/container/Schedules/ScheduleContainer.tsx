@@ -105,15 +105,6 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
 
   function insertRow() {}
 
-  const teammates = (roleId: number) => {
-    // TODO add blank user to available options
-    return data.users.filter((user) => user.teams.some((team) => team.id === roleId));
-  };
-
-  function extractTeammateIds(teammates) {
-    return teammates.map((teammate) => teammate.userId);
-  }
-
   const warningDialogConfig = {
     [SCHEDULE]: {
       title: 'Are you sure you want to delete this schedule? This cannot be undone',
@@ -129,15 +120,17 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
       ? setSelectedEvents(selectedEvents.filter((id) => id !== eventId))
       : setSelectedEvents([...selectedEvents, eventId]);
 
+  const blankService = {
+    name: 'test',
+    day: 0,
+    events: [],
+    serviceId: retrieveChangesSeed(),
+    // scheduleId: dataModel.schedules.scheduleId,
+  };
   const blankTask = {
-    role: { id: -1, name: '' },
-    display: '',
-    time: '',
-    taskId: -retrieveChangesSeed(),
-    date: '',
-    firstName: '',
-    lastName: '',
-    userId: -1,
+    dataContext: retrieveChangesSeed(),
+    data: 0,
+    dataSet: [{ firstName: '', lastName: '' }],
   };
 
   const blankEvent = (cellLength: number) => {
@@ -164,14 +157,6 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
     return templateChanges.current.changesSeed--;
   }
 
-  const blankService = {
-    name: 'test',
-    day: 0,
-    events: [],
-    serviceId: retrieveChangesSeed(),
-    // scheduleId: dataModel.schedules.scheduleId,
-  };
-
   function dataModelDiff() {
     // loop through and check id, name, and order of events
     // any modified events are added to appopriate prop in templateChanges ref
@@ -197,7 +182,7 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
     });
     target.services = mutatedData;
     setDataModel(dataClone);
-    retrieveChangesSeed(); // called just to update changesSeed.
+    retrieveChangesSeed(); // called just to update changesSeed. mbbe not necessary
     // diff
   }
 
@@ -218,10 +203,8 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
   }
 
   function changeTime(newValue: string, rowIndex: number, serviceIndex: number) {
-    // TODO render bug somewhere here idk
     const dataClone = { ...dataModel };
     dataClone.schedules[tab].services[serviceIndex].events[rowIndex].time = newValue;
-    console.log('dataClone', dataClone);
     setDataModel(dataClone);
   }
 
@@ -232,12 +215,8 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
     return previousEventsTime !== time;
   }
 
-  // functions for names autocomplete
-  function processDataset(option: number, dataSet) {
-    const { firstName, lastName } = dataSet.filter((user) => user.userId === option)[0];
-    return `${firstName} ${lastName}`;
-  }
-  function renderOption(option: any, dataSet, data) {
+  // AUTOCOMPLETE
+  function renderOption(display, isIconVisible) {
     return (
       <div
         style={{
@@ -246,12 +225,24 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
           alignItems: 'center',
         }}
       >
-        {processDataset(option, dataSet)}
-        {option === data && (
+        {display}
+        {isIconVisible && (
           <RemoveIcon style={{ height: 10, width: 10, paddingLeft: 4 }} /> // icon to show which one the original assignee is. any ideas on a more appropriate icon?
         )}
       </div>
     );
+  }
+  // functions for names autocomplete
+  const teammates = (roleId: number) => {
+    // TODO add blank user to available options
+    return data.users.filter((user) => user.teams.some((team) => team.id === roleId));
+  };
+  function extractTeammateIds(teammates) {
+    return teammates.map((teammate) => teammate.userId);
+  }
+  function processUserData(option: number, dataSet) {
+    const { firstName, lastName } = dataSet.filter((user) => user.userId === option)[0];
+    return `${firstName} ${lastName}`;
   }
 
   // functions for roles autocomplete
@@ -342,28 +333,25 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
                                   key={`Time_${serviceIndex}_${rowIdx}`}
                                 />
                               ) : columnIndex === 1 ? (
-                                // <TableCell key={`${rowIdx}_${columnIndex}`}>
-                                //   {cell.display}
-                                // </TableCell>
                                 <ScheduleTableCell
-                                  data={roleId}
+                                  dataId={roleId}
                                   dataSet={dataModel.teams}
-                                  options={extractRoleIds()}
+                                  optionIds={extractRoleIds()}
                                   dataContext={eventId}
                                   onTaskModified={onAssignedRoleChange}
                                   key={`Team_${rowIdx}_${columnIndex}`}
-                                  processDataset={processRoleData}
-                                  // renderOption={renderOption}
+                                  determineDisplay={processRoleData}
+                                  renderOption={renderOption}
                                 />
                               ) : (
                                 <ScheduleTableCell
-                                  data={cell.userId}
+                                  dataId={cell.userId}
                                   dataSet={dataSet}
-                                  options={extractTeammateIds(dataSet)}
+                                  optionIds={extractTeammateIds(dataSet)}
                                   dataContext={cell.taskId}
                                   onTaskModified={onTaskModified}
                                   key={`Tasks_${rowIdx}_${columnIndex}`}
-                                  processDataset={processDataset}
+                                  determineDisplay={processUserData}
                                   renderOption={renderOption}
                                 />
                               );
@@ -389,7 +377,7 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
           error={createSchedule.error}
         />
       </Dialog>
-      <Dialog open={isNewServiceOpen} onClose={() => setIsNewServiceOpen(false)}>
+      {/* <Dialog open={isNewServiceOpen} onClose={() => setIsNewServiceOpen(false)}>
         <NewServiceForm
           onSubmit={(newInfo) =>
             // createService.mutate({
@@ -402,7 +390,7 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
           onClose={() => setIsNewServiceOpen(false)}
           error={createService.error}
         />
-      </Dialog>
+      </Dialog> */}
       <ConfirmationDialog
         title={warningDialogConfig[warningDialog]?.title}
         state={!!warningDialog}
