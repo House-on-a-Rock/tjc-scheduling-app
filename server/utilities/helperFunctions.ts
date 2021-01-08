@@ -283,8 +283,8 @@ export async function populateServiceData({
       const { time, title, roleId, id: eventId } = event;
       const role = await retrieveEventRole(roleId);
       const tasks = await retrieveTaskData(eventId, role);
-      const timeColumn = { time };
-      const dutyColumn = dutyDisplay(title, role);
+      const timeColumn = {}; // this and dutyColumn are just placeholders really, they aren't actually used. Should it be left blank?
+      const dutyColumn = dutyDisplay(title, role); // time and duty live in the events row, so i would need to update both the data inside the row and in this cell when things are changed
       return {
         time,
         title,

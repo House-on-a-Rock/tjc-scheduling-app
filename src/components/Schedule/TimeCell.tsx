@@ -16,6 +16,11 @@ export const TimeCell = (props: TimeCellProps) => {
   // React.useEffect(() => {
   //   console.log('display', display);
   // }, [display]);
+
+  const inputProps = isDisplayed
+    ? { style: { color: 'black' } }
+    : { style: { color: 'rgb(224, 224, 224)' } };
+
   function onBlurHandler() {
     onChange(value, rowIndex, serviceIndex);
   }
@@ -25,7 +30,7 @@ export const TimeCell = (props: TimeCellProps) => {
       <TextField
         value={value}
         onChange={(event) => setValue(event.target.value)}
-        inputProps={!isDisplayed && { style: { color: 'rgb(224, 224, 224)' } }}
+        inputProps={inputProps}
       />
     </TableCell>
   );

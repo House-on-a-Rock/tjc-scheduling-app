@@ -29,6 +29,7 @@ import {
 interface BootstrapData {
   schedules: ScheduleTableInterface[];
   users: UsersDataInterface[];
+  teams: TeamsDataInterface[];
   churchId: number;
 }
 
@@ -211,11 +212,11 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
     setDataModel(dataClone);
   }
 
-  function changeTime(newValue, rowIndex, serviceIndex) {
-    console.log('change time called');
+  function changeTime(newValue: string, rowIndex: number, serviceIndex: number) {
+    // TODO render bug somewhere here idk
     const dataClone = { ...dataModel };
     dataClone.schedules[tab].services[serviceIndex].events[rowIndex].time = newValue;
-
+    console.log('dataClone', dataClone);
     setDataModel(dataClone);
   }
 
@@ -306,15 +307,12 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
                             {cells.map((cell, columnIndex) => {
                               return columnIndex === 0 ? (
                                 <TimeCell
-                                  time={cell.time}
-                                  isDisplayed={isDisplayTime(
-                                    cell.time,
-                                    rowIdx,
-                                    serviceIndex,
-                                  )}
+                                  time={time}
+                                  isDisplayed={isDisplayTime(time, rowIdx, serviceIndex)}
                                   onChange={changeTime}
                                   rowIndex={rowIdx}
                                   serviceIndex={serviceIndex}
+                                  key={`Time_${serviceIndex}_${rowIdx}`}
                                 />
                               ) : columnIndex === 1 ? (
                                 <TableCell key={`${rowIdx}_${columnIndex}`}>
@@ -483,4 +481,17 @@ interface TemplateChangesInterface {
     newServices: ServiceData[];
     deletedServices: ServiceData[];
   };
+}
+
+interface TeamsDataInterface {
+  id: number;
+  name: string;
+  users: UserRolesInterface[];
+}
+
+interface UserRolesInterface {
+  id: number;
+  roleId: number;
+  teamLead: boolean;
+  user: UserInterface;
 }

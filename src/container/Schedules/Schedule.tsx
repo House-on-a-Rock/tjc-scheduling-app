@@ -1,6 +1,11 @@
 import React, { useState } from 'react';
 import { useQuery } from 'react-query';
-import { getChurchMembersData, getAllSchedules, getScheduleData } from '../../query';
+import {
+  getChurchMembersData,
+  getAllSchedules,
+  getScheduleData,
+  getTeamsData,
+} from '../../query';
 import { ScheduleContainer } from './ScheduleContainer';
 import { CircularProgress } from '@material-ui/core';
 
@@ -36,12 +41,19 @@ export const Schedule = ({ churchId }: ScheduleProps) => {
     cacheTime: 3000000,
   });
 
-  if (!users.data) return <CircularProgress />;
+  const teams = useQuery(['teams', churchId], () => getTeamsData(churchId), {
+    enabled: !!churchId,
+    staleTime: 300000,
+    cacheTime: 3000000,
+  });
+
+  // if (!users.data) return <CircularProgress />;
+  if (!teams.data || !schedules.data || !users.data) return <CircularProgress />;
 
   return (
     <ScheduleContainer
       tabs={tabs.data}
-      data={{ schedules: schedules.data, users: users.data, churchId }}
+      data={{ schedules: schedules.data, users: users.data, teams: teams.data, churchId }}
     />
   );
 };
