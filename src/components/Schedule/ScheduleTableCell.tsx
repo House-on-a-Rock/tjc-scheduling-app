@@ -5,50 +5,41 @@ import TableCell from '@material-ui/core/TableCell';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
-import RemoveIcon from '@material-ui/icons/Remove';
 
 import { typographyTheme } from '../../shared/styles/theme.js';
 
 interface ScheduleTableCellProps {
-  data: any;
-  options?: any;
+  data: number;
+  options?: number[];
+  dataSet: any;
   onTaskModified: any;
+  dataContext: number;
+  processDataset: any;
+  renderOption?: any;
 }
 
 export const ScheduleTableCell = React.memo(
-  ({ data, options = [], onTaskModified }: ScheduleTableCellProps) => {
+  ({
+    data,
+    options = [],
+    onTaskModified,
+    dataSet,
+    dataContext,
+    processDataset,
+    renderOption,
+  }: ScheduleTableCellProps) => {
     const classes = useStyles();
     const [value, setValue] = useState(data);
     const [isCellModified, setIsCellModified] = useState<boolean>(false);
 
     function onCellModify(isChanged: boolean, newValue: any) {
       setIsCellModified(isChanged);
-      onTaskModified(data.taskId, newValue.userId, isChanged);
+      onTaskModified(dataContext, newValue.userId, isChanged);
       setValue(newValue);
     }
 
-    function renderOptions(option: any, state: any) {
-      const { firstName, lastName, userId } = option;
-      // would like this to autosize so each option is just a single line
-      return (
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}
-        >
-          {`${firstName} ${lastName}`}
-          {userId === data.userId && (
-            <RemoveIcon style={{ height: 10, width: 10, paddingLeft: 4 }} /> // icon to show which one the original assignee is. any ideas on a more appropriate icon?
-          )}
-        </div>
-      );
-    }
     // resets background color when new data is received
     useEffect(() => setIsCellModified(false), [data]);
-
-    // TODO debug the autocomplete warning
 
     return (
       <TableCell className={isCellModified ? classes.modified : classes.cell}>
@@ -65,15 +56,12 @@ export const ScheduleTableCell = React.memo(
               }}
             />
           )}
-          getOptionLabel={({ firstName, lastName }: any) => `${firstName} ${lastName}`}
-          getOptionSelected={(option: any, val: any) => option.userId === val.userId}
-          getOptionDisabled={(option) => option.userId === value.userId} // instead of completely hiding the currently selected option, the currently selected is disabled
-          // filterOptions  // can also use this prop if disabling the selectedOption is undesirable
-          renderOption={renderOptions}
+          getOptionLabel={(option: any) => processDataset(option, dataSet)}
+          getOptionSelected={(option: any, val: any) => option === val}
+          getOptionDisabled={(option) => option === value}
+          // renderOption={(option) => renderOption(option, dataSet, data)}
           value={value}
-          onChange={(event, newValue) =>
-            onCellModify(newValue.userId !== data.userId, newValue)
-          }
+          onChange={(event, newValue) => onCellModify(newValue !== data, newValue)}
           disableClearable
           fullWidth
           clearOnBlur
@@ -91,7 +79,7 @@ function arePropsEqual(
   prevProps: ScheduleTableCellProps,
   nextProps: ScheduleTableCellProps,
 ) {
-  return prevProps.data.userId === nextProps.data.userId;
+  return prevProps.data === nextProps.data;
 }
 
 const useStyles = makeStyles((theme: Theme) =>

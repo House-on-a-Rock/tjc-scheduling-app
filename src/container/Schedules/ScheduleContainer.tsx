@@ -3,6 +3,7 @@
 import React, { useRef, useState } from 'react';
 import { Prompt } from 'react-router-dom';
 import { Dialog, TableCell, TableRow } from '@material-ui/core';
+import RemoveIcon from '@material-ui/icons/Remove';
 import { SchedulesDataInterface } from '../../query';
 import {
   ScheduleTabs,
@@ -108,6 +109,10 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
     // TODO add blank user to available options
     return data.users.filter((user) => user.teams.some((team) => team.id === roleId));
   };
+
+  function extractTeammateIds(teammates) {
+    return teammates.map((teammate) => teammate.userId);
+  }
 
   const warningDialogConfig = {
     [SCHEDULE]: {
@@ -220,23 +225,45 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
     setDataModel(dataClone);
   }
 
-  // goal
-  /*
-    1. changes to the structure of the schedule are first made to a clone, not directly to db
-      a. Add/delete event, add/delete service, renaming time, reassigning duty (drop down)
-      b. rearranging events/services
-    2. How to check if any of those changes have been made? Is there undo function? or any change made to structure will trigger 'save changes'
-      a. separate state for structure changes - save with a separate "save as new template" dialog, or a separate button to do so?
-      b. diff function to determine this new state
-    3. Reassigning roles -- needs to determine assignable people again. maybe useeffect to listen to dataModel change? 
-    4. 
-  */
-
   function isDisplayTime(time: string, rowIndex: number, serviceIndex: number): boolean {
     if (rowIndex === 0) return true;
     const previousEventsTime =
       dataModel.schedules[tab].services[serviceIndex].events[rowIndex - 1].time;
     return previousEventsTime !== time;
+  }
+
+  // functions for names autocomplete
+  function processDataset(option: number, dataSet) {
+    const { firstName, lastName } = dataSet.filter((user) => user.userId === option)[0];
+    return `${firstName} ${lastName}`;
+  }
+  function renderOption(option: any, dataSet, data) {
+    return (
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}
+      >
+        {processDataset(option, dataSet)}
+        {option === data && (
+          <RemoveIcon style={{ height: 10, width: 10, paddingLeft: 4 }} /> // icon to show which one the original assignee is. any ideas on a more appropriate icon?
+        )}
+      </div>
+    );
+  }
+
+  // functions for roles autocomplete
+  function extractRoleIds() {
+    return dataModel.teams.map((team) => team.id);
+  }
+  function onAssignedRoleChange() {
+    console.log('role changed');
+  }
+  function processRoleData(option, dataSet) {
+    const { name } = dataSet.filter((role) => role.id === option)[0];
+    return `${name}`;
   }
 
   console.log('data', data);
@@ -296,11 +323,11 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
                       {events.map((event, rowIdx) => {
                         const { roleId, cells, title: cellTitle, time, eventId } = event;
                         const isSelected = selectedEvents.includes(eventId);
+                        const dataSet = teammates(roleId);
                         return (
                           <TableRow
                             key={`${cellTitle}-${time}-${rowIdx}`}
                             hover
-                            // double click to select a row
                             onDoubleClick={() => handleRowSelected(isSelected, eventId)}
                             selected={isSelected}
                           >
@@ -315,15 +342,29 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
                                   key={`Time_${serviceIndex}_${rowIdx}`}
                                 />
                               ) : columnIndex === 1 ? (
-                                <TableCell key={`${rowIdx}_${columnIndex}`}>
-                                  {cell.display}
-                                </TableCell>
+                                // <TableCell key={`${rowIdx}_${columnIndex}`}>
+                                //   {cell.display}
+                                // </TableCell>
+                                <ScheduleTableCell
+                                  data={roleId}
+                                  dataSet={dataModel.teams}
+                                  options={extractRoleIds()}
+                                  dataContext={eventId}
+                                  onTaskModified={onAssignedRoleChange}
+                                  key={`Team_${rowIdx}_${columnIndex}`}
+                                  processDataset={processRoleData}
+                                  // renderOption={renderOption}
+                                />
                               ) : (
                                 <ScheduleTableCell
-                                  data={cell}
-                                  options={teammates(roleId)}
+                                  data={cell.userId}
+                                  dataSet={dataSet}
+                                  options={extractTeammateIds(dataSet)}
+                                  dataContext={cell.taskId}
                                   onTaskModified={onTaskModified}
-                                  key={`${rowIdx}_${columnIndex}`}
+                                  key={`Tasks_${rowIdx}_${columnIndex}`}
+                                  processDataset={processDataset}
+                                  renderOption={renderOption}
                                 />
                               );
                             })}
