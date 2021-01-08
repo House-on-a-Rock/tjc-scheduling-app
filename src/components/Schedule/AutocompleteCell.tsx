@@ -8,7 +8,7 @@ import TextField from '@material-ui/core/TextField';
 
 import { typographyTheme } from '../../shared/styles/theme.js';
 
-interface ScheduleTableCellProps {
+interface AutocompleteCellProps {
   dataId: number;
   optionIds?: number[];
   dataSet: any;
@@ -18,7 +18,7 @@ interface ScheduleTableCellProps {
   renderOption?: (display: string, isIconVisible: boolean) => JSX.Element;
 }
 
-export const ScheduleTableCell = React.memo(
+export const AutocompleteCell = React.memo(
   ({
     dataId,
     optionIds = [],
@@ -27,7 +27,7 @@ export const ScheduleTableCell = React.memo(
     dataContext,
     determineDisplay,
     renderOption,
-  }: ScheduleTableCellProps) => {
+  }: AutocompleteCellProps) => {
     const classes = useStyles();
     const [value, setValue] = useState(dataId);
     const [isCellModified, setIsCellModified] = useState<boolean>(false);
@@ -76,8 +76,8 @@ export const ScheduleTableCell = React.memo(
 );
 
 function arePropsEqual(
-  prevProps: ScheduleTableCellProps,
-  nextProps: ScheduleTableCellProps,
+  prevProps: AutocompleteCellProps,
+  nextProps: AutocompleteCellProps,
 ) {
   return prevProps.dataId === nextProps.dataId;
 }

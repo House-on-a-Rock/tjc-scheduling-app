@@ -2,7 +2,7 @@
 /* eslint-disable react/self-closing-comp */
 import React, { useRef, useState } from 'react';
 import { Prompt } from 'react-router-dom';
-import { Dialog, TableCell, TableRow } from '@material-ui/core';
+import { Dialog, TableRow } from '@material-ui/core';
 import RemoveIcon from '@material-ui/icons/Remove';
 import { SchedulesDataInterface } from '../../query';
 import {
@@ -13,7 +13,7 @@ import {
   ScheduleTableBody,
   ScheduleToolbar,
   NewServiceForm,
-  ScheduleTableCell,
+  AutocompleteCell,
   TimeCell,
 } from '../../components/Schedule';
 import { ContextMenu, ConfirmationDialog } from '../../components/shared';
@@ -42,12 +42,6 @@ interface ScheduleContainerProps {
 const SERVICE = 'service';
 const EVENT = 'event';
 const SCHEDULE = 'schedule';
-
-// Task List
-// 1. When the container has more than 3 tabs, when you select the 4th, how to handle data from data handler
-// 2. Need to update changedTask and the buttons to reflect only on the schedule selected
-// 3. Cell data poorly describes the different kinds of cells that exist. The data structure needs a revamp, and so does the Tablecell/Datacell
-// 4. Low priority but finding scheduleId and order is a pain the way I have it currently implemented because allScheduleData exists in tabs, but singular schedule data exist in schedules. Need to consolidate some of the logic together
 
 export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
   const [tab, setTab] = useState(0);
@@ -102,8 +96,8 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
   }
 
   // Context Menu functions
-
   function insertRow() {}
+  // delete row
 
   const warningDialogConfig = {
     [SCHEDULE]: {
@@ -125,7 +119,6 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
     day: 0,
     events: [],
     serviceId: retrieveChangesSeed(),
-    // scheduleId: dataModel.schedules.scheduleId,
   };
   const blankTask = {
     dataContext: retrieveChangesSeed(),
@@ -158,8 +151,8 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
   }
 
   function dataModelDiff() {
-    // loop through and check id, name, and order of events
-    // any modified events are added to appopriate prop in templateChanges ref
+    // check id, name, and order of events
+    // any modified events are added to appropriate prop in templateChanges ref
   }
 
   function addEvent(serviceIndex: number) {
@@ -183,7 +176,6 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
     target.services = mutatedData;
     setDataModel(dataClone);
     retrieveChangesSeed(); // called just to update changesSeed. mbbe not necessary
-    // diff
   }
 
   function addService() {
@@ -241,8 +233,11 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
     return teammates.map((teammate) => teammate.userId);
   }
   function processUserData(option: number, dataSet) {
-    const { firstName, lastName } = dataSet.filter((user) => user.userId === option)[0];
-    return `${firstName} ${lastName}`;
+    if (dataSet) {
+      const { firstName, lastName } = dataSet.filter((user) => user.userId === option)[0];
+      return `${firstName} ${lastName}`;
+    }
+    return '';
   }
 
   // functions for roles autocomplete
@@ -253,8 +248,9 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
     console.log('role changed');
   }
   function processRoleData(option, dataSet) {
-    const { name } = dataSet.filter((role) => role.id === option)[0];
-    return `${name}`;
+    const filteredData = dataSet.filter((role) => role.id === option)[0];
+    if (filteredData) return `${filteredData.name}`;
+    return '';
   }
 
   console.log('data', data);
@@ -333,7 +329,7 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
                                   key={`Time_${serviceIndex}_${rowIdx}`}
                                 />
                               ) : columnIndex === 1 ? (
-                                <ScheduleTableCell
+                                <AutocompleteCell
                                   dataId={roleId}
                                   dataSet={dataModel.teams}
                                   optionIds={extractRoleIds()}
@@ -344,7 +340,7 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
                                   renderOption={renderOption}
                                 />
                               ) : (
-                                <ScheduleTableCell
+                                <AutocompleteCell
                                   dataId={cell.userId}
                                   dataSet={dataSet}
                                   optionIds={extractTeammateIds(dataSet)}

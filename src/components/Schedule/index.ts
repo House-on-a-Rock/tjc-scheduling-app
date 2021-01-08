@@ -5,5 +5,5 @@ export * from './ScheduleTableBody';
 export * from './ScheduleTableHeader';
 export * from './ScheduleTabs';
 export * from './ScheduleToolbar';
-export * from './ScheduleTableCell';
+export * from './AutocompleteCell';
 export * from './TimeCell';

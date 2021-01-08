@@ -16,7 +16,6 @@ interface ScheduleProps {
 export const Schedule = ({ churchId }: ScheduleProps) => {
   const [fetchedSchedules, setFetchedSchedules] = useState<number[]>([]);
 
-  // There are some undefined queries in here -- not sure what you're talking about
   const tabs = useQuery(['tabs', churchId], () => getAllSchedules(churchId), {
     enabled: !!churchId,
     refetchOnWindowFocus: false,
@@ -31,7 +30,7 @@ export const Schedule = ({ churchId }: ScheduleProps) => {
       enabled: !!tabs.data,
       refetchOnWindowFocus: false,
       staleTime: 100000000000000,
-      keepPreviousData: true, // why is this true?
+      keepPreviousData: true,
     },
   );
 
@@ -47,7 +46,6 @@ export const Schedule = ({ churchId }: ScheduleProps) => {
     cacheTime: 3000000,
   });
 
-  // if (!users.data) return <CircularProgress />;
   if (!teams.data || !schedules.data || !users.data) return <CircularProgress />;
 
   return (
