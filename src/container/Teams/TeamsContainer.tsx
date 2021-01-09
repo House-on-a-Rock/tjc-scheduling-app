@@ -32,10 +32,7 @@ export const TeamsContainer = ({ teamsData, users }: TeamsContainerProps) => {
   const classes = useStyles();
   const initialState: TeamState = {};
   teamsData.map((team) => (initialState[team.role] = team.members));
-  // const userRoles = useQuery(['userRoles', churchId], () => getUserRoleData(churchId), {
-  //   refetchOnWindowFocus: false,
-  //   staleTime: 100000000000000,
-  // });
+
   const [teams, setTeams] = useState<TeamState>(initialState);
   const [draggedItem, setDraggedItem] = useState<DraggedItem>({
     member: { id: '', name: '' },
