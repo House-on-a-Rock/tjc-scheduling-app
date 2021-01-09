@@ -7,6 +7,8 @@ export interface UserRoleAttributes extends CommonSequelizeAttributes {
   userId?: UserAttributes['id'];
   roleId?: RoleAttributes | RoleAttributes['id'];
   teamLead: boolean;
+  role?: RoleAttributes;
+  user?: UserAttributes;
 }
 
 export interface UserRoleInstance

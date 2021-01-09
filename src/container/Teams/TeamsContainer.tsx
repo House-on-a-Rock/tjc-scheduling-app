@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useQuery } from 'react-query';
 import { DragDropContext, DropResult } from 'react-beautiful-dnd';
 import { makeStyles } from '@material-ui/core/styles';
@@ -6,11 +6,17 @@ import Grid from '@material-ui/core/Grid';
 
 import { getUserRoleData } from '../../query';
 
-import { UserBank } from './UserBank';
-import { TeamList } from './TeamList';
-import { TEAMS, MEMBERS } from './database';
-import { TeamState, DraggedItem } from './models';
-import { add, reorder } from './services';
+import { DataStateProp } from '../types';
+import { UserBank } from '../../components/Teams/UserBank';
+import { TeamList } from '../../components/Teams/TeamList';
+import { TEAMS, MEMBERS } from '../../components/Teams/database';
+import {
+  TeamState,
+  DraggedItem,
+  BackendTeamsData,
+  MembersData,
+} from '../../components/Teams/models';
+import { add, reorder } from '../../components/Teams/services';
 
 // TODOS
 // 1. need apis that handles title, description changes
@@ -18,26 +24,24 @@ import { add, reorder } from './services';
 // 3. new team apis
 // 4. validation apis/reducers need to be fleshed out
 
-interface TeamsProps {
-  churchId: number;
+interface TeamsContainerProps {
+  teamsData: BackendTeamsData[];
+  users: MembersData[];
 }
-export const Teams = ({ churchId }: TeamsProps) => {
+export const TeamsContainer = ({ teamsData, users }: TeamsContainerProps) => {
   const classes = useStyles();
   const initialState: TeamState = {};
-  TEAMS.map((team) => (initialState[team.role] = team.members));
-
-  const userRoles = useQuery(['userRoles', churchId], () => getUserRoleData(churchId), {
-    refetchOnWindowFocus: false,
-    staleTime: 100000000000000,
-  });
-
+  teamsData.map((team) => (initialState[team.role] = team.members));
+  // const userRoles = useQuery(['userRoles', churchId], () => getUserRoleData(churchId), {
+  //   refetchOnWindowFocus: false,
+  //   staleTime: 100000000000000,
+  // });
   const [teams, setTeams] = useState<TeamState>(initialState);
   const [draggedItem, setDraggedItem] = useState<DraggedItem>({
     member: { id: '', name: '' },
     source: '',
   });
 
-  console.log(userRoles.data);
   return (
     <div className={classes.root}>
       <Grid container spacing={3}>

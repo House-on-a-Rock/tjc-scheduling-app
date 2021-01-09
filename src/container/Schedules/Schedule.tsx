@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useQuery } from 'react-query';
-import { getChurchMembersData, getAllSchedules, getScheduleData } from '../../query';
-import { ScheduleContainer } from './ScheduleContainer';
 import { createStyles, makeStyles, Theme } from '@material-ui/core';
+
+import { ScheduleContainer } from './ScheduleContainer';
+
+import { getChurchMembersData, getAllSchedules, getScheduleData } from '../../query';
 import { loadingTheme } from '../../shared/styles/theme';
 
 interface ScheduleProps {
