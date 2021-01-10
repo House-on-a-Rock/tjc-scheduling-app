@@ -126,7 +126,7 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
   // since the data check is handled in the parent component (where data is being queried), I think we should put the loading check there
   return (
     <>
-      <div ref={outerRef}>
+      <div className="schedule-container" ref={outerRef}>
         {/* 1) Add an arrow into the tab that opens context menu */}
         {/* 2) Options in this context menu: rename schedule, delete schedule, color/style tabs */}
         <ScheduleTabs
