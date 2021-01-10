@@ -27,7 +27,7 @@ export const ContextMenu = ({
         className={classes.contextMenu}
         style={{ position: 'fixed', top: yPos, left: xPos, zIndex: 100 }}
       >
-        {cellValue && <li className={classes.menuItem}>{cellValue}</li>}
+        {cellValue && <li className={classes.cellValue}>{cellValue}</li>}
         <li className={classes.menuItem} onClick={() => addRowHandler(rowIndex)}>
           Add new row above
         </li>
@@ -54,6 +54,11 @@ const useStyles = makeStyles((theme: Theme) =>
       borderTopRightRadius: '7px',
       borderBottomLeftRadius: '7px',
       borderBottomRightRadius: '7px',
+    },
+    cellValue: {
+      listStyleType: 'none',
+      padding: '0.75em',
+      background: contextMenuBackground,
     },
     menuItem: {
       listStyleType: 'none',
