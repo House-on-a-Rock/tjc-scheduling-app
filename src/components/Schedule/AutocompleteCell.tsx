@@ -10,13 +10,13 @@ import { typographyTheme } from '../../shared/styles/theme.js';
 
 interface AutocompleteCellProps {
   dataId: number;
-  extractOptionId?: (data: any) => any; // or just pass in the function to extract IDs?
+  extractOptionId?: (data: any) => number[]; // function to extract ids from dataset
   dataSet: any; // dataset from which to display autocomplete
   onChange: (dataContext: any, newValue: number, isChanged: boolean) => void;
   dataContext: any; // contains info like rowIndex / serviceIndex / roleId, used by on___Changed. This is different between task cells and duty cells
-  getOptionLabel: (option: number, dataSet: any) => string;
+  getOptionLabel: (option: number, dataSet: any) => string; // string is what shows up in the autocomplete
   renderOption?: (display: string, isIconVisible: boolean) => JSX.Element; // basically just adds the - icon to indicate which was the previously saved option, may be used to add more stuff
-  isSaved: boolean; // if initialData should update to the latest dataI
+  isSaved: boolean; // if initialData should update to the latest dataId
 }
 
 export const AutocompleteCell = React.memo(
@@ -33,7 +33,7 @@ export const AutocompleteCell = React.memo(
     const classes = useStyles();
     const [value, setValue] = useState<number>(dataId);
     const [managedData, setManagedData] = useState(dataSet);
-    const [optionIds, setOptionIds] = useState([]);
+    const [optionIds, setOptionIds] = useState<number[]>([]);
     const [isCellModified, setIsCellModified] = useState<boolean>(false);
     const [isCellWarning, setIsCellWarning] = useState<boolean>(false);
     const initialData = useRef<initialDataInterface>(null);
@@ -46,43 +46,50 @@ export const AutocompleteCell = React.memo(
     }
 
     function doesDataContextMatch(): boolean {
-      return dataContext?.roleId === initialData.current.dataContext?.roleId;
+      return dataContext.roleId === initialData.current.dataContext.roleId;
     }
 
     function setInitialRefData() {
       initialData.current = {
         dataId,
         dataSet: managedData,
-        displayed: getOptionLabel(dataId, managedData), // pbly unnecessary
         dataContext,
       };
     }
 
     function onRoleChanged() {
-      // add initial dataSet item to new dataSet
-      const managedDataClone = [...managedData];
-      managedDataClone.unshift(initialData.current.dataSet[dataId]);
+      const previouslySelected = initialData.current.dataSet.filter(
+        (user) => user.userId === initialData.current.dataId,
+      )[0];
+
+      const managedDataClone = [...dataSet];
+      managedDataClone.unshift(previouslySelected);
       setManagedData(managedDataClone);
+      setOptionIds(extractOptionId(managedDataClone));
     }
 
+    /* on a re-render
+       1. Check if dataContext.roleId is different, if it is,
+       2. Tack on previous selection from useRef to the new dataSet, set it as managedDataSet
+       3. Get new option ids from new dataSet, and set it as optionIds
+    */
+
+    // getOptionLabel renders based on option and dataset
     useEffect(() => {
       setInitialRefData();
-      setManagedData(dataSet);
-      setOptionIds(extractOptionId(dataSet));
     }, []);
-
-    // when a new roleId is given, dataContext.roleId, options, and dataSet are updated but dataId is not
-    // getOptionLabel renders based on option and dataset
-    // when roleId changes, still show previous selection, but render new options
-    //  tack on previous selection to the new option list, but
 
     useEffect(() => {
       setManagedData(dataSet);
+      setOptionIds(extractOptionId(dataSet));
+    }, [dataSet]);
+
+    useEffect(() => {
       if (!doesDataContextMatch()) {
         setIsCellWarning(true);
-        onRoleChanged();
+        if (dataContext.taskId) onRoleChanged(); // only run this for the task cells, not duty cells
       } else setIsCellWarning(false);
-    }, [dataContext.roleId, dataSet]);
+    }, [dataContext.roleId]);
 
     useEffect(() => {
       if (isSaved) {
@@ -192,6 +199,5 @@ const useStyles = makeStyles((theme: Theme) =>
 interface initialDataInterface {
   dataId: number;
   dataSet: any;
-  displayed: string;
   dataContext: any;
 }

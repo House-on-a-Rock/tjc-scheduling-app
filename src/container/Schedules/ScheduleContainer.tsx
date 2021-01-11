@@ -242,8 +242,7 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
     filteredTeammates.push(blankTeammate);
     return filteredTeammates;
   };
-  function extractTeammateIds(teammates) {
-    console.log('extracting team ids');
+  function extractTeammateIds(teammates): number[] {
     return teammates.map((teammate) => teammate.userId);
   }
   function getUserOptionLabel(option: number, dataSet) {
@@ -270,8 +269,7 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
   }
 
   // functions for roles autocomplete
-  function extractRoleIds(teams): any {
-    console.log('extracting roleIds');
+  function extractRoleIds(teams): number[] {
     return teams.map((team) => team.id);
   }
 
