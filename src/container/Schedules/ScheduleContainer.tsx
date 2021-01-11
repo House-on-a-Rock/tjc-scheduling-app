@@ -46,6 +46,7 @@ const SCHEDULE = 'schedule';
 export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
   const [tab, setTab] = useState(0);
   const [isScheduleModified, setIsScheduleModified] = useState<boolean>(false);
+  const [isSaved, setIsSaved] = useState<boolean>(false);
   const [isNewScheduleOpen, setIsNewScheduleOpen] = useState<boolean>(false);
   const [isNewServiceOpen, setIsNewServiceOpen] = useState<boolean>(false);
   const [warningDialog, setWarningDialog] = useState<string>('');
@@ -83,14 +84,7 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
     setTab(value);
   }
   // Save Data
-  function onTaskModified(taskId: number, newAssignee: number, isChanged: boolean) {
-    if (isChanged) {
-      const updatedChangedTasks = { ...changedTasks.current, [taskId]: newAssignee };
-      changedTasks.current = updatedChangedTasks;
-    } else if (changedTasks.current[taskId]) delete changedTasks.current[taskId];
 
-    setIsScheduleModified(Object.keys(changedTasks.current).length > 0);
-  }
   function onSaveScheduleChanges() {
     setIsScheduleModified(false);
   }
@@ -215,6 +209,9 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center',
+          height: 40,
+          width: 200,
+          padding: 0,
         }}
       >
         {display}
@@ -224,30 +221,68 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
       </div>
     );
   }
+
+  const blankTeammate: UsersDataInterface = {
+    userId: -1,
+    firstName: '',
+    lastName: '',
+    email: '',
+    church: { name: '' },
+    churchId: data.churchId,
+    disabled: false,
+    teams: [],
+  };
+
   // functions for names autocomplete
   const teammates = (roleId: number) => {
     // TODO add blank user to available options
-    return data.users.filter((user) => user.teams.some((team) => team.id === roleId));
+    const filteredTeammates = data.users.filter((user) =>
+      user.teams.some((team) => team.id === roleId),
+    );
+    filteredTeammates.push(blankTeammate);
+    return filteredTeammates;
   };
   function extractTeammateIds(teammates) {
+    console.log('extracting team ids');
     return teammates.map((teammate) => teammate.userId);
   }
-  function processUserData(option: number, dataSet) {
-    if (dataSet) {
-      const { firstName, lastName } = dataSet.filter((user) => user.userId === option)[0];
-      return `${firstName} ${lastName}`;
+  function getUserOptionLabel(option: number, dataSet) {
+    const filteredData = dataSet.filter((user) => user.userId === option)[0];
+    if (filteredData) return `${filteredData.firstName} ${filteredData.lastName}`;
+    else {
+      console.log('ID does not match any from dataset');
+      return '';
     }
-    return '';
+  }
+  function onTaskModified(dataContext, newAssignee: number, isChanged: boolean) {
+    const { taskId, serviceIndex, rowIdx, columnIndex } = dataContext;
+    const dataClone = { ...dataModel };
+    dataClone.schedules[tab].services[serviceIndex].events[rowIdx].cells[
+      columnIndex
+    ].userId = newAssignee;
+    setDataModel(dataClone);
+    if (isChanged) {
+      const updatedChangedTasks = { ...changedTasks.current, [taskId]: newAssignee };
+      changedTasks.current = updatedChangedTasks;
+    } else if (changedTasks.current[taskId]) delete changedTasks.current[taskId];
+
+    setIsScheduleModified(Object.keys(changedTasks.current).length > 0);
   }
 
   // functions for roles autocomplete
-  function extractRoleIds() {
-    return dataModel.teams.map((team) => team.id);
+  function extractRoleIds(teams): any {
+    console.log('extracting roleIds');
+    return teams.map((team) => team.id);
   }
-  function onAssignedRoleChange() {
-    console.log('role changed');
+
+  function onAssignedRoleChange(dataContext, newRoleId, isChanged) {
+    const { serviceIndex, rowIdx } = dataContext;
+    const dataClone = { ...dataModel };
+    dataClone.schedules[tab].services[serviceIndex].events[rowIdx].roleId = newRoleId;
+    setDataModel(dataClone);
   }
-  function processRoleData(option, dataSet) {
+
+  function getRoleOptionLabel(option, dataSet) {
     const filteredData = dataSet.filter((role) => role.id === option)[0];
     if (filteredData) return `${filteredData.name}`;
     return '';
@@ -258,7 +293,7 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
   return (
     <>
       <div ref={outerRef}>
-        {/* 1) Add an arrow into the tab that opens context menu */}
+        {/* 1) Add an arrow into the tab that opens context menu -- These feature ideas should go into jira ticket and not left in comments imo*/}
         {/* 2) Options in this context menu: rename schedule, delete schedule, color/style tabs */}
         <ScheduleTabs
           tabIdx={tab}
@@ -269,7 +304,7 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
 
         <ScheduleToolbar
           handleNewServiceClicked={addService}
-          destroySchedule={() => setWarningDialog(SCHEDULE)} // this function should actually be moved into tabs. when a user right clicks the tab, you'd expect the delete functionality to be there**
+          destroySchedule={() => setWarningDialog(SCHEDULE)}
           isScheduleModified={isScheduleModified}
           onSaveScheduleChanges={onSaveScheduleChanges}
         />
@@ -310,7 +345,7 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
                       {events.map((event, rowIdx) => {
                         const { roleId, cells, title: cellTitle, time, eventId } = event;
                         const isSelected = selectedEvents.includes(eventId);
-                        const dataSet = teammates(roleId);
+                        const tasksDataSet = teammates(roleId);
                         return (
                           <TableRow
                             key={`${cellTitle}-${time}-${rowIdx}`}
@@ -332,23 +367,31 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
                                 <AutocompleteCell
                                   dataId={roleId}
                                   dataSet={dataModel.teams}
-                                  optionIds={extractRoleIds()}
-                                  dataContext={eventId}
-                                  onTaskModified={onAssignedRoleChange}
+                                  extractOptionId={extractRoleIds}
+                                  dataContext={{ serviceIndex, rowIdx, roleId }}
+                                  onChange={onAssignedRoleChange}
                                   key={`Team_${rowIdx}_${columnIndex}`}
-                                  determineDisplay={processRoleData}
+                                  getOptionLabel={getRoleOptionLabel}
                                   renderOption={renderOption}
+                                  isSaved={isSaved}
                                 />
                               ) : (
                                 <AutocompleteCell
                                   dataId={cell.userId}
-                                  dataSet={dataSet}
-                                  optionIds={extractTeammateIds(dataSet)}
-                                  dataContext={cell.taskId}
-                                  onTaskModified={onTaskModified}
+                                  dataSet={tasksDataSet}
+                                  extractOptionId={extractTeammateIds}
+                                  dataContext={{
+                                    taskId: cell.taskId,
+                                    roleId: roleId,
+                                    serviceIndex,
+                                    rowIdx,
+                                    columnIndex,
+                                  }}
+                                  onChange={onTaskModified}
                                   key={`Tasks_${rowIdx}_${columnIndex}`}
-                                  determineDisplay={processUserData}
+                                  getOptionLabel={getUserOptionLabel}
                                   renderOption={renderOption}
+                                  isSaved={isSaved}
                                 />
                               );
                             })}

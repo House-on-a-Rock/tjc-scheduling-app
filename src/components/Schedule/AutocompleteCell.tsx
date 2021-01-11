@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 // mat ui
 import TableCell from '@material-ui/core/TableCell';
@@ -10,39 +10,95 @@ import { typographyTheme } from '../../shared/styles/theme.js';
 
 interface AutocompleteCellProps {
   dataId: number;
-  optionIds?: number[];
-  dataSet: any;
-  onTaskModified: any;
-  dataContext: number;
-  determineDisplay: (option: number, dataSet: any) => string;
-  renderOption?: (display: string, isIconVisible: boolean) => JSX.Element;
+  extractOptionId?: (data: any) => any; // or just pass in the function to extract IDs?
+  dataSet: any; // dataset from which to display autocomplete
+  onChange: (dataContext: any, newValue: number, isChanged: boolean) => void;
+  dataContext: any; // contains info like rowIndex / serviceIndex / roleId, used by on___Changed. This is different between task cells and duty cells
+  getOptionLabel: (option: number, dataSet: any) => string;
+  renderOption?: (display: string, isIconVisible: boolean) => JSX.Element; // basically just adds the - icon to indicate which was the previously saved option, may be used to add more stuff
+  isSaved: boolean; // if initialData should update to the latest dataI
 }
 
 export const AutocompleteCell = React.memo(
   ({
     dataId,
-    optionIds = [],
-    onTaskModified,
+    extractOptionId,
+    onChange,
     dataSet,
     dataContext,
-    determineDisplay,
+    getOptionLabel,
     renderOption,
+    isSaved,
   }: AutocompleteCellProps) => {
     const classes = useStyles();
-    const [value, setValue] = useState(dataId);
+    const [value, setValue] = useState<number>(dataId);
+    const [managedData, setManagedData] = useState(dataSet);
+    const [optionIds, setOptionIds] = useState([]);
     const [isCellModified, setIsCellModified] = useState<boolean>(false);
+    const [isCellWarning, setIsCellWarning] = useState<boolean>(false);
+    const initialData = useRef<initialDataInterface>(null);
 
-    function onCellModify(isChanged: boolean, newValue: any) {
+    function onCellModify(isChanged: boolean, newValue: number) {
       setIsCellModified(isChanged);
-      onTaskModified(dataContext, newValue, isChanged);
+      setIsCellWarning(false);
+      onChange(dataContext, newValue, isChanged);
       setValue(newValue);
     }
 
-    // resets background color when new data is received
-    useEffect(() => setIsCellModified(false), [dataId]);
+    function doesDataContextMatch(): boolean {
+      return dataContext?.roleId === initialData.current.dataContext?.roleId;
+    }
+
+    function setInitialRefData() {
+      initialData.current = {
+        dataId,
+        dataSet: managedData,
+        displayed: getOptionLabel(dataId, managedData), // pbly unnecessary
+        dataContext,
+      };
+    }
+
+    function onRoleChanged() {
+      // add initial dataSet item to new dataSet
+      const managedDataClone = [...managedData];
+      managedDataClone.unshift(initialData.current.dataSet[dataId]);
+      setManagedData(managedDataClone);
+    }
+
+    useEffect(() => {
+      setInitialRefData();
+      setManagedData(dataSet);
+      setOptionIds(extractOptionId(dataSet));
+    }, []);
+
+    // when a new roleId is given, dataContext.roleId, options, and dataSet are updated but dataId is not
+    // getOptionLabel renders based on option and dataset
+    // when roleId changes, still show previous selection, but render new options
+    //  tack on previous selection to the new option list, but
+
+    useEffect(() => {
+      setManagedData(dataSet);
+      if (!doesDataContextMatch()) {
+        setIsCellWarning(true);
+        onRoleChanged();
+      } else setIsCellWarning(false);
+    }, [dataContext.roleId, dataSet]);
+
+    useEffect(() => {
+      if (isSaved) {
+        setInitialRefData();
+        setIsCellModified(false);
+      }
+    }, [isSaved]);
+
+    const tableCellClass = isCellWarning
+      ? classes.warning
+      : isCellModified
+      ? classes.modified
+      : classes.cell;
 
     return (
-      <TableCell className={isCellModified ? classes.modified : classes.cell}>
+      <TableCell className={tableCellClass}>
         <Autocomplete
           id="combo-box"
           options={optionIds}
@@ -55,13 +111,18 @@ export const AutocompleteCell = React.memo(
               }}
             />
           )}
-          getOptionLabel={(option: any) => determineDisplay(option, dataSet)}
+          getOptionLabel={(option: number) => getOptionLabel(option, managedData)}
           getOptionDisabled={(option) => option === value}
           renderOption={(option) =>
-            renderOption(determineDisplay(option, dataSet), dataId === option)
+            renderOption(
+              getOptionLabel(option, managedData),
+              option === initialData.current.dataId,
+            )
           }
           value={value}
-          onChange={(event, newValue) => onCellModify(newValue !== dataId, newValue)}
+          onChange={(event, newValue: number) =>
+            onCellModify(newValue !== initialData.current.dataId, newValue)
+          }
           disableClearable
           fullWidth
           clearOnBlur
@@ -79,7 +140,10 @@ function arePropsEqual(
   prevProps: AutocompleteCellProps,
   nextProps: AutocompleteCellProps,
 ) {
-  return prevProps.dataId === nextProps.dataId;
+  return (
+    prevProps.dataId === nextProps.dataId &&
+    prevProps.dataContext.roleId === nextProps.dataContext.roleId
+  );
 }
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -107,8 +171,27 @@ const useStyles = makeStyles((theme: Theme) =>
       width: 100,
       backgroundColor: 'rgb(125, 226, 226)',
     },
+    warning: {
+      color: typographyTheme.common.color,
+      textAlign: 'center',
+      '&:focus': {
+        outline: 'none',
+      },
+      'user-select': 'none',
+      padding: '1px 0px 2px 0px',
+      height: 20,
+      width: 100,
+      backgroundColor: 'rgb(250, 20, 20)',
+    },
     input: {
       fontSize: 50,
     },
   }),
 );
+
+interface initialDataInterface {
+  dataId: number;
+  dataSet: any;
+  displayed: string;
+  dataContext: any;
+}

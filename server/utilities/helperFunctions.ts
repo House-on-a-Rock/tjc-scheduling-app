@@ -311,25 +311,26 @@ function retrieveEventRole(roleId) {
 async function retrieveTaskData(eventId, role) {
   const tasks = await db.Task.findAll({
     where: { eventId },
-    attributes: ['id', 'date', 'userId'],
-    include: [
-      {
-        model: db.User,
-        as: 'user',
-        required: false,
-        attributes: ['firstName', 'lastName'],
-      },
-    ],
+    attributes: ['id', 'userId'],
+    // attributes: ['id', 'date', 'userId'],
+    // include: [
+    //   {
+    //     model: db.User,
+    //     as: 'user',
+    //     required: false,
+    //     attributes: ['firstName', 'lastName'],
+    //   },
+    // ],
     order: [['date', 'ASC']],
   });
   const organizedTasks = tasks.map((task: any) => {
     return {
       taskId: task.id,
-      date: task.date,
-      firstName: task.user?.firstName || '',
-      lastName: task.user?.lastName || '',
+      // date: task.date,
+      // firstName: task.user?.firstName || '',
+      // lastName: task.user?.lastName || '',
       userId: task.userId,
-      role: role,
+      // role: role,
     };
   });
   return organizedTasks;
