@@ -1,15 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useQuery } from 'react-query';
 import { DragDropContext, DropResult } from 'react-beautiful-dnd';
 import { makeStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
 
-import { getUserRoleData } from '../../query';
-
-import { DataStateProp } from '../types';
 import { UserBank } from '../../components/Teams/UserBank';
 import { TeamList } from '../../components/Teams/TeamList';
-import { TEAMS, MEMBERS } from '../../components/Teams/database';
 import {
   TeamState,
   DraggedItem,
@@ -43,13 +38,14 @@ export const TeamsContainer = ({ teamsData, users }: TeamsContainerProps) => {
     <div className={classes.root}>
       <Grid container spacing={3}>
         <DragDropContextWrapper
+          users={users}
           teams={teams}
           handleTeams={setTeams}
           handleDraggedItem={setDraggedItem}
         >
           <>
             <Grid item md={3} sm={4} xs={12}>
-              <UserBank members={MEMBERS} droppableId="USERBANK" className="userbank" />
+              <UserBank members={users} droppableId="USERBANK" className="userbank" />
             </Grid>
             <Grid item md={9} sm={8} xs={12}>
               <TeamList teams={teams} draggedMember={draggedItem} />
@@ -62,6 +58,7 @@ export const TeamsContainer = ({ teamsData, users }: TeamsContainerProps) => {
 };
 
 interface DragDropContextWrapperProps {
+  users: MembersData[];
   teams: TeamState;
   handleTeams: (state: TeamState) => void;
   handleDraggedItem: (draggedMember: DraggedItem) => void;
@@ -69,6 +66,7 @@ interface DragDropContextWrapperProps {
 }
 
 const DragDropContextWrapper = ({
+  users,
   teams,
   handleTeams,
   handleDraggedItem,
@@ -76,7 +74,7 @@ const DragDropContextWrapper = ({
 }: DragDropContextWrapperProps) => {
   const onDragStart: (result: DropResult) => void = useCallback(
     ({ source }: DropResult) => {
-      handleDraggedItem({ member: MEMBERS[source.index], source: source.droppableId });
+      handleDraggedItem({ member: users[source.index], source: source.droppableId });
     },
     [handleDraggedItem],
   );
@@ -93,7 +91,7 @@ const DragDropContextWrapper = ({
           handleTeams(reorder(teams, source, destination));
           break;
         case 'USERBANK':
-          handleTeams(add(MEMBERS, teams, source, destination));
+          handleTeams(add(users, teams, source, destination));
           break;
         default:
           break;

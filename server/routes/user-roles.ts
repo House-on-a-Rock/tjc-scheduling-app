@@ -1,5 +1,6 @@
 import express, { Request, Response, NextFunction } from 'express';
 import Sequelize from 'sequelize';
+import { v4 as uuid } from 'uuid';
 import { RoleInstance, UserRoleInstance } from 'shared/SequelizeTypings/models';
 import { certify } from '../utilities/helperFunctions';
 import db from '../index';
@@ -70,7 +71,7 @@ router.get(
         userRoles.map((userRole) => {
           if (role.name === userRole.role.name)
             members.push({
-              id: userRole.user.id,
+              id: uuid(),
               name: `${userRole.user.firstName} ${userRole.user.lastName}`,
             });
         });

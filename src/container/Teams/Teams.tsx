@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { useQuery, useMutation, useQueryClient } from 'react-query';
-import { AxiosResponse, AxiosError } from 'axios';
+import React, { useState } from 'react';
+import { useQuery } from 'react-query';
+import { v4 as uuid } from 'uuid';
 
 import { createStyles, makeStyles, Theme } from '@material-ui/core';
 
@@ -15,7 +15,6 @@ interface TeamsProps {
 }
 
 export const Teams = ({ churchId }: TeamsProps) => {
-  const queryClient = useQueryClient();
   const classes = useStyles();
   const [isLoading, setIsLoading] = useState(false);
   const [userData, setUserData] = useState<any>(null);
@@ -34,8 +33,9 @@ export const Teams = ({ churchId }: TeamsProps) => {
     onSuccess: (data) => {
       const formattedData = [];
       data.map((user) => {
+        console.log(typeof user.userId);
         formattedData.push({
-          id: user.userId,
+          id: uuid(),
           name: `${user.firstName} ${user.lastName}`,
         });
       });
@@ -43,14 +43,14 @@ export const Teams = ({ churchId }: TeamsProps) => {
     },
   });
 
-  useEffect(() => {
-    if (teams.isSuccess) setError(null);
-    if (teams.isError) setError(teams.error);
+  // useEffect(() => {
+  //   if (teams.isSuccess) setError(null);
+  //   if (teams.isError) setError(teams.error);
 
-    if (teams.isLoading !== isLoading) setIsLoading(teams.isLoading);
-  }, [teams]);
+  //   if (teams.isLoading !== isLoading) setIsLoading(teams.isLoading);
+  // }, [teams, userData]);
 
-  console.log(teams.data);
+  console.log(userData);
   return (
     <div className={!userData || !teams.data ? classes.loading : ''}>
       {teams.data && userData && (
