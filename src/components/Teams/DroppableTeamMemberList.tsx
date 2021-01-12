@@ -47,8 +47,9 @@ export const DroppableTeamMembersList = ({
     }
   }
 
-  function handleDelete(selectedMember: any, index: any) {
+  function handleDelete(selectedMember: any, role: any, index: any) {
     if (members.find((member) => member.name === selectedMember.name)) {
+      console.log(index);
       members.splice(index, 1);
       setMemberInput({ ...memberInput, value: '', error: '' });
     }
