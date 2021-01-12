@@ -29,7 +29,7 @@ export const TeamMemberRow = ({
           <IconButton
             onClick={() => {
               console.log(index);
-              onDelete(member, role, index);
+              onDelete(member, index);
             }}
           >
             <DeleteIcon />
