@@ -278,6 +278,7 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
           when={isScheduleModified}
           message="You have unsaved changes, are you sure you want to leave? Unsaved changes will be lost"
         />
+        {!data.schedules && <div style={{ height: '50vh' }}></div>}
         {/* {alert && <Alert alert={alert} unMountAlert={() => setAlert(null)} />} */}
         {dataModel.schedules.map((schedule: ScheduleTableInterface, scheduleIndex) => {
           const { columns: headers, services, title, view } = schedule;

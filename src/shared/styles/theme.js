@@ -170,7 +170,53 @@ export const themeExtension = {
       },
     },
   },
+  componentLoadingSpinner: {
+    '&': {
+      // '&' hack to get around un-assignable type error
+      position: 'relative',
+    },
+    '& *': {
+      // prevent interaction with the component's innards while it loads
+      pointerEvents: 'none',
+    },
+    '&:before': {
+      // this pseudo-component is the actual spinner
+      zIndex: 9001 /* it's over 9000 */,
+      content: '""',
+      position: 'absolute',
+      width: 70, // small in case component is small
+      height: 70,
+      top: 'calc(50% - 70px / 2)' /* -1/2 of height */,
+      left: 'calc(50% - 70px / 2)' /* -1/2 of width */,
+      boxSizing: 'border-box',
+      border: '16px solid #f3f3f3',
+      borderRadius: '50%',
+      borderTop: '16px solid #0083a9',
+      boxShadow: '0 0 20px 0 #00000050, inset 0 0 20px 0 #00000050',
+      '-webkit-animation': 'spin 2s linear infinite' /* Safari */,
+      animation: 'spin 2s linear infinite',
+    },
+    '&:after': {
+      // use another pseudo-component to block interacting with rest of page while this component loads
+      zIndex: 9000,
+      content: '""',
+      position: 'fixed',
+      width: '100vw',
+      height: '100vh',
+      top: 0,
+      left: 0,
+      background: 'transparent',
+    },
+  },
 };
+
+export function sizedComponentLoadingSpinner(parentWidth, parentHeight) {
+  const smallerDimension = Math.min(parentWidth, parentHeight);
+  const sizedSpinner = themeExtension.componentLoadingSpinner;
+  sizedSpinner['&:before'].width = smallerDimension / 2;
+  sizedSpinner['&:before'].height = smallerDimension / 2;
+  return sizedSpinner;
+}
 
 // to avoid loading the whole object:
 export const paletteTheme = themeExtension.palette;
@@ -182,3 +228,4 @@ export const sideBarTheme = themeExtension.sideBar;
 export const tabTheme = themeExtension.tab;
 export const tabGroupTheme = themeExtension.tabs;
 export const tabIndicatorTheme = themeExtension.tabIndicator;
+export const loadingTheme = themeExtension.componentLoadingSpinner;

@@ -7,13 +7,15 @@ import {
   getTeamsData,
 } from '../../query';
 import { ScheduleContainer } from './ScheduleContainer';
-import { CircularProgress } from '@material-ui/core';
+import { createStyles, makeStyles, Theme } from '@material-ui/core';
+import { loadingTheme } from '../../shared/styles/theme';
 
 interface ScheduleProps {
   churchId: number;
 }
 
 export const Schedule = ({ churchId }: ScheduleProps) => {
+  const classes = useStyles();
   const [fetchedSchedules, setFetchedSchedules] = useState<number[]>([]);
 
   const tabs = useQuery(['tabs', churchId], () => getAllSchedules(churchId), {
@@ -46,13 +48,27 @@ export const Schedule = ({ churchId }: ScheduleProps) => {
     cacheTime: 3000000,
   });
 
-  if (!teams.data || !schedules.data || !users.data) return <CircularProgress />;
+  // if (!teams.data || !schedules.data || !users.data) return <CircularProgress />;
 
+  // return (
+  //   <ScheduleContainer
+  //     tabs={tabs.data}
+  //     data={{ schedules: schedules.data, users: users.data, teams: teams.data, churchId }}
+  //   />
   return (
-    <ScheduleContainer
-      tabs={tabs.data}
-      data={{ schedules: schedules.data, users: users.data, teams: teams.data, churchId }}
-    />
+    <div className={!users.data || !tabs.data || !schedules.data ? classes.loading : ''}>
+      {users.data && ( // only renders schedule once data is loaded. prevents excessive multiple re-rendering of the schedule itself
+        <ScheduleContainer
+          tabs={tabs.data}
+          data={{
+            schedules: schedules.data,
+            users: users.data,
+            churchId,
+            teams: teams.data,
+          }}
+        />
+      )}
+    </div>
   );
 };
 
@@ -63,3 +79,19 @@ function makeScheduleIdxs(tabsData) {
   }
   return scheduleIdxs;
 }
+
+// is this dead?
+// function fetchSchedule(tabIdx) {
+//   if (tabIdx < tabs.data.length) {
+//     setFetchedSchedule(tabIdx);
+//     console.log(tabIdx, 'hello there');
+//   }
+// }
+
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    loading: {
+      ...loadingTheme,
+    },
+  }),
+);

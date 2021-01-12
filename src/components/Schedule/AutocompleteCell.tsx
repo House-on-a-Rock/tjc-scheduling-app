@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState } from 'react';
 
 // mat ui
 import TableCell from '@material-ui/core/TableCell';
