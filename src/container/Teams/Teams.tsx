@@ -33,7 +33,6 @@ export const Teams = ({ churchId }: TeamsProps) => {
     onSuccess: (data) => {
       const formattedData = [];
       data.map((user) => {
-        console.log(typeof user.userId);
         formattedData.push({
           id: uuid(),
           name: `${user.firstName} ${user.lastName}`,
@@ -50,7 +49,6 @@ export const Teams = ({ churchId }: TeamsProps) => {
   //   if (teams.isLoading !== isLoading) setIsLoading(teams.isLoading);
   // }, [teams, userData]);
 
-  console.log(userData);
   return (
     <div className={!userData || !teams.data ? classes.loading : ''}>
       {teams.data && userData && (
