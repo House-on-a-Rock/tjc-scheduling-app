@@ -63,7 +63,6 @@ router.get(
           { model: db.Role, as: 'role', attributes: ['name'] },
         ],
       });
-      console.log(userRoles[0].role.name);
       const formattedData = [];
 
       roles.map((role) => {
@@ -77,7 +76,6 @@ router.get(
         });
         if (members.length > 0) formattedData.push({ role: role.name, members: members });
       });
-      console.log(formattedData);
       return res.status(200).json(formattedData);
     } catch (err) {
       next(err);
