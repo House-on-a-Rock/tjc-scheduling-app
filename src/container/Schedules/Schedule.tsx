@@ -48,16 +48,13 @@ export const Schedule = ({ churchId }: ScheduleProps) => {
     cacheTime: 3000000,
   });
 
-  // if (!teams.data || !schedules.data || !users.data) return <CircularProgress />;
-
-  // return (
-  //   <ScheduleContainer
-  //     tabs={tabs.data}
-  //     data={{ schedules: schedules.data, users: users.data, teams: teams.data, churchId }}
-  //   />
   return (
-    <div className={!users.data || !tabs.data || !schedules.data ? classes.loading : ''}>
-      {users.data && ( // only renders schedule once data is loaded. prevents excessive multiple re-rendering of the schedule itself
+    <div
+      className={
+        !users.data || !tabs.data || !schedules.data || !teams.data ? classes.loading : ''
+      }
+    >
+      {users.data && (
         <ScheduleContainer
           tabs={tabs.data}
           data={{
@@ -79,14 +76,6 @@ function makeScheduleIdxs(tabsData) {
   }
   return scheduleIdxs;
 }
-
-// is this dead?
-// function fetchSchedule(tabIdx) {
-//   if (tabIdx < tabs.data.length) {
-//     setFetchedSchedule(tabIdx);
-//     console.log(tabIdx, 'hello there');
-//   }
-// }
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
