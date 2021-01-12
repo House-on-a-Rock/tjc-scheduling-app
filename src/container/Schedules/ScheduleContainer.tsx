@@ -254,8 +254,6 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
     setTab(value);
   }
 
-  console.log('data', data);
-
   return (
     <>
       <div ref={outerRef}>
@@ -306,7 +304,6 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
                       <button onClick={() => addEvent(serviceIndex)}>Add Event</button>
                       {events.map((event, rowIdx) => {
                         const { roleId, cells, time, eventId } = event;
-                        console.log('event', event);
                         const cellTitle = roleDisplay(roleId, dataModel);
                         const isSelected = selectedEvents.includes(eventId);
                         const tasksDataSet = teammates(dataModel, roleId, data.churchId);
