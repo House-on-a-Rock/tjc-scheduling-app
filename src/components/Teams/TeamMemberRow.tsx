@@ -26,12 +26,7 @@ export const TeamMemberRow = ({
       <ListItem className={`${classes.root} ${snapshot?.isDragging ? 'dragging' : ''}`}>
         <ListItemText id={member.id} primary={member.name} />
         <ListItemSecondaryAction>
-          <IconButton
-            onClick={() => {
-              console.log(index);
-              onDelete(member, index);
-            }}
-          >
+          <IconButton onClick={() => onDelete(member, index)}>
             <DeleteIcon />
           </IconButton>
         </ListItemSecondaryAction>
