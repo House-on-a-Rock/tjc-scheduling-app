@@ -277,28 +277,21 @@ export async function populateServiceData({
     where: { serviceId: id },
     order: [['order', 'ASC']],
   }); // returns events in ascending order
-  // for each event, retrieve role data and associated task data
   const eventData = await Promise.all(
     events.map(async (event) => {
-      const { time, title, roleId, id: eventId } = event;
+      const { time, roleId, id: eventId } = event;
       const role = await retrieveEventRole(roleId);
       const tasks = await retrieveTaskData(eventId, role);
-      const timeColumn = {}; // this and dutyColumn are just placeholders really, they aren't actually used. Should it be left blank?
-      const dutyColumn = dutyDisplay(title, role); // time and duty live in the events row, so i would need to update both the data inside the row and in this cell when things are changed
+      // changes - most of the schedule data will just be the id's, and the front end will use the ids to display the appropriate info
       return {
         time,
-        title,
         roleId,
         eventId,
-        cells: [timeColumn, dutyColumn, ...tasks],
+        cells: [{}, {}, ...tasks],
       };
     }),
   );
   return { name, day, events: eventData, serviceId: id };
-}
-
-function dutyDisplay(title, role) {
-  return { display: title, role: role };
 }
 
 function retrieveEventRole(roleId) {
@@ -312,25 +305,12 @@ async function retrieveTaskData(eventId, role) {
   const tasks = await db.Task.findAll({
     where: { eventId },
     attributes: ['id', 'userId'],
-    // attributes: ['id', 'date', 'userId'],
-    // include: [
-    //   {
-    //     model: db.User,
-    //     as: 'user',
-    //     required: false,
-    //     attributes: ['firstName', 'lastName'],
-    //   },
-    // ],
     order: [['date', 'ASC']],
   });
   const organizedTasks = tasks.map((task: any) => {
     return {
       taskId: task.id,
-      // date: task.date,
-      // firstName: task.user?.firstName || '',
-      // lastName: task.user?.lastName || '',
       userId: task.userId,
-      // role: role,
     };
   });
   return organizedTasks;

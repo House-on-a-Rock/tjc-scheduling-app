@@ -18,7 +18,16 @@ import {
 } from '../../components/Schedule';
 import { ContextMenu, ConfirmationDialog } from '../../components/shared';
 
-import { days } from './utilities';
+import {
+  days,
+  extractRoleIds,
+  getRoleOptionLabel,
+  getUserOptionLabel,
+  extractTeammateIds,
+  teammates,
+  createBlankEvent,
+  roleDisplay,
+} from './utilities';
 
 import {
   useCreateSchedule,
@@ -27,7 +36,7 @@ import {
   useDeleteEvent,
 } from '../utilities/useMutations';
 
-interface BootstrapData {
+export interface BootstrapData {
   schedules: ScheduleTableInterface[];
   users: UsersDataInterface[];
   teams: TeamsDataInterface[];
@@ -54,7 +63,7 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
   //   const [alert, setAlert] = useState<AlertInterface>();
 
   // manipulate events
-  const [dataModel, setDataModel] = useState<any>({ ...data });
+  const [dataModel, setDataModel] = useState<BootstrapData>({ ...data });
   const [isStructureModified, setIsStructureModified] = useState<boolean>(false);
   const templateChanges = useRef<TemplateChangesInterface>({
     changesSeed: 0,
@@ -78,20 +87,26 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
   const createService = useCreateService(setIsNewServiceOpen);
   const deleteEvent = useDeleteEvent();
 
-  function onChangeTabs(value: number) {
-    if (value === tabs.length) return;
-    // fetchSchedule(value);
-    setTab(value);
-  }
-  // Save Data
-
   function onSaveScheduleChanges() {
+    /*
+      1. check if templateChanges.changesSeed < 0
+        a. if there are changes, prompt if they want to save schedule changes to a new template
+        b. if not, run saveChanges() on changedTasks, display alert
+      If there are template changes
+        1. run diffing function, then useMutation          
+        2. onMutationSuccess, clear changes, reset changesSeed
+    
+      
+      Diffing function - need to check for changes in order, will do that next PR
+        1. check if services match up
+
+      Currently, still unable to save changes to DB, coming soonTM
+    */
     setIsScheduleModified(false);
   }
 
   // Context Menu functions
   function insertRow() {}
-  // delete row
 
   const warningDialogConfig = {
     [SCHEDULE]: {
@@ -108,38 +123,18 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
       ? setSelectedEvents(selectedEvents.filter((id) => id !== eventId))
       : setSelectedEvents([...selectedEvents, eventId]);
 
-  const blankService = {
-    name: 'test',
-    day: 0,
-    events: [],
-    serviceId: retrieveChangesSeed(),
-  };
-  const blankTask = {
-    dataContext: retrieveChangesSeed(),
-    data: 0,
-    dataSet: [{ firstName: '', lastName: '' }],
-  };
-
-  const blankEvent = (cellLength: number) => {
-    const taskCells: any = [
-      { time: 'test PM' },
-      { display: 'test', role: { id: 4, name: 'interpreter' } },
-    ];
-    for (let i = 2; i < cellLength; i++) {
-      taskCells[i] = blankTask;
-    }
+  const createBlankService = () => {
     return {
-      cells: [...taskCells],
-      eventId: retrieveChangesSeed(),
-      roleId: -1,
-      time: '',
-      title: '',
+      name: 'test',
+      day: 0,
+      events: [],
+      serviceId: retrieveChangesSeed(),
     };
   };
 
   function retrieveChangesSeed() {
     // used to give temporary seeds to newly made (but unsaved) events/services. they are negative to distinguish from normal stuff from db
-    // also can keep be used to keep track of number of changes made
+    // also can keep be used to keep track of number of changes made, kinda
     // its in a useRef right now, not sure if it needs to be there. But templateChanges will be used for a lot so idk
     return templateChanges.current.changesSeed--;
   }
@@ -147,18 +142,21 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
   function dataModelDiff() {
     // check id, name, and order of events
     // any modified events are added to appropriate prop in templateChanges ref
+    // should this be called after every change or only onSaveChanges? changedTasks is tracked as each one is updated, but that's much simpler to run
   }
 
   function addEvent(serviceIndex: number) {
     const dataClone = { ...dataModel };
     const targetEvents = dataClone.schedules[tab].services[serviceIndex].events;
-    const newEvent = blankEvent(dataClone.schedules[tab].columns.length);
+    const newEvent = createBlankEvent(
+      dataClone.schedules[tab].columns.length,
+      retrieveChangesSeed,
+    );
     targetEvents.push(newEvent);
     setDataModel(dataClone);
-    // run diff function
   }
 
-  function deleteRow() {
+  function removeEvent() {
     const dataClone = { ...dataModel };
     const target = dataClone.schedules[tab];
     const mutatedData = target.services.map((service) => {
@@ -169,13 +167,13 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
     });
     target.services = mutatedData;
     setDataModel(dataClone);
-    retrieveChangesSeed(); // called just to update changesSeed. mbbe not necessary
+    retrieveChangesSeed(); // called just to update changesSeed.
   }
 
   function addService() {
     const dataClone = { ...dataModel };
     const target = dataClone.schedules[tab].services;
-    target.push(blankService);
+    target.push(createBlankService());
     setDataModel(dataClone);
   }
 
@@ -186,22 +184,10 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
     );
     dataClone.schedules[tab].services = filteredServices;
     setDataModel(dataClone);
+    retrieveChangesSeed();
   }
 
-  function changeTime(newValue: string, rowIndex: number, serviceIndex: number) {
-    const dataClone = { ...dataModel };
-    dataClone.schedules[tab].services[serviceIndex].events[rowIndex].time = newValue;
-    setDataModel(dataClone);
-  }
-
-  function isDisplayTime(time: string, rowIndex: number, serviceIndex: number): boolean {
-    if (rowIndex === 0) return true;
-    const previousEventsTime =
-      dataModel.schedules[tab].services[serviceIndex].events[rowIndex - 1].time;
-    return previousEventsTime !== time;
-  }
-
-  // AUTOCOMPLETE
+  // in the future, can pass in warning icons or tooltips
   function renderOption(display, isIconVisible) {
     return (
       <div
@@ -222,38 +208,19 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
     );
   }
 
-  const blankTeammate: UsersDataInterface = {
-    userId: -1,
-    firstName: '',
-    lastName: '',
-    email: '',
-    church: { name: '' },
-    churchId: data.churchId,
-    disabled: false,
-    teams: [],
-  };
+  function shouldDisplayTime(
+    time: string,
+    rowIndex: number,
+    serviceIndex: number,
+  ): boolean {
+    if (rowIndex === 0) return true;
+    const previousEventsTime =
+      dataModel.schedules[tab].services[serviceIndex].events[rowIndex - 1].time;
+    return previousEventsTime !== time;
+  }
 
-  // functions for names autocomplete
-  const teammates = (roleId: number) => {
-    // TODO add blank user to available options
-    const filteredTeammates = data.users.filter((user) =>
-      user.teams.some((team) => team.id === roleId),
-    );
-    filteredTeammates.push(blankTeammate);
-    return filteredTeammates;
-  };
-  function extractTeammateIds(teammates): number[] {
-    return teammates.map((teammate) => teammate.userId);
-  }
-  function getUserOptionLabel(option: number, dataSet) {
-    const filteredData = dataSet.filter((user) => user.userId === option)[0];
-    if (filteredData) return `${filteredData.firstName} ${filteredData.lastName}`;
-    else {
-      console.log('ID does not match any from dataset');
-      return '';
-    }
-  }
-  function onTaskModified(dataContext, newAssignee: number, isChanged: boolean) {
+  // onChange Handlers
+  function onTaskChange(dataContext, newAssignee: number, isChanged: boolean) {
     const { taskId, serviceIndex, rowIdx, columnIndex } = dataContext;
     const dataClone = { ...dataModel };
     dataClone.schedules[tab].services[serviceIndex].events[rowIdx].cells[
@@ -264,26 +231,27 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
       const updatedChangedTasks = { ...changedTasks.current, [taskId]: newAssignee };
       changedTasks.current = updatedChangedTasks;
     } else if (changedTasks.current[taskId]) delete changedTasks.current[taskId];
-
     setIsScheduleModified(Object.keys(changedTasks.current).length > 0);
-  }
-
-  // functions for roles autocomplete
-  function extractRoleIds(teams): number[] {
-    return teams.map((team) => team.id);
   }
 
   function onAssignedRoleChange(dataContext, newRoleId, isChanged) {
     const { serviceIndex, rowIdx } = dataContext;
     const dataClone = { ...dataModel };
-    dataClone.schedules[tab].services[serviceIndex].events[rowIdx].roleId = newRoleId;
+    const targetEvent = dataClone.schedules[tab].services[serviceIndex].events[rowIdx];
+    targetEvent.roleId = newRoleId;
+
     setDataModel(dataClone);
   }
 
-  function getRoleOptionLabel(option, dataSet) {
-    const filteredData = dataSet.filter((role) => role.id === option)[0];
-    if (filteredData) return `${filteredData.name}`;
-    return '';
+  function onTimeChange(newValue: string, rowIndex: number, serviceIndex: number) {
+    const dataClone = { ...dataModel };
+    dataClone.schedules[tab].services[serviceIndex].events[rowIndex].time = newValue;
+    setDataModel(dataClone);
+  }
+
+  function onChangeTabs(value: number) {
+    if (value === tabs.length) return;
+    setTab(value);
   }
 
   console.log('data', data);
@@ -291,15 +259,12 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
   return (
     <>
       <div ref={outerRef}>
-        {/* 1) Add an arrow into the tab that opens context menu -- These feature ideas should go into jira ticket and not left in comments imo*/}
-        {/* 2) Options in this context menu: rename schedule, delete schedule, color/style tabs */}
         <ScheduleTabs
           tabIdx={tab}
           onTabClick={onChangeTabs}
           tabs={tabs}
           handleAddClicked={() => setIsNewScheduleOpen(true)}
         />
-
         <ScheduleToolbar
           handleNewServiceClicked={addService}
           destroySchedule={() => setWarningDialog(SCHEDULE)}
@@ -309,7 +274,7 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
         <ContextMenu
           outerRef={outerRef}
           addRowHandler={insertRow}
-          deleteRowHandler={deleteRow}
+          deleteRowHandler={removeEvent}
         />
         <Prompt
           when={isScheduleModified}
@@ -328,8 +293,8 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
                 {headers.map(({ Header }, index: number) => (
                   <ScheduleTableHeader key={`${Header}_${index}`} header={Header} />
                 ))}
-                {services.map((body: ServiceDataInterface, serviceIndex: number) => {
-                  const { day, name, events, serviceId } = body;
+                {services.map((service: ServiceDataInterface, serviceIndex: number) => {
+                  const { day, name, events, serviceId } = service;
                   return (
                     <ScheduleTableBody
                       key={`${day}-${name}`}
@@ -339,11 +304,12 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
                         Delete Service
                       </button>
                       <button onClick={() => addEvent(serviceIndex)}>Add Event</button>
-
                       {events.map((event, rowIdx) => {
-                        const { roleId, cells, title: cellTitle, time, eventId } = event;
+                        const { roleId, cells, time, eventId } = event;
+                        console.log('event', event);
+                        const cellTitle = roleDisplay(roleId, dataModel);
                         const isSelected = selectedEvents.includes(eventId);
-                        const tasksDataSet = teammates(roleId);
+                        const tasksDataSet = teammates(dataModel, roleId, data.churchId);
                         return (
                           <TableRow
                             key={`${cellTitle}-${time}-${rowIdx}`}
@@ -355,8 +321,12 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
                               return columnIndex === 0 ? (
                                 <TimeCell
                                   time={time}
-                                  isDisplayed={isDisplayTime(time, rowIdx, serviceIndex)}
-                                  onChange={changeTime}
+                                  isDisplayed={shouldDisplayTime(
+                                    time,
+                                    rowIdx,
+                                    serviceIndex,
+                                  )}
+                                  onChange={onTimeChange}
                                   rowIndex={rowIdx}
                                   serviceIndex={serviceIndex}
                                   key={`Time_${serviceIndex}_${rowIdx}`}
@@ -385,7 +355,7 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
                                     rowIdx,
                                     columnIndex,
                                   }}
-                                  onChange={onTaskModified}
+                                  onChange={onTaskChange}
                                   key={`Tasks_${rowIdx}_${columnIndex}`}
                                   getOptionLabel={getUserOptionLabel}
                                   renderOption={renderOption}
