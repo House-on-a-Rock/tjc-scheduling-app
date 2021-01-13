@@ -20,10 +20,10 @@ export function ConfirmationDialog({ handleClick, state, title }: SimpleDialogPr
     <Dialog onBackdropClick={() => handleClick(!state)} open={state}>
       <DialogTitle id="confirm-dialog">{title}</DialogTitle>
       <div className={classes.buttonBottomBar}>
-        <Button onClick={() => handleClick(true)} className={classes.button}>
+        <Button onClick={() => handleClick(true)} className={classes.confirmButton}>
           Confirm
         </Button>
-        <Button onClick={() => handleClick(false)} className={classes.button}>
+        <Button onClick={() => handleClick(false)} className={classes.cancelButton}>
           Cancel
         </Button>
       </div>
@@ -54,7 +54,14 @@ const useStyles = makeStyles((theme: Theme) =>
       flexWrap: 'wrap',
       alignSelf: 'end',
     },
-    button: {
+    confirmButton: {
+      padding: '10px',
+      borderRadius: '5px',
+      border: 'none',
+      margin: '5px',
+      ...buttonTheme.warning,
+    },
+    cancelButton: {
       padding: '10px',
       borderRadius: '5px',
       border: 'none',

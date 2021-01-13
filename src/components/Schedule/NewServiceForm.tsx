@@ -59,7 +59,7 @@ export const NewServiceForm = ({ onSubmit, onClose, error }: NewServiceFormProps
   }
 
   return (
-    <div className={classes.root}>
+    <div className={classes.newServiceForm}>
       <h2>Add A New Event</h2>
       {error && (
         <div style={{ color: 'red' }}>
@@ -109,7 +109,7 @@ export const NewServiceForm = ({ onSubmit, onClose, error }: NewServiceFormProps
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
-    root: {
+    newServiceForm: {
       display: 'flex',
       flexDirection: 'column',
       justifyContent: 'center',
@@ -136,7 +136,7 @@ const useStyles = makeStyles((theme: Theme) =>
       border: 'none',
       margin: '5px',
       '&:hover, &:focus': {
-        ...buttonTheme.filled,
+        ...buttonTheme.filled.hover,
       },
     },
   }),

@@ -40,7 +40,7 @@ export const ScheduleToolbar = ({
 }: ScheduleToolbar) => {
   const classes = useStyles();
   return (
-    <div className={classes.iconBar}>
+    <div className={classes.scheduleToolbar}>
       <Tooltip title="Add A New Service">
         <IconButton onClick={() => handleNewServiceClicked()}>
           <CreateNewFolderIcon />
@@ -71,7 +71,7 @@ export const ScheduleToolbar = ({
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
-    iconBar: {
+    scheduleToolbar: {
       display: 'flex',
     },
   }),

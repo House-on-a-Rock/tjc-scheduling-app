@@ -86,7 +86,7 @@ export const NewScheduleForm = ({
 
   // TODO display error message from server side
   return (
-    <div className={classes.root}>
+    <div className={classes.newScheduleForm}>
       <h2>Create a New Schedule</h2>
       <form className={classes.formStyle}>
         {error && (
@@ -192,7 +192,7 @@ function toDateString(date: Date): string {
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
-    root: {
+    newScheduleForm: {
       display: 'flex',
       flexDirection: 'column',
       justifyContent: 'space-around',
@@ -243,7 +243,7 @@ const useStyles = makeStyles((theme: Theme) =>
       border: 'none',
       margin: '5px',
       '&:hover, &:focus': {
-        ...buttonTheme.filled,
+        ...buttonTheme.filled.hover,
       },
     },
     buttonBottomBar: {
