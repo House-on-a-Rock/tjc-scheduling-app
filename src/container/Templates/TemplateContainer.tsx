@@ -65,7 +65,7 @@ const useStyles = makeStyles((theme: Theme) =>
       borderRadius: '5px',
       border: 'none',
       '&:hover, &:focus': {
-        ...buttonTheme.filled,
+        ...buttonTheme.filled.hover,
       },
       display: 'flex',
       '& *': {

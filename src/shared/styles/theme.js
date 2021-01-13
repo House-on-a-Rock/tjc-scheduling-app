@@ -81,10 +81,11 @@ export const themeExtension = {
     transition: fastTransitionTime,
     border: 'transparent 2px solid',
     hover: {
+      // in case you just want to import hover style
       border: `${interactiveColorBlue} 2px solid`,
       boxShadow: '#CCDBE0 0 2px 23px',
     },
-    '&:hover, &:focus': {
+    '&:hover, &:focus, &:active': {
       border: `${interactiveColorBlue} 2px solid`,
       boxShadow: '#CCDBE0 0 2px 23px',
     },
@@ -93,28 +94,52 @@ export const themeExtension = {
     outlined: {
       backgroundColor: mainBackgroundColor,
       border: `${primaryButtonColor} 1px solid`,
-      boxShadow: '#D5E3F0 0 6px 15px',
+      hover: {
+        // in case you just want to import hover style
+        boxShadow: '#D5E3F0 0 6px 15px',
+      },
+      '&:hover, &:focus, &:active': {
+        boxShadow: '#D5E3F0 0 6px 15px',
+      },
     },
     filled: {
       backgroundColor: primaryButtonColor,
-      boxShadow: '#000B44 0 3px 10px',
       transition: fastTransitionTime,
       hover: {
+        // in case you just want to import hover style
         backgroundColor: interactiveColorBlue,
         color: 'white',
+        boxShadow: '#000B44 0 3px 10px',
       },
-      '&:hover, &:focus': {
+      '&:hover, &:focus, &:active': {
         backgroundColor: interactiveColorBlue,
         color: 'white',
+        boxShadow: '#000B44 0 3px 10px',
+      },
+    },
+    warning: {
+      backgroundColor: 'pink',
+      transition: fastTransitionTime,
+      hover: {
+        // in case you just want to import hover style
+        backgroundColor: interactiveColorRed,
+        color: 'white',
+        boxShadow: `${interactiveColorRed} 0 3px 10px`,
+      },
+      '&:hover, &:focus, &:active': {
+        backgroundColor: interactiveColorRed,
+        color: 'white',
+        boxShadow: `${interactiveColorRed} 0 3px 10px`,
       },
     },
     icon: {
       color: primaryButtonColor,
       transition: fastTransitionTime,
       hover: {
+        // in case you just want to import hover style
         color: interactiveColorBlue,
       },
-      '&:hover, &:focus': {
+      '&:hover, &:focus, &:active': {
         color: interactiveColorBlue,
       },
     },
@@ -123,9 +148,10 @@ export const themeExtension = {
     backgroundColor: secondaryBackgroundColor,
     boxShadow: '#CFCFCF 0 2px 23px',
     hover: {
+      // in case you just want to import hover style
       backgroundColor: interactiveColorBlue,
     },
-    '&:hover, &:focus': {
+    '&:hover, &:focus, &:active': {
       backgroundColor: interactiveColorBlue,
     },
   },

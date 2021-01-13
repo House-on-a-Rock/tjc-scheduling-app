@@ -124,7 +124,7 @@ const useStyles = makeStyles((theme: Theme) =>
       padding: '10px',
       borderRadius: '5px',
       border: 'none',
-      '&:hover, &:focus': { ...buttonTheme.filled },
+      '&:hover, &:focus': { ...buttonTheme.filled.hover },
     },
     menuButton: {
       marginRight: theme.spacing(2),

@@ -29,7 +29,7 @@ export const ScheduleTabs = ({
 }: ScheduleTabsProps) => {
   const classes = useStyles();
   return (
-    <div className={classes.root}>
+    <div className={classes.scheduleTabs}>
       <Tabs
         value={tabIdx}
         onChange={(e, value) => onTabClick(value)}
@@ -50,7 +50,11 @@ export const ScheduleTabs = ({
             className={classes.tab}
           />
         ))}
-        <Tab icon={<AddIcon />} onClick={() => handleAddClicked()} />
+        <Tab
+          icon={<AddIcon />}
+          className={classes.addTab}
+          onClick={() => handleAddClicked()}
+        />
       </Tabs>
     </div>
   );
@@ -58,7 +62,7 @@ export const ScheduleTabs = ({
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
-    root: {
+    scheduleTabs: {
       height: '3.5rem',
     },
     tabs: {
@@ -73,6 +77,14 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     tab: {
       ...tabTheme,
+    },
+    addTab: {
+      ...tabTheme,
+      minWidth: '7ch',
+      '& > span': {
+        // hide rightmost divider line without causing shifting:
+        borderRightColor: 'transparent !important',
+      },
     },
     button: {
       ...buttonTheme,

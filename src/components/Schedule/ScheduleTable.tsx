@@ -27,10 +27,7 @@ export const ScheduleTable: React.FC<ScheduleTableProps> = ({
   const [header, body] = children;
 
   return (
-    <div
-      className={classes.scheduleComponent}
-      style={{ display: hidden ? 'none' : 'block' }}
-    >
+    <div className={classes.scheduleTable} style={{ display: hidden ? 'none' : 'block' }}>
       <MaUTable className={classes.table} ref={outerRef ?? null}>
         <TableHead>
           <TableRow key={`${title} Column header`}>{header}</TableRow>
@@ -46,7 +43,7 @@ const normalCellBorder = `1px solid ${normalCellBorderColor}`;
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
-    scheduleComponent: {
+    scheduleTable: {
       position: 'absolute',
       paddingTop: 10,
     },
