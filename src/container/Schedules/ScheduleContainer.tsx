@@ -256,7 +256,9 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
 
   return (
     <>
-      <div ref={outerRef}>
+      <div className="schedule-container" ref={outerRef}>
+        {/* 1) Add an arrow into the tab that opens context menu */}
+        {/* 2) Options in this context menu: rename schedule, delete schedule, color/style tabs */}
         <ScheduleTabs
           tabIdx={tab}
           onTabClick={onChangeTabs}
