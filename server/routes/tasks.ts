@@ -32,13 +32,6 @@ router.get('/tasks', certify, async (req: Request, res: Response, next: NextFunc
       });
       await Promise.all(query);
     }
-    // if (roleId) {
-
-    // }
-    // if (churchId) {
-    //   const query = await db.Task.findAll({ where: searchParams });
-    //   tasks.push(...query);
-    // }
     return tasks
       ? res.status(200).json(tasks)
       : res.status(404).send({ message: 'Not found' });
