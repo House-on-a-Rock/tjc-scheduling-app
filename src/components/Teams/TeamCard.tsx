@@ -12,12 +12,13 @@ import { cardTheme } from '../../shared/styles/theme';
 import { verticalScrollIndicatorShadow } from '../../shared/styles/scroll-indicator-shadow';
 
 interface TeamCardProps {
+  users: MembersData[];
   type: string;
   members: MembersData[];
   draggedItem: DraggedItem;
 }
 
-export const TeamCard = ({ type, members, draggedItem }: TeamCardProps) => {
+export const TeamCard = ({ users, type, members, draggedItem }: TeamCardProps) => {
   const classes = useStyles();
   const canDrop: () => boolean = () =>
     draggedItem.source === 'USERBANK'
@@ -39,6 +40,7 @@ export const TeamCard = ({ type, members, draggedItem }: TeamCardProps) => {
       <Divider orientation="vertical" className={classes.divider} />
       <CardContent className={classes.list} style={{ overflow: 'auto' }}>
         <DroppableTeamMembersList
+          users={users}
           role={type}
           canDrop={canDrop}
           members={members}

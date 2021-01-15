@@ -60,7 +60,7 @@ router.get(
         attributes: ['id', 'teamLead', 'roleId'],
         include: [
           { model: db.User, as: 'user', attributes: ['id', 'firstName', 'lastName'] },
-          { model: db.Role, as: 'role', attributes: ['name'] },
+          { model: db.Role, as: 'role', attributes: ['id', 'name'] },
         ],
       });
       const formattedData = [];
@@ -71,10 +71,12 @@ router.get(
           if (role.name === userRole.role.name)
             members.push({
               id: uuid(),
+              userId: userRole.user.id,
               name: `${userRole.user.firstName} ${userRole.user.lastName}`,
             });
         });
-        if (members.length > 0) formattedData.push({ role: role.name, members: members });
+        if (members.length > 0)
+          formattedData.push({ role: role.name, roleId: role.id, members: members });
       });
       return res.status(200).json(formattedData);
     } catch (err) {
@@ -103,6 +105,42 @@ router.get(
       return userRoles
         ? res.status(200).json(userRoles)
         : res.status(404).send({ message: 'Not found' });
+    } catch (err) {
+      next(err);
+      return res.status(503).send({ message: 'Server error, try again later' });
+    }
+  },
+);
+
+router.post(
+  '/user-role',
+  certify,
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { roleId, userId } = req.body;
+      await db.UserRole.create({
+        teamLead: false,
+        userId,
+        roleId,
+      });
+      return res.status(201).send({ message: 'Users added' });
+    } catch (err) {
+      next(err);
+      return res.status(503).send({ message: 'Server error, try again later' });
+    }
+  },
+);
+
+router.delete(
+  '/user-role',
+  certify,
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { roleId, userIds } = req.body;
+      userIds.map(async (userId) => {
+        await db.UserRole.destroy({ where: { roleId, userId } });
+      });
+      return res.status(200).send({ message: 'Users deleted' });
     } catch (err) {
       next(err);
       return res.status(503).send({ message: 'Server error, try again later' });

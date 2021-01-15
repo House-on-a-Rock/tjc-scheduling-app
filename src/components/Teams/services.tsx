@@ -38,10 +38,17 @@ export function add(
   droppableSource: DraggableLocation,
   droppableDestination: DraggableLocation,
 ): TeamState {
-  const stateClone: TeamData[] = teamsState[droppableDestination.droppableId];
+  const stateClone: TeamData[] = teamsState[droppableDestination.droppableId].members;
   const member = members[droppableSource.index];
+  console.log(member);
   stateClone.push({ ...member, id: uuid() });
-  return { ...teamsState, [droppableDestination.droppableId]: stateClone };
+  return {
+    ...teamsState,
+    [droppableDestination.droppableId]: {
+      roleId: teamsState[droppableDestination.droppableId].roleId,
+      members: stateClone,
+    },
+  };
 }
 
 export function reorder(
@@ -49,7 +56,7 @@ export function reorder(
   start: DraggableLocation,
   end: DraggableLocation,
 ): TeamState {
-  const list = state[start.droppableId];
+  const list = state.members[start.droppableId];
   const [removed] = list.splice(start.index, 1);
   list.splice(end.index, 0, removed);
   return { ...state, [start.droppableId]: list };

@@ -14,12 +14,13 @@ import { v4 as uuid } from 'uuid';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
-import { TextField } from '@material-ui/core';
+import { Button, TextField } from '@material-ui/core';
 
 import { TeamMemberRow } from './TeamMemberRow';
 import { MembersData, DraggedItem } from './models';
 
 interface DroppableTeamMembersListProps {
+  users: MembersData[];
   role: string;
   members: MembersData[];
   canDrop: () => boolean;
@@ -27,6 +28,7 @@ interface DroppableTeamMembersListProps {
 }
 
 export const DroppableTeamMembersList = ({
+  users,
   role,
   members,
   canDrop,
@@ -35,14 +37,20 @@ export const DroppableTeamMembersList = ({
   const classes = useStyles();
 
   const [memberInput, setMemberInput] = useState({ value: '', error: '' });
+  const [addedMemberIds, setAddedMemberIds] = useState<string[]>(null);
+  const [deletedMemberIds, setDeletedMemberIds] = useState<string[]>(null);
 
   // handleSubmit and handleDelete are placeholder functions
   function handleSubmit(event: any) {
     event.preventDefault();
     if (members.find((member: any) => member.name === memberInput.value)) {
       setMemberInput({ ...memberInput, error: 'User already exists' });
+    } else if (!users.find((user: any) => user.name === memberInput.value)) {
+      setMemberInput({ ...memberInput, error: 'User does not exist' });
     } else {
-      members.push({ id: uuid(), name: memberInput.value });
+      const submitUser = users.find((user: any) => user.name === memberInput.value);
+      members.push({ id: uuid(), userId: submitUser.userId, name: memberInput.value });
+      setAddedMemberIds([...addedMemberIds, submitUser.userId]);
       setMemberInput({ ...memberInput, value: '', error: '' });
     }
   }
@@ -50,6 +58,7 @@ export const DroppableTeamMembersList = ({
   function handleDelete(selectedMember: any, index: any) {
     if (members.find((member) => member.name === selectedMember.name)) {
       members.splice(index, 1);
+      setDeletedMemberIds([...deletedMemberIds, selectedMember.userId]);
       setMemberInput({ ...memberInput, value: '', error: '' });
     }
   }

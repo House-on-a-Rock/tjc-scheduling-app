@@ -200,6 +200,11 @@ export interface MemberStateData {
   roles: string[];
 }
 
+export interface AddedUserRoleData {
+  userId: string;
+  roleId: string;
+}
+
 interface ChurchAttribute {
   name: string;
 }

@@ -9,14 +9,15 @@ import IconButton from '@material-ui/core/IconButton';
 import Typography from '@material-ui/core/Typography';
 
 import { TeamCard } from './TeamCard';
-import { TeamState, DraggedItem } from './models';
+import { TeamState, DraggedItem, MembersData } from './models';
 
 interface TeamListProps {
+  users: MembersData[];
   teams: TeamState;
   draggedMember: DraggedItem;
 }
 
-export const TeamList = ({ teams, draggedMember }: TeamListProps) => {
+export const TeamList = ({ users, teams, draggedMember }: TeamListProps) => {
   return (
     <>
       <Typography variant="h4" align="center">
@@ -24,9 +25,10 @@ export const TeamList = ({ teams, draggedMember }: TeamListProps) => {
       </Typography>
       {Object.keys(teams).map((role, index) => (
         <TeamCard
+          users={users}
           key={`team-${index}`}
           type={role}
-          members={Object.values(teams)[index]}
+          members={Object.values(teams)[index].members}
           draggedItem={draggedMember}
         />
       ))}

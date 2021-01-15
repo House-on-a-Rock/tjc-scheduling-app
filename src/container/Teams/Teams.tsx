@@ -31,10 +31,12 @@ export const Teams = ({ churchId }: TeamsProps) => {
     staleTime: 300000,
     cacheTime: 3000000,
     onSuccess: (data) => {
+      console.log(data);
       const formattedData = [];
       data.map((user) => {
         formattedData.push({
           id: uuid(),
+          userId: user.userId,
           name: `${user.firstName} ${user.lastName}`,
         });
       });
