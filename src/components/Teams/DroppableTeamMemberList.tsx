@@ -67,7 +67,6 @@ export const DroppableTeamMembersList = ({
           { userId: selectedMember.userId, roleId: roleId },
         ]);
       else setDeletedMembers([{ userId: selectedMember.userId, roleId: roleId }]);
-      console.log(deletedMembers);
       setMemberInput({ ...memberInput, value: '', error: '' });
     }
   }

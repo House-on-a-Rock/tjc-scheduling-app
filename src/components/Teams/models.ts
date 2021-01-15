@@ -31,3 +31,11 @@ export interface UserRoleData {
   userId: string;
   roleId: string;
 }
+
+export interface BackendUsersData {
+  userId: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  disabled: boolean;
+}

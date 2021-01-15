@@ -4,6 +4,7 @@ import { DragDropContext, DropResult } from 'react-beautiful-dnd';
 import { makeStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
+import { v4 as uuid } from 'uuid';
 
 import { UserBank } from '../../components/Teams/UserBank';
 import { TeamList } from '../../components/Teams/TeamList';
@@ -13,6 +14,7 @@ import {
   BackendTeamsData,
   MembersData,
   UserRoleData,
+  BackendUsersData,
 } from '../../components/Teams/models';
 import { add, reorder } from '../../components/Teams/services';
 import { useCreateUserRole, useDeleteUserRole } from '../utilities/useMutations';
@@ -25,16 +27,24 @@ import { useCreateUserRole, useDeleteUserRole } from '../utilities/useMutations'
 
 interface TeamsContainerProps {
   teamsData: BackendTeamsData[];
-  users: MembersData[];
+  usersData: BackendUsersData[];
 }
-export const TeamsContainer = ({ teamsData, users }: TeamsContainerProps) => {
+export const TeamsContainer = ({ teamsData, usersData }: TeamsContainerProps) => {
   const queryClient = useQueryClient();
   const classes = useStyles();
   const initialState: TeamState = {};
+  const formattedUserData: MembersData[] = [];
+  usersData.map((user) => {
+    formattedUserData.push({
+      id: uuid(),
+      userId: user.userId,
+      name: `${user.firstName} ${user.lastName}`,
+    });
+  });
+
   teamsData.map(
     (team) => (initialState[team.role] = { roleId: team.roleId, members: team.members }),
   );
-  console.log('rendering');
 
   const [addedMembers, setAddedMembers] = useState<UserRoleData[]>(null);
   const [deletedMembers, setDeletedMembers] = useState<UserRoleData[]>(null);
@@ -53,26 +63,29 @@ export const TeamsContainer = ({ teamsData, users }: TeamsContainerProps) => {
         <DragDropContextWrapper
           addedMembers={addedMembers}
           handleAddMember={setAddedMembers}
-          users={users}
+          users={formattedUserData}
           teams={teams}
           handleTeams={setTeams}
           handleDraggedItem={setDraggedItem}
         >
           <>
             <Grid item md={3} sm={4} xs={12}>
-              <UserBank members={users} droppableId="USERBANK" className="userbank" />
+              <UserBank
+                members={formattedUserData}
+                droppableId="USERBANK"
+                className="userbank"
+              />
             </Grid>
             <Grid item md={9} sm={8} xs={12}>
               <TeamList
                 deletedMembers={deletedMembers}
                 setDeletedMembers={setDeletedMembers}
-                users={users}
+                users={formattedUserData}
                 teams={teams}
                 draggedMember={draggedItem}
               />
               <Button
                 onClick={() => {
-                  console.log(addedMembers, deletedMembers);
                   if (addedMembers !== null)
                     addedMembers.map((addedMember) => {
                       createUserRole.mutate(addedMember);
@@ -81,7 +94,7 @@ export const TeamsContainer = ({ teamsData, users }: TeamsContainerProps) => {
                     deletedMembers.map((deletedMember) => {
                       deleteUserRole.mutate(deletedMember);
                     });
-                  // setAddedMembers(null);
+                  setAddedMembers(null);
                   setDeletedMembers(null);
                   queryClient.invalidateQueries('teams');
                 }}
@@ -135,7 +148,6 @@ const DragDropContextWrapper = ({
           break;
         case 'USERBANK':
           if (addedMembers !== null) {
-            console.log('added members is not null');
             handleAddMember([
               ...addedMembers,
               {
@@ -144,7 +156,6 @@ const DragDropContextWrapper = ({
               },
             ]);
           } else {
-            console.log('added members is null');
             handleAddMember([
               {
                 userId: users[source.index].userId,
@@ -152,7 +163,6 @@ const DragDropContextWrapper = ({
               },
             ]);
           }
-          console.log(addedMembers);
           handleTeams(add(users, teams, source, destination));
           break;
         default:
