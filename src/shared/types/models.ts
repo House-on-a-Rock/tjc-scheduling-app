@@ -200,7 +200,7 @@ export interface MemberStateData {
   roles: string[];
 }
 
-export interface AddedUserRoleData {
+export interface UserRoleData {
   userId: string;
   roleId: string;
 }

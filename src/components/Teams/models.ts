@@ -27,7 +27,7 @@ export interface DraggedItem {
   source: string;
 }
 
-export interface AddedUserRoleData {
+export interface UserRoleData {
   userId: string;
   roleId: string;
 }

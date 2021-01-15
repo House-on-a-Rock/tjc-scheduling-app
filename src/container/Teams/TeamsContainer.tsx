@@ -12,10 +12,10 @@ import {
   DraggedItem,
   BackendTeamsData,
   MembersData,
-  AddedUserRoleData,
+  UserRoleData,
 } from '../../components/Teams/models';
 import { add, reorder } from '../../components/Teams/services';
-import { useCreateUserRole } from '../utilities/useMutations';
+import { useCreateUserRole, useDeleteUserRole } from '../utilities/useMutations';
 
 // TODOS
 // 1. need apis that handles title, description changes
@@ -34,9 +34,10 @@ export const TeamsContainer = ({ teamsData, users }: TeamsContainerProps) => {
   teamsData.map(
     (team) => (initialState[team.role] = { roleId: team.roleId, members: team.members }),
   );
+  console.log('rendering');
 
-  const [addedMembers, setAddedMembers] = useState<AddedUserRoleData[]>(null);
-  const [deletedMembersIds, setDeletedMemberIds] = useState<string[]>(null);
+  const [addedMembers, setAddedMembers] = useState<UserRoleData[]>(null);
+  const [deletedMembers, setDeletedMembers] = useState<UserRoleData[]>(null);
   const [teams, setTeams] = useState<TeamState>(initialState);
   const [draggedItem, setDraggedItem] = useState<DraggedItem>({
     member: { id: '', userId: '', name: '' },
@@ -44,6 +45,7 @@ export const TeamsContainer = ({ teamsData, users }: TeamsContainerProps) => {
   });
 
   const createUserRole = useCreateUserRole();
+  const deleteUserRole = useDeleteUserRole();
 
   return (
     <div className={classes.root}>
@@ -61,13 +63,26 @@ export const TeamsContainer = ({ teamsData, users }: TeamsContainerProps) => {
               <UserBank members={users} droppableId="USERBANK" className="userbank" />
             </Grid>
             <Grid item md={9} sm={8} xs={12}>
-              <TeamList users={users} teams={teams} draggedMember={draggedItem} />
+              <TeamList
+                deletedMembers={deletedMembers}
+                setDeletedMembers={setDeletedMembers}
+                users={users}
+                teams={teams}
+                draggedMember={draggedItem}
+              />
               <Button
                 onClick={() => {
+                  console.log(addedMembers, deletedMembers);
                   if (addedMembers !== null)
                     addedMembers.map((addedMember) => {
                       createUserRole.mutate(addedMember);
                     });
+                  if (deletedMembers !== null)
+                    deletedMembers.map((deletedMember) => {
+                      deleteUserRole.mutate(deletedMember);
+                    });
+                  // setAddedMembers(null);
+                  setDeletedMembers(null);
                   queryClient.invalidateQueries('teams');
                 }}
               >
@@ -84,8 +99,8 @@ export const TeamsContainer = ({ teamsData, users }: TeamsContainerProps) => {
 interface DragDropContextWrapperProps {
   users: MembersData[];
   teams: TeamState;
-  addedMembers: AddedUserRoleData[];
-  handleAddMember: (newList: AddedUserRoleData[]) => void;
+  addedMembers: UserRoleData[];
+  handleAddMember: (newList: UserRoleData[]) => void;
   handleTeams: (state: TeamState) => void;
   handleDraggedItem: (draggedMember: DraggedItem) => void;
   children: JSX.Element;
@@ -119,8 +134,8 @@ const DragDropContextWrapper = ({
           handleTeams(reorder(teams, source, destination));
           break;
         case 'USERBANK':
-          console.log(destination);
-          if (addedMembers !== null)
+          if (addedMembers !== null) {
+            console.log('added members is not null');
             handleAddMember([
               ...addedMembers,
               {
@@ -128,20 +143,23 @@ const DragDropContextWrapper = ({
                 roleId: teams[destination.droppableId].roleId,
               },
             ]);
-          else
+          } else {
+            console.log('added members is null');
             handleAddMember([
               {
                 userId: users[source.index].userId,
                 roleId: teams[destination.droppableId].roleId,
               },
             ]);
+          }
+          console.log(addedMembers);
           handleTeams(add(users, teams, source, destination));
           break;
         default:
           break;
       }
     },
-    [handleTeams],
+    [handleTeams, addedMembers],
   );
   return (
     <DragDropContext onDragEnd={onDragEnd} onDragStart={onDragStart}>

@@ -5,7 +5,7 @@ import {
   NewScheduleData,
   NewServiceData,
   DeleteEventsData,
-  AddedUserRoleData,
+  UserRoleData,
 } from '../../shared/types';
 import {
   postSchedule,
@@ -13,6 +13,7 @@ import {
   postService,
   destroyEvent,
   postUserRole,
+  deleteUserRole,
 } from '../../query/apis';
 
 export const useCreateSchedule = (setDialogOpen) => {
@@ -62,8 +63,11 @@ export const useDeleteEvent = () => {
 };
 
 export const useCreateUserRole = () => {
-  const queryClient = useQueryClient();
-  return useMutation<AxiosResponse<any>, AxiosError, AddedUserRoleData, unknown>(
-    postUserRole,
+  return useMutation<AxiosResponse<any>, AxiosError, UserRoleData, unknown>(postUserRole);
+};
+
+export const useDeleteUserRole = () => {
+  return useMutation<AxiosResponse<any>, AxiosError, UserRoleData, unknown>(
+    deleteUserRole,
   );
 };

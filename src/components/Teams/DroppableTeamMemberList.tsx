@@ -17,19 +17,25 @@ import ListItem from '@material-ui/core/ListItem';
 import { Button, TextField } from '@material-ui/core';
 
 import { TeamMemberRow } from './TeamMemberRow';
-import { MembersData, DraggedItem } from './models';
+import { MembersData, DraggedItem, UserRoleData } from './models';
 
 interface DroppableTeamMembersListProps {
+  deletedMembers: UserRoleData[];
+  setDeletedMembers: (newList: UserRoleData[]) => void;
   users: MembersData[];
   role: string;
+  roleId: string;
   members: MembersData[];
   canDrop: () => boolean;
   draggedItem: DraggedItem;
 }
 
 export const DroppableTeamMembersList = ({
+  deletedMembers,
+  setDeletedMembers,
   users,
   role,
+  roleId,
   members,
   canDrop,
   draggedItem,
@@ -37,8 +43,6 @@ export const DroppableTeamMembersList = ({
   const classes = useStyles();
 
   const [memberInput, setMemberInput] = useState({ value: '', error: '' });
-  const [addedMemberIds, setAddedMemberIds] = useState<string[]>(null);
-  const [deletedMemberIds, setDeletedMemberIds] = useState<string[]>(null);
 
   // handleSubmit and handleDelete are placeholder functions
   function handleSubmit(event: any) {
@@ -50,7 +54,6 @@ export const DroppableTeamMembersList = ({
     } else {
       const submitUser = users.find((user: any) => user.name === memberInput.value);
       members.push({ id: uuid(), userId: submitUser.userId, name: memberInput.value });
-      setAddedMemberIds([...addedMemberIds, submitUser.userId]);
       setMemberInput({ ...memberInput, value: '', error: '' });
     }
   }
@@ -58,7 +61,13 @@ export const DroppableTeamMembersList = ({
   function handleDelete(selectedMember: any, index: any) {
     if (members.find((member) => member.name === selectedMember.name)) {
       members.splice(index, 1);
-      setDeletedMemberIds([...deletedMemberIds, selectedMember.userId]);
+      if (deletedMembers !== null)
+        setDeletedMembers([
+          ...deletedMembers,
+          { userId: selectedMember.userId, roleId: roleId },
+        ]);
+      else setDeletedMembers([{ userId: selectedMember.userId, roleId: roleId }]);
+      console.log(deletedMembers);
       setMemberInput({ ...memberInput, value: '', error: '' });
     }
   }

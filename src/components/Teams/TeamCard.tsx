@@ -7,18 +7,29 @@ import CardContent from '@material-ui/core/CardContent';
 import Divider from '@material-ui/core/Divider';
 import Typography from '@material-ui/core/Typography';
 import { DroppableTeamMembersList } from './DroppableTeamMemberList';
-import { MembersData, DraggedItem } from './models';
+import { MembersData, DraggedItem, UserRoleData } from './models';
 import { cardTheme } from '../../shared/styles/theme';
 import { verticalScrollIndicatorShadow } from '../../shared/styles/scroll-indicator-shadow';
 
 interface TeamCardProps {
+  deletedMembers: UserRoleData[];
+  setDeletedMembers: (newList: UserRoleData[]) => void;
   users: MembersData[];
   type: string;
+  roleId: string;
   members: MembersData[];
   draggedItem: DraggedItem;
 }
 
-export const TeamCard = ({ users, type, members, draggedItem }: TeamCardProps) => {
+export const TeamCard = ({
+  deletedMembers,
+  setDeletedMembers,
+  users,
+  type,
+  roleId,
+  members,
+  draggedItem,
+}: TeamCardProps) => {
   const classes = useStyles();
   const canDrop: () => boolean = () =>
     draggedItem.source === 'USERBANK'
@@ -40,8 +51,11 @@ export const TeamCard = ({ users, type, members, draggedItem }: TeamCardProps) =
       <Divider orientation="vertical" className={classes.divider} />
       <CardContent className={classes.list} style={{ overflow: 'auto' }}>
         <DroppableTeamMembersList
+          deletedMembers={deletedMembers}
+          setDeletedMembers={setDeletedMembers}
           users={users}
           role={type}
+          roleId={roleId}
           canDrop={canDrop}
           members={members}
           draggedItem={draggedItem}

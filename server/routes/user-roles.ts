@@ -123,7 +123,7 @@ router.post(
         userId,
         roleId,
       });
-      return res.status(201).send({ message: 'Users added' });
+      return res.status(201).send({ message: 'User added' });
     } catch (err) {
       next(err);
       return res.status(503).send({ message: 'Server error, try again later' });
@@ -136,11 +136,9 @@ router.delete(
   certify,
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { roleId, userIds } = req.body;
-      userIds.map(async (userId) => {
-        await db.UserRole.destroy({ where: { roleId, userId } });
-      });
-      return res.status(200).send({ message: 'Users deleted' });
+      const { roleId, userId } = req.body;
+      await db.UserRole.destroy({ where: { roleId, userId } });
+      return res.status(200).send({ message: 'User deleted' });
     } catch (err) {
       next(err);
       return res.status(503).send({ message: 'Server error, try again later' });
