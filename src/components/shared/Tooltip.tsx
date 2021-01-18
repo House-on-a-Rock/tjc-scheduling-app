@@ -2,6 +2,7 @@ import React from 'react';
 import InfoIcon from '@material-ui/icons/Info';
 
 import ReactTooltip from 'react-tooltip';
+import { makeStyles, Theme, createStyles } from '@material-ui/core';
 
 interface TooltipProps {
   id: string;
@@ -9,8 +10,9 @@ interface TooltipProps {
 }
 
 export const Tooltip = ({ id, text }: TooltipProps) => {
+  const classes = useStyles();
   return (
-    <div>
+    <div className={classes.tooltip}>
       <InfoIcon width={30} height={30} data-tip data-for={id} />
       <ReactTooltip id={id} type="info">
         <span>{text}</span>
@@ -18,3 +20,14 @@ export const Tooltip = ({ id, text }: TooltipProps) => {
     </div>
   );
 };
+
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    tooltip: {
+      position: 'relative',
+      right: '0.5rem',
+      top: '-0.7rem',
+      width: 0,
+    },
+  }),
+);
