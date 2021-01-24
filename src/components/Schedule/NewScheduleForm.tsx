@@ -173,7 +173,11 @@ export const NewScheduleForm = ({
         </div>
       </form>
       <div className={classes.buttonBottomBar}>
-        <Button onClick={onSubmitForm} variant="contained" className={classes.button}>
+        <Button
+          onClick={onSubmitForm}
+          variant="contained"
+          className={classes.submitButton}
+        >
           Create a new schedule!
         </Button>
         <Button onClick={onClose} className={classes.button}>
@@ -237,6 +241,13 @@ const useStyles = makeStyles((theme: Theme) =>
       display: 'flex',
       flexDirection: 'row',
       width: '100%',
+    },
+    submitButton: {
+      padding: '10px',
+      borderRadius: '5px',
+      border: 'none',
+      margin: '5px',
+      ...buttonTheme.filled,
     },
     button: {
       padding: '10px',

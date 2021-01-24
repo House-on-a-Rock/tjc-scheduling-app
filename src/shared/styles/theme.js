@@ -103,6 +103,7 @@ export const themeExtension = {
       },
     },
     filled: {
+      color: 'white',
       backgroundColor: primaryButtonColor,
       transition: fastTransitionTime,
       hover: {
@@ -118,6 +119,7 @@ export const themeExtension = {
       },
     },
     warning: {
+      color: 'black',
       backgroundColor: 'pink',
       transition: fastTransitionTime,
       hover: {

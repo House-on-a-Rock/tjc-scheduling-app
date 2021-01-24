@@ -98,7 +98,7 @@ export const NewServiceForm = ({ onSubmit, onClose, error }: NewServiceFormProps
       </form>
 
       <div className={classes.buttonBottomBar}>
-        <Button onClick={onSubmitForm} className={classes.button}>
+        <Button onClick={onSubmitForm} className={classes.submitButton}>
           Create new service
         </Button>
         <Button onClick={onClose} className={classes.button}>
@@ -136,6 +136,13 @@ const useStyles = makeStyles((theme: Theme) =>
       minHeight: 'unset',
       flexWrap: 'wrap',
       alignSelf: 'end',
+    },
+    submitButton: {
+      padding: '10px',
+      borderRadius: '5px',
+      border: 'none',
+      margin: '5px',
+      ...buttonTheme.filled,
     },
     button: {
       padding: '10px',
