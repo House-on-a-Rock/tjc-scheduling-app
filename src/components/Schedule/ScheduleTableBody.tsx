@@ -24,13 +24,15 @@ export const ScheduleTableBody = ({ title, children }: any) => {
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     scheduleTableBody: {
-      transition: 'transform 0.2s',
+      transition: 'transform 0.2s, visibility 0.1s',
       transformOrigin: 'top',
       width: '20ch',
     },
     collapsedTableBody: {
       transform: 'scaleY(0)',
       visibility: 'collapse',
+      opacity: 0.5,
+      pointerEvents: 'none',
     },
   }),
 );

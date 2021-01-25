@@ -31,9 +31,10 @@ export const ScheduleTable: React.FC<ScheduleTableProps> = ({
         <TableHead>
           <TableRow key={`${title} Column header`}>{header}</TableRow>
         </TableHead>
-        {/* Keep this here in case we want to revert: */}
-        {/* <TableBody>{body}</TableBody> */}
-        {body}
+        {
+          /* let body contain multiple <TableBody>s, to enable children to be grouped and styled */
+          body
+        }
       </MaUTable>
     </div>
   );
