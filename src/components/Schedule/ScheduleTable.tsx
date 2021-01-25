@@ -32,7 +32,8 @@ export const ScheduleTable: React.FC<ScheduleTableProps> = ({
         <TableHead>
           <TableRow key={`${title} Column header`}>{header}</TableRow>
         </TableHead>
-        <TableBody>{body}</TableBody>
+        {/* <TableBody>{body}</TableBody> */}
+        {body}
       </MaUTable>
     </div>
   );

@@ -2,7 +2,7 @@
 /* eslint-disable react/self-closing-comp */
 import React, { useEffect, useRef, useState } from 'react';
 import { Prompt } from 'react-router-dom';
-import { Dialog, TableCell, TableRow, Collapse } from '@material-ui/core';
+import { Dialog, TableCell, TableRow, TableBody } from '@material-ui/core';
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 import { SchedulesDataInterface } from '../../query';
 import {
@@ -172,16 +172,10 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
                   const { day, name, events } = body;
                   const scheduleTitle: string = `${days[day]} ${name}`;
                   return (
-                    <>
-                      <TableRow
-                        onClick={() =>
-                          openScheduleTitle === scheduleTitle
-                            ? setOpenScheduleTitle('')
-                            : setOpenScheduleTitle(scheduleTitle)
-                        }
-                      >
-                        <TableCell>{scheduleTitle}</TableCell>
-                      </TableRow>
+                    <ScheduleTableBody
+                      key={`${day}-${name}`}
+                      title={`${days[day]} ${name}`}
+                    >
                       {events.map((event, rowIdx) => {
                         const { roleId, cells, title: cellTitle, time, eventId } = event;
                         const isSelected = selectedEvents.includes(eventId.toString());
@@ -193,11 +187,11 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
                               handleRowSelected(isSelected, eventId.toString())
                             }
                             selected={isSelected}
-                            className={`${classes.scheduleTableBody} ${
-                              openScheduleTitle === scheduleTitle
-                                ? ''
-                                : classes.collapsedTableBody
-                            }`}
+                            // className={`${classes.scheduleTableBody} ${
+                            //   openScheduleTitle === scheduleTitle
+                            //     ? ''
+                            //     : classes.collapsedTableBody
+                            // }`}
                           >
                             {cells.map((cell, columnIndex) =>
                               columnIndex < 2 ? (
@@ -216,7 +210,7 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
                           </TableRow>
                         );
                       })}
-                    </>
+                    </ScheduleTableBody>
                   );
                 })}
               </ScheduleTable>
@@ -351,13 +345,13 @@ interface UserInterface {
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     scheduleTableBody: {
-      transition: 'transform 0.2s',
-      width: '20ch',
+      // transition: 'transform 0.2s',
+      // width: '20ch',
     },
     collapsedTableBody: {
-      transform: 'scaleY(0)',
-      transformOrigin: 'top',
-      visibility: 'collapse',
+      // transform: 'scaleY(0)',
+      // transformOrigin: 'top',
+      // visibility: 'collapse',
     },
   }),
 );

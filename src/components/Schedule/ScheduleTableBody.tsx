@@ -1,11 +1,11 @@
 import React from 'react';
-// import Collapse from '@material-ui/core/Collapse';
-import TableRow from '@material-ui/core/TableRow';
-import TableCell from '@material-ui/core/TableCell';
+import { TableCell, TableRow, TableBody } from '@material-ui/core';
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 
 export const ScheduleTableBody = ({ title, children }: any) => {
-  //   const classes = useStyles();
+  const classes = useStyles();
+  const [open, setOpen] = React.useState(true);
+
   //   const [isChildrenVisible, setChildrenVisible] = React.useState(true);
   // collapsible table body logic
   //   onClick={() => {
@@ -21,12 +21,35 @@ export const ScheduleTableBody = ({ title, children }: any) => {
 
   return (
     <>
-      {/* <div className={classes.scheduleTableBody}> */}
-      {/* <TableRow onClick={() => setOpen(!open)}>
+      <TableBody>
+        <TableRow onClick={() => setOpen(!open)}>
+          <TableCell>{title}</TableCell>
+        </TableRow>
+      </TableBody>
+      <TableBody
+        className={`${classes.scheduleTableBody} ${!open && classes.collapsedTableBody}`}
+      >
+        {/* <div className={classes.scheduleTableBody}> */}
+        {/* <TableRow onClick={() => setOpen(!open)}>
         <TableCell>{title}</TableCell>
       </TableRow> */}
-      {children}
-      {/* </div> */}
+        {children}
+        {/* </div> */}
+      </TableBody>
     </>
   );
 };
+
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    scheduleTableBody: {
+      transition: 'transform 0.2s',
+      width: '20ch',
+    },
+    collapsedTableBody: {
+      transform: 'scaleY(0)',
+      transformOrigin: 'top',
+      visibility: 'collapse',
+    },
+  }),
+);
