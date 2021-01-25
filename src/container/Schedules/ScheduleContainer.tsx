@@ -2,7 +2,8 @@
 /* eslint-disable react/self-closing-comp */
 import React, { useEffect, useRef, useState } from 'react';
 import { Prompt } from 'react-router-dom';
-import { Dialog, TableCell, TableRow } from '@material-ui/core';
+import { Dialog, TableCell, TableRow, Collapse } from '@material-ui/core';
+import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 import { SchedulesDataInterface } from '../../query';
 import {
   ScheduleTabs,
@@ -47,6 +48,9 @@ const SCHEDULE = 'schedule';
 // 4. Low priority but finding scheduleId and order is a pain the way I have it currently implemented because allScheduleData exists in tabs, but singular schedule data exist in schedules. Need to consolidate some of the logic together
 
 export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
+  const classes = useStyles();
+  const [openScheduleTitle, setOpenScheduleTitle] = React.useState('');
+
   const [tab, setTab] = useState(0);
   const [isScheduleModified, setIsScheduleModified] = useState<boolean>(false);
   const [isNewScheduleOpen, setIsNewScheduleOpen] = useState<boolean>(false);
@@ -166,11 +170,18 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
                 {/* This became pretty nested within each other (as a table is), but like in the above comment, abstraction is only useful when it's reusable. Splitting code into pieces is only helpful if it improves readability, and while it reduces the size of this file, that doesn't mean it'll improve readability with all the prop/function drilling that will be required */}
                 {bodies.map((body: ServiceDataInterface, index: number) => {
                   const { day, name, events } = body;
+                  const scheduleTitle: string = `${days[day]} ${name}`;
                   return (
-                    <ScheduleTableBody
-                      key={`${day}-${name}`}
-                      title={`${days[day]} ${name}`}
-                    >
+                    <>
+                      <TableRow
+                        onClick={() =>
+                          openScheduleTitle === scheduleTitle
+                            ? setOpenScheduleTitle('')
+                            : setOpenScheduleTitle(scheduleTitle)
+                        }
+                      >
+                        <TableCell>{scheduleTitle}</TableCell>
+                      </TableRow>
                       {events.map((event, rowIdx) => {
                         const { roleId, cells, title: cellTitle, time, eventId } = event;
                         const isSelected = selectedEvents.includes(eventId.toString());
@@ -182,6 +193,11 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
                               handleRowSelected(isSelected, eventId.toString())
                             }
                             selected={isSelected}
+                            className={`${classes.scheduleTableBody} ${
+                              openScheduleTitle === scheduleTitle
+                                ? ''
+                                : classes.collapsedTableBody
+                            }`}
                           >
                             {cells.map((cell, columnIndex) =>
                               columnIndex < 2 ? (
@@ -200,7 +216,7 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
                           </TableRow>
                         );
                       })}
-                    </ScheduleTableBody>
+                    </>
                   );
                 })}
               </ScheduleTable>
@@ -331,3 +347,17 @@ interface UserInterface {
   firstName: string;
   lastName: string;
 }
+
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    scheduleTableBody: {
+      transition: 'transform 0.2s',
+      width: '20ch',
+    },
+    collapsedTableBody: {
+      transform: 'scaleY(0)',
+      transformOrigin: 'top',
+      visibility: 'collapse',
+    },
+  }),
+);

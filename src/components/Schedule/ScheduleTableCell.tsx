@@ -13,10 +13,11 @@ interface ScheduleTableCellProps {
   data: any;
   options?: any;
   onTaskModified: any;
+  className?: string;
 }
 
 export const ScheduleTableCell = React.memo(
-  ({ data, options = [], onTaskModified }: ScheduleTableCellProps) => {
+  ({ data, options = [], onTaskModified, className }: ScheduleTableCellProps) => {
     const classes = useStyles();
     const [value, setValue] = useState(data);
     const [isCellModified, setIsCellModified] = useState<boolean>(false);
@@ -37,6 +38,7 @@ export const ScheduleTableCell = React.memo(
             justifyContent: 'center',
             alignItems: 'center',
           }}
+          className={className}
         >
           {`${firstName} ${lastName}`}
           {userId === data.userId && (
