@@ -14,7 +14,7 @@ export const ScheduleTableBody = ({ title, children }: any) => {
           <TableCell className={classes.scheduleTitle} data-tip data-for={tooltipId}>
             {title}
           </TableCell>
-          <ReactTooltip id={tooltipId} type="info">
+          <ReactTooltip id={tooltipId}>
             <span>{`Click to ${open ? 'collapse' : 'expand'}`}</span>
           </ReactTooltip>
         </TableRow>
