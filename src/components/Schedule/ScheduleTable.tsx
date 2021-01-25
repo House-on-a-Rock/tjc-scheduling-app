@@ -3,7 +3,6 @@ import React, { ReactNode } from 'react';
 // Material UI
 import MaUTable from '@material-ui/core/Table';
 import TableHead from '@material-ui/core/TableHead';
-import TableBody from '@material-ui/core/TableBody';
 import TableRow from '@material-ui/core/TableRow';
 import { makeStyles, Theme, createStyles, fade, darken } from '@material-ui/core/styles';
 
@@ -32,6 +31,7 @@ export const ScheduleTable: React.FC<ScheduleTableProps> = ({
         <TableHead>
           <TableRow key={`${title} Column header`}>{header}</TableRow>
         </TableHead>
+        {/* Keep this here in case we want to revert: */}
         {/* <TableBody>{body}</TableBody> */}
         {body}
       </MaUTable>
