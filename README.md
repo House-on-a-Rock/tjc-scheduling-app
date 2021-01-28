@@ -10,3 +10,5 @@
 6. Run `npm i`
 7. Run `npm run seed2`
 8. Run `npm run server`
+
+test
