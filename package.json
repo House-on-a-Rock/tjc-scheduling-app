@@ -1,6 +1,7 @@
 {
   "name": "tjc-scheduling-app",
   "scripts": {
+    "heroku-prebuild": "cd src && npm i",
     "build-windows-watch": "webpack -w",
     "build-windows-removeDist": "rd /s /q dist",
     "set-windows-env": "SET NODE_ENV='development'",
@@ -154,7 +155,7 @@
     "style-loader": "^2.0.0",
     "ts-node": "^8.10.2",
     "typescript": "^3.8.3",
-    "webpack": "^5.4.0",
+    "webpack": "^5.18.0",
     "webpack-cli": "^4.2.0"
   },
   "peerDependencies": {
