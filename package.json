@@ -9,7 +9,7 @@
     "dev": "SET NODE_ENV='development' & npm run build-watch & npm run server-watch",
     "build": "webpack --mode production",
     "build-watch": "rm -rf dist && webpack -w",
-    "start": "node -r ts-node/register ./server/index.ts  -e html,js,scss --ignore dist --ignore client",
+    "server": "node -r ts-node/register ./server/index.ts  -e html,js,scss --ignore dist --ignore client",
     "server-watch": "nodemon -r ts-node/register ./server/index.ts  -e html,js,jsx,ts,tsx,css --ignore dist --ignore client",
     "prettier:base": "prettier",
     "prettier:check": "npm run prettier:base -- --list-different \"**/*\"",
