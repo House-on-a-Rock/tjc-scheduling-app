@@ -17,7 +17,7 @@ app.use(cors());
 
 app.get('/', (req, res, next) => {
   console.log('Hello World');
-  res.send('Hello World');
+  res.sendFile('../dist/index.html');
   next();
 });
 
