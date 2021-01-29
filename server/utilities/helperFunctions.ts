@@ -7,12 +7,8 @@ import { DateTime } from 'luxon';
 import { RoleAttributes, ServiceInstance } from 'shared/SequelizeTypings/models';
 import db from '../index';
 
-const privateKey = fs.readFileSync('tjcschedule.pem');
-let cert: Buffer;
-fs.readFile('tjcschedule_pub.pem', function read(err, data: Buffer) {
-  if (err) throw err;
-  cert = data;
-});
+const privateKey = process.env.PRIVATE_KEY;
+const cert = process.env.PUBLIC_KEY;
 
 export function certify(req: Request, res: Response, next: NextFunction) {
   try {
