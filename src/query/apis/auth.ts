@@ -1,5 +1,6 @@
 import axios, { AxiosResponse } from 'axios';
-import { secretIp } from '../../../secrets/secretStuff';
+// import { secretIp } from '../../../secrets/secretStuff';
+const secretIp = process.env.BASE_URL;
 
 export function recoverEmail(email: string): Promise<AxiosResponse> {
   return axios.post(`${secretIp}/api/authentication/sendResetEmail`, {

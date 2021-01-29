@@ -1,11 +1,13 @@
 import axios, { AxiosResponse } from 'axios';
-import { secretIp } from '../../../secrets/secretStuff';
+// import { secretIp } from '../../../secrets/secretStuff';
 import {
   NewScheduleData,
   AddServiceProps,
   DeleteScheduleData,
 } from '../../shared/types/models';
 import { getLocalStorageItem } from '../../shared/utilities';
+
+const secretIp = process.env.BASE_URL;
 
 export const getSchedules = (churchId: number): Promise<AxiosResponse> => {
   const token = getLocalStorageItem('access_token')?.token;
