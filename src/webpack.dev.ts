@@ -15,6 +15,7 @@ interface SheavesWebpackConfig extends Configuration {
 }
 
 const config: SheavesWebpackConfig = {
+  watch: false,
   mode: 'development',
   entry: './index.tsx',
   resolve: {
