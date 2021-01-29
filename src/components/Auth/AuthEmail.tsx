@@ -91,7 +91,7 @@ export const AuthEmail = ({ data }: AuthEmailProps) => {
       </div>
       <div className={classes.buttonRow}>
         <Button onClick={() => handleClick()}>{data.button}</Button>
-        {data.history && <Button onClick={() => history.back()}>Remember it?</Button>}
+        {data.history && <Button onClick={() => history.goBack()}>Remember it?</Button>}
       </div>
     </Container>
   );
