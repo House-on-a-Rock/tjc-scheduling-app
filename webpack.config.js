@@ -42,7 +42,7 @@ module.exports = {
   },
   output: {
     path: path.resolve(__dirname, 'dist'),
-    filename: 'bundle.[hash].js',
+    filename: 'bundle.js',
     publicPath: '/',
   },
   devtool: 'source-map',
