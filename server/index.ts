@@ -15,11 +15,11 @@ app.use(cors());
 
 // app.use(express.static(DIST_DIR));
 
-app.get('/', (req, res, next) => {
-  console.log('Hello World');
-  res.status(200).sendFile('/app/dist/index.html'); // this will not work on development
-  next();
-});
+// app.get('/', (req, res, next) => {
+//   console.log('Hello World');
+//   res.status(200).sendFile('/app/dist/index.html'); // this will not work on development
+//   next();
+// });
 
 app.use('/api', require('./routes'));
 app.use('/api', require('./routes/churches'));
@@ -42,10 +42,10 @@ app.use((req, res, next) => {
   } else next();
 });
 
-// app.use('*', (req, res) => {
-//   console.log('sending file');
-//   res.sendFile(path.join(__dirname, '..', 'dist/index.html'));
-// });
+app.use('*', (req, res) => {
+  console.log('sending file');
+  res.sendFile(path.join(__dirname, '..', 'dist/index.html'));
+});
 
 class HttpException extends Error {
   status: number;
