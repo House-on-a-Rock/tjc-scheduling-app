@@ -34,13 +34,13 @@ app.use('/api', require('./routes/roles'));
 app.use('/api', require('./routes/templates'));
 app.use('/api', require('./routes/events'));
 
-app.use((req, res, next) => {
-  if (path.extname(req.path).length) {
-    const error = new Error('Not Found');
-    // res.status(404);
-    next(error);
-  } else next();
-});
+// app.use((req, res, next) => {
+//   if (path.extname(req.path).length) {
+//     const error = new Error('Not Found');
+//     // res.status(404);
+//     next(error);
+//   } else next();
+// });
 
 app.use('*', (req, res) => {
   console.log('sending file');
