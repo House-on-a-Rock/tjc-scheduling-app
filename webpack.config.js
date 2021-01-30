@@ -15,7 +15,10 @@ module.exports = {
     rules: [
       {
         test: /\.tsx?$/,
-        loader: 'awesome-typescript-loader',
+        loader: ['babel-loader', 'awesome-typescript-loader'],
+        query: {
+          presets: ['react', 'es2015'],
+        },
       },
       {
         test: /\.css$/i,
