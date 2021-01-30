@@ -15,11 +15,7 @@ module.exports = {
     rules: [
       {
         test: /\.tsx?$/,
-        use: [
-          {
-            loader: 'babel-loader',
-          },
-        ],
+        loader: 'awesome-typescript-loader',
       },
       {
         test: /\.css$/i,
@@ -50,9 +46,9 @@ module.exports = {
     publicPath: '/',
   },
   devtool: 'source-map',
-  externals: {
-    'react': 'React',
-    'react-dom': 'ReactDOM',
-  },
   // watch: true,
+  externals: {
+    "react": "React",
+    "react-dom": "ReactDOM"
+}
 };
