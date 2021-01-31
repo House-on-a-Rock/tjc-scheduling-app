@@ -4,6 +4,7 @@ const path = require('path');
 const htmlPlugin = new HtmlWebPackPlugin({
   template: './src/index.html',
   filename: 'index.html',
+  inject: true,
 });
 
 const isDev = process.env.NODE_ENV === 'development';
