@@ -2,8 +2,9 @@ import axios, { AxiosResponse } from 'axios';
 // import { secretIp } from '../../../secrets/secretStuff';
 import { getLocalStorageItem } from '../../shared/utilities';
 import { NewUserData } from '../../shared/types';
+import config from '../config';
 
-const secretIp = process.env.BASE_URL;
+const secretIp = config.BASE_URL;
 
 export function getAllUsers(churchId: number): Promise<AxiosResponse> {
   const token = getLocalStorageItem('access_token')?.token;

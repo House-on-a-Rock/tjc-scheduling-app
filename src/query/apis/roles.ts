@@ -1,8 +1,9 @@
 import axios, { AxiosResponse } from 'axios';
+import config from '../config';
 // import { secretIp } from '../../../secrets/secretStuff';
 import { getLocalStorageItem } from '../../shared/utilities';
 
-const secretIp = process.env.BASE_URL;
+const secretIp = config.BASE_URL;
 
 export function getAllRoles(churchId: number): Promise<AxiosResponse> {
   const token = getLocalStorageItem('access_token')?.token;

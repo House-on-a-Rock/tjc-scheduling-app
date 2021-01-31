@@ -15,7 +15,6 @@ interface SheavesWebpackConfig extends Configuration {
 }
 
 const config: SheavesWebpackConfig = {
-  watch: false,
   mode: 'development',
   entry: './index.tsx',
   resolve: {
@@ -23,7 +22,7 @@ const config: SheavesWebpackConfig = {
   },
   output: {
     path: path.join(__dirname, 'dist'),
-    publicPath: './dist/',
+    publicPath: '/',
     filename: 'bundle.[hash].js',
   },
   devServer: {

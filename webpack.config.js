@@ -47,8 +47,11 @@ module.exports = {
   },
   plugins: [
     htmlPlugin,
-    new webpack.ProvidePlugin({
-      process: 'process/browser',
+    new webpack.DefinePlugin({
+      'process.env': {
+        NODE_ENV: process.env.NODE_ENV,
+        BASE_URL: process.env.BASE_URL,
+      },
     }),
   ],
   resolve: {
