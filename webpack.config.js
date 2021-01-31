@@ -1,5 +1,6 @@
 const HtmlWebPackPlugin = require('html-webpack-plugin');
 const path = require('path');
+const webpack = require('webpack');
 
 const htmlPlugin = new HtmlWebPackPlugin({
   template: './src/index.html',
@@ -38,9 +39,18 @@ module.exports = {
           },
         ],
       },
+      {
+        test: /\.json$/,
+        loader: 'json-loader',
+      },
     ],
   },
-  plugins: [htmlPlugin],
+  plugins: [
+    htmlPlugin,
+    new webpack.ProvidePlugin({
+      process: 'process/browser',
+    }),
+  ],
   resolve: {
     extensions: ['.tsx', '.ts', '.js', 'css', 'scss'],
   },
