@@ -42,9 +42,9 @@ app.use('/api', require('./routes/events'));
 //   } else next();
 // });
 
-app.use(express.static(path.join(__dirname, './dist')));
+app.use(express.static(path.join(__dirname, '../dist')));
 
-app.use('*', (req, res) => {
+app.use('/', (req, res) => {
   console.log('sending file');
   res.sendFile(path.join(__dirname, '..', 'dist/index.html'));
 });
