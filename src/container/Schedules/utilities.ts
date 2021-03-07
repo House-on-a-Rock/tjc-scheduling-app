@@ -175,8 +175,8 @@ const createBlankTask = (seedFx) => {
 
 const createBlankEventCells = (cellLength: number, seedFx) => {
   const taskCells: any = [{}, {}]; // data from these cells aren't actually being used, are just placeholders for rendering
-  for (let i = 2; i < cellLength; i++) {
-    // 2 (the columns for time/duty) is hardcoded here
+  const afterTimeAndDutyColumns = 2;
+  for (let i = afterTimeAndDutyColumns; i < cellLength; i++) {
     taskCells[i] = createBlankTask(seedFx);
   }
   return taskCells;

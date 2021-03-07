@@ -48,13 +48,11 @@ export const Schedule = ({ churchId }: ScheduleProps) => {
     cacheTime: 3000000,
   });
 
+  const loaded = users.data && tabs.data && schedules.data && teams.data;
+
   return (
-    <div
-      className={
-        !users.data || !tabs.data || !schedules.data || !teams.data ? classes.loading : ''
-      }
-    >
-      {users.data && (
+    <div className={!loaded ? classes.loading : ''}>
+      {loaded && (
         <ScheduleContainer
           tabs={tabs.data}
           data={{
