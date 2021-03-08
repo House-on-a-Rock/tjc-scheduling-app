@@ -5,7 +5,7 @@ import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 import { ValidatedTextField, ValidatedSelect } from '../FormControl';
 import { useValidatedField } from '../../hooks';
 
-import { buttonTheme } from '../../shared/styles/theme.js';
+import { buttonTheme, tooltipContainer } from '../../shared/styles/theme.js';
 
 import { Tooltip } from '../shared/Tooltip';
 import { stringLengthCheck } from '../../shared/utilities';
@@ -107,7 +107,7 @@ export const NewScheduleForm = ({
             text="Example name: Jan-Mar Schedule. Must be unique"
           />
         </div>
-        <div className={`${classes.tooltipContainer} ${classes.dateAdjustment}`}>
+        <div className={classes.tooltipContainer}>
           <ValidatedTextField
             className={classes.datePicker}
             label="Start Date"
@@ -133,43 +133,51 @@ export const NewScheduleForm = ({
             text="Select the begin date and end date for this schedule"
           />
         </div>
-        <ValidatedSelect
-          className={classes.selectContainer}
-          input={team}
-          label="Team"
-          onChange={setTeam}
-          toolTip={{ id: 'team', text: 'Assign a team to this schedule' }}
-        >
-          <MenuItem value={0}>Assign this schedule to a team</MenuItem>
-          <MenuItem value={1}>Church Council</MenuItem>
-          <MenuItem value={2}>RE</MenuItem>
-        </ValidatedSelect>
-        <ValidatedSelect
-          className={classes.selectContainer}
-          input={template}
-          onChange={setTemplate}
-          label="Template"
-          toolTip={{ id: 'template', text: 'Assign a template to this schedule' }}
-        >
-          <MenuItem value={0}>Pick a template</MenuItem>
-          {templates
-            ? templates.map(({ templateId: id, name }) => (
-                <MenuItem key={id} value={id}>
-                  {name}
-                </MenuItem>
-              ))
-            : [
-                <MenuItem value={1} key="1">
-                  Weekly Services
-                </MenuItem>,
-                <MenuItem value={2} key="2">
-                  RE
-                </MenuItem>,
-              ]}
-        </ValidatedSelect>
+        <div className={classes.tooltipContainer}>
+          <ValidatedSelect
+            className={classes.selectContainer}
+            input={team}
+            label="Team"
+            onChange={setTeam}
+            toolTip={{ id: 'team', text: 'Assign a team to this schedule' }}
+          >
+            <MenuItem value={0}>Assign this schedule to a team</MenuItem>
+            <MenuItem value={1}>Church Council</MenuItem>
+            <MenuItem value={2}>RE</MenuItem>
+          </ValidatedSelect>
+        </div>
+        <div className={classes.tooltipContainer}>
+          <ValidatedSelect
+            className={classes.selectContainer}
+            input={template}
+            onChange={setTemplate}
+            label="Template"
+            toolTip={{ id: 'template', text: 'Assign a template to this schedule' }}
+          >
+            <MenuItem value={0}>Pick a template</MenuItem>
+            {templates
+              ? templates.map(({ templateId: id, name }) => (
+                  <MenuItem key={id} value={id}>
+                    {name}
+                  </MenuItem>
+                ))
+              : [
+                  <MenuItem value={1} key="1">
+                    Weekly Services
+                  </MenuItem>,
+                  <MenuItem value={2} key="2">
+                    RE
+                  </MenuItem>,
+                ]}
+          </ValidatedSelect>
+        </div>
       </form>
       <div className={classes.buttonBottomBar}>
-        <Button onClick={onSubmitForm} variant="contained" className={classes.button}>
+        <Button
+          onClick={onSubmitForm}
+          variant="contained"
+          className={classes.submitButton}
+        >
           Create a new schedule!
         </Button>
         <Button onClick={onClose} className={classes.button}>
@@ -211,17 +219,18 @@ const useStyles = makeStyles((theme: Theme) =>
       alignItems: 'center',
     },
     datePicker: {
-      margin: 5,
+      marginTop: 0,
     },
     tooltipContainer: {
-      display: 'flex',
-      flexDirection: 'row',
-      width: '100%',
+      '&': {
+        ...tooltipContainer,
+      },
     },
     nameInput: {
       display: 'flex',
       flexDirection: 'row',
       width: '100%',
+      marginTop: 0,
     },
     selectContainer: {
       display: 'flex',
@@ -233,9 +242,12 @@ const useStyles = makeStyles((theme: Theme) =>
       flexDirection: 'row',
       width: '100%',
     },
-    dateAdjustment: {
-      marginLeft: '-0.6rem',
-      marginBottom: '0.5rem',
+    submitButton: {
+      padding: '10px',
+      borderRadius: '5px',
+      border: 'none',
+      margin: '5px',
+      ...buttonTheme.filled,
     },
     button: {
       padding: '10px',

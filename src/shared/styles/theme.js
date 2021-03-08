@@ -103,6 +103,7 @@ export const themeExtension = {
       },
     },
     filled: {
+      color: 'white',
       backgroundColor: primaryButtonColor,
       transition: fastTransitionTime,
       hover: {
@@ -118,6 +119,7 @@ export const themeExtension = {
       },
     },
     warning: {
+      color: 'black',
       backgroundColor: 'pink',
       transition: fastTransitionTime,
       hover: {
@@ -234,6 +236,13 @@ export const themeExtension = {
       background: 'transparent',
     },
   },
+  tooltipContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    width: '100%',
+    marginTop: '0.5rem',
+    marginBottom: '0.5rem',
+  },
 };
 
 export function sizedComponentLoadingSpinner(parentWidth, parentHeight) {
@@ -255,3 +264,4 @@ export const tabTheme = themeExtension.tab;
 export const tabGroupTheme = themeExtension.tabs;
 export const tabIndicatorTheme = themeExtension.tabIndicator;
 export const loadingTheme = themeExtension.componentLoadingSpinner;
+export const tooltipContainer = themeExtension.tooltipContainer;
