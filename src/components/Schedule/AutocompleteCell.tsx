@@ -1,4 +1,8 @@
 import React, { useState } from 'react';
+import {
+  RoleDataContext,
+  TaskDataContext,
+} from '../../container/Schedules/ScheduleContainer';
 
 // mat ui
 import TableCell from '@material-ui/core/TableCell';
@@ -27,7 +31,7 @@ interface AutocompleteCellProps {
   extractOptionId?: (data: any) => number[];
   dataSet: any;
   onChange: (dataContext: any, newValue: number, isChanged: boolean) => void;
-  dataContext: any;
+  dataContext: RoleDataContext | TaskDataContext;
   getOptionLabel: (option: number, dataSet: any) => string;
   renderOption?: (display: string, isIconVisible: boolean) => JSX.Element;
   isSaved: boolean;
@@ -46,9 +50,8 @@ export const AutocompleteCell = React.memo((props: AutocompleteCellProps) => {
   } = props;
   const classes = useStyles();
   const [value, setValue] = useState<number>(dataId);
-  // TODO value causes warning when adding events because its negative
+  // TODO value causes warning when adding new events because its negative
 
-  // i just copy-pasted 99% of the logic into the hook and it works sooooooooo
   const [
     managedData,
     optionIds,
@@ -103,7 +106,7 @@ export const AutocompleteCell = React.memo((props: AutocompleteCellProps) => {
         clearOnBlur
         openOnFocus
         forcePopupIcon={false}
-        autoHighlight={false}
+        autoHighlight={true}
       />
     </TableCell>
   );

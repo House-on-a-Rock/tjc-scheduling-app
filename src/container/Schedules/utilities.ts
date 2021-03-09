@@ -116,11 +116,6 @@ export const contrivedDate = (date: string) => {
   return zeroPaddingDates(monthIdx, dayIdx);
 };
 
-export const memoizeData = (data: any) => {
-  const makeDataLevel = () => data;
-  return makeDataLevel();
-};
-
 // autocomplete cell functions
 export function extractRoleIds(teams): number[] {
   return teams.map((team) => team.id);
@@ -145,8 +140,8 @@ export function extractTeammateIds(teammates): number[] {
   return teammates.map((teammate) => teammate.userId);
 }
 
-export const teammates = (data, roleId: number, churchId) => {
-  const filteredTeammates = data.users.filter((user) =>
+export const teammates = (users, roleId: number, churchId) => {
+  const filteredTeammates = users.filter((user) =>
     user.teams.some((team) => team.id === roleId),
   );
   filteredTeammates.push(blankTeammate(churchId)); // adds blankteammate to list incase they wish to leave it blank
@@ -188,7 +183,6 @@ export const createBlankEvent = (cellLength: number, seedFx) => {
     eventId: seedFx(),
     roleId: -1, // placeholder, since it's unknown at time of creation. TODO onsubmit, check that these are assigned and not negative
     time: '',
-    title: '',
   };
 };
 

@@ -66,7 +66,7 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
   const [dataModel, setDataModel] = useState<BootstrapData>({ ...data });
   const [isStructureModified, setIsStructureModified] = useState<boolean>(false);
   const templateChanges = useRef<TemplateChangesInterface>({
-    changesSeed: 0,
+    changesSeed: -1,
     events: {
       changedEvents: null,
       newEvents: null,
@@ -123,15 +123,6 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
       ? setSelectedEvents(selectedEvents.filter((id) => id !== eventId))
       : setSelectedEvents([...selectedEvents, eventId]);
 
-  const createBlankService = () => {
-    return {
-      name: 'test',
-      day: 0,
-      events: [],
-      serviceId: retrieveChangesSeed(),
-    };
-  };
-
   function retrieveChangesSeed() {
     // used to give temporary seeds to newly made (but unsaved) events/services. they are negative to distinguish from normal stuff from db
     // also can keep be used to keep track of number of changes made, kinda
@@ -145,6 +136,17 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
     // should this be called after every change or only onSaveChanges? changedTasks is tracked as each one is updated, but that's much simpler to run
   }
 
+  // Model manipulation functinons
+
+  const createBlankService = () => {
+    return {
+      name: 'test',
+      day: 0,
+      events: [],
+      serviceId: retrieveChangesSeed(),
+    };
+  };
+
   function addEvent(serviceIndex: number) {
     const dataClone = { ...dataModel };
     const targetEvents = dataClone.schedules[tab].services[serviceIndex].events;
@@ -157,6 +159,7 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
   }
 
   function removeEvent() {
+    // make sure it works once contextmenu is fixed
     const dataClone = { ...dataModel };
     const target = dataClone.schedules[tab];
     const mutatedData = target.services.map((service) => {
@@ -171,6 +174,7 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
   }
 
   function addService() {
+    // TODO: integrate create new service form? or another solution is better
     const dataClone = { ...dataModel };
     const target = dataClone.schedules[tab].services;
     target.push(createBlankService());
@@ -187,17 +191,16 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
     retrieveChangesSeed();
   }
 
-  // in the future, can pass in warning icons or tooltips
-  function renderOption(display, isIconVisible) {
+  // autocomplete cell callback
+  // in the future, can pass in warning icons or tooltips depending on the usecase.
+  function renderOption(display, isIconVisible: boolean) {
     return (
+      // TODO move div styling somewhere else?
       <div
         style={{
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center',
-          height: 40,
-          width: 200,
-          padding: 0,
         }}
       >
         {display}
@@ -213,6 +216,7 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
     rowIndex: number,
     serviceIndex: number,
   ): boolean {
+    // TODO update time string to standardized UTC string?
     if (rowIndex === 0) return true;
     const previousEventsTime =
       dataModel.schedules[tab].services[serviceIndex].events[rowIndex - 1].time;
@@ -221,9 +225,9 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
 
   // onChange Handlers
   function onTaskChange(dataContext, newAssignee: number, isChanged: boolean) {
-    const { taskId, serviceIndex, rowIdx, columnIndex } = dataContext;
+    const { taskId, serviceIndex, rowIndex, columnIndex } = dataContext;
     const dataClone = { ...dataModel };
-    dataClone.schedules[tab].services[serviceIndex].events[rowIdx].cells[
+    dataClone.schedules[tab].services[serviceIndex].events[rowIndex].cells[
       columnIndex
     ].userId = newAssignee;
     setDataModel(dataClone);
@@ -235,9 +239,9 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
   }
 
   function onAssignedRoleChange(dataContext, newRoleId, isChanged) {
-    const { serviceIndex, rowIdx } = dataContext;
+    const { serviceIndex, rowIndex } = dataContext;
     const dataClone = { ...dataModel };
-    const targetEvent = dataClone.schedules[tab].services[serviceIndex].events[rowIdx];
+    const targetEvent = dataClone.schedules[tab].services[serviceIndex].events[rowIndex];
     targetEvent.roleId = newRoleId;
 
     setDataModel(dataClone);
@@ -246,13 +250,19 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
   function onTimeChange(newValue: string, rowIndex: number, serviceIndex: number) {
     const dataClone = { ...dataModel };
     dataClone.schedules[tab].services[serviceIndex].events[rowIndex].time = newValue;
-    setDataModel(dataClone);
+    setDataModel(dataClone); // TODO when a time is changed, other cells in the row lose track of changes that have happened to them (background color resets).
+    // when time is changed, cells in that row re-render even though i'm using react.memo
   }
 
   function onChangeTabs(value: number) {
     if (value === tabs.length) return;
     setTab(value);
   }
+
+  // TODO
+  // contextmenu functions don't work
+  // Need to wait for create schedule to finish updating db before the user can click on the new tab, or else data will be missing
+  // newly created schedule has strange set of dates
 
   return (
     <>
@@ -305,40 +315,59 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
                         Delete Service
                       </button>
                       <button onClick={() => addEvent(serviceIndex)}>Add Event</button>
-                      {events.map((event, rowIdx) => {
+                      {events.map((event, rowIndex) => {
                         const { roleId, cells, time, eventId } = event;
                         const cellTitle = roleDisplay(roleId, dataModel);
                         const isSelected = selectedEvents.includes(eventId);
-                        const tasksDataSet = teammates(dataModel, roleId, data.churchId);
+
+                        const tasksDataSet = teammates(
+                          dataModel.users,
+                          roleId,
+                          data.churchId,
+                        );
+                        const isTimeDisplayed = shouldDisplayTime(
+                          time,
+                          rowIndex,
+                          serviceIndex,
+                        );
+
                         return (
                           <TableRow
-                            key={`${cellTitle}-${time}-${rowIdx}`}
+                            key={`${cellTitle}-${time}-${rowIndex}`}
                             hover
                             onDoubleClick={() => handleRowSelected(isSelected, eventId)}
                             selected={isSelected}
                           >
                             {cells.map((cell, columnIndex) => {
+                              const roleDataContext: RoleDataContext = {
+                                serviceIndex,
+                                rowIndex,
+                                roleId,
+                              };
+                              const taskDataContext: TaskDataContext = {
+                                taskId: cell.taskId,
+                                roleId: roleId,
+                                serviceIndex,
+                                rowIndex,
+                                columnIndex,
+                              };
                               return columnIndex === 0 ? (
                                 <TimeCell
                                   time={time}
-                                  isDisplayed={shouldDisplayTime(
-                                    time,
-                                    rowIdx,
-                                    serviceIndex,
-                                  )}
+                                  isDisplayed={isTimeDisplayed}
                                   onChange={onTimeChange}
-                                  rowIndex={rowIdx}
+                                  rowIndex={rowIndex}
                                   serviceIndex={serviceIndex}
-                                  key={`Time_${serviceIndex}_${rowIdx}`}
+                                  key={`Time_${serviceIndex}_${rowIndex}`}
                                 />
                               ) : columnIndex === 1 ? (
                                 <AutocompleteCell
                                   dataId={roleId}
                                   dataSet={dataModel.teams}
                                   extractOptionId={extractRoleIds}
-                                  dataContext={{ serviceIndex, rowIdx, roleId }}
+                                  dataContext={roleDataContext}
                                   onChange={onAssignedRoleChange}
-                                  key={`Team_${rowIdx}_${columnIndex}`}
+                                  key={`Team_${serviceIndex}_${rowIndex}_${columnIndex}`}
                                   getOptionLabel={getRoleOptionLabel}
                                   renderOption={renderOption}
                                   isSaved={isSaved}
@@ -348,15 +377,9 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
                                   dataId={cell.userId}
                                   dataSet={tasksDataSet}
                                   extractOptionId={extractTeammateIds}
-                                  dataContext={{
-                                    taskId: cell.taskId,
-                                    roleId: roleId,
-                                    serviceIndex,
-                                    rowIdx,
-                                    columnIndex,
-                                  }}
+                                  dataContext={taskDataContext}
                                   onChange={onTaskChange}
-                                  key={`Tasks_${rowIdx}_${columnIndex}`}
+                                  key={`Tasks_${serviceIndex}_${rowIndex}_${columnIndex}`}
                                   getOptionLabel={getUserOptionLabel}
                                   renderOption={renderOption}
                                   isSaved={isSaved}
@@ -447,7 +470,6 @@ interface EventData {
   eventId: number;
   roleId: number;
   time: string;
-  title: string;
   order?: number;
 }
 
@@ -530,4 +552,23 @@ interface UserRolesInterface {
   roleId: number;
   teamLead: boolean;
   user: UserInterface;
+}
+
+interface DataContext {
+  serviceIndex: number;
+  rowIndex: number;
+}
+
+export interface RoleDataContext extends DataContext {
+  serviceIndex: number;
+  rowIndex: number;
+  roleId: number;
+}
+
+export interface TaskDataContext extends DataContext {
+  taskId: number;
+  roleId: number;
+  serviceIndex: number;
+  rowIndex: number;
+  columnIndex: number;
 }
