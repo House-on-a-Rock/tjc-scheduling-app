@@ -7,6 +7,8 @@ export const useAutoCompleteHook = (
   isSaved,
   extractOptionId,
 ) => {
+  //
+
   const [managedData, setManagedData] = useState(dataSet);
   const [optionIds, setOptionIds] = useState<number[]>(extractOptionId(dataSet));
   const initialData = useRef<initialDataInterface>(setInitialRefData());
@@ -15,31 +17,7 @@ export const useAutoCompleteHook = (
   const [isCellModified, setIsCellModified] = useState<boolean>(false);
   const [isCellWarning, setIsCellWarning] = useState<boolean>(false);
 
-  // temp not being used, need to rework this
-
-  // initializes props into the useState hooks, where its managed better
-  // useEffect(() => {
-  //   setInitialRefData();
-  //   setOptionIds(extractOptionId(dataSet));
-  // }, []);
-
-  // // when roleId changes (through the role column), this will trigger changes to cell background color and options list
-  // useEffect(() => {
-  //   if (!doesDataContextMatch()) {
-  //     console.log('dataContext does not match');
-  //     setIsCellWarning(true);
-  //     if (dataContext.taskId) onRoleChanged(); // only run this for the task cells, not duty cells. can try to decouple this later if needed
-  //   } else setIsCellWarning(false);
-  // }, [dataContext.roleId]);
-
-  // // if isSaved, reset the initialDataRef and background color states
-  // useEffect(() => {
-  //   if (isSaved) {
-  //     setInitialRefData();
-  //     setIsCellModified(false);
-  //     setIsCellWarning(false);
-  //   }
-  // }, [isSaved]);
+  // remove managed data -- selection state managed in parent
 
   return [
     managedData,

@@ -27,14 +27,16 @@ import { useAutoCompleteHook } from './useAutocompleteHook';
 */
 
 interface AutocompleteCellProps {
-  dataId: number;
+  dataId?: number;
+  dataSet?: any;
   extractOptionId?: (data: any) => number[];
-  dataSet: any;
-  onChange: (dataContext: any, newValue: number, isChanged: boolean) => void;
+  onChange: (dataContext: any, newValue: number) => void;
   dataContext: RoleDataContext | TaskDataContext;
   getOptionLabel: (option: number, dataSet: any) => string;
   renderOption?: (display: string, isIconVisible: boolean) => JSX.Element;
-  isSaved: boolean;
+  isCellModified?;
+  isCellWarning?;
+  isSaved?: boolean;
 }
 
 export const AutocompleteCell = React.memo((props: AutocompleteCellProps) => {
@@ -47,26 +49,28 @@ export const AutocompleteCell = React.memo((props: AutocompleteCellProps) => {
     onChange,
     getOptionLabel,
     renderOption,
+    isCellModified,
+    isCellWarning,
   } = props;
   const classes = useStyles();
-  const [value, setValue] = useState<number>(dataId);
+  // const [value, setValue] = useState<number>(dataId);
   // TODO value causes warning when adding new events because its negative
 
   const [
     managedData,
     optionIds,
     initialData,
-    isCellModified,
+    // isCellModified,
     setIsCellModified,
-    isCellWarning,
+    // isCellWarning,
     setIsCellWarning,
   ] = useAutoCompleteHook(dataId, dataSet, dataContext, isSaved, extractOptionId);
 
   function onCellModify(isChanged: boolean, newValue: number) {
-    setIsCellModified(isChanged);
-    setIsCellWarning(false);
-    onChange(dataContext, newValue, isChanged);
-    setValue(newValue);
+    // setIsCellModified(isChanged);
+    // setIsCellWarning(false);
+    onChange(dataContext, newValue);
+    // setValue(newValue);
   }
 
   const tableCellClass = isCellWarning
@@ -89,15 +93,15 @@ export const AutocompleteCell = React.memo((props: AutocompleteCellProps) => {
             }}
           />
         )}
-        getOptionLabel={(option: number) => getOptionLabel(option, managedData)}
-        getOptionDisabled={(option) => option === value}
+        getOptionLabel={(option: number) => getOptionLabel(option, dataSet)}
+        getOptionDisabled={(option) => option === dataId}
         renderOption={(option) =>
           renderOption(
-            getOptionLabel(option, managedData),
+            getOptionLabel(option, dataSet),
             option === initialData.current.dataId,
           )
         }
-        value={value}
+        value={dataId}
         onChange={(event, newValue: number) =>
           onCellModify(newValue !== initialData.current.dataId, newValue)
         }
@@ -116,9 +120,16 @@ function arePropsEqual(
   prevProps: AutocompleteCellProps,
   nextProps: AutocompleteCellProps,
 ) {
+  const b =
+    prevProps.dataId === nextProps.dataId &&
+    prevProps.dataContext.roleId === nextProps.dataContext.roleId;
+
+  // if (!b) console.log('prevprops: ', prevProps.dataSet, 'nextprops: ', nextProps.dataSet);
   return (
     prevProps.dataId === nextProps.dataId &&
-    prevProps.dataContext.roleId === nextProps.dataContext.roleId
+    prevProps.dataContext.roleId === nextProps.dataContext.roleId &&
+    prevProps.isCellModified === nextProps.isCellModified &&
+    prevProps.isCellWarning === nextProps.isCellWarning
   );
 }
 

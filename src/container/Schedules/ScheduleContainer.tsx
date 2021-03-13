@@ -16,6 +16,7 @@ import {
   AutocompleteCell,
   TimeCell,
 } from '../../components/Schedule';
+import { TasksAutoCompleteWrapper } from '../../components/Schedule/TasksAutocompleteWrapper';
 import { ContextMenu, ConfirmationDialog } from '../../components/shared';
 
 import {
@@ -26,7 +27,7 @@ import {
   extractTeammateIds,
   teammates,
   createBlankEvent,
-  roleDisplay,
+  // roleDisplay,
 } from './utilities';
 
 import {
@@ -63,7 +64,9 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
   //   const [alert, setAlert] = useState<AlertInterface>();
 
   // manipulate events
-  const [dataModel, setDataModel] = useState<BootstrapData>({ ...data });
+  const [dataModel, setDataModel] = useState<BootstrapData>(() => {
+    return { ...data };
+  });
   const [isStructureModified, setIsStructureModified] = useState<boolean>(false);
   const templateChanges = useRef<TemplateChangesInterface>({
     changesSeed: -1,
@@ -224,21 +227,21 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
   }
 
   // onChange Handlers
-  function onTaskChange(dataContext, newAssignee: number, isChanged: boolean) {
+  function onTaskChange(dataContext, newAssignee: number) {
     const { taskId, serviceIndex, rowIndex, columnIndex } = dataContext;
     const dataClone = { ...dataModel };
     dataClone.schedules[tab].services[serviceIndex].events[rowIndex].cells[
       columnIndex
     ].userId = newAssignee;
     setDataModel(dataClone);
-    if (isChanged) {
-      const updatedChangedTasks = { ...changedTasks.current, [taskId]: newAssignee };
-      changedTasks.current = updatedChangedTasks;
-    } else if (changedTasks.current[taskId]) delete changedTasks.current[taskId];
-    setIsScheduleModified(Object.keys(changedTasks.current).length > 0);
+    // if (isChanged) {
+    //   const updatedChangedTasks = { ...changedTasks.current, [taskId]: newAssignee };
+    //   changedTasks.current = updatedChangedTasks;
+    // } else if (changedTasks.current[taskId]) delete changedTasks.current[taskId];
+    // setIsScheduleModified(Object.keys(changedTasks.current).length > 0);
   }
 
-  function onAssignedRoleChange(dataContext, newRoleId, isChanged) {
+  function onAssignedRoleChange(dataContext, newRoleId) {
     const { serviceIndex, rowIndex } = dataContext;
     const dataClone = { ...dataModel };
     const targetEvent = dataClone.schedules[tab].services[serviceIndex].events[rowIndex];
@@ -259,11 +262,17 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
     setTab(value);
   }
 
+  const retrieveDbRole = (serviceIndex: number, rowIndex: number): number =>
+    data.schedules[tab].services[serviceIndex].events[rowIndex].roleId;
+  const retrieveDbTaskId = (serviceIndex: number, rowIndex: number, cellIndex): number =>
+    data.schedules[tab].services[serviceIndex].events[rowIndex].cells[cellIndex].userId;
+
   // TODO
   // contextmenu functions don't work
   // Need to wait for create schedule to finish updating db before the user can click on the new tab, or else data will be missing
   // newly created schedule has strange set of dates
 
+  // console.log('data', data);
   return (
     <>
       <div className="schedule-container" ref={outerRef}>
@@ -301,23 +310,24 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
                 title={title}
                 hidden={tab !== scheduleIndex}
               >
-                {headers.map(({ Header }, index: number) => (
-                  <ScheduleTableHeader key={`${Header}_${index}`} header={Header} />
+                {headers.map(({ Header }) => (
+                  <ScheduleTableHeader key={`Header-${Header}`} header={Header} />
                 ))}
                 {services.map((service: ServiceDataInterface, serviceIndex: number) => {
                   const { day, name, events, serviceId } = service;
                   return (
                     <ScheduleTableBody
-                      key={`${day}-${name}`}
+                      key={`ScheduleTableBody-${name}`}
                       title={`${days[day]} ${name}`}
                     >
                       <button onClick={() => deleteService(serviceId)}>
                         Delete Service
                       </button>
                       <button onClick={() => addEvent(serviceIndex)}>Add Event</button>
+
                       {events.map((event, rowIndex) => {
                         const { roleId, cells, time, eventId } = event;
-                        const cellTitle = roleDisplay(roleId, dataModel);
+
                         const isSelected = selectedEvents.includes(eventId);
 
                         const tasksDataSet = teammates(
@@ -330,10 +340,11 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
                           rowIndex,
                           serviceIndex,
                         );
+                        const dbRole = retrieveDbRole(serviceIndex, rowIndex);
 
                         return (
                           <TableRow
-                            key={`${cellTitle}-${time}-${rowIndex}`}
+                            key={`${serviceIndex}-${rowIndex}`}
                             hover
                             onDoubleClick={() => handleRowSelected(isSelected, eventId)}
                             selected={isSelected}
@@ -373,17 +384,24 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
                                   isSaved={isSaved}
                                 />
                               ) : (
-                                <AutocompleteCell
-                                  dataId={cell.userId}
+                                <TasksAutoCompleteWrapper
+                                  modelId={cell.userId}
+                                  modelRole={roleId}
                                   dataSet={tasksDataSet}
                                   extractOptionId={extractTeammateIds}
-                                  dataContext={taskDataContext}
-                                  onChange={onTaskChange}
-                                  key={`Tasks_${serviceIndex}_${rowIndex}_${columnIndex}`}
-                                  getOptionLabel={getUserOptionLabel}
-                                  renderOption={renderOption}
-                                  isSaved={isSaved}
-                                />
+                                  isSaved={true}
+                                  key={`TasksWrapper${serviceIndex}_${rowIndex}_${columnIndex}`}
+                                >
+                                  <AutocompleteCell
+                                    extractOptionId={extractTeammateIds}
+                                    dataContext={taskDataContext}
+                                    onChange={onTaskChange}
+                                    getOptionLabel={getUserOptionLabel}
+                                    renderOption={renderOption}
+                                    // isSaved={isSaved}
+                                    key={`Tasks_${serviceIndex}_${rowIndex}_${columnIndex}`}
+                                  />
+                                </TasksAutoCompleteWrapper>
                               );
                             })}
                           </TableRow>
