@@ -83,13 +83,14 @@ export const TasksAutoCompleteWrapper = (props: TasksAutoCompleteWrapperProps) =
   }
 
   function createDataSet() {
-    const managedDataClone = [...managedData];
+    const managedDataClone = [...dataSet];
     managedDataClone.unshift(prevDetails);
-    setManagedData(managedDataClone);
+    console.log('creating dataset');
+    return managedDataClone;
   }
 
   function createDetails() {
-    return dataSet.filter((user) => user.userId === modelId);
+    return dataSet.filter((user) => user.userId === modelId)[0];
   }
 };
 

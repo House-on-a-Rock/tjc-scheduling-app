@@ -128,6 +128,10 @@ export function getRoleOptionLabel(option, dataSet) {
 }
 
 export function getUserOptionLabel(option: number, dataSet) {
+  if (!dataSet) {
+    console.log('no dataSet in getUserOptionlabel');
+    return '';
+  }
   const filteredData = dataSet.filter((user) => user.userId === option)[0];
   if (filteredData) return `${filteredData.firstName} ${filteredData.lastName}`;
   else {
@@ -137,11 +141,11 @@ export function getUserOptionLabel(option: number, dataSet) {
 }
 
 export function extractTeammateIds(teammates): number[] {
+  if (!teammates) return [];
   return teammates.map((teammate) => teammate.userId);
 }
 
 export const teammates = (users, roleId: number, churchId) => {
-  // console.log('roleId', roleId);
   const filteredTeammates = users.filter((user) =>
     user.teams.some((team) => team.id === roleId),
   );
@@ -155,7 +159,7 @@ export const blankTeammate = (churchId: number): UsersDataInterface => {
     firstName: '',
     lastName: '',
     email: '',
-    church: { name: '' },
+    church: { name: '' }, // TODO fill in blank name
     churchId: churchId,
     disabled: false,
     teams: [],

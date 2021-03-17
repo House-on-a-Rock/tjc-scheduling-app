@@ -39,7 +39,7 @@ interface AutocompleteCellProps {
   isSaved?: boolean;
 }
 
-export const AutocompleteCell = React.memo((props: AutocompleteCellProps) => {
+export const DutyAutocomplete = React.memo((props: AutocompleteCellProps) => {
   const {
     dataId,
     dataSet,
@@ -49,34 +49,20 @@ export const AutocompleteCell = React.memo((props: AutocompleteCellProps) => {
     onChange,
     getOptionLabel,
     renderOption,
-    isCellModified,
-    isCellWarning,
   } = props;
   const classes = useStyles();
-  // const [value, setValue] = useState<number>(dataId);
-  // TODO value causes warning when adding new events because its negative
 
-  const [
-    optionIds,
-    initialData,
-    // isCellModified,
-    // setIsCellModified,
-    // isCellWarning,
-    // setIsCellWarning,
-  ] = useAutoCompleteHook(dataId, dataSet, dataContext, isSaved, extractOptionId);
+  const [optionIds, setOptionIds] = useState<number[]>(extractOptionId(dataSet));
+  const [isCellModified, setIsCellModified] = useState<boolean>(false);
+
+  const [initialData] = useState<number>(dataId);
 
   function onCellModify(isChanged: boolean, newValue: number) {
-    // setIsCellModified(isChanged);
-    // setIsCellWarning(false);
+    setIsCellModified(isChanged);
     onChange(dataContext, newValue);
-    // setValue(newValue);
   }
 
-  const tableCellClass = isCellWarning
-    ? classes.warning
-    : isCellModified
-    ? classes.modified
-    : classes.cell;
+  const tableCellClass = isCellModified ? classes.modified : classes.cell;
 
   return (
     <TableCell className={tableCellClass}>
@@ -95,14 +81,11 @@ export const AutocompleteCell = React.memo((props: AutocompleteCellProps) => {
         getOptionLabel={(option: number) => getOptionLabel(option, dataSet)}
         getOptionDisabled={(option) => option === dataId}
         renderOption={(option) =>
-          renderOption(
-            getOptionLabel(option, dataSet),
-            option === initialData.current.dataId,
-          )
+          renderOption(getOptionLabel(option, dataSet), option === initialData)
         }
         value={dataId}
         onChange={(event, newValue: number) =>
-          onCellModify(newValue !== initialData.current.dataId, newValue)
+          onCellModify(newValue !== initialData, newValue)
         }
         disableClearable
         fullWidth
@@ -119,16 +102,9 @@ function arePropsEqual(
   prevProps: AutocompleteCellProps,
   nextProps: AutocompleteCellProps,
 ) {
-  const b =
-    prevProps.dataId === nextProps.dataId &&
-    prevProps.dataContext.roleId === nextProps.dataContext.roleId;
-
-  // if (!b) console.log('prevprops: ', prevProps.dataSet, 'nextprops: ', nextProps.dataSet);
   return (
     prevProps.dataId === nextProps.dataId &&
-    prevProps.dataContext.roleId === nextProps.dataContext.roleId &&
-    prevProps.isCellModified === nextProps.isCellModified &&
-    prevProps.isCellWarning === nextProps.isCellWarning
+    prevProps.dataContext.roleId === nextProps.dataContext.roleId
   );
 }
 

@@ -17,7 +17,9 @@ export const useAutoCompleteHook = (
   const [isCellModified, setIsCellModified] = useState<boolean>(false);
   const [isCellWarning, setIsCellWarning] = useState<boolean>(false);
 
-  // remove managed data -- selection state managed in parent
+  useEffect(() => {
+    setOptionIds(extractOptionId(dataSet));
+  }, [dataSet]);
 
   return [
     managedData,
@@ -31,7 +33,7 @@ export const useAutoCompleteHook = (
 
   function setInitialRefData() {
     return {
-      dataId: dataId > 0 ? dataId : dataSet.length - 1, // dataId will be negative if its a newly made task, so this is needed to handle those cases
+      dataId: dataId >= 0 ? dataId : dataSet.length - 1, // dataId will be negative if its a newly made task, so this is needed to handle those cases
       dataSet: dataSet,
       dataContext,
     };

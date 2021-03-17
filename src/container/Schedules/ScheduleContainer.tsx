@@ -15,6 +15,8 @@ import {
   NewServiceForm,
   AutocompleteCell,
   TimeCell,
+  DutyAutocomplete,
+  TasksAutocomplete,
 } from '../../components/Schedule';
 import { TasksAutoCompleteWrapper } from '../../components/Schedule/TasksAutocompleteWrapper';
 import { ContextMenu, ConfirmationDialog } from '../../components/shared';
@@ -64,9 +66,7 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
   //   const [alert, setAlert] = useState<AlertInterface>();
 
   // manipulate events
-  const [dataModel, setDataModel] = useState<BootstrapData>(() => {
-    return { ...data };
-  });
+  const [dataModel, setDataModel] = useState<BootstrapData>(data);
   const [isStructureModified, setIsStructureModified] = useState<boolean>(false);
   const templateChanges = useRef<TemplateChangesInterface>({
     changesSeed: -1,
@@ -89,6 +89,10 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
   const deleteSchedule = useDeleteSchedule(setWarningDialog);
   const createService = useCreateService(setIsNewServiceOpen);
   const deleteEvent = useDeleteEvent();
+
+  React.useEffect(() => {
+    setDataModel(data);
+  }, [data]);
 
   function onSaveScheduleChanges() {
     /*
@@ -372,7 +376,7 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
                                   key={`Time_${serviceIndex}_${rowIndex}`}
                                 />
                               ) : columnIndex === 1 ? (
-                                <AutocompleteCell
+                                <DutyAutocomplete
                                   dataId={roleId}
                                   dataSet={dataModel.teams}
                                   extractOptionId={extractRoleIds}
@@ -384,24 +388,18 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
                                   isSaved={isSaved}
                                 />
                               ) : (
-                                <TasksAutoCompleteWrapper
-                                  modelId={cell.userId}
-                                  modelRole={roleId}
+                                <TasksAutocomplete
+                                  dataId={cell.userId}
+                                  roleId={roleId}
                                   dataSet={tasksDataSet}
                                   extractOptionId={extractTeammateIds}
-                                  isSaved={true}
-                                  key={`TasksWrapper${serviceIndex}_${rowIndex}_${columnIndex}`}
-                                >
-                                  <AutocompleteCell
-                                    extractOptionId={extractTeammateIds}
-                                    dataContext={taskDataContext}
-                                    onChange={onTaskChange}
-                                    getOptionLabel={getUserOptionLabel}
-                                    renderOption={renderOption}
-                                    // isSaved={isSaved}
-                                    key={`Tasks_${serviceIndex}_${rowIndex}_${columnIndex}`}
-                                  />
-                                </TasksAutoCompleteWrapper>
+                                  dataContext={taskDataContext}
+                                  onChange={onTaskChange}
+                                  getOptionLabel={getUserOptionLabel}
+                                  renderOption={renderOption}
+                                  // isSaved={isSaved}
+                                  key={`Tasks_${serviceIndex}_${rowIndex}_${columnIndex}`}
+                                />
                               );
                             })}
                           </TableRow>

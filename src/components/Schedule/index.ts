@@ -7,3 +7,5 @@ export * from './ScheduleTabs';
 export * from './ScheduleToolbar';
 export * from './AutocompleteCell';
 export * from './TimeCell';
+export * from './DutyAutocomplete';
+export * from './TasksAutocomplete';
