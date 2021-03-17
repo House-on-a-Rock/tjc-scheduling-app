@@ -128,16 +128,9 @@ export function getRoleOptionLabel(option, dataSet) {
 }
 
 export function getUserOptionLabel(option: number, dataSet) {
-  if (!dataSet) {
-    console.log('no dataSet in getUserOptionlabel');
-    return '';
-  }
   const filteredData = dataSet.filter((user) => user.userId === option)[0];
   if (filteredData) return `${filteredData.firstName} ${filteredData.lastName}`;
-  else {
-    // this is just to prevent errors for now
-    return '';
-  }
+  else return '';
 }
 
 export function extractTeammateIds(teammates): number[] {

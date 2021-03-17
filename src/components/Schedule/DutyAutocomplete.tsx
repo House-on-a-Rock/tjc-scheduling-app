@@ -1,8 +1,5 @@
 import React, { useState } from 'react';
-import {
-  RoleDataContext,
-  TaskDataContext,
-} from '../../container/Schedules/ScheduleContainer';
+import { RoleDataContext } from '../../container/Schedules/ScheduleContainer';
 
 // mat ui
 import TableCell from '@material-ui/core/TableCell';
@@ -11,7 +8,6 @@ import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
 
 import { typographyTheme } from '../../shared/styles/theme.js';
-import { useAutoCompleteHook } from './useAutocompleteHook';
 
 /*
   Props explanation
@@ -20,7 +16,7 @@ import { useAutoCompleteHook } from './useAutocompleteHook';
   extractOptionId?:   function to extract ids from dataset
   dataSet:            dataset from which to display autocomplete options, contains all the other info 
   onChange:           onChangeHandler
-  dataContext:        contains info like rowIndex/serviceIndex/roleId, used by onChange callback. This is different between task cells and duty cells
+  dataContext:        contains info like rowIndex/serviceIndex/roleId, used by onChange callback.
   getOptionLabel:     string that shows in autocomplete
   renderOption?:      basically just adds an icon to indicate which was the previously saved option, may be used to add more stuff
   isSaved: boolean;   if initialData should update to the latest dataId
@@ -31,7 +27,7 @@ interface AutocompleteCellProps {
   dataSet?: any;
   extractOptionId?: (data: any) => number[];
   onChange: (dataContext: any, newValue: number) => void;
-  dataContext: RoleDataContext | TaskDataContext;
+  dataContext: RoleDataContext;
   getOptionLabel: (option: number, dataSet: any) => string;
   renderOption?: (display: string, isIconVisible: boolean) => JSX.Element;
   isCellModified?;
@@ -52,9 +48,7 @@ export const DutyAutocomplete = React.memo((props: AutocompleteCellProps) => {
   } = props;
   const classes = useStyles();
 
-  const [optionIds, setOptionIds] = useState<number[]>(extractOptionId(dataSet));
   const [isCellModified, setIsCellModified] = useState<boolean>(false);
-
   const [initialData] = useState<number>(dataId);
 
   function onCellModify(isChanged: boolean, newValue: number) {
@@ -68,7 +62,7 @@ export const DutyAutocomplete = React.memo((props: AutocompleteCellProps) => {
     <TableCell className={tableCellClass}>
       <Autocomplete
         id="combo-box"
-        options={optionIds}
+        options={extractOptionId(dataSet)}
         renderInput={(params: any) => (
           <TextField
             {...params}

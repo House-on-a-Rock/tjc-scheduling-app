@@ -1,10 +1,4 @@
-import React, { useState, useEffect } from 'react';
-
-interface TasksAutocompleteHooksProps {
-  dataId: number;
-  roleId: number;
-  dataSet: any;
-}
+import { useState, useEffect } from 'react';
 
 export const useTasksAutocompleteHooks = (dataId, roleId, dataSet) => {
   const [initialData] = useState({
@@ -17,56 +11,44 @@ export const useTasksAutocompleteHooks = (dataId, roleId, dataSet) => {
 
   const [managedDataSet, setManagedDataSet] = useState(dataSet);
   const [prevRole, setPrevRole] = useState<number>(roleId);
-  const [prevDetails, setPrevDetails] = useState(createDetails()); //stores info of prev selected
+  const [prevDetails, setPrevDetails] = useState(createDetails()); // stores info of prev selected, needed because when dataset changes, details are lost
 
-  const [isRolesChanged, setIsRolesChanged] = useState(false);
-  const [isDataSetChanged, setIsDataSetChanged] = useState(false);
+  // TODO In next PR, when db updates with saved data, will have to see if initialData will re-initiate properly.
 
+  // dataset useeffect
   useEffect(() => {
-    if (roleId !== prevRole) setIsRolesChanged(true);
-    if (roleId === initialData.roleId) setIsRolesChanged(false);
-  }, [roleId]);
+    if (roleId !== prevRole) setManagedDataSet(createDataSet());
+    if (roleId === prevRole && dataId !== prevDetails?.userId) setManagedDataSet(dataSet);
+  }, [roleId, dataId]);
 
+  // colors
   useEffect(() => {
-    if (dataId !== initialData.dataId) {
-      setIsCellModified(true);
-      setIsCellWarning(false);
-      setPrevDetails(createDetails());
-      if (isRolesChanged) setIsDataSetChanged(false);
-    } else {
-      setIsCellModified(false);
-      setIsCellWarning(false);
-      setIsDataSetChanged(false);
-    }
-  }, [dataId]);
+    setIsCellModified(dataId !== initialData.dataId);
+    setIsCellWarning(false);
 
-  useEffect(() => {
-    if (isRolesChanged) {
+    if (roleId !== prevRole) {
       setIsCellWarning(true);
-      setPrevRole(roleId);
-      setIsDataSetChanged(true);
-    } else {
-      if (dataId !== initialData.dataId) {
-        setManagedDataSet(createDataSet());
-        setIsCellWarning(true);
-      } else setIsDataSetChanged(false);
+      if (roleId === initialData.roleId) setIsCellWarning(dataId !== initialData.dataId);
+      else if (dataSet.filter((user) => user.userId === dataId).length > 0) {
+        // if assignee is already in the list of roles
+        setIsCellModified(true);
+        setIsCellWarning(false);
+      }
+      setPrevRole(roleId); // updating prevRole here
     }
-  }, [isRolesChanged]);
+  }, [roleId, dataId]);
 
   useEffect(() => {
-    if (isDataSetChanged) {
-      setManagedDataSet(createDataSet());
-    } else {
-      setManagedDataSet(dataSet);
-      setIsCellWarning(false);
-    }
-  }, [isDataSetChanged]);
+    setPrevDetails(createDetails());
+  }, [dataId]);
 
   return [isCellModified, isCellWarning, managedDataSet, initialData];
 
   function createDataSet() {
     const managedDataClone = [...dataSet];
-    managedDataClone.unshift(prevDetails);
+    const preExisting =
+      managedDataClone.filter((user) => user.userId === prevDetails.userId).length > 0;
+    if (!preExisting) managedDataClone.unshift(prevDetails); // adds prev selected guy to top of list of options
     return managedDataClone;
   }
 

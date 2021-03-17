@@ -13,12 +13,11 @@ import {
   ScheduleTableBody,
   ScheduleToolbar,
   NewServiceForm,
-  AutocompleteCell,
   TimeCell,
   DutyAutocomplete,
   TasksAutocomplete,
 } from '../../components/Schedule';
-import { TasksAutoCompleteWrapper } from '../../components/Schedule/TasksAutocompleteWrapper';
+
 import { ContextMenu, ConfirmationDialog } from '../../components/shared';
 
 import {
@@ -29,7 +28,6 @@ import {
   extractTeammateIds,
   teammates,
   createBlankEvent,
-  // roleDisplay,
 } from './utilities';
 
 import {
@@ -67,7 +65,6 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
 
   // manipulate events
   const [dataModel, setDataModel] = useState<BootstrapData>(data);
-  const [isStructureModified, setIsStructureModified] = useState<boolean>(false);
   const templateChanges = useRef<TemplateChangesInterface>({
     changesSeed: -1,
     events: {
@@ -96,6 +93,7 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
 
   function onSaveScheduleChanges() {
     /*
+    For next PR
       1. check if templateChanges.changesSeed < 0
         a. if there are changes, prompt if they want to save schedule changes to a new template
         b. if not, run saveChanges() on changedTasks, display alert
@@ -143,8 +141,7 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
     // should this be called after every change or only onSaveChanges? changedTasks is tracked as each one is updated, but that's much simpler to run
   }
 
-  // Model manipulation functinons
-
+  // Model manipulation functions
   const createBlankService = () => {
     return {
       name: 'test',
@@ -166,7 +163,7 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
   }
 
   function removeEvent() {
-    // make sure it works once contextmenu is fixed
+    // TODO: make sure it works once contextmenu is fixed
     const dataClone = { ...dataModel };
     const target = dataClone.schedules[tab];
     const mutatedData = target.services.map((service) => {
@@ -181,7 +178,7 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
   }
 
   function addService() {
-    // TODO: integrate create new service form? or another solution is better
+    // TODO: bring back create new service form? or another solution is better
     const dataClone = { ...dataModel };
     const target = dataClone.schedules[tab].services;
     target.push(createBlankService());
@@ -200,6 +197,7 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
 
   // autocomplete cell callback
   // in the future, can pass in warning icons or tooltips depending on the usecase.
+  // maybe move elsewhere?
   function renderOption(display, isIconVisible: boolean) {
     return (
       // TODO move div styling somewhere else?
@@ -223,7 +221,7 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
     rowIndex: number,
     serviceIndex: number,
   ): boolean {
-    // TODO update time string to standardized UTC string?
+    // TODO update time string to standardized UTC string and use dedicated time inputs
     if (rowIndex === 0) return true;
     const previousEventsTime =
       dataModel.schedules[tab].services[serviceIndex].events[rowIndex - 1].time;
@@ -238,6 +236,7 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
       columnIndex
     ].userId = newAssignee;
     setDataModel(dataClone);
+    // May be used in future
     // if (isChanged) {
     //   const updatedChangedTasks = { ...changedTasks.current, [taskId]: newAssignee };
     //   changedTasks.current = updatedChangedTasks;
@@ -257,8 +256,7 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
   function onTimeChange(newValue: string, rowIndex: number, serviceIndex: number) {
     const dataClone = { ...dataModel };
     dataClone.schedules[tab].services[serviceIndex].events[rowIndex].time = newValue;
-    setDataModel(dataClone); // TODO when a time is changed, other cells in the row lose track of changes that have happened to them (background color resets).
-    // when time is changed, cells in that row re-render even though i'm using react.memo
+    setDataModel(dataClone);
   }
 
   function onChangeTabs(value: number) {
@@ -266,17 +264,11 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
     setTab(value);
   }
 
-  const retrieveDbRole = (serviceIndex: number, rowIndex: number): number =>
-    data.schedules[tab].services[serviceIndex].events[rowIndex].roleId;
-  const retrieveDbTaskId = (serviceIndex: number, rowIndex: number, cellIndex): number =>
-    data.schedules[tab].services[serviceIndex].events[rowIndex].cells[cellIndex].userId;
-
   // TODO
   // contextmenu functions don't work
   // Need to wait for create schedule to finish updating db before the user can click on the new tab, or else data will be missing
   // newly created schedule has strange set of dates
 
-  // console.log('data', data);
   return (
     <>
       <div className="schedule-container" ref={outerRef}>
@@ -344,7 +336,6 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
                           rowIndex,
                           serviceIndex,
                         );
-                        const dbRole = retrieveDbRole(serviceIndex, rowIndex);
 
                         return (
                           <TableRow
@@ -463,7 +454,7 @@ interface RoleData {
   updatedAt?: string;
   id: number;
   name: string;
-  roleId: null; // we gotta remove this
+  roleId: null; // TODO: remove from db
 }
 
 interface ColumnsInterface {
@@ -576,15 +567,11 @@ interface DataContext {
 }
 
 export interface RoleDataContext extends DataContext {
-  serviceIndex: number;
-  rowIndex: number;
   roleId: number;
 }
 
 export interface TaskDataContext extends DataContext {
   taskId: number;
   roleId: number;
-  serviceIndex: number;
-  rowIndex: number;
   columnIndex: number;
 }
