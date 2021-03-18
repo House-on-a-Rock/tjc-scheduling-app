@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { blankTeammate } from '../../container/Schedules/utilities';
 
 export const useTasksAutocompleteHooks = (dataId, roleId, dataSet) => {
   const [initialData] = useState({
@@ -53,6 +54,6 @@ export const useTasksAutocompleteHooks = (dataId, roleId, dataSet) => {
   }
 
   function createDetails() {
-    return dataSet.filter((user) => user.userId === dataId)[0];
+    return dataSet.filter((user) => user.userId === dataId)[0] || { userId: -1 };
   }
 };
