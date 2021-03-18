@@ -6,7 +6,7 @@ import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 import { ValidatedSelect, ValidatedTextField } from '../FormControl';
 import { useValidatedField } from '../../hooks';
 
-import { buttonTheme } from '../../shared/styles/theme.js';
+import { buttonTheme, tooltipContainer } from '../../shared/styles/theme.js';
 import { stringLengthCheck } from '../../shared/utilities';
 import { NewServiceData } from '../../shared/types';
 import { AxiosError } from 'axios';
@@ -74,29 +74,31 @@ export const NewServiceForm = ({ onSubmit, onClose, error }: NewServiceFormProps
           handleChange={setServiceName}
           autoFocus
         />
-        <ValidatedSelect
-          input={dayOfWeek}
-          onChange={setDayOfWeek}
-          toolTip={{
-            id: 'Day of Week',
-            text: 'Select the day of the week this schedule is for',
-          }}
-          label="Day of Week"
-          className={classes.selectContainer}
-        >
-          <MenuItem value={-1}>
-            Select which day of the week this schedule is for
-          </MenuItem>
-          {daysOfWeek.map((day, index) => (
-            <MenuItem key={index.toString()} value={index}>
-              {day}
+        <div className={classes.tooltipContainer}>
+          <ValidatedSelect
+            input={dayOfWeek}
+            onChange={setDayOfWeek}
+            toolTip={{
+              id: 'Day of Week',
+              text: 'Select the day of the week this schedule is for',
+            }}
+            label="Day of Week"
+            className={classes.selectContainer}
+          >
+            <MenuItem value={-1}>
+              Select which day of the week this schedule is for
             </MenuItem>
-          ))}
-        </ValidatedSelect>
+            {daysOfWeek.map((day, index) => (
+              <MenuItem key={index.toString()} value={index}>
+                {day}
+              </MenuItem>
+            ))}
+          </ValidatedSelect>
+        </div>
       </form>
 
       <div className={classes.buttonBottomBar}>
-        <Button onClick={onSubmitForm} className={classes.button}>
+        <Button onClick={onSubmitForm} className={classes.submitButton}>
           Create new service
         </Button>
         <Button onClick={onClose} className={classes.button}>
@@ -117,7 +119,7 @@ const useStyles = makeStyles((theme: Theme) =>
       width: 'max-content',
       margin: 'auto',
       textAlign: 'center',
-      padding: 10,
+      padding: 20,
     },
     selectContainer: {
       display: 'flex',
@@ -125,10 +127,22 @@ const useStyles = makeStyles((theme: Theme) =>
       width: '100%',
       minWidth: 400,
     },
+    tooltipContainer: {
+      '&': {
+        ...tooltipContainer,
+      },
+    },
     buttonBottomBar: {
       minHeight: 'unset',
       flexWrap: 'wrap',
       alignSelf: 'end',
+    },
+    submitButton: {
+      padding: '10px',
+      borderRadius: '5px',
+      border: 'none',
+      margin: '5px',
+      ...buttonTheme.filled,
     },
     button: {
       padding: '10px',

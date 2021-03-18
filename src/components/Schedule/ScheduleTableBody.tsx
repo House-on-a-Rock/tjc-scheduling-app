@@ -1,43 +1,64 @@
 import React from 'react';
-import TableRow from '@material-ui/core/TableRow';
-import TableCell from '@material-ui/core/TableCell';
+import ReactTooltip from 'react-tooltip';
+import { TableCell, TableRow, TableBody } from '@material-ui/core';
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 
 export const ScheduleTableBody = ({ title, children }: any) => {
-  //   const classes = useStyles();
-  //   const [isChildrenVisible, setChildrenVisible] = React.useState(true);
-  // collapsible table body logic
-  //   onClick={() => {
-  //     setChildrenVisible((d) => !d);
-  //   }}
-  // would like to use <Collapse /> component from material ui, but it changes the structure of the schedule:
-  // <table>
-  //    <tr> <CollapsibleComponent /> <tr/>
-  // </table>
-  // where <CollapsibleComponent /> is another <table><tr>ScheduleBody</tr></table>
-  // https://material-ui.com/components/tables/#collapsible-table
-  // collapse function and icons will only show if there are multiple functions/services/events (idk what we're calling it as of today) as there are no need for icons and collapsible function if there aren't more than one
+  const tooltipId = `${title}_tooltip`;
+  const classes = useStyles();
+  const [open, setOpen] = React.useState(true);
+  const [expandedBefore, setExpandedBefore] = React.useState(false);
   return (
     <>
-      <TableRow>
-        <TableCell>{title}</TableCell>
-      </TableRow>
-      {children}
+      <TableBody>
+        <TableRow
+          onClick={() => {
+            setOpen(!open);
+            if (!open) {
+              setExpandedBefore(true);
+            }
+          }}
+        >
+          <TableCell className={classes.scheduleTitle} data-tip data-for={tooltipId}>
+            {title}
+          </TableCell>
+          <ReactTooltip id={tooltipId}>
+            <span>{`Click to ${open ? 'collapse' : 'expand'}`}</span>
+          </ReactTooltip>
+        </TableRow>
+      </TableBody>
+      <TableBody
+        className={`${classes.groupOfRows} ${!open && classes.collapsedGroupOfRows} ${
+          open && expandedBefore && classes.expandedGroupOfRows
+        }`}
+      >
+        {children}
+      </TableBody>
     </>
   );
 };
 
-// const useStyles = makeStyles((theme: Theme) =>
-//   createStyles({
-//     cell: {
-//       textAlign: 'center',
-//       '&:focus': {
-//         outline: 'none',
-//       },
-//       padding: '1px 0px 2px 0px',
-//       height: 20,
-//       width: 50,
-//       fontSize: 14,
-//     },
-//   }),
-// );
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    scheduleTitle: {},
+    groupOfRows: {
+      transition: 'transform 0.2s, visibility 0.15s',
+      transformOrigin: 'top',
+      width: '20ch',
+    },
+    collapsedGroupOfRows: {
+      transform: 'scaleY(0)',
+      visibility: 'collapse',
+      opacity: 0.5,
+      pointerEvents: 'none',
+    },
+    expandedGroupOfRows: {
+      animation: `$flashOfColor 0.25s ${theme.transitions.easing.easeInOut}`,
+    },
+    '@keyframes flashOfColor': {
+      '50%': {
+        background: '#add8e65e',
+      },
+    },
+  }),
+);
