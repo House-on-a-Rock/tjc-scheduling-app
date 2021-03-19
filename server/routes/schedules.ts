@@ -110,11 +110,9 @@ router.get(
       const servicesData = await Promise.all(
         services.map(async (service) => populateServiceData(service)),
       );
-      // const events = await db.Event.findAll({
-      //   where: { scheduleId: schedule.id },
-      // });
 
       const response = {
+        scheduleId,
         columns,
         services: servicesData,
         title: schedule.title,
