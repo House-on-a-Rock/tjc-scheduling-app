@@ -11,6 +11,11 @@ import { typographyTheme } from '../../shared/styles/theme.js';
 
 import { useTasksAutocompleteHooks } from './useTasksAutocompleteHooks';
 
+import {
+  extractTeammateIds,
+  getUserOptionLabel,
+} from '../../container/Schedules/utilities';
+
 /*
   Props explanation
 
@@ -26,28 +31,16 @@ import { useTasksAutocompleteHooks } from './useTasksAutocompleteHooks';
 
 interface AutocompleteCellProps {
   dataId: number;
-  dataSet: any;
+  options: any;
   roleId: number;
-  extractOptionId?: (data: any) => number[];
   onChange: (dataContext: any, newValue: number) => void;
   dataContext: TaskDataContext;
-  getOptionLabel: (option: number, dataSet: any) => string;
   renderOption?: (display: string, isIconVisible: boolean) => JSX.Element;
   isSaved?: boolean;
 }
 
 export const TasksAutocomplete = React.memo((props: AutocompleteCellProps) => {
-  const {
-    dataId,
-    dataSet,
-    roleId,
-    dataContext,
-    isSaved,
-    extractOptionId,
-    onChange,
-    getOptionLabel,
-    renderOption,
-  } = props;
+  const { dataId, options, roleId, dataContext, isSaved, onChange, renderOption } = props;
   const classes = useStyles();
 
   const [
@@ -55,7 +48,7 @@ export const TasksAutocomplete = React.memo((props: AutocompleteCellProps) => {
     isCellWarning,
     managedDataSet,
     initialData,
-  ] = useTasksAutocompleteHooks(dataId, roleId, dataSet);
+  ] = useTasksAutocompleteHooks(dataId, roleId, options);
 
   const tableCellClass = isCellWarning
     ? classes.warning
@@ -71,7 +64,7 @@ export const TasksAutocomplete = React.memo((props: AutocompleteCellProps) => {
     <TableCell className={tableCellClass}>
       <Autocomplete
         id="combo-box"
-        options={extractOptionId(managedDataSet)}
+        options={extractTeammateIds(managedDataSet)}
         renderInput={(params: any) => (
           <TextField
             {...params}
@@ -81,11 +74,11 @@ export const TasksAutocomplete = React.memo((props: AutocompleteCellProps) => {
             }}
           />
         )}
-        getOptionLabel={(option: number) => getOptionLabel(option, managedDataSet)}
+        getOptionLabel={(option: number) => getUserOptionLabel(option, managedDataSet)}
         getOptionDisabled={(option) => option === dataId}
         renderOption={(option) =>
           renderOption(
-            getOptionLabel(option, managedDataSet),
+            getUserOptionLabel(option, managedDataSet),
             option === initialData.dataId,
           )
         }

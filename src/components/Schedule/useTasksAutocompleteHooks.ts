@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { blankTeammate } from '../../container/Schedules/utilities';
 
 export const useTasksAutocompleteHooks = (dataId, roleId, dataSet) => {
   const [initialData] = useState({
@@ -16,14 +15,13 @@ export const useTasksAutocompleteHooks = (dataId, roleId, dataSet) => {
 
   // TODO In next PR, when db updates with saved data, will have to see if initialData will re-initiate properly.
 
-  // dataset useeffect
-  useEffect(() => {
-    if (roleId !== prevRole) setManagedDataSet(createDataSet());
-    if (roleId === prevRole && dataId !== prevDetails?.userId) setManagedDataSet(dataSet);
-  }, [roleId, dataId]);
-
   // colors
   useEffect(() => {
+    // options logic
+    if (roleId !== prevRole) setManagedDataSet(createDataSet());
+    if (roleId === prevRole && dataId !== prevDetails?.userId) setManagedDataSet(dataSet);
+
+    // colors logic
     setIsCellModified(dataId !== initialData.dataId);
     setIsCellWarning(false);
 
