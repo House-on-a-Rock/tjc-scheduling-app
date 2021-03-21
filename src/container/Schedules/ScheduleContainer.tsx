@@ -37,6 +37,9 @@ import {
   useDeleteEvent,
 } from '../utilities/useMutations';
 
+import { detailedDiff } from 'deep-object-diff';
+const ld = require('lodash');
+
 export interface BootstrapData {
   schedules: ScheduleTableInterface[];
   users: UsersDataInterface[];
@@ -64,19 +67,9 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
   //   const [alert, setAlert] = useState<AlertInterface>();
 
   // manipulate events
-  const [dataModel, setDataModel] = useState<BootstrapData>(data);
+  const [dataModel, setDataModel] = useState<BootstrapData>(ldDeepClone(data));
   const templateChanges = useRef<TemplateChangesInterface>({
     changesSeed: -1,
-    events: {
-      changedEvents: null,
-      newEvents: null,
-      deletedEvents: null,
-    },
-    services: {
-      changedServices: null,
-      newServices: null,
-      deletedServices: null,
-    },
   });
 
   const changedTasks = useRef<any>({});
@@ -87,27 +80,13 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
   const createService = useCreateService(setIsNewServiceOpen);
   const deleteEvent = useDeleteEvent();
 
-  React.useEffect(() => {
-    setDataModel(data);
-  }, [data]);
-
   function onSaveScheduleChanges() {
-    /*
-    For next PR
-      1. check if templateChanges.changesSeed < 0
-        a. if there are changes, prompt if they want to save schedule changes to a new template
-        b. if not, run saveChanges() on changedTasks, display alert
-      If there are template changes
-        1. run diffing function, then useMutation          
-        2. onMutationSuccess, clear changes, reset changesSeed
-    
-      
-      Diffing function - need to check for changes in order, will do that next PR
-        1. check if services match up
-
-      Currently, still unable to save changes to DB, coming soonTM
-    */
+    dataModelDiff();
     setIsScheduleModified(false);
+  }
+
+  function ldDeepClone(d) {
+    return ld.cloneDeep(d);
   }
 
   // Context Menu functions
@@ -139,6 +118,8 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
     // check id, name, and order of events
     // any modified events are added to appropriate prop in templateChanges ref
     // should this be called after every change or only onSaveChanges? changedTasks is tracked as each one is updated, but that's much simpler to run
+    const diff = detailedDiff(data, dataModel);
+    console.log(`diff`, diff);
   }
 
   // Model manipulation functions
@@ -236,6 +217,7 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
       columnIndex
     ].userId = newAssignee;
     setDataModel(dataClone);
+    setIsScheduleModified(true);
     // May be used in future
     // if (isChanged) {
     //   const updatedChangedTasks = { ...changedTasks.current, [taskId]: newAssignee };
@@ -536,16 +518,16 @@ interface UserInterface {
 
 interface TemplateChangesInterface {
   changesSeed: number;
-  events: {
-    changedEvents: EventData[];
-    newEvents: EventData[];
-    deletedEvents: EventData[];
-  };
-  services: {
-    changedServices: ServiceData[];
-    newServices: ServiceData[];
-    deletedServices: ServiceData[];
-  };
+  // events: {
+  //   changedEvents: EventData[];
+  //   newEvents: EventData[];
+  //   deletedEvents: EventData[];
+  // };
+  // services: {
+  //   changedServices: ServiceData[];
+  //   newServices: ServiceData[];
+  //   deletedServices: ServiceData[];
+  // };
 }
 
 interface TeamsDataInterface {
