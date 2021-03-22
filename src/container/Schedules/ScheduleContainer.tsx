@@ -67,7 +67,9 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
   //   const [alert, setAlert] = useState<AlertInterface>();
 
   // manipulate events
-  const [dataModel, setDataModel] = useState<BootstrapData>(ldDeepClone(data));
+  const [dataModel, setDataModel] = useState<ScheduleTableInterface[]>(
+    ldDeepClone(data.schedules),
+  );
   const templateChanges = useRef<TemplateChangesInterface>({
     changesSeed: -1,
   });
@@ -89,7 +91,6 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
     return ld.cloneDeep(d);
   }
 
-  // Context Menu functions
   function insertRow() {}
 
   const warningDialogConfig = {
@@ -108,16 +109,10 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
       : setSelectedEvents([...selectedEvents, eventId]);
 
   function retrieveChangesSeed() {
-    // used to give temporary seeds to newly made (but unsaved) events/services. they are negative to distinguish from normal stuff from db
-    // also can keep be used to keep track of number of changes made, kinda
-    // its in a useRef right now, not sure if it needs to be there. But templateChanges will be used for a lot so idk
     return templateChanges.current.changesSeed--;
   }
 
   function dataModelDiff() {
-    // check id, name, and order of events
-    // any modified events are added to appropriate prop in templateChanges ref
-    // should this be called after every change or only onSaveChanges? changedTasks is tracked as each one is updated, but that's much simpler to run
     const diff = detailedDiff(data, dataModel);
     console.log(`diff`, diff);
   }
@@ -133,20 +128,17 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
   };
 
   function addEvent(serviceIndex: number) {
-    const dataClone = { ...dataModel };
-    const targetEvents = dataClone.schedules[tab].services[serviceIndex].events;
-    const newEvent = createBlankEvent(
-      dataClone.schedules[tab].columns.length,
-      retrieveChangesSeed,
-    );
+    const dataClone = [...dataModel];
+    const targetEvents = dataClone[tab].services[serviceIndex].events;
+    const newEvent = createBlankEvent(dataClone[tab].columns.length, retrieveChangesSeed);
     targetEvents.push(newEvent);
     setDataModel(dataClone);
   }
 
   function removeEvent() {
     // TODO: make sure it works once contextmenu is fixed
-    const dataClone = { ...dataModel };
-    const target = dataClone.schedules[tab];
+    const dataClone = [...dataModel];
+    const target = dataClone[tab];
     const mutatedData = target.services.map((service) => {
       return {
         ...service,
@@ -160,18 +152,18 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
 
   function addService() {
     // TODO: bring back create new service form? or another solution is better
-    const dataClone = { ...dataModel };
-    const target = dataClone.schedules[tab].services;
+    const dataClone = [...dataModel];
+    const target = dataClone[tab].services;
     target.push(createBlankService());
     setDataModel(dataClone);
   }
 
   function deleteService(serviceId: number) {
-    const dataClone = { ...dataModel };
-    const filteredServices = dataClone.schedules[tab].services.filter(
+    const dataClone = [...dataModel];
+    const filteredServices = dataClone[tab].services.filter(
       (service) => service.serviceId !== serviceId,
     );
-    dataClone.schedules[tab].services = filteredServices;
+    dataClone[tab].services = filteredServices;
     setDataModel(dataClone);
     retrieveChangesSeed();
   }
@@ -205,15 +197,15 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
     // TODO update time string to standardized UTC string and use dedicated time inputs
     if (rowIndex === 0) return true;
     const previousEventsTime =
-      dataModel.schedules[tab].services[serviceIndex].events[rowIndex - 1].time;
+      dataModel[tab].services[serviceIndex].events[rowIndex - 1].time;
     return previousEventsTime !== time;
   }
 
   // onChange Handlers
   function onTaskChange(dataContext, newAssignee: number) {
     const { taskId, serviceIndex, rowIndex, columnIndex } = dataContext;
-    const dataClone = { ...dataModel };
-    dataClone.schedules[tab].services[serviceIndex].events[rowIndex].cells[
+    const dataClone = [...dataModel];
+    dataClone[tab].services[serviceIndex].events[rowIndex].cells[
       columnIndex
     ].userId = newAssignee;
     setDataModel(dataClone);
@@ -228,16 +220,16 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
 
   function onAssignedRoleChange(dataContext, newRoleId) {
     const { serviceIndex, rowIndex } = dataContext;
-    const dataClone = { ...dataModel };
-    const targetEvent = dataClone.schedules[tab].services[serviceIndex].events[rowIndex];
+    const dataClone = [...dataModel];
+    const targetEvent = dataClone[tab].services[serviceIndex].events[rowIndex];
     targetEvent.roleId = newRoleId;
 
     setDataModel(dataClone);
   }
 
   function onTimeChange(newValue: string, rowIndex: number, serviceIndex: number) {
-    const dataClone = { ...dataModel };
-    dataClone.schedules[tab].services[serviceIndex].events[rowIndex].time = newValue;
+    const dataClone = [...dataModel];
+    dataClone[tab].services[serviceIndex].events[rowIndex].time = newValue;
     setDataModel(dataClone);
   }
 
@@ -277,9 +269,9 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
           when={isScheduleModified}
           message="You have unsaved changes, are you sure you want to leave? Unsaved changes will be lost"
         />
-        {!data.schedules && <div style={{ height: '50vh' }}></div>}
+        {!dataModel && <div style={{ height: '50vh' }}></div>}
         {/* {alert && <Alert alert={alert} unMountAlert={() => setAlert(null)} />} */}
-        {dataModel.schedules.map((schedule: ScheduleTableInterface, scheduleIndex) => {
+        {dataModel.map((schedule: ScheduleTableInterface, scheduleIndex) => {
           const { columns: headers, services, title, view } = schedule;
           return (
             <div key={scheduleIndex}>
@@ -308,11 +300,7 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
 
                         const isSelected = selectedEvents.includes(eventId);
 
-                        const tasksDataSet = teammates(
-                          dataModel.users,
-                          roleId,
-                          data.churchId,
-                        );
+                        const tasksDataSet = teammates(data.users, roleId, data.churchId);
                         const isTimeDisplayed = shouldDisplayTime(
                           time,
                           rowIndex,
@@ -351,7 +339,7 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
                               ) : columnIndex === 1 ? (
                                 <DutyAutocomplete
                                   dataId={roleId}
-                                  dataSet={dataModel.teams}
+                                  dataSet={data.teams}
                                   extractOptionId={extractRoleIds}
                                   dataContext={roleDataContext}
                                   onChange={onAssignedRoleChange}
