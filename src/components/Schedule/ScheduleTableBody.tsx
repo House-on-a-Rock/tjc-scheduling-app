@@ -3,14 +3,14 @@ import ReactTooltip from 'react-tooltip';
 import { TableCell, TableRow, TableBody } from '@material-ui/core';
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 
-export const ScheduleTableBody = ({ title, children }: any) => {
+export const ScheduleTableBody = ({ title, children, providedRef }: any) => {
   const tooltipId = `${title}_tooltip`;
   const classes = useStyles();
   const [open, setOpen] = React.useState(true);
   const [expandedBefore, setExpandedBefore] = React.useState(false);
   return (
     <>
-      <TableBody>
+      <TableBody ref={providedRef}>
         <TableRow
           onClick={() => {
             setOpen(!open);

@@ -1,8 +1,9 @@
 /* eslint-disable react/jsx-closing-tag-location */
 /* eslint-disable react/self-closing-comp */
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useCallback } from 'react';
 import { Prompt } from 'react-router-dom';
-import { Dialog, TableRow } from '@material-ui/core';
+import { Dialog, TableRow, TableCell } from '@material-ui/core';
+import ReorderIcon from '@material-ui/icons/Reorder';
 import RemoveIcon from '@material-ui/icons/Remove';
 import { SchedulesDataInterface } from '../../query';
 import {
@@ -39,6 +40,16 @@ import {
 
 import { detailedDiff } from 'deep-object-diff';
 const ld = require('lodash');
+
+import {
+  DragDropContext,
+  Draggable,
+  Droppable,
+  DropResult,
+  DraggableProvided,
+  DroppableProvided,
+  DraggableStateSnapshot,
+} from 'react-beautiful-dnd';
 
 export interface BootstrapData {
   schedules: ScheduleTableInterface[];
@@ -166,7 +177,7 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
     );
     dataClone[tab].services = filteredServices;
     setDataModel(dataClone);
-    retrieveChangesSeed();
+    // retrieveChangesSeed();
   }
 
   // autocomplete cell callback
@@ -244,6 +255,27 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
   // Need to wait for create schedule to finish updating db before the user can click on the new tab, or else data will be missing
   // newly created schedule has strange set of dates
 
+  // https://codesandbox.io/s/react-material-ui-and-react-beautiful-dnd-forked-bmheb?file=/src/MaterialTable.tsx draggable table
+
+  const onDragEnd = useCallback((result) => {
+    // the only one that is required
+    console.log('drag end called', result);
+    if (!result.destination) {
+      return;
+    }
+
+    if (result.destination.index === result.source.index) {
+      return;
+    }
+
+    setDataModel((prev: ScheduleTableInterface[]) => {
+      const temp = [...prev];
+      return temp;
+    });
+  }, []);
+
+  console.log(`dataModel`, dataModel);
+
   return (
     <>
       <div className="schedule-container" ref={outerRef}>
@@ -276,101 +308,147 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
           const { columns: headers, services, title, view } = schedule;
           return (
             <div key={scheduleIndex}>
-              <ScheduleTable
-                key={`${title}-${view}`}
-                title={title}
-                hidden={tab !== scheduleIndex}
-              >
-                {headers.map(({ Header }) => (
-                  <ScheduleTableHeader key={`Header-${Header}`} header={Header} />
-                ))}
-                {services.map((service: ServiceDataInterface, serviceIndex: number) => {
-                  const { day, name, events, serviceId } = service;
-                  return (
-                    <ScheduleTableBody
-                      key={`ScheduleTableBody-${name}`}
-                      title={`${days[day]} ${name}`}
-                    >
-                      <button onClick={() => deleteService(serviceId)}>
-                        Delete Service
-                      </button>
-                      <button onClick={() => addEvent(serviceIndex)}>Add Event</button>
-
-                      {events.map((event, rowIndex) => {
-                        const { roleId, cells, time, eventId } = event;
-
-                        const isSelected = selectedEvents.includes(eventId);
-
-                        const tasksDataSet = teammates(data.users, roleId, data.churchId);
-                        const isTimeDisplayed = shouldDisplayTime(
-                          time,
-                          rowIndex,
-                          serviceIndex,
-                        );
-
-                        return (
-                          <TableRow
-                            key={`${serviceIndex}-${rowIndex}`}
-                            hover
-                            onDoubleClick={() => handleRowSelected(isSelected, eventId)}
-                            selected={isSelected}
+              <DragDropContext onDragEnd={onDragEnd}>
+                <ScheduleTable
+                  key={`${title}-${view}`}
+                  title={title}
+                  hidden={tab !== scheduleIndex}
+                >
+                  {headers.map(({ Header }) => (
+                    <ScheduleTableHeader key={`Header-${Header}`} header={Header} />
+                  ))}
+                  {services.map((service: ServiceDataInterface, serviceIndex: number) => {
+                    const { day, name, events, serviceId } = service;
+                    return (
+                      <Droppable
+                        droppableId={`DroppableTable-${name}`}
+                        key={`Droppable_${serviceId}`}
+                        direction="vertical"
+                      >
+                        {(droppableProvided) => (
+                          <ScheduleTableBody
+                            key={`ScheduleTableBody-${name}`}
+                            title={`${days[day]} ${name}`}
+                            providedRef={droppableProvided.innerRef}
+                            {...droppableProvided.droppableProps}
                           >
-                            {cells.map((cell, columnIndex) => {
-                              const roleDataContext: RoleDataContext = {
-                                serviceIndex,
-                                rowIndex,
+                            <button onClick={() => deleteService(serviceId)}>
+                              Delete Service
+                            </button>
+                            <button onClick={() => addEvent(serviceIndex)}>
+                              Add Event
+                            </button>
+
+                            {events.map((event, rowIndex) => {
+                              const { roleId, cells, time, eventId } = event;
+
+                              const isSelected = selectedEvents.includes(eventId);
+
+                              const tasksDataSet = teammates(
+                                data.users,
                                 roleId,
-                              };
-                              const taskDataContext: TaskDataContext = {
-                                taskId: cell.taskId,
-                                roleId: roleId,
-                                serviceIndex,
+                                data.churchId,
+                              );
+                              const isTimeDisplayed = shouldDisplayTime(
+                                time,
                                 rowIndex,
-                                columnIndex,
-                              };
-                              return columnIndex === 0 ? (
-                                <TimeCell
-                                  time={time}
-                                  isDisplayed={isTimeDisplayed}
-                                  onChange={onTimeChange}
-                                  rowIndex={rowIndex}
-                                  serviceIndex={serviceIndex}
-                                  key={`Time_${serviceIndex}_${rowIndex}`}
-                                />
-                              ) : columnIndex === 1 ? (
-                                <DutyAutocomplete
-                                  dataId={roleId}
-                                  dataSet={data.teams}
-                                  extractOptionId={extractRoleIds}
-                                  dataContext={roleDataContext}
-                                  onChange={onAssignedRoleChange}
-                                  key={`Team_${serviceIndex}_${rowIndex}_${columnIndex}`}
-                                  getOptionLabel={getRoleOptionLabel}
-                                  renderOption={renderOption}
-                                  isSaved={isSaved}
-                                />
-                              ) : (
-                                <TasksAutocomplete
-                                  dataId={cell.userId}
-                                  roleId={roleId}
-                                  dataSet={tasksDataSet}
-                                  extractOptionId={extractTeammateIds}
-                                  dataContext={taskDataContext}
-                                  onChange={onTaskChange}
-                                  getOptionLabel={getUserOptionLabel}
-                                  renderOption={renderOption}
-                                  // isSaved={isSaved}
-                                  key={`Tasks_${serviceIndex}_${rowIndex}_${columnIndex}`}
-                                />
+                                serviceIndex,
+                              );
+
+                              return (
+                                <Draggable
+                                  draggableId={`DragRow_${eventId}`}
+                                  index={rowIndex}
+                                  key={`DragRow_${eventId}`}
+                                >
+                                  {(
+                                    provided: DraggableProvided,
+                                    snapshot: DraggableStateSnapshot,
+                                  ) => (
+                                    <TableRow
+                                      key={`${serviceIndex}-${rowIndex}`}
+                                      // hover
+                                      // onDoubleClick={() =>
+                                      //   handleRowSelected(isSelected, eventId)
+                                      // }
+                                      // snapshot={}
+                                      selected={isSelected}
+                                      ref={provided.innerRef}
+                                      {...provided.draggableProps}
+                                      style={{
+                                        ...provided.draggableProps.style,
+                                        background: snapshot.isDragging
+                                          ? 'rgba(245,245,245, 0.75)'
+                                          : 'none',
+                                      }}
+                                    >
+                                      <TableCell align="left">
+                                        <div {...provided.dragHandleProps}>
+                                          <ReorderIcon />
+                                        </div>
+                                      </TableCell>
+                                      {cells.map((cell, columnIndex) => {
+                                        const roleDataContext: RoleDataContext = {
+                                          serviceIndex,
+                                          rowIndex,
+                                          roleId,
+                                        };
+                                        const taskDataContext: TaskDataContext = {
+                                          taskId: cell.taskId,
+                                          roleId: roleId,
+                                          serviceIndex,
+                                          rowIndex,
+                                          columnIndex,
+                                        };
+                                        return columnIndex === 0 ? (
+                                          <TimeCell
+                                            time={time}
+                                            isDisplayed={isTimeDisplayed}
+                                            onChange={onTimeChange}
+                                            rowIndex={rowIndex}
+                                            serviceIndex={serviceIndex}
+                                            key={`Time_${serviceIndex}`}
+                                          />
+                                        ) : columnIndex === 1 ? (
+                                          <DutyAutocomplete
+                                            dataId={roleId}
+                                            dataSet={data.teams}
+                                            extractOptionId={extractRoleIds}
+                                            dataContext={roleDataContext}
+                                            onChange={onAssignedRoleChange}
+                                            key={`Team_${serviceIndex}_${rowIndex}_${columnIndex}`}
+                                            getOptionLabel={getRoleOptionLabel}
+                                            renderOption={renderOption}
+                                            isSaved={isSaved}
+                                          />
+                                        ) : (
+                                          <TasksAutocomplete
+                                            dataId={cell.userId}
+                                            roleId={roleId}
+                                            dataSet={tasksDataSet}
+                                            extractOptionId={extractTeammateIds}
+                                            dataContext={taskDataContext}
+                                            onChange={onTaskChange}
+                                            getOptionLabel={getUserOptionLabel}
+                                            renderOption={renderOption}
+                                            // isSaved={isSaved}
+                                            key={`Task_${serviceIndex}_${rowIndex}_${columnIndex}`}
+                                          />
+                                        );
+                                      })}
+                                    </TableRow>
+                                  )}
+                                </Draggable>
                               );
                             })}
-                          </TableRow>
-                        );
-                      })}
-                    </ScheduleTableBody>
-                  );
-                })}
-              </ScheduleTable>
+                            {droppableProvided.placeholder}
+                          </ScheduleTableBody>
+                        )}
+                      </Droppable>
+                    );
+                  })}
+                </ScheduleTable>
+              </DragDropContext>
             </div>
           );
         })}
