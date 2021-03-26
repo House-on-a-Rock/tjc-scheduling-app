@@ -4,8 +4,8 @@ import TextField from '@material-ui/core/TextField';
 import { PasswordState, TextFieldState } from '../../shared/types/models';
 
 interface ValidatedTextField {
-  label: string;
-  input: TextFieldState;
+  label?: string;
+  input?: TextFieldState;
   handleChange: (input: TextFieldState) => void;
   [x: string]: any;
 }

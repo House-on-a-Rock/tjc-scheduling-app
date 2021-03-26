@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, ChangeEvent } from 'react';
+import React, { useEffect, useState, ChangeEvent } from 'react';
 
 import { Container, Grid } from '@material-ui/core';
 
@@ -8,12 +8,14 @@ import {
   MembersTable,
   NewMemberFormDialog,
   Toolbar,
+  RequestAvailabilitiesDialog,
 } from '../../components/Member';
 import { UsersDataInterface } from '../Schedules/ScheduleContainer';
 
 import { updateSelectedRows } from './utilities';
 import { DataStateProp } from '../types';
 import { NewUserData } from '../../shared/types';
+import { useValidatedField } from '../../hooks';
 
 interface BootstrapMembersContainer {
   users: UsersDataInterface[];
@@ -25,7 +27,8 @@ interface MembersContainerProps {
   removeUser: (newInfo: any) => void;
 }
 
-const USER = 'user';
+const DELETE = 'DELETE';
+const REQUEST = 'REQUEST';
 
 export const MembersContainer = ({
   state,
@@ -38,10 +41,10 @@ export const MembersContainer = ({
   const [searchField, setSearchField] = useState<string>('');
   const [lastSelected, setLastSelected] = useState<number>(-1);
   const [selectedRows, setSelectedRows] = useState<number[]>([]);
+  const [dateRange, setDateRange] = useState([null, null]);
 
-  // const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState<boolean>(false);
   const [isNewMemberDialogOpen, setIsNewMemberDialogOpen] = useState<boolean>(false);
-  const [warningDialog, setWarningDialog] = useState<string>('');
+  const [dialog, setDialog] = useState<string>('');
 
   const isSelected: (arg: number) => boolean = (id: number) => selectedRows.includes(id);
 
@@ -94,12 +97,19 @@ export const MembersContainer = ({
     setLastSelected(id);
   };
 
-  const warningDialogConfig = {
-    [USER]: {
+  const dialogConfig = {
+    [DELETE]: {
       title: 'Are you sure you want to delete this user?',
-      accepted: () => {
+      submit: () => {
         // needs qs to do array deletes
         selectedRows.map((id) => removeUser(id));
+      },
+    },
+    [REQUEST]: {
+      title: 'For what date range would you like users to fill out availabilites for?',
+      submit: (start, end, deadline) => {
+        console.log(start, end, deadline);
+        setDialog('');
       },
     },
   };
@@ -129,7 +139,8 @@ export const MembersContainer = ({
               />
               <Toolbar
                 handleAddOpen={() => setIsNewMemberDialogOpen(!isNewMemberDialogOpen)}
-                handleDeleteOpen={() => !!selectedRows.length && setWarningDialog(USER)}
+                handleDeleteOpen={() => !!selectedRows.length && setDialog(DELETE)}
+                handleRequestOpen={() => setDialog(REQUEST)}
               />
               <MembersTable
                 members={filteredMembers}
@@ -140,18 +151,26 @@ export const MembersContainer = ({
               />
             </Grid>
             <ConfirmationDialog
-              state={!!warningDialog}
+              state={dialog === DELETE}
               handleClick={(accepted: boolean) => {
-                if (accepted) warningDialogConfig[warningDialog].accepted();
-                else setWarningDialog('');
+                if (accepted) dialogConfig[dialog].submit();
+                else setDialog('');
               }}
-              title={warningDialogConfig[warningDialog]?.title}
+              title={dialogConfig[dialog]?.title}
             />
             <NewMemberFormDialog
               state={isNewMemberDialogOpen}
               handleSubmit={addUser}
               handleClose={() => setIsNewMemberDialogOpen(false)}
               title="Add User"
+            />
+            <RequestAvailabilitiesDialog
+              state={dialog === REQUEST}
+              handleSubmit={(start, end, deadline) =>
+                dialogConfig[dialog].submit(start, end, deadline)
+              }
+              title={dialogConfig[dialog]?.title}
+              handleClose={() => setDialog('')}
             />
           </Grid>
         </Container>

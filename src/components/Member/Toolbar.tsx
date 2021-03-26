@@ -5,7 +5,7 @@ import PersonAddIcon from '@material-ui/icons/PersonAdd';
 import DeleteIcon from '@material-ui/icons/Delete';
 import EventAvailableIcon from '@material-ui/icons/EventAvailable';
 
-export const Toolbar = ({ handleAddOpen, handleDeleteOpen }: any) => {
+export const Toolbar = ({ handleAddOpen, handleDeleteOpen, handleRequestOpen }: any) => {
   const classes = useStyles();
   return (
     <div className={classes.iconBar}>
@@ -14,6 +14,9 @@ export const Toolbar = ({ handleAddOpen, handleDeleteOpen }: any) => {
       </IconButton>
       <IconButton component="span" onClick={handleDeleteOpen}>
         <DeleteIcon />
+      </IconButton>
+      <IconButton component="span" onClick={handleRequestOpen}>
+        <EventAvailableIcon />
       </IconButton>
     </div>
   );
