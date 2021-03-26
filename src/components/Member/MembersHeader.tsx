@@ -1,12 +1,7 @@
 import React from 'react';
 
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
-import Paper from '@material-ui/core/Paper';
-import Table from '@material-ui/core/Table';
-import TableCell from '@material-ui/core/TableCell';
-import TableHead from '@material-ui/core/TableHead';
-import TableContainer from '@material-ui/core/TableContainer';
-import TableRow from '@material-ui/core/TableRow';
+
 import SearchIcon from '@material-ui/icons/Search';
 import InputBase from '@material-ui/core/InputBase';
 
@@ -21,31 +16,23 @@ export const MembersHeader = ({ localChurch, onSearchChange }: MembersHeaderProp
   const classes = useStyles();
 
   return (
-    <TableContainer component={Paper} className={classes.root}>
-      <Table className={classes.table} aria-label="members table controls">
-        <TableHead className={classes.header}>
-          <TableRow>
-            <TableCell>
-              <div className={classes.search}>
-                <SearchIcon className={classes.searchIcon} />
-                <InputBase
-                  placeholder="Search…"
-                  classes={{
-                    root: classes.inputRoot,
-                    input: classes.inputInput,
-                  }}
-                  inputProps={{ 'aria-label': 'search' }}
-                  onChange={onSearchChange}
-                />
-              </div>
-            </TableCell>
-            <TableCell className={classes.localChurchName}>
-              {localChurch || 'Local Church Name'}
-            </TableCell>
-          </TableRow>
-        </TableHead>
-      </Table>
-    </TableContainer>
+    <div style={{ display: 'flex', position: 'relative' }}>
+      <div className={classes.search} style={{ width: '20%' }}>
+        <SearchIcon className={classes.searchIcon} style={{ flex: 1 }} />
+        <InputBase
+          placeholder="Search…"
+          classes={{
+            root: classes.inputRoot,
+            input: classes.inputInput,
+          }}
+          inputProps={{ 'aria-label': 'search' }}
+          onChange={onSearchChange}
+        />
+      </div>
+      <div className={classes.localChurchName} style={{ textAlign: 'center' }}>
+        {localChurch || 'Local Church Name'}
+      </div>
+    </div>
   );
 };
 

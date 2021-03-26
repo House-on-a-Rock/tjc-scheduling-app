@@ -3,6 +3,7 @@ import { IconButton } from '@material-ui/core';
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 import PersonAddIcon from '@material-ui/icons/PersonAdd';
 import DeleteIcon from '@material-ui/icons/Delete';
+import EventAvailableIcon from '@material-ui/icons/EventAvailable';
 
 export const Toolbar = ({ handleAddOpen, handleDeleteOpen }: any) => {
   const classes = useStyles();

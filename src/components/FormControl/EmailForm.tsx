@@ -9,7 +9,13 @@ interface EmailFormProps {
   handleEmail: (arg0: EmailState) => void;
 }
 
-export const EmailForm = ({ name, label, email, handleEmail }: EmailFormProps) => (
+export const EmailForm = ({
+  name,
+  label,
+  email,
+  handleEmail,
+  ...props
+}: EmailFormProps) => (
   <TextField
     variant="outlined"
     margin="normal"
@@ -21,8 +27,8 @@ export const EmailForm = ({ name, label, email, handleEmail }: EmailFormProps) =
     value={email.value}
     onChange={(event) => handleEmail({ ...email, value: event.target.value })}
     autoComplete="email"
-    autoFocus
     helperText={email.valid ? '' : email.message}
     error={!email.valid}
+    {...props}
   />
 );

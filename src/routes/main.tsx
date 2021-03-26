@@ -44,7 +44,7 @@ const Main = () => {
                 {/* history is messed up. you can't route to a page */}
                 <Template churchId={churchId} />
               </Route>
-              <Route path="/members">
+              <Route path="/users">
                 <Members churchId={churchId} />
               </Route>
               <Route path="/">

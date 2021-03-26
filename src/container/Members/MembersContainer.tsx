@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState, ChangeEvent } from 'react';
 
-import Grid from '@material-ui/core/Grid';
+import { Container, Grid } from '@material-ui/core';
 
 import { ConfirmationDialog } from '../../components/shared';
 import {
@@ -118,41 +118,43 @@ export const MembersContainer = ({
   return (
     <>
       {data?.users && !isLoading && (
-        <Grid container spacing={3}>
-          <Grid item xs={12}>
-            <MembersHeader
-              localChurch="Philadelphia"
-              onSearchChange={(event: ChangeEvent<HTMLInputElement>) =>
-                setSearchField(event.target.value)
-              }
+        <Container>
+          <Grid container spacing={3}>
+            <Grid item xs={12}>
+              <MembersHeader
+                localChurch="Philadelphia"
+                onSearchChange={(event: ChangeEvent<HTMLInputElement>) =>
+                  setSearchField(event.target.value)
+                }
+              />
+              <Toolbar
+                handleAddOpen={() => setIsNewMemberDialogOpen(!isNewMemberDialogOpen)}
+                handleDeleteOpen={() => !!selectedRows.length && setWarningDialog(USER)}
+              />
+              <MembersTable
+                members={filteredMembers}
+                selectedRowLength={selectedRows.length}
+                isSelected={isSelected}
+                handleSelectAll={onSelectAll}
+                handleSelect={onSelect}
+              />
+            </Grid>
+            <ConfirmationDialog
+              state={!!warningDialog}
+              handleClick={(accepted: boolean) => {
+                if (accepted) warningDialogConfig[warningDialog].accepted();
+                else setWarningDialog('');
+              }}
+              title={warningDialogConfig[warningDialog]?.title}
             />
-            <Toolbar
-              handleAddOpen={() => setIsNewMemberDialogOpen(!isNewMemberDialogOpen)}
-              handleDeleteOpen={() => !!selectedRows.length && setWarningDialog(USER)}
-            />
-            <MembersTable
-              members={filteredMembers}
-              selectedRowLength={selectedRows.length}
-              isSelected={isSelected}
-              handleSelectAll={onSelectAll}
-              handleSelect={onSelect}
+            <NewMemberFormDialog
+              state={isNewMemberDialogOpen}
+              handleSubmit={addUser}
+              handleClose={() => setIsNewMemberDialogOpen(false)}
+              title="Add User"
             />
           </Grid>
-          <ConfirmationDialog
-            state={!!warningDialog}
-            handleClick={(accepted: boolean) => {
-              if (accepted) warningDialogConfig[warningDialog].accepted();
-              else setWarningDialog('');
-            }}
-            title={warningDialogConfig[warningDialog]?.title}
-          />
-          <NewMemberFormDialog
-            state={isNewMemberDialogOpen}
-            handleSubmit={addUser}
-            handleClose={() => setIsNewMemberDialogOpen(false)}
-            title="Add User"
-          />
-        </Grid>
+        </Container>
       )}
     </>
   );
