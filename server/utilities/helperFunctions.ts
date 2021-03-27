@@ -100,7 +100,7 @@ export function addMinutes(date: Date, minutes: number) {
   return new Date(date.getTime() + minutes * 60000);
 }
 
-export function createToken(
+export function createUserToken(
   tokenType: string,
   userId: number,
   churchId: number,
@@ -134,6 +134,7 @@ export function createToken(
 
   return token;
 }
+
 export function createResetToken(
   userId: number,
   expiresInMinutes: number,
@@ -147,6 +148,29 @@ export function createResetToken(
       exp: Math.floor(Date.now() / 1000) + expiresInMinutes * 60,
     },
     secret,
+  );
+
+  return token;
+}
+
+export function createAvailabilitiesToken(
+  userId: number,
+  churchId: number,
+  availId: number,
+  expiresInSeconds: number,
+) {
+  console.log('Creating availability token');
+  const token = jwt.sign(
+    {
+      iss: process.env.AUDIENCE,
+      sub: `tjc-scheduling|${userId}|${churchId}|${availId}`,
+      exp: expiresInSeconds,
+    },
+    {
+      key: privateKey,
+      passphrase: process.env.PRIVATEKEY_PASS ?? '',
+    },
+    { algorithm: process.env.JWT_ALGORITHM as Algorithm },
   );
 
   return token;

@@ -56,4 +56,5 @@ export interface DbInterface {
   User: Model<UserInstance, UserAttributes>;
   UserRole: Model<UserRoleInstance, UserRoleAttributes>;
   Template: Model<TemplateInstance, TemplateAttributes>;
+  Availability: Model<AvailabilityInstance, AvailabilityAttributes>;
 }

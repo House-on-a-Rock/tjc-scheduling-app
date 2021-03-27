@@ -40,6 +40,8 @@ export const Members = ({ churchId }: MembersProps) => {
     onSuccess: () => queryClient.invalidateQueries('roleData'),
   });
 
+  // const emailForAvailabilities =
+
   useEffect(() => {
     if (users.isSuccess) setError(null);
     if (users.isError) setError(users.error);
@@ -53,10 +55,6 @@ export const Members = ({ churchId }: MembersProps) => {
       state={{ data, isLoading, error, isSuccess }}
       addUser={(newInfo: NewUserData) => createUser.mutate({ ...newInfo, churchId })}
       removeUser={(info: any) => deleteUser.mutate(info)}
-      // addSchedule={(newInfo: NewScheduleData) =>
-      //   createSchedule.mutate({ ...newInfo, churchId })
-      // }
-      // removeSchedule={(info: DeleteScheduleData) => deleteSchedule.mutate(info)}
     />
   );
 };

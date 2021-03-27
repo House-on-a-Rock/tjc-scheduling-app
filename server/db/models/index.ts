@@ -12,6 +12,7 @@ import UserFactory from './User';
 import UserRoleFactory from './User_Role';
 import TokenFactory from './Token';
 import TemplateFactory from './Template';
+import AvailabilitiesFactory from './Availabilities';
 
 const createModels = (
   database: string,
@@ -36,6 +37,7 @@ const createModels = (
     User: UserFactory(sequelize, Sequelize),
     UserRole: UserRoleFactory(sequelize, Sequelize),
     Template: TemplateFactory(sequelize, Sequelize),
+    Availability: AvailabilitiesFactory(sequelize, Sequelize),
   };
 
   Object.keys(db).forEach((modelName) => {

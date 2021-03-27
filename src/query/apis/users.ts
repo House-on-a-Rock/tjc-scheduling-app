@@ -21,3 +21,9 @@ export function destroyUser(userId: number): Promise<AxiosResponse | void> {
 export function addUser(data: NewUserData): Promise<AxiosResponse> {
   return axios.post(`${secretIp}/api/user`, data);
 }
+
+export function requestAvailabilities(apiData: any): Promise<AxiosResponse> {
+  // data should include start, end, deadline and churchid
+  const { churchId, ...data } = apiData;
+  return axios.post(`${secretIp}/api/user/${churchId}/request-availabilities`, data);
+}

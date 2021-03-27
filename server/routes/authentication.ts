@@ -9,7 +9,7 @@ import {
 } from 'shared/SequelizeTypings/models';
 import {
   addMinutes,
-  createToken,
+  createUserToken,
   createResetToken,
   hashPassword,
   sendGenericEmail,
@@ -139,14 +139,14 @@ router.post('/webLogin', async (req: Request, res: Response, next: NextFunction)
         loginAttempts >= 3
           ? {
               id,
-              loginAttempts: 0,
+              loginAttempts1: 0,
               loginTimeout: addMinutes(new Date(), 5),
             }
           : { id, loginAttempts: loginAttempts + 1 };
       await user.update(updatedAttempts);
     }
     await user.update({ id, loginAttempts: 0, loginTimeout: null });
-    const token = createToken('reg', id, church.id, 600, isAdmin, roleIds);
+    const token = createUserToken('reg', id, church.id, 600, isAdmin, roleIds);
 
     return res.status(200).json({ redirectUrl: '/', token });
   } catch (err) {
@@ -212,7 +212,7 @@ router.post('/login', async (req: Request, res: Response, next: NextFunction) =>
     }
 
     await user.update({ id, loginAttempts: 0, loginTimeout: null });
-    const token = createToken('reg', id, church.id, 600);
+    const token = createUserToken('reg', id, church.id, 600);
     return res
       .status(status)
       .json({ user_id: id, firstName, lastName, email, access_token: token });

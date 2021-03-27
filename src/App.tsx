@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 
 import Auth from './routes/auth';
 import Main from './routes/main';
+import TBD from './routes/tbd';
 import { PrivateRoute, AuthProvider } from './components/Auth';
 
 import './assets/fonts.css';
@@ -19,6 +20,9 @@ export default function IApp() {
           <PrivateRoute redirection="/auth/login" condition="token" path="/">
             <Main />
           </PrivateRoute>
+          <Route path="/submit-availabilities/:tokenId">
+            <TBD />
+          </Route>
         </Switch>
       </Router>
     </AuthProvider>

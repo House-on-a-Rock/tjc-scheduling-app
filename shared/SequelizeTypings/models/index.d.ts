@@ -10,6 +10,7 @@ export * from './TokenModel';
 export * from './UserModel';
 export * from './UserRoleModel';
 export * from './TemplateModel';
+export * from './AvailabilityModel';
 
 export interface CommonSequelizeAttributes {
   id?: number;

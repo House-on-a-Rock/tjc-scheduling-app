@@ -53,6 +53,11 @@ const UserFactory = (
       type: DataTypes.BOOLEAN,
       defaultValue: false,
     },
+    hasSubmittedAvails: {
+      type: DataTypes.BOOLEAN,
+      allowNull: true,
+      defaultValue: true,
+    },
   };
 
   const User = sequelize.define<UserInstance, UserAttributes>(
