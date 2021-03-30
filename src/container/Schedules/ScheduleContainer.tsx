@@ -38,9 +38,7 @@ import {
   DragDropContext,
   Draggable,
   Droppable,
-  DropResult,
   DraggableProvided,
-  DroppableProvided,
   DraggableStateSnapshot,
 } from 'react-beautiful-dnd';
 
@@ -113,8 +111,9 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
 
   function dataModelDiff() {
     const diff = detailedDiff(data.schedules, dataModel);
-    console.log(`diff`, diff);
-    console.log(`dataModel`, dataModel);
+    // in progress
+    // console.log(`diff`, diff);
+    // console.log(`dataModel`, dataModel);
   }
 
   // Model manipulation functions
@@ -566,16 +565,6 @@ interface UserInterface {
 
 interface TemplateChangesInterface {
   changesSeed: number;
-  // events: {
-  //   changedEvents: EventData[];
-  //   newEvents: EventData[];
-  //   deletedEvents: EventData[];
-  // };
-  // services: {
-  //   changedServices: ServiceData[];
-  //   newServices: ServiceData[];
-  //   deletedServices: ServiceData[];
-  // };
 }
 
 interface TeamsDataInterface {
