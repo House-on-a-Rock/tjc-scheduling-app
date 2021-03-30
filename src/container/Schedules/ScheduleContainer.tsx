@@ -22,15 +22,7 @@ import {
 
 import { ContextMenu, ConfirmationDialog } from '../../components/shared';
 
-import {
-  days,
-  extractRoleIds,
-  getRoleOptionLabel,
-  getUserOptionLabel,
-  extractTeammateIds,
-  teammates,
-  createBlankEvent,
-} from './utilities';
+import { days, teammates, createBlankEvent } from './utilities';
 
 import {
   useCreateSchedule,
@@ -405,12 +397,10 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
                                         ) : columnIndex === 1 ? (
                                           <DutyAutocomplete
                                             dataId={roleId}
-                                            dataSet={data.teams}
-                                            extractOptionId={extractRoleIds}
+                                            options={data.teams}
                                             dataContext={roleDataContext}
                                             onChange={onAssignedRoleChange}
                                             key={`Team_${serviceIndex}_${rowIndex}_${columnIndex}`}
-                                            getOptionLabel={getRoleOptionLabel}
                                             renderOption={renderOption}
                                             isSaved={isSaved}
                                           />
@@ -418,11 +408,9 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
                                           <TasksAutocomplete
                                             dataId={cell.userId}
                                             roleId={roleId}
-                                            dataSet={tasksDataSet}
-                                            extractOptionId={extractTeammateIds}
+                                            options={tasksDataSet}
                                             dataContext={taskDataContext}
                                             onChange={onTaskChange}
-                                            getOptionLabel={getUserOptionLabel}
                                             renderOption={renderOption}
                                             // isSaved={isSaved}
                                             key={`Task_${serviceIndex}_${rowIndex}_${columnIndex}`}
