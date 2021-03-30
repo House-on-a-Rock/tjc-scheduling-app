@@ -79,7 +79,7 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
 
   // manipulate events
   const [dataModel, setDataModel] = useState<ScheduleTableInterface[]>(
-    ldDeepClone(data.schedules),
+    ld.cloneDeep(data.schedules),
   );
   const templateChanges = useRef<TemplateChangesInterface>({
     changesSeed: -1,
@@ -96,10 +96,6 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
   function onSaveScheduleChanges() {
     dataModelDiff();
     setIsScheduleModified(false);
-  }
-
-  function ldDeepClone(d) {
-    return ld.cloneDeep(d);
   }
 
   function insertRow() {}
@@ -258,23 +254,26 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
   // https://codesandbox.io/s/react-material-ui-and-react-beautiful-dnd-forked-bmheb?file=/src/MaterialTable.tsx draggable table
 
   const onDragEnd = useCallback((result) => {
-    // the only one that is required
-    console.log('drag end called', result);
-    if (!result.destination) {
+    const {
+      destination: { index: destination },
+      source: { index: source },
+    } = result;
+    const sourceService = retrieveDroppableServiceId(result);
+    if (!result.destination || result.destination.index === result.source.index) {
       return;
     }
-
-    if (result.destination.index === result.source.index) {
-      return;
-    }
-
     setDataModel((prev: ScheduleTableInterface[]) => {
       const temp = [...prev];
+      const scope = temp[tab].services[sourceService].events;
+      const src = scope.splice(source, 1);
+      scope.splice(destination, 0, src[0]);
       return temp;
     });
   }, []);
 
-  console.log(`dataModel`, dataModel);
+  function retrieveDroppableServiceId(result) {
+    return parseInt(result.source.droppableId[result.source.droppableId.length - 1]);
+  }
 
   return (
     <>
@@ -308,20 +307,21 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
           const { columns: headers, services, title, view } = schedule;
           return (
             <div key={scheduleIndex}>
-              <DragDropContext onDragEnd={onDragEnd}>
-                <ScheduleTable
-                  key={`${title}-${view}`}
-                  title={title}
-                  hidden={tab !== scheduleIndex}
-                >
-                  {headers.map(({ Header }) => (
-                    <ScheduleTableHeader key={`Header-${Header}`} header={Header} />
-                  ))}
-                  {services.map((service: ServiceDataInterface, serviceIndex: number) => {
-                    const { day, name, events, serviceId } = service;
-                    return (
+              <ScheduleTable
+                key={`${title}-${view}`}
+                title={title}
+                hidden={tab !== scheduleIndex}
+              >
+                {headers.map(({ Header }) => (
+                  <ScheduleTableHeader key={`Header-${Header}`} header={Header} />
+                ))}
+
+                {services.map((service: ServiceDataInterface, serviceIndex: number) => {
+                  const { day, name, events, serviceId } = service;
+                  return (
+                    <DragDropContext onDragEnd={onDragEnd}>
                       <Droppable
-                        droppableId={`DroppableTable-${name}`}
+                        droppableId={`DroppableTable-${serviceIndex}`}
                         key={`Droppable_${serviceId}`}
                         direction="vertical"
                       >
@@ -445,10 +445,10 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
                           </ScheduleTableBody>
                         )}
                       </Droppable>
-                    );
-                  })}
-                </ScheduleTable>
-              </DragDropContext>
+                    </DragDropContext>
+                  );
+                })}
+              </ScheduleTable>
             </div>
           );
         })}

@@ -10,7 +10,7 @@ export const ScheduleTableBody = ({ title, children, providedRef }: any) => {
   const [expandedBefore, setExpandedBefore] = React.useState(false);
   return (
     <>
-      <TableBody ref={providedRef}>
+      <TableBody>
         <TableRow
           onClick={() => {
             setOpen(!open);
@@ -28,6 +28,7 @@ export const ScheduleTableBody = ({ title, children, providedRef }: any) => {
         </TableRow>
       </TableBody>
       <TableBody
+        ref={providedRef}
         className={`${classes.groupOfRows} ${!open && classes.collapsedGroupOfRows} ${
           open && expandedBefore && classes.expandedGroupOfRows
         }`}

@@ -69,7 +69,7 @@ export const TasksAutocomplete = React.memo((props: AutocompleteCellProps) => {
 
   return (
     <TableCell className={tableCellClass}>
-      {/* <Autocomplete
+      <Autocomplete
         id="combo-box"
         options={extractOptionId(managedDataSet)}
         renderInput={(params: any) => (
@@ -99,8 +99,7 @@ export const TasksAutocomplete = React.memo((props: AutocompleteCellProps) => {
         openOnFocus
         forcePopupIcon={false}
         autoHighlight={true}
-      /> */}
-      Hi
+      />
     </TableCell>
   );
 }, arePropsEqual);
