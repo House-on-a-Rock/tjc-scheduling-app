@@ -1,5 +1,6 @@
 /* eslint-disable react/jsx-closing-tag-location */
 /* eslint-disable react/self-closing-comp */
+// https://codesandbox.io/s/react-material-ui-and-react-beautiful-dnd-forked-bmheb?file=/src/MaterialTable.tsx draggable table
 import React, { useRef, useState, useCallback } from 'react';
 import { Prompt } from 'react-router-dom';
 import { Dialog, TableRow, TableCell } from '@material-ui/core';
@@ -85,7 +86,6 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
     changesSeed: -1,
   });
 
-  const changedTasks = useRef<any>({});
   const outerRef = useRef(null);
 
   const createSchedule = useCreateSchedule(setIsNewScheduleOpen);
@@ -218,12 +218,6 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
     ].userId = newAssignee;
     setDataModel(dataClone);
     setIsScheduleModified(true);
-    // May be used in future
-    // if (isChanged) {
-    //   const updatedChangedTasks = { ...changedTasks.current, [taskId]: newAssignee };
-    //   changedTasks.current = updatedChangedTasks;
-    // } else if (changedTasks.current[taskId]) delete changedTasks.current[taskId];
-    // setIsScheduleModified(Object.keys(changedTasks.current).length > 0);
   }
 
   function onAssignedRoleChange(dataContext, newRoleId) {
@@ -250,8 +244,8 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
   // contextmenu functions don't work
   // Need to wait for create schedule to finish updating db before the user can click on the new tab, or else data will be missing
   // newly created schedule has strange set of dates
-
-  // https://codesandbox.io/s/react-material-ui-and-react-beautiful-dnd-forked-bmheb?file=/src/MaterialTable.tsx draggable table
+  // rethink where to put draggable handles and how to display them
+  // broke selection/hover of rows?
 
   const onDragEnd = useCallback((result) => {
     const {
@@ -367,11 +361,10 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
                                   ) => (
                                     <TableRow
                                       key={`${serviceIndex}-${rowIndex}`}
-                                      // hover
-                                      // onDoubleClick={() =>
-                                      //   handleRowSelected(isSelected, eventId)
-                                      // }
-                                      // snapshot={}
+                                      hover
+                                      onDoubleClick={() =>
+                                        handleRowSelected(isSelected, eventId)
+                                      }
                                       selected={isSelected}
                                       ref={provided.innerRef}
                                       {...provided.draggableProps}
