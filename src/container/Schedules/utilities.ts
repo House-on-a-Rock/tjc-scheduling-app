@@ -188,3 +188,7 @@ export function roleDisplay(roleId: number, dataModel: BootstrapData): string {
   if (roleId < 0) return '';
   return dataModel.teams.filter((team) => team.id === roleId)[0].name;
 }
+
+export function retrieveDroppableServiceId(result) {
+  return parseInt(result.source.droppableId[result.source.droppableId.length - 1]);
+}

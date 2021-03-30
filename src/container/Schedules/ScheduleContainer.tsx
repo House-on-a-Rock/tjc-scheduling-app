@@ -22,7 +22,12 @@ import {
 
 import { ContextMenu, ConfirmationDialog } from '../../components/shared';
 
-import { days, teammates, createBlankEvent } from './utilities';
+import {
+  days,
+  teammates,
+  createBlankEvent,
+  retrieveDroppableServiceId,
+} from './utilities';
 
 import {
   useCreateSchedule,
@@ -231,13 +236,6 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
     setTab(value);
   }
 
-  // TODO
-  // contextmenu functions don't work
-  // Need to wait for create schedule to finish updating db before the user can click on the new tab, or else data will be missing
-  // newly created schedule has strange set of dates
-  // rethink where to put draggable handles and how to display them
-  // broke selection/hover of rows?
-
   const onDragEnd = useCallback((result) => {
     const {
       destination: { index: destination },
@@ -256,9 +254,12 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
     });
   }, []);
 
-  function retrieveDroppableServiceId(result) {
-    return parseInt(result.source.droppableId[result.source.droppableId.length - 1]);
-  }
+  // TODO
+  // contextmenu functions don't work
+  // Need to wait for create schedule to finish updating db before the user can click on the new tab, or else data will be missing
+  // newly created schedule has strange set of dates
+  // rethink where to put draggable handles and how to display them
+  // broke selection/hover of rows?
 
   return (
     <>
