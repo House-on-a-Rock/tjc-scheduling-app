@@ -11,7 +11,9 @@ import {
   destroySchedule,
   postService,
   destroyEvent,
+  updateScheduleAssignments,
 } from '../../query/apis';
+import { query } from 'express';
 
 export const useCreateSchedule = (setDialogOpen) => {
   const queryClient = useQueryClient();
@@ -53,6 +55,15 @@ export const useCreateService = (setDialogOpen) => {
 export const useDeleteEvent = () => {
   const queryClient = useQueryClient();
   return useMutation<AxiosResponse<any>, AxiosError, string>(destroyEvent, {
+    onSuccess: () => {
+      queryClient.invalidateQueries('schedules');
+    },
+  });
+};
+
+export const useUpdateSchedule = () => {
+  const queryClient = useQueryClient();
+  return useMutation<AxiosResponse<any>, AxiosError, any>(updateScheduleAssignments, {
     onSuccess: () => {
       queryClient.invalidateQueries('schedules');
     },
