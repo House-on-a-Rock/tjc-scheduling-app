@@ -27,6 +27,9 @@ import {
   teammates,
   createBlankEvent,
   retrieveDroppableServiceId,
+  processUpdate,
+  processAdded,
+  processRemoved,
 } from './utilities';
 
 import {
@@ -93,44 +96,14 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
   function onSaveScheduleChanges() {
     const diff = detailedDiff(data.schedules, dataModel);
     console.log(`diff`, diff);
-    console.log(`dataModel`, dataModel);
 
     // need more error checking before running diff
-    const processedDiff = processDiff(diff);
-    updateSchedule.mutate(processedDiff);
+    // deleting stuff and reordering stuff REALLY throws off the error checking since array indices are changing
+    const updatedDiff = processUpdate(diff, dataModel, tab);
+    const addedDiff = processAdded(diff, tab);
+    // const removedDiff = processRemoved(diff, tab);
+    updateSchedule.mutate({ updated: updatedDiff, added: addedDiff });
     setIsScheduleModified(false);
-  }
-  // updated: [{serviceId/eventId/taskId: changedItem}]
-
-  function processDiff(diff) {
-    const scheduleScope = diff.updated[tab];
-    const changes = [];
-
-    for (let serviceIndex in scheduleScope.services) {
-      const serviceScope = scheduleScope.services[serviceIndex];
-      const serviceModel = dataModel[tab].services[serviceIndex];
-
-      // (eventually) changeable items: day, name
-      for (let eventIndex in serviceScope.events) {
-        // items: roleId, time
-        const eventScope = serviceScope.events[eventIndex];
-        const eventModel = serviceModel.events[eventIndex];
-
-        if (eventScope.time)
-          changes.push({ eventId: eventModel.eventId, time: eventScope.time });
-        if (eventScope.roleId)
-          changes.push({ eventId: eventModel.eventId, roleId: eventScope.roleId });
-
-        for (let cellIndex in eventScope.cells) {
-          // items: userId
-          const cellScope = eventScope.cells[cellIndex];
-          const cellModel = eventModel.cells[cellIndex];
-          changes.push({ taskId: cellModel.taskId, userId: cellScope.userId });
-        }
-      }
-    }
-    console.log(`changes`, changes);
-    return changes;
   }
 
   function insertRow() {}

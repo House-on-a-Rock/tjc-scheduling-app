@@ -192,3 +192,96 @@ export function roleDisplay(roleId: number, dataModel: BootstrapData): string {
 export function retrieveDroppableServiceId(result) {
   return parseInt(result.source.droppableId[result.source.droppableId.length - 1]);
 }
+
+function isObjectEmpty(obj) {
+  return Object.keys(obj).length === 0;
+}
+
+export function processUpdate(diff, dm, tab) {
+  if (isObjectEmpty(diff.updated)) return;
+  const scheduleScope = diff.updated[tab];
+  const changes = [];
+
+  for (let serviceIndex in scheduleScope.services) {
+    const serviceScope = scheduleScope.services[serviceIndex];
+    const serviceModel = dm[tab].services[serviceIndex];
+
+    // (eventually) changeable items: day, name
+    for (let eventIndex in serviceScope.events) {
+      // items: roleId, time
+      const eventScope = serviceScope.events[eventIndex];
+      const eventModel = serviceModel.events[eventIndex];
+
+      if (eventScope.time)
+        changes.push({ eventId: eventModel.eventId, time: eventScope.time });
+      if (eventScope.roleId)
+        changes.push({ eventId: eventModel.eventId, roleId: eventScope.roleId });
+
+      for (let cellIndex in eventScope.cells) {
+        // items: userId
+        const cellScope = eventScope.cells[cellIndex];
+        const cellModel = eventModel.cells[cellIndex];
+        changes.push({ taskId: cellModel.taskId, userId: cellScope.userId });
+      }
+    }
+  }
+  return changes;
+}
+
+// how are cells tracking the correct dates?
+export function processAdded(diff, tab) {
+  if (isObjectEmpty(diff.added)) return;
+  const scheduleScope = diff.added[tab];
+  const changes = [];
+
+  for (let serviceIndex in scheduleScope.services) {
+    const serviceScope = scheduleScope.services[serviceIndex];
+
+    for (let eventIndex in serviceScope.events) {
+      const eventScope = serviceScope.events[eventIndex];
+
+      const cells = [];
+      for (let cellIndex in eventScope.cells) {
+        const cellScope = eventScope.cells[cellIndex];
+        if (cellScope.taskId)
+          cells.push({ taskId: cellScope.taskId, userId: cellScope.userId });
+      }
+      changes.push({
+        eventId: eventScope.eventId,
+        roleId: eventScope.roleId,
+        time: eventScope.time,
+        cells,
+      });
+    }
+  }
+  return changes;
+}
+
+export function processRemoved(diff, tab) {
+  if (isObjectEmpty(diff.removed)) return;
+  const scheduleScope = diff.removed[tab];
+  const changes = [];
+  console.log(`scheduleScope`, scheduleScope);
+
+  // for (let serviceIndex in scheduleScope.services) {
+  //   const serviceScope = scheduleScope.services[serviceIndex];
+
+  //   for (let eventIndex in serviceScope.events) {
+  //     const eventScope = serviceScope.events[eventIndex];
+
+  //     const cells = [];
+  //     for (let cellIndex in eventScope.cells) {
+  //       const cellScope = eventScope.cells[cellIndex];
+  //       if (cellScope.taskId)
+  //         cells.push({ taskId: cellScope.taskId, userId: cellScope.userId });
+  //     }
+  //     changes.push({
+  //       eventId: eventScope.eventId,
+  //       roleId: eventScope.roleId,
+  //       time: eventScope.time,
+  //       cells,
+  //     });
+  //   }
+  // }
+  return changes;
+}
