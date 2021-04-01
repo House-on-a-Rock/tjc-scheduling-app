@@ -9,6 +9,9 @@ export const ScheduleTableBody = ({ title, children, providedRef, isEdit }: any)
   const classes = useStyles();
   const [open, setOpen] = React.useState(true);
   const [expandedBefore, setExpandedBefore] = React.useState(false);
+
+  // TODO add service-name editing functionality to the edit button here
+
   return (
     <>
       <TableBody>

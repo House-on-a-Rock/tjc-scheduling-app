@@ -198,6 +198,16 @@ router.post(
   },
 );
 
+router.post(
+  '/schedule/update',
+  certify,
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      console.log(req.body);
+    } catch {}
+  },
+);
+
 router.delete(
   '/schedule',
   certify,
