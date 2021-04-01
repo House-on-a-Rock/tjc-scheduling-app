@@ -4,6 +4,7 @@ import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 import DeleteIcon from '@material-ui/icons/Delete';
 import SaveIcon from '@material-ui/icons/Save';
 import PublishIcon from '@material-ui/icons/Publish';
+import EditIcon from '@material-ui/icons/Edit';
 import CreateNewFolderIcon from '@material-ui/icons/CreateNewFolder';
 import Tooltip from '@material-ui/core/Tooltip';
 
@@ -30,6 +31,7 @@ interface ScheduleToolbar {
   destroySchedule: () => void;
   handleNewServiceClicked: () => void;
   onSaveScheduleChanges: () => void;
+  setEditMode: any;
 }
 
 export const ScheduleToolbar = ({
@@ -37,6 +39,7 @@ export const ScheduleToolbar = ({
   destroySchedule,
   isScheduleModified,
   onSaveScheduleChanges,
+  setEditMode,
 }: ScheduleToolbar) => {
   const classes = useStyles();
   return (
@@ -57,6 +60,13 @@ export const ScheduleToolbar = ({
         handleClick={() => onSaveScheduleChanges()}
       >
         <SaveIcon />
+      </TooltipForDisabledButton>
+      <TooltipForDisabledButton
+        title="Edit Template (Changes must be saved)"
+        disabled={isScheduleModified}
+        handleClick={() => setEditMode((prev) => !prev)}
+      >
+        <EditIcon />
       </TooltipForDisabledButton>
       <TooltipForDisabledButton
         title="Publish changes"
