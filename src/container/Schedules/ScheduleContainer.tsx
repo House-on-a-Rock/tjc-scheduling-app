@@ -40,7 +40,7 @@ import {
   useUpdateSchedule,
 } from '../utilities/useMutations';
 
-import { detailedDiff } from 'deep-object-diff';
+import { detailedDiff, updatedDiff } from 'deep-object-diff';
 const ld = require('lodash');
 
 import {
@@ -79,10 +79,7 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
   //   const [alert, setAlert] = useState<AlertInterface>();
 
   // manipulate events
-  const [alphaModel, setAlphaModel] = useState<ScheduleTableInterface[]>(
-    ld.cloneDeep(data.schedules),
-  );
-  const [betaModel, setBetaModel] = useState<ScheduleTableInterface[]>(
+  const [dataModel, setDataModel] = useState<ScheduleTableInterface[]>(
     ld.cloneDeep(data.schedules),
   );
   const templateChanges = useRef<TemplateChangesInterface>({
@@ -98,17 +95,14 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
   const updateSchedule = useUpdateSchedule();
 
   function onSaveScheduleChanges() {
-    const diff = detailedDiff(betaModel, alphaModel);
-    // console.log(`diff`, diff);
+    const diff = updatedDiff(data.schedules, dataModel);
+    console.log(`diff`, diff);
 
-    // need more error checking before running diff
+    // need error checking before running diff
+    const updiff = processUpdate(diff, dataModel, tab);
 
-    const updatedDiff = processUpdate(diff, alphaModel, tab);
-    const addedDiff = processAdded(diff, tab);
-    // const removedDiff = processRemoved(diff, tab);
-    const updatedAdded = { updated: updatedDiff, added: addedDiff };
-    console.log(`updatedAdded`, updatedAdded);
-    updateSchedule.mutate(updatedAdded);
+    updateSchedule.mutate(updiff);
+
     setIsScheduleModified(false);
   }
 
@@ -144,16 +138,19 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
   };
 
   function addEvent(serviceIndex: number) {
-    const dataClone = [...alphaModel];
+    const dataClone = [...dataModel];
     const targetEvents = dataClone[tab].services[serviceIndex].events;
-    const newEvent = createBlankEvent(dataClone[tab].columns.length, retrieveChangesSeed);
+    const newEvent = createBlankEvent(
+      dataClone[tab].columns.length - 1,
+      retrieveChangesSeed,
+    );
     targetEvents.push(newEvent);
-    setAlphaModel(dataClone);
+    setDataModel(dataClone);
   }
 
   function removeEvent() {
     // TODO: make sure it works once contextmenu is fixed
-    const dataClone = [...alphaModel];
+    const dataClone = [...dataModel];
     const target = dataClone[tab];
     const mutatedData = target.services.map((service) => {
       return {
@@ -162,27 +159,26 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
       };
     });
     target.services = mutatedData;
-    setAlphaModel(dataClone);
-    setBetaModel(dataClone);
+    setDataModel(dataClone);
+
     retrieveChangesSeed(); // called just to update changesSeed.
   }
 
   function addService() {
     // TODO: bring back create new service form? or another solution is better
-    const dataClone = [...alphaModel];
+    const dataClone = [...dataModel];
     const target = dataClone[tab].services;
     target.push(createBlankService());
-    setAlphaModel(dataClone);
+    setDataModel(dataClone);
   }
 
   function deleteService(serviceId: number) {
-    const dataClone = [...alphaModel];
+    const dataClone = [...dataModel];
     const filteredServices = dataClone[tab].services.filter(
       (service) => service.serviceId !== serviceId,
     );
     dataClone[tab].services = filteredServices;
-    setAlphaModel(dataClone);
-    setBetaModel(dataClone);
+    setDataModel(dataClone);
     // retrieveChangesSeed();
   }
 
@@ -215,34 +211,34 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
     // TODO update time string to standardized UTC string and use dedicated time inputs
     if (rowIndex === 0) return true;
     const previousEventsTime =
-      alphaModel[tab].services[serviceIndex].events[rowIndex - 1].time;
+      dataModel[tab].services[serviceIndex].events[rowIndex - 1].time;
     return previousEventsTime !== time;
   }
 
   // onChange Handlers
   function onTaskChange(dataContext, newAssignee: number) {
     const { taskId, serviceIndex, rowIndex, columnIndex } = dataContext;
-    const dataClone = [...alphaModel];
+    const dataClone = [...dataModel];
     dataClone[tab].services[serviceIndex].events[rowIndex].cells[
       columnIndex
     ].userId = newAssignee;
-    setAlphaModel(dataClone);
+    setDataModel(dataClone);
     setIsScheduleModified(true);
   }
 
   function onAssignedRoleChange(dataContext, newRoleId) {
     const { serviceIndex, rowIndex } = dataContext;
-    const dataClone = [...alphaModel];
+    const dataClone = [...dataModel];
     const targetEvent = dataClone[tab].services[serviceIndex].events[rowIndex];
     targetEvent.roleId = newRoleId;
 
-    setAlphaModel(dataClone);
+    setDataModel(dataClone);
   }
 
   function onTimeChange(newValue: string, rowIndex: number, serviceIndex: number) {
-    const dataClone = [...alphaModel];
+    const dataClone = [...dataModel];
     dataClone[tab].services[serviceIndex].events[rowIndex].time = newValue;
-    setAlphaModel(dataClone);
+    setDataModel(dataClone);
   }
 
   function onChangeTabs(value: number) {
@@ -259,10 +255,7 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
     if (!result.destination || result.destination.index === result.source.index) {
       return;
     }
-    setAlphaModel((prev: ScheduleTableInterface[]) => {
-      return rearrangeEvents(prev, sourceService, source, destination);
-    });
-    setBetaModel((prev: ScheduleTableInterface[]) => {
+    setDataModel((prev: ScheduleTableInterface[]) => {
       return rearrangeEvents(prev, sourceService, source, destination);
     });
   }, []);
@@ -275,6 +268,27 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
     return temp;
   }
 
+  function onEditClick() {
+    if (!isEditMode) {
+      if (isScheduleModified) {
+        setWarningDialog(
+          'Changes to the schedule must be saved before editing the template',
+        );
+        // this needs to be redone
+      } else {
+        setIsEditMode(true);
+      }
+    } else {
+      saveTemplateChanges();
+      setIsEditMode(false);
+    }
+  }
+
+  function saveTemplateChanges() {
+    console.log('saving template changes');
+    // process the diffs
+  }
+
   // TODO
   // contextmenu functions don't work
   // Need to wait for create schedule to finish updating db before the user can click on the new tab, or else data will be missing
@@ -282,6 +296,7 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
   // rethink where to put draggable handles and how to display them
   // broke selection/hover of rows?
   // make sure the edit schedule button works only when schedule is saved.
+  // rework warning dialogs
 
   return (
     <>
@@ -299,7 +314,7 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
           destroySchedule={() => setWarningDialog(SCHEDULE)}
           isScheduleModified={isScheduleModified}
           onSaveScheduleChanges={onSaveScheduleChanges}
-          setEditMode={setIsEditMode}
+          setEditMode={onEditClick}
         />
         <ContextMenu
           outerRef={outerRef}
@@ -310,9 +325,9 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
           when={isScheduleModified}
           message="You have unsaved changes, are you sure you want to leave? Unsaved changes will be lost"
         />
-        {!alphaModel && <div style={{ height: '50vh' }}></div>}
+        {!dataModel && <div style={{ height: '50vh' }}></div>}
         {/* {alert && <Alert alert={alert} unMountAlert={() => setAlert(null)} />} */}
-        {alphaModel.map((schedule: ScheduleTableInterface, scheduleIndex) => {
+        {dataModel.map((schedule: ScheduleTableInterface, scheduleIndex) => {
           const { columns: headers, services, title, view } = schedule;
 
           return (
@@ -341,14 +356,18 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
                             title={`${days[day]} ${name}`}
                             providedRef={droppableProvided.innerRef}
                             {...droppableProvided.droppableProps}
+                            isEdit={isEditMode}
                           >
-                            <button onClick={() => deleteService(serviceId)}>
-                              Delete Service
-                            </button>
-                            <button onClick={() => addEvent(serviceIndex)}>
-                              Add Event
-                            </button>
-
+                            {isEditMode && (
+                              <>
+                                <button onClick={() => deleteService(serviceId)}>
+                                  Delete Service
+                                </button>
+                                <button onClick={() => addEvent(serviceIndex)}>
+                                  Add Event
+                                </button>
+                              </>
+                            )}
                             {events.map((event, rowIndex) => {
                               const { roleId, cells, time, eventId } = event;
 
@@ -476,7 +495,7 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
             // createService.mutate({
             //   ...newInfo,
             //   scheduleId: tabs[tab].id,
-            //   order: alphaModel.schedules[tab].services.length + 1, // need a better way to grab scheduleId and order
+            //   order: dataModel.schedules[tab].services.length + 1, // need a better way to grab scheduleId and order
             // })
             addService()
           }

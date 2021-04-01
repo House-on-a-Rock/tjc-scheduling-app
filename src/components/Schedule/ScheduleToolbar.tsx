@@ -34,6 +34,8 @@ interface ScheduleToolbar {
   setEditMode: any;
 }
 
+// TODO better way to display edit schedule tooltip, mbbe a dialog?
+
 export const ScheduleToolbar = ({
   handleNewServiceClicked,
   destroySchedule,
@@ -62,7 +64,7 @@ export const ScheduleToolbar = ({
         <SaveIcon />
       </TooltipForDisabledButton>
       <TooltipForDisabledButton
-        title="Edit Template (Changes must be saved)"
+        title="Edit Template (Changes must be saved before editing)"
         disabled={isScheduleModified}
         handleClick={() => setEditMode((prev) => !prev)}
       >

@@ -198,8 +198,8 @@ function isObjectEmpty(obj) {
 }
 
 export function processUpdate(diff, dm, tab) {
-  if (isObjectEmpty(diff.updated)) return;
-  const scheduleScope = diff.updated[tab];
+  if (isObjectEmpty(diff)) return;
+  const scheduleScope = diff[tab];
   const changes = [];
 
   for (let serviceIndex in scheduleScope.services) {

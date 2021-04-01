@@ -1,9 +1,10 @@
 import React from 'react';
 import ReactTooltip from 'react-tooltip';
+import EditIcon from '@material-ui/icons/Edit';
 import { TableCell, TableRow, TableBody } from '@material-ui/core';
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 
-export const ScheduleTableBody = ({ title, children, providedRef }: any) => {
+export const ScheduleTableBody = ({ title, children, providedRef, isEdit }: any) => {
   const tooltipId = `${title}_tooltip`;
   const classes = useStyles();
   const [open, setOpen] = React.useState(true);
@@ -11,16 +12,21 @@ export const ScheduleTableBody = ({ title, children, providedRef }: any) => {
   return (
     <>
       <TableBody>
-        <TableRow
-          onClick={() => {
-            setOpen(!open);
-            if (!open) {
-              setExpandedBefore(true);
-            }
-          }}
-        >
-          <TableCell className={classes.scheduleTitle} data-tip data-for={tooltipId}>
-            {title}
+        <TableRow>
+          <TableCell className={classes.scheduleTitle}>
+            <div
+              data-tip
+              data-for={tooltipId}
+              onClick={() => {
+                setOpen(!open);
+                if (!open) {
+                  setExpandedBefore(true);
+                }
+              }}
+            >
+              {title}
+            </div>
+            {isEdit && <EditIcon />}
           </TableCell>
           <ReactTooltip id={tooltipId}>
             <span>{`Click to ${open ? 'collapse' : 'expand'}`}</span>
