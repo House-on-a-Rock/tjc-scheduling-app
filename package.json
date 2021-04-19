@@ -18,11 +18,6 @@
     "set-win-env": "powershell.exe -exec bypass -File D:/Code Projects/tjc-scheduling-app/scripts/set_win_env.ps1",
     "test": "mocha -r ts-node/register tests/*.ts --reporter spec --exit"
   },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
-  },
   "lint-staged": {
     "*": [
       "npm run prettier:base -- --write"
