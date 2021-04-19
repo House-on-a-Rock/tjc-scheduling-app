@@ -1,8 +1,10 @@
 /* eslint-disable react/jsx-closing-tag-location */
 /* eslint-disable react/self-closing-comp */
-import React, { useRef, useState } from 'react';
+// https://codesandbox.io/s/react-material-ui-and-react-beautiful-dnd-forked-bmheb?file=/src/MaterialTable.tsx draggable table
+import React, { useRef, useState, useCallback } from 'react';
 import { Prompt } from 'react-router-dom';
-import { Dialog, TableRow } from '@material-ui/core';
+import { Dialog, TableRow, TableCell } from '@material-ui/core';
+import ReorderIcon from '@material-ui/icons/Reorder';
 import RemoveIcon from '@material-ui/icons/Remove';
 import { SchedulesDataInterface } from '../../query';
 import {
@@ -20,7 +22,12 @@ import {
 
 import { ContextMenu, ConfirmationDialog } from '../../components/shared';
 
-import { days, teammates, createBlankEvent } from './utilities';
+import {
+  days,
+  teammates,
+  createBlankEvent,
+  retrieveDroppableServiceId,
+} from './utilities';
 
 import {
   useCreateSchedule,
@@ -28,6 +35,17 @@ import {
   useCreateService,
   useDeleteEvent,
 } from '../utilities/useMutations';
+
+import { detailedDiff } from 'deep-object-diff';
+const ld = require('lodash');
+
+import {
+  DragDropContext,
+  Draggable,
+  Droppable,
+  DraggableProvided,
+  DraggableStateSnapshot,
+} from 'react-beautiful-dnd';
 
 export interface BootstrapData {
   schedules: ScheduleTableInterface[];
@@ -56,19 +74,11 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
   //   const [alert, setAlert] = useState<AlertInterface>();
 
   // manipulate events
-  const [dataModel, setDataModel] = useState<BootstrapData>(data);
+  const [dataModel, setDataModel] = useState<ScheduleTableInterface[]>(
+    ld.cloneDeep(data.schedules),
+  );
   const templateChanges = useRef<TemplateChangesInterface>({
     changesSeed: -1,
-    events: {
-      changedEvents: null,
-      newEvents: null,
-      deletedEvents: null,
-    },
-    services: {
-      changedServices: null,
-      newServices: null,
-      deletedServices: null,
-    },
   });
 
   const outerRef = useRef(null);
@@ -78,30 +88,11 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
   const createService = useCreateService(setIsNewServiceOpen);
   const deleteEvent = useDeleteEvent();
 
-  React.useEffect(() => {
-    setDataModel(data);
-  }, [data]);
-
   function onSaveScheduleChanges() {
-    /*
-    For next PR
-      1. check if templateChanges.changesSeed < 0
-        a. if there are changes, prompt if they want to save schedule changes to a new template
-        b. if not, run saveChanges() on changedTasks, display alert
-      If there are template changes
-        1. run diffing function, then useMutation          
-        2. onMutationSuccess, clear changes, reset changesSeed
-    
-      
-      Diffing function - need to check for changes in order, will do that next PR
-        1. check if services match up
-
-      Currently, still unable to save changes to DB, coming soonTM
-    */
+    dataModelDiff();
     setIsScheduleModified(false);
   }
 
-  // Context Menu functions
   function insertRow() {}
 
   const warningDialogConfig = {
@@ -120,16 +111,14 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
       : setSelectedEvents([...selectedEvents, eventId]);
 
   function retrieveChangesSeed() {
-    // used to give temporary seeds to newly made (but unsaved) events/services. they are negative to distinguish from normal stuff from db
-    // also can keep be used to keep track of number of changes made, kinda
-    // its in a useRef right now, not sure if it needs to be there. But templateChanges will be used for a lot so idk
     return templateChanges.current.changesSeed--;
   }
 
   function dataModelDiff() {
-    // check id, name, and order of events
-    // any modified events are added to appropriate prop in templateChanges ref
-    // should this be called after every change or only onSaveChanges? changedTasks is tracked as each one is updated, but that's much simpler to run
+    const diff = detailedDiff(data.schedules, dataModel);
+    // in progress
+    // console.log(`diff`, diff);
+    // console.log(`dataModel`, dataModel);
   }
 
   // Model manipulation functions
@@ -143,20 +132,17 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
   };
 
   function addEvent(serviceIndex: number) {
-    const dataClone = { ...dataModel };
-    const targetEvents = dataClone.schedules[tab].services[serviceIndex].events;
-    const newEvent = createBlankEvent(
-      dataClone.schedules[tab].columns.length,
-      retrieveChangesSeed,
-    );
+    const dataClone = [...dataModel];
+    const targetEvents = dataClone[tab].services[serviceIndex].events;
+    const newEvent = createBlankEvent(dataClone[tab].columns.length, retrieveChangesSeed);
     targetEvents.push(newEvent);
     setDataModel(dataClone);
   }
 
   function removeEvent() {
     // TODO: make sure it works once contextmenu is fixed
-    const dataClone = { ...dataModel };
-    const target = dataClone.schedules[tab];
+    const dataClone = [...dataModel];
+    const target = dataClone[tab];
     const mutatedData = target.services.map((service) => {
       return {
         ...service,
@@ -170,20 +156,20 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
 
   function addService() {
     // TODO: bring back create new service form? or another solution is better
-    const dataClone = { ...dataModel };
-    const target = dataClone.schedules[tab].services;
+    const dataClone = [...dataModel];
+    const target = dataClone[tab].services;
     target.push(createBlankService());
     setDataModel(dataClone);
   }
 
   function deleteService(serviceId: number) {
-    const dataClone = { ...dataModel };
-    const filteredServices = dataClone.schedules[tab].services.filter(
+    const dataClone = [...dataModel];
+    const filteredServices = dataClone[tab].services.filter(
       (service) => service.serviceId !== serviceId,
     );
-    dataClone.schedules[tab].services = filteredServices;
+    dataClone[tab].services = filteredServices;
     setDataModel(dataClone);
-    retrieveChangesSeed();
+    // retrieveChangesSeed();
   }
 
   // autocomplete cell callback
@@ -215,38 +201,33 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
     // TODO update time string to standardized UTC string and use dedicated time inputs
     if (rowIndex === 0) return true;
     const previousEventsTime =
-      dataModel.schedules[tab].services[serviceIndex].events[rowIndex - 1].time;
+      dataModel[tab].services[serviceIndex].events[rowIndex - 1].time;
     return previousEventsTime !== time;
   }
 
   // onChange Handlers
   function onTaskChange(dataContext, newAssignee: number) {
     const { taskId, serviceIndex, rowIndex, columnIndex } = dataContext;
-    const dataClone = { ...dataModel };
-    dataClone.schedules[tab].services[serviceIndex].events[rowIndex].cells[
+    const dataClone = [...dataModel];
+    dataClone[tab].services[serviceIndex].events[rowIndex].cells[
       columnIndex
     ].userId = newAssignee;
     setDataModel(dataClone);
-    // May be used in future
-    // if (isChanged) {
-    //   const updatedChangedTasks = { ...changedTasks.current, [taskId]: newAssignee };
-    //   changedTasks.current = updatedChangedTasks;
-    // } else if (changedTasks.current[taskId]) delete changedTasks.current[taskId];
-    // setIsScheduleModified(Object.keys(changedTasks.current).length > 0);
+    setIsScheduleModified(true);
   }
 
   function onAssignedRoleChange(dataContext, newRoleId) {
     const { serviceIndex, rowIndex } = dataContext;
-    const dataClone = { ...dataModel };
-    const targetEvent = dataClone.schedules[tab].services[serviceIndex].events[rowIndex];
+    const dataClone = [...dataModel];
+    const targetEvent = dataClone[tab].services[serviceIndex].events[rowIndex];
     targetEvent.roleId = newRoleId;
 
     setDataModel(dataClone);
   }
 
   function onTimeChange(newValue: string, rowIndex: number, serviceIndex: number) {
-    const dataClone = { ...dataModel };
-    dataClone.schedules[tab].services[serviceIndex].events[rowIndex].time = newValue;
+    const dataClone = [...dataModel];
+    dataClone[tab].services[serviceIndex].events[rowIndex].time = newValue;
     setDataModel(dataClone);
   }
 
@@ -255,10 +236,30 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
     setTab(value);
   }
 
+  const onDragEnd = useCallback((result) => {
+    const {
+      destination: { index: destination },
+      source: { index: source },
+    } = result;
+    const sourceService = retrieveDroppableServiceId(result);
+    if (!result.destination || result.destination.index === result.source.index) {
+      return;
+    }
+    setDataModel((prev: ScheduleTableInterface[]) => {
+      const temp = [...prev];
+      const scope = temp[tab].services[sourceService].events;
+      const src = scope.splice(source, 1);
+      scope.splice(destination, 0, src[0]);
+      return temp;
+    });
+  }, []);
+
   // TODO
   // contextmenu functions don't work
   // Need to wait for create schedule to finish updating db before the user can click on the new tab, or else data will be missing
   // newly created schedule has strange set of dates
+  // rethink where to put draggable handles and how to display them
+  // broke selection/hover of rows?
 
   return (
     <>
@@ -286,9 +287,9 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
           when={isScheduleModified}
           message="You have unsaved changes, are you sure you want to leave? Unsaved changes will be lost"
         />
-        {!data.schedules && <div style={{ height: '50vh' }}></div>}
+        {!dataModel && <div style={{ height: '50vh' }}></div>}
         {/* {alert && <Alert alert={alert} unMountAlert={() => setAlert(null)} />} */}
-        {dataModel.schedules.map((schedule: ScheduleTableInterface, scheduleIndex) => {
+        {dataModel.map((schedule: ScheduleTableInterface, scheduleIndex) => {
           const { columns: headers, services, title, view } = schedule;
           return (
             <div key={scheduleIndex}>
@@ -300,90 +301,132 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
                 {headers.map(({ Header }) => (
                   <ScheduleTableHeader key={`Header-${Header}`} header={Header} />
                 ))}
+
                 {services.map((service: ServiceDataInterface, serviceIndex: number) => {
                   const { day, name, events, serviceId } = service;
                   return (
-                    <ScheduleTableBody
-                      key={`ScheduleTableBody-${name}`}
-                      title={`${days[day]} ${name}`}
-                    >
-                      <button onClick={() => deleteService(serviceId)}>
-                        Delete Service
-                      </button>
-                      <button onClick={() => addEvent(serviceIndex)}>Add Event</button>
-
-                      {events.map((event, rowIndex) => {
-                        const { roleId, cells, time, eventId } = event;
-
-                        const isSelected = selectedEvents.includes(eventId);
-
-                        const taskOptions = teammates(
-                          dataModel.users,
-                          roleId,
-                          data.churchId,
-                        );
-                        const isTimeDisplayed = shouldDisplayTime(
-                          time,
-                          rowIndex,
-                          serviceIndex,
-                        );
-
-                        return (
-                          <TableRow
-                            key={`${serviceIndex}-${rowIndex}`}
-                            hover
-                            onDoubleClick={() => handleRowSelected(isSelected, eventId)}
-                            selected={isSelected}
+                    <DragDropContext onDragEnd={onDragEnd}>
+                      <Droppable
+                        droppableId={`DroppableTable-${serviceIndex}`}
+                        key={`Droppable_${serviceId}`}
+                        direction="vertical"
+                      >
+                        {(droppableProvided) => (
+                          <ScheduleTableBody
+                            key={`ScheduleTableBody-${name}`}
+                            title={`${days[day]} ${name}`}
+                            providedRef={droppableProvided.innerRef}
+                            {...droppableProvided.droppableProps}
                           >
-                            {cells.map((cell, columnIndex) => {
-                              const roleDataContext: RoleDataContext = {
-                                serviceIndex,
-                                rowIndex,
+                            <button onClick={() => deleteService(serviceId)}>
+                              Delete Service
+                            </button>
+                            <button onClick={() => addEvent(serviceIndex)}>
+                              Add Event
+                            </button>
+
+                            {events.map((event, rowIndex) => {
+                              const { roleId, cells, time, eventId } = event;
+
+                              const isSelected = selectedEvents.includes(eventId);
+
+                              const tasksDataSet = teammates(
+                                data.users,
                                 roleId,
-                              };
-                              const taskDataContext: TaskDataContext = {
-                                taskId: cell.taskId,
-                                roleId: roleId,
-                                serviceIndex,
+                                data.churchId,
+                              );
+                              const isTimeDisplayed = shouldDisplayTime(
+                                time,
                                 rowIndex,
-                                columnIndex,
-                              };
-                              return columnIndex === 0 ? (
-                                <TimeCell
-                                  time={time}
-                                  isDisplayed={isTimeDisplayed}
-                                  onChange={onTimeChange}
-                                  rowIndex={rowIndex}
-                                  serviceIndex={serviceIndex}
-                                  key={`Time_${serviceIndex}_${rowIndex}`}
-                                />
-                              ) : columnIndex === 1 ? (
-                                <DutyAutocomplete
-                                  dataId={roleId}
-                                  options={dataModel.teams}
-                                  dataContext={roleDataContext}
-                                  onChange={onAssignedRoleChange}
-                                  key={`Team_${serviceIndex}_${rowIndex}_${columnIndex}`}
-                                  renderOption={renderOption}
-                                  isSaved={isSaved}
-                                />
-                              ) : (
-                                <TasksAutocomplete
-                                  dataId={cell.userId}
-                                  roleId={roleId}
-                                  options={taskOptions}
-                                  dataContext={taskDataContext}
-                                  onChange={onTaskChange}
-                                  renderOption={renderOption}
-                                  // isSaved={isSaved}
-                                  key={`Tasks_${serviceIndex}_${rowIndex}_${columnIndex}`}
-                                />
+                                serviceIndex,
+                              );
+
+                              return (
+                                <Draggable
+                                  draggableId={`DragRow_${eventId}`}
+                                  index={rowIndex}
+                                  key={`DragRow_${eventId}`}
+                                >
+                                  {(
+                                    provided: DraggableProvided,
+                                    snapshot: DraggableStateSnapshot,
+                                  ) => (
+                                    <TableRow
+                                      key={`${serviceIndex}-${rowIndex}`}
+                                      hover
+                                      onDoubleClick={() =>
+                                        handleRowSelected(isSelected, eventId)
+                                      }
+                                      selected={isSelected}
+                                      ref={provided.innerRef}
+                                      {...provided.draggableProps}
+                                      style={{
+                                        ...provided.draggableProps.style,
+                                        background: snapshot.isDragging
+                                          ? 'rgba(245,245,245, 0.75)'
+                                          : 'none',
+                                      }}
+                                    >
+                                      <TableCell align="left">
+                                        <div {...provided.dragHandleProps}>
+                                          <ReorderIcon />
+                                        </div>
+                                      </TableCell>
+                                      {cells.map((cell, columnIndex) => {
+                                        const roleDataContext: RoleDataContext = {
+                                          serviceIndex,
+                                          rowIndex,
+                                          roleId,
+                                        };
+                                        const taskDataContext: TaskDataContext = {
+                                          taskId: cell.taskId,
+                                          roleId: roleId,
+                                          serviceIndex,
+                                          rowIndex,
+                                          columnIndex,
+                                        };
+                                        return columnIndex === 0 ? (
+                                          <TimeCell
+                                            time={time}
+                                            isDisplayed={isTimeDisplayed}
+                                            onChange={onTimeChange}
+                                            rowIndex={rowIndex}
+                                            serviceIndex={serviceIndex}
+                                            key={`Time_${serviceIndex}`}
+                                          />
+                                        ) : columnIndex === 1 ? (
+                                          <DutyAutocomplete
+                                            dataId={roleId}
+                                            options={data.teams}
+                                            dataContext={roleDataContext}
+                                            onChange={onAssignedRoleChange}
+                                            key={`Team_${serviceIndex}_${rowIndex}_${columnIndex}`}
+                                            renderOption={renderOption}
+                                            isSaved={isSaved}
+                                          />
+                                        ) : (
+                                          <TasksAutocomplete
+                                            dataId={cell.userId}
+                                            roleId={roleId}
+                                            options={tasksDataSet}
+                                            dataContext={taskDataContext}
+                                            onChange={onTaskChange}
+                                            renderOption={renderOption}
+                                            // isSaved={isSaved}
+                                            key={`Task_${serviceIndex}_${rowIndex}_${columnIndex}`}
+                                          />
+                                        );
+                                      })}
+                                    </TableRow>
+                                  )}
+                                </Draggable>
                               );
                             })}
-                          </TableRow>
-                        );
-                      })}
-                    </ScheduleTableBody>
+                            {droppableProvided.placeholder}
+                          </ScheduleTableBody>
+                        )}
+                      </Droppable>
+                    </DragDropContext>
                   );
                 })}
               </ScheduleTable>
@@ -523,16 +566,6 @@ interface UserInterface {
 
 interface TemplateChangesInterface {
   changesSeed: number;
-  events: {
-    changedEvents: EventData[];
-    newEvents: EventData[];
-    deletedEvents: EventData[];
-  };
-  services: {
-    changedServices: ServiceData[];
-    newServices: ServiceData[];
-    deletedServices: ServiceData[];
-  };
 }
 
 interface TeamsDataInterface {

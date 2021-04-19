@@ -14,7 +14,6 @@ const EventFactory = (
     serviceId: { type: DataTypes.INTEGER },
     order: { type: DataTypes.INTEGER },
     time: { type: DataTypes.STRING },
-    title: { type: DataTypes.STRING },
     roleId: { type: DataTypes.INTEGER },
   };
 

@@ -25,15 +25,18 @@ export const useTasksAutocompleteHooks = (dataId, roleId, dataSet) => {
     setIsCellModified(dataId !== initialData.dataId);
     setIsCellWarning(false);
 
+    const isInList = dataSet.filter((user) => user.userId === dataId).length > 0;
+
     if (roleId !== prevRole) {
       setIsCellWarning(true);
-      if (roleId === initialData.roleId) setIsCellWarning(dataId !== initialData.dataId);
-      else if (dataSet.filter((user) => user.userId === dataId).length > 0) {
+      if (roleId === initialData.roleId)
+        setIsCellWarning(dataId !== initialData.dataId && !isInList);
+      else if (isInList) {
         // if assignee is already in the list of roles
         setIsCellModified(true);
         setIsCellWarning(false);
       }
-      setPrevRole(roleId); // updating prevRole here
+      setPrevRole(roleId);
     }
   }, [roleId, dataId]);
 

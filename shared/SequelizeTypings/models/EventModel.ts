@@ -4,7 +4,6 @@ import { CommonSequelizeAttributes } from '.';
 export interface EventAttributes extends CommonSequelizeAttributes {
   serviceId: number;
   roleId?: number; // team
-  title: string;
   time: string;
   order: number;
 }

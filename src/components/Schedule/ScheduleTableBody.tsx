@@ -3,7 +3,7 @@ import ReactTooltip from 'react-tooltip';
 import { TableCell, TableRow, TableBody } from '@material-ui/core';
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 
-export const ScheduleTableBody = ({ title, children }: any) => {
+export const ScheduleTableBody = ({ title, children, providedRef }: any) => {
   const tooltipId = `${title}_tooltip`;
   const classes = useStyles();
   const [open, setOpen] = React.useState(true);
@@ -28,6 +28,7 @@ export const ScheduleTableBody = ({ title, children }: any) => {
         </TableRow>
       </TableBody>
       <TableBody
+        ref={providedRef}
         className={`${classes.groupOfRows} ${!open && classes.collapsedGroupOfRows} ${
           open && expandedBefore && classes.expandedGroupOfRows
         }`}
