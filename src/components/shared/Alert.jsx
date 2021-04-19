@@ -1,17 +1,11 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 
 import Snackbar from '@material-ui/core/Snackbar';
-import MuiAlert, { AlertProps, Color } from '@material-ui/lab/Alert';
-import { AlertInterface } from '../../shared/types';
-import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
+import MuiAlert from '@material-ui/lab/Alert';
+import { makeStyles, createStyles } from '@material-ui/core/styles';
 
-export interface CustomSnackbarProps {
-  alert: AlertInterface;
-  isOpen: boolean;
-  handleClose: () => void;
-}
 
-export const Alert = ({ alert, isOpen, handleClose }: CustomSnackbarProps) => {
+export const Alert = ({ alert, isOpen, handleClose }) => {
   return (
     <Snackbar open={isOpen} autoHideDuration={2000} onClose={handleClose}>
       <MuiAlert
@@ -26,7 +20,7 @@ export const Alert = ({ alert, isOpen, handleClose }: CustomSnackbarProps) => {
   );
 };
 
-const useStyles = makeStyles((theme: Theme) =>
+const useStyles = makeStyles((theme) =>
   createStyles({
     // transition animations?
     root: {

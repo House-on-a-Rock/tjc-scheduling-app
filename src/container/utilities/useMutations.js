@@ -1,11 +1,4 @@
-import { AxiosResponse, AxiosError } from 'axios';
 import { useMutation, useQueryClient } from 'react-query';
-import {
-  DeleteScheduleData,
-  NewScheduleData,
-  NewServiceData,
-  DeleteEventsData,
-} from '../../shared/types';
 import {
   postSchedule,
   destroySchedule,
@@ -15,7 +8,7 @@ import {
 
 export const useCreateSchedule = (setDialogOpen) => {
   const queryClient = useQueryClient();
-  return useMutation<AxiosResponse<any>, AxiosError, NewScheduleData>(postSchedule, {
+  return useMutation(postSchedule, {
     onSuccess: () => {
       queryClient.invalidateQueries('tabs');
       queryClient.invalidateQueries('schedules');
@@ -26,33 +19,27 @@ export const useCreateSchedule = (setDialogOpen) => {
 
 export const useDeleteSchedule = (setWarning) => {
   const queryClient = useQueryClient();
-  return useMutation<AxiosResponse<any>, AxiosError, DeleteScheduleData, unknown>(
-    destroySchedule,
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries('tabs');
-        setWarning('');
-      },
+  return useMutation(destroySchedule, {
+    onSuccess: () => {
+      queryClient.invalidateQueries('tabs');
+      setWarning('');
     },
-  );
+  });
 };
 
 export const useCreateService = (setDialogOpen) => {
   const queryClient = useQueryClient();
-  return useMutation<AxiosResponse<any>, AxiosError, NewServiceData, unknown>(
-    postService,
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries('schedules');
-        setDialogOpen(false);
-      },
+  return useMutation(postService, {
+    onSuccess: () => {
+      queryClient.invalidateQueries('schedules');
+      setDialogOpen(false);
     },
-  );
+  });
 };
 
 export const useDeleteEvent = () => {
   const queryClient = useQueryClient();
-  return useMutation<AxiosResponse<any>, AxiosError, string>(destroyEvent, {
+  return useMutation(destroyEvent, {
     onSuccess: () => {
       queryClient.invalidateQueries('schedules');
     },

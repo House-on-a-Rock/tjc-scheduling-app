@@ -11,15 +11,11 @@ import TableBody from '@material-ui/core/TableBody';
 import TableRow from '@material-ui/core/TableRow';
 import TableCell from '@material-ui/core/TableCell';
 
-import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
-import { TemplateDataInterface } from '../../container/types';
+import { makeStyles, createStyles } from '@material-ui/core/styles';
 
-interface TemplateDisplayProps {
-  template: TemplateDataInterface;
-}
 
 // TODO make pretty
-export const TemplateDisplay = ({ template }: TemplateDisplayProps) => {
+export const TemplateDisplay = ({ template }) => {
   const classes = useStyles();
   const { data, name, templateId } = template;
 
@@ -69,7 +65,7 @@ export const TemplateDisplay = ({ template }: TemplateDisplayProps) => {
   );
 };
 // howard u can work ur magic here hehe
-const useStyles = makeStyles((theme: Theme) =>
+const useStyles = makeStyles((theme) =>
   createStyles({
     card: { width: '80%', padding: 10, margin: 5 },
     tableCell: {

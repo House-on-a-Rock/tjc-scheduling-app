@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
+import { makeStyles, createStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import Table from '@material-ui/core/Table';
 import TableCell from '@material-ui/core/TableCell';
@@ -12,12 +12,8 @@ import InputBase from '@material-ui/core/InputBase';
 
 import { themeExtension } from '../../shared/styles/theme.js';
 
-export interface MembersHeaderProps {
-  localChurch: string;
-  onSearchChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
-}
 
-export const MembersHeader = ({ localChurch, onSearchChange }: MembersHeaderProps) => {
+export const MembersHeader = ({ localChurch, onSearchChange }) => {
   const classes = useStyles();
 
   return (
@@ -49,7 +45,7 @@ export const MembersHeader = ({ localChurch, onSearchChange }: MembersHeaderProp
   );
 };
 
-const useStyles = makeStyles((theme: Theme) =>
+const useStyles = makeStyles((theme) =>
   createStyles({
     root: {
       boxShadow: 'none',

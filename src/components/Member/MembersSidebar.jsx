@@ -7,21 +7,9 @@ import ListItemText from '@material-ui/core/ListItemText';
 import Divider from '@material-ui/core/Divider';
 import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
-import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
+import { makeStyles, createStyles } from '@material-ui/core/styles';
 
 import { sideBarTheme } from '../../shared/styles/theme.js';
-
-interface Church {
-  churchId: number;
-  name: string;
-}
-export interface MembersSidebarProps {
-  firstName: string;
-  lastName: string;
-  email: string;
-  church: string;
-  roles: string[];
-}
 
 export const MembersSidebar = ({
   firstName,
@@ -29,7 +17,7 @@ export const MembersSidebar = ({
   email,
   church,
   roles,
-}: MembersSidebarProps) => {
+}) => {
   const classes = useStyles();
   return (
     <Grid item xs={3}>
@@ -65,7 +53,7 @@ export const MembersSidebar = ({
           </ListSubheader>
         }
       >
-        {roles.map((role: string) => {
+        {roles.map((role) => {
           return (
             <ListItem key={role} button>
               <ListItemText primary={role} />
@@ -77,7 +65,7 @@ export const MembersSidebar = ({
   );
 };
 
-const useStyles = makeStyles((theme: Theme) =>
+const useStyles = makeStyles((theme) =>
   createStyles({
     sidebar: {
       backgroundColor: sideBarTheme.backgroundColor,

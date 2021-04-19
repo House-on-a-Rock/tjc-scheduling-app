@@ -1,6 +1,3 @@
-import { DayIndexOptions } from '../../shared/types';
-import { UsersDataInterface, BootstrapData } from './ScheduleContainer';
-
 const idxToMonth = [
   'Jan',
   'Feb',
@@ -15,7 +12,7 @@ const idxToMonth = [
   'Nov',
   'Dec',
 ];
-export const days: string[] = [
+export const days = [
   'Sunday',
   'Monday',
   'Tuesday',
@@ -25,7 +22,7 @@ export const days: string[] = [
   'Saturday',
 ];
 
-const dayIndex: DayIndexOptions = {
+const dayIndex = {
   Sunday: 0,
   Monday: 1,
   Tuesday: 2,
@@ -35,25 +32,21 @@ const dayIndex: DayIndexOptions = {
   Saturday: 6,
 };
 
-const readableDate = (unreadableDate: Date) =>
+const readableDate = (unreadableDate) =>
   `${
     unreadableDate.getMonth() + 1
   }/${unreadableDate.getDate()}/${unreadableDate.getFullYear()}`;
 
-const incrementDay = (date: Date) => new Date(date.setDate(date.getDate() + 1));
+const incrementDay = (date) => new Date(date.setDate(date.getDate() + 1));
 
 // these look unused, i think this functionality was moved to server since I had to modify a function there
-function determineStartDate(startDate: string, day: number) {
+function determineStartDate(startDate, day) {
   let current = incrementDay(new Date(startDate));
   while (current.getDay() !== day) current = incrementDay(current);
   return current;
 }
 
-export function everyRepeatingDayBetweenTwoDates(
-  startDate: string,
-  endDate: string,
-  day: string,
-) {
+export function everyRepeatingDayBetweenTwoDates(startDate, endDate, day) {
   const everyRepeatingDay = [];
   let start = new Date(startDate);
 
@@ -70,7 +63,7 @@ export function everyRepeatingDayBetweenTwoDates(
   return everyRepeatingDay;
 }
 
-const zeroPaddingDates = (monthIdx: number, dayIdx: number): string => {
+const zeroPaddingDates = (monthIdx, dayIdx) => {
   let month = (monthIdx + 1).toString();
   let day = dayIdx.toString();
 
@@ -80,8 +73,8 @@ const zeroPaddingDates = (monthIdx: number, dayIdx: number): string => {
   return `${month}/${day}`;
 };
 
-export function columnizedDates(everyRepeatingDay: string[]) {
-  return everyRepeatingDay.map((date: string) => {
+export function columnizedDates(everyRepeatingDay) {
+  return everyRepeatingDay.map((date) => {
     const jsDate = new Date(date);
     const monthIdx = jsDate.getMonth();
     const dayIdx = jsDate.getDate();
@@ -92,14 +85,14 @@ export function columnizedDates(everyRepeatingDay: string[]) {
   });
 }
 
-export function isInTime(target: string, start: string, end: string): boolean {
+export function isInTime(target, start, end) {
   const targetTime = timeToMilliSeconds(target);
   const startTime = timeToMilliSeconds(start);
   const endTime = timeToMilliSeconds(end);
   return startTime <= targetTime && targetTime <= endTime;
 }
 
-export function timeToMilliSeconds(time: string) {
+export function timeToMilliSeconds(time) {
   const [hourMin, period] = time.split(' ');
   const [hour, min] = hourMin.split(':');
   const convertedHour = hour === '12' ? 3600000 : 3600000 * parseInt(hour, 10);
@@ -109,7 +102,7 @@ export function timeToMilliSeconds(time: string) {
   return convertedHour + convertedMin + convertedPeriod;
 }
 
-export const contrivedDate = (date: string) => {
+export const contrivedDate = (date) => {
   const jsDate = new Date(date);
   const monthIdx = jsDate.getMonth();
   const dayIdx = jsDate.getDate();
@@ -117,7 +110,7 @@ export const contrivedDate = (date: string) => {
 };
 
 // autocomplete cell functions
-export function extractRoleIds(teams): number[] {
+export function extractRoleIds(teams) {
   return teams.map((team) => team.id);
 }
 
@@ -127,18 +120,18 @@ export function getRoleOptionLabel(option, dataSet) {
   return '';
 }
 
-export function getUserOptionLabel(option: number, dataSet) {
+export function getUserOptionLabel(option, dataSet) {
   const filteredData = dataSet.filter((user) => user.userId === option)[0];
   if (filteredData) return `${filteredData.firstName} ${filteredData.lastName}`;
   else return '';
 }
 
-export function extractTeammateIds(teammates): number[] {
+export function extractTeammateIds(teammates) {
   if (!teammates) return [];
   return teammates.map((teammate) => teammate.userId);
 }
 
-export const teammates = (users, roleId: number, churchId) => {
+export const teammates = (users, roleId, churchId) => {
   const filteredTeammates = users.filter((user) =>
     user.teams.some((team) => team.id === roleId),
   );
@@ -146,7 +139,7 @@ export const teammates = (users, roleId: number, churchId) => {
   return filteredTeammates;
 };
 
-export const blankTeammate = (churchId: number): UsersDataInterface => {
+export const blankTeammate = (churchId) => {
   return {
     userId: -1,
     firstName: '',
@@ -166,8 +159,8 @@ const createBlankTask = (seedFx) => {
   };
 };
 
-const createBlankEventCells = (cellLength: number, seedFx) => {
-  const taskCells: any = [{}, {}]; // data from these cells aren't actually being used, are just placeholders for rendering
+const createBlankEventCells = (cellLength, seedFx) => {
+  const taskCells = [{}, {}]; // data from these cells aren't actually being used, are just placeholders for rendering
   const afterTimeAndDutyColumns = 2;
   for (let i = afterTimeAndDutyColumns; i < cellLength; i++) {
     taskCells[i] = createBlankTask(seedFx);
@@ -175,7 +168,7 @@ const createBlankEventCells = (cellLength: number, seedFx) => {
   return taskCells;
 };
 
-export const createBlankEvent = (cellLength: number, seedFx) => {
+export const createBlankEvent = (cellLength, seedFx) => {
   return {
     cells: [...createBlankEventCells(cellLength, seedFx)],
     eventId: seedFx(),
@@ -184,7 +177,7 @@ export const createBlankEvent = (cellLength: number, seedFx) => {
   };
 };
 
-export function roleDisplay(roleId: number, dataModel: BootstrapData): string {
+export function roleDisplay(roleId, dataModel) {
   if (roleId < 0) return '';
   return dataModel.teams.filter((team) => team.id === roleId)[0].name;
 }

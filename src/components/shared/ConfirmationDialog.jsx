@@ -4,17 +4,11 @@ import React from 'react';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Dialog from '@material-ui/core/Dialog';
 
-import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
+import { makeStyles, createStyles } from '@material-ui/core/styles';
 import { Button } from '@material-ui/core';
 import { buttonTheme } from '../../shared/styles/theme';
 
-export interface SimpleDialogProps {
-  title: string;
-  state: boolean;
-  handleClick: (shouldDelete: boolean) => void;
-}
-
-export function ConfirmationDialog({ handleClick, state, title }: SimpleDialogProps) {
+export function ConfirmationDialog({ handleClick, state, title }) {
   const classes = useStyles();
   return (
     <Dialog onBackdropClick={() => handleClick(!state)} open={state}>
@@ -31,7 +25,7 @@ export function ConfirmationDialog({ handleClick, state, title }: SimpleDialogPr
   );
 }
 
-const useStyles = makeStyles((theme: Theme) =>
+const useStyles = makeStyles((theme) =>
   createStyles({
     root: {
       '& [role="dialog"]': {

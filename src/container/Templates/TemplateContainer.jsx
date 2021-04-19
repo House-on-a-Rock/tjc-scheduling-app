@@ -1,39 +1,14 @@
-import React, { useState } from 'react';
+import React from 'react';
 
 // mat ui
-import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
-import { Button } from '@material-ui/core';
-import AddIcon from '@material-ui/icons/Add';
+import { makeStyles, createStyles } from '@material-ui/core/styles';
 
-import { DataStateProp } from '../types';
 import { TemplateDisplay } from '../../components/Template/TemplateDisplay';
 import { buttonTheme } from '../../shared/styles/theme';
 
-interface EventDataInterface {
-  roleId: number;
-  time: string;
-  title: string;
-}
 
-interface ServiceDataInterface {
-  name: string;
-  day: string;
-  events: EventDataInterface[];
-}
-export interface TemplateDataInterface {
-  templateId: number;
-  name: string;
-  data: ServiceDataInterface[];
-}
 
-interface BootStrapDataInterface {
-  templates: TemplateDataInterface[];
-}
-interface TemplateContainerProps {
-  state: DataStateProp<BootStrapDataInterface>;
-}
-
-export const TemplateContainer = ({ state }: TemplateContainerProps) => {
+export const TemplateContainer = ({ state }) => {
   const classes = useStyles();
   const { isLoading, error, data, isSuccess } = state;
 
@@ -52,7 +27,7 @@ export const TemplateContainer = ({ state }: TemplateContainerProps) => {
   );
 };
 
-const useStyles = makeStyles((theme: Theme) =>
+const useStyles = makeStyles((theme) =>
   createStyles({
     templateContainer: {
       width: '100%',

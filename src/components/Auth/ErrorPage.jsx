@@ -1,6 +1,5 @@
 import React from 'react';
 import { useQuery } from '../../shared/utilities';
-// import { HttpResponseStatus } from '../../shared/types/models';
 
 export const ErrorPage = () => {
   const query = useQuery();

@@ -1,4 +1,3 @@
 import { getTemplates } from './apis';
 
-export const getTemplateData = async (churchId: number) =>
-  (await getTemplates(churchId)).data;
+export const getTemplateData = async (churchId) => (await getTemplates(churchId)).data;

@@ -11,16 +11,6 @@ import TableRow from '@material-ui/core/TableRow';
 import Checkbox from '@material-ui/core/Checkbox';
 
 import { cardTheme } from '../../shared/styles/theme.js';
-import { UsersDataInterface } from '../../container/Schedules/ScheduleContainer.js';
-// import { MemberStateData } from '../../shared/types';
-
-export interface MembersTableProps {
-  selectedRowLength: number;
-  handleSelectAll: (checked: boolean) => void;
-  members: UsersDataInterface[];
-  isSelected: (id: number) => boolean;
-  handleSelect: (shiftKey: boolean, row: UsersDataInterface) => void;
-}
 
 export const MembersTable = ({
   selectedRowLength,
@@ -28,9 +18,9 @@ export const MembersTable = ({
   isSelected,
   handleSelectAll,
   handleSelect,
-}: MembersTableProps) => {
+}) => {
   const classes = useStyles();
-  const setIndeterminate: boolean =
+  const setIndeterminate =
     !!selectedRowLength && selectedRowLength !== members.length;
   return (
     <TableContainer component={Paper} className={classes.root}>
@@ -59,13 +49,13 @@ export const MembersTable = ({
           </TableRow>
         </TableHead>
         <TableBody>
-          {members.map((row: UsersDataInterface) => {
+          {members.map((row) => {
             const { userId: id, firstName, lastName, email, disabled } = row;
-            const isItemSelected: boolean = isSelected(id);
+            const isItemSelected = isSelected(id);
             return (
               <TableRow
                 hover
-                onClick={(event: React.MouseEvent<unknown>) => {
+                onClick={(event) => {
                   event.stopPropagation();
                   handleSelect(event.shiftKey, row);
                 }}
@@ -97,7 +87,7 @@ export const MembersTable = ({
   );
 };
 
-const styleHead: CSSProperties = {
+const styleHead = {
   fontWeight: 'bold',
 };
 

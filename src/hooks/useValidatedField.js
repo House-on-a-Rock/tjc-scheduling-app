@@ -1,23 +1,15 @@
 import { useState } from 'react';
 
-interface ValidatedFieldState<T> {
-  valid: boolean;
-  message: string;
-  value: T;
-}
-
-const createFieldState: <T>(arg: T) => ValidatedFieldState<T> = (value) => ({
+const createFieldState = (value) => ({
   value: value,
   message: '',
   valid: true,
 });
 
-export function useValidatedField<T>(initialState: T, message: string) {
-  const [inputState, setInputState] = useState<ValidatedFieldState<T>>(
-    createFieldState<T>(initialState),
-  );
+export function useValidatedField(initialState, message) {
+  const [inputState, setInputState] = useState(createFieldState(initialState));
 
-  const setInputStateError = (condition: boolean) => {
+  const setInputStateError = (condition) => {
     if (condition)
       setInputState({
         ...inputState,
@@ -28,5 +20,5 @@ export function useValidatedField<T>(initialState: T, message: string) {
   const resetInputState = () =>
     setInputState({ ...inputState, valid: true, message: '' });
 
-  return [inputState, setInputState, setInputStateError, resetInputState] as const;
+  return [inputState, setInputState, setInputStateError, resetInputState];
 }

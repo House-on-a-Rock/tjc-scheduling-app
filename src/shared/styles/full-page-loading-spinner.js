@@ -9,7 +9,7 @@ export function useSpinner() {
   });
 }
 
-export function showLoadingSpinner(showIt: boolean) {
+export function showLoadingSpinner(showIt) {
   if (showIt) {
     document.body.classList.add('loading');
     showWaitingMessage();
@@ -34,6 +34,6 @@ function hideWaitingMessage() {
   }
 }
 
-function randomNumber(startInclusive: number, stopInclusive: number) {
+function randomNumber(startInclusive, stopInclusive) {
   return Math.floor(Math.random() * stopInclusive + startInclusive);
 }

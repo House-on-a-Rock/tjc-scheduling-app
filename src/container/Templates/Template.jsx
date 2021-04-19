@@ -9,11 +9,11 @@ import { getTemplateData } from '../../query';
 // components
 import { TemplateContainer } from './TemplateContainer';
 
-export const Template = ({ churchId }: any) => {
+export const Template = ({ churchId }) => {
   const [isLoading, setIsLoading] = useState(false);
-  const [data, setData] = useState<any>();
+  const [data, setData] = useState();
   const [error, setError] = useState(null);
-  const [isSuccess, setIsSuccess] = useState<string>('');
+  const [isSuccess, setIsSuccess] = useState('');
 
   // queries
   const templates = useQuery(['templates', churchId], () => getTemplateData(churchId), {

@@ -1,5 +1,3 @@
-import { Configuration } from 'webpack';
-import { Configuration as DevServerConfiguration } from 'webpack-dev-server';
 import HtmlWebPackPlugin from 'html-webpack-plugin';
 import path from 'path';
 
@@ -8,17 +6,11 @@ const htmlPlugin = new HtmlWebPackPlugin({
   filename: './index.html',
 });
 
-console.log(path.join(__dirname, 'dist'));
-
-interface SheavesWebpackConfig extends Configuration {
-  devServer: DevServerConfiguration;
-}
-
-const config: SheavesWebpackConfig = {
+const config = {
   mode: 'development',
-  entry: './index.tsx',
+  entry: './index.jsx',
   resolve: {
-    extensions: ['.ts', '.tsx', '.js', '.json'],
+    extensions: ['.js', '.json'],
   },
   output: {
     path: path.join(__dirname, 'dist'),
@@ -32,7 +24,6 @@ const config: SheavesWebpackConfig = {
   },
   module: {
     rules: [
-      { test: /\.tsx?$/, loader: 'awesome-typescript-loader' },
       {
         test: /\.css$/i,
         use: ['style-loader', 'css-loader'],

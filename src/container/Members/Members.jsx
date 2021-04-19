@@ -1,31 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from 'react-query';
-import { AxiosResponse, AxiosError } from 'axios';
-
 import { MembersContainer } from './MembersContainer';
-
 import { getChurchMembersData } from '../../query';
 import { addUser, destroyUser } from '../../query/apis';
-import { NewUserData } from '../../shared/types';
 
-interface MembersProps {
-  churchId: number;
-}
-
-export const Members = ({ churchId }: MembersProps) => {
+export const Members = ({ churchId }) => {
   const queryClient = useQueryClient();
   const [isLoading, setIsLoading] = useState(false);
-  const [data, setData] = useState<any>();
+  const [data, setData] = useState();
   const [error, setError] = useState(null);
 
-  const [isSuccess, setIsSuccess] = useState<string>('');
+  const [isSuccess, setIsSuccess] = useState('');
   const users = useQuery(['users', churchId], () => getChurchMembersData(churchId), {
     enabled: !!churchId,
     staleTime: 300000,
     cacheTime: 3000000,
   });
 
-  const createUser = useMutation<AxiosResponse<any>, AxiosError, NewUserData, unknown>(
+  const createUser = useMutation(
     addUser,
     {
       onSuccess: () => {
@@ -51,8 +43,8 @@ export const Members = ({ churchId }: MembersProps) => {
   return (
     <MembersContainer
       state={{ data, isLoading, error, isSuccess }}
-      addUser={(newInfo: NewUserData) => createUser.mutate({ ...newInfo, churchId })}
-      removeUser={(info: any) => deleteUser.mutate(info)}
+      addUser={(newInfo) => createUser.mutate({ ...newInfo, churchId })}
+      removeUser={(info) => deleteUser.mutate(info)}
       // addSchedule={(newInfo: NewScheduleData) =>
       //   createSchedule.mutate({ ...newInfo, churchId })
       // }
@@ -61,7 +53,7 @@ export const Members = ({ churchId }: MembersProps) => {
   );
 };
 
-function errorHandling(result: AxiosError, setError) {
+function errorHandling(result, setError) {
   setError({
     status: result.response.status,
     message: result.response.statusText,

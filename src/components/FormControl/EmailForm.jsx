@@ -1,15 +1,7 @@
 import React from 'react';
 import TextField from '@material-ui/core/TextField';
-import { EmailState } from '../../shared/types/models';
 
-interface EmailFormProps {
-  name: string;
-  label: string;
-  email: EmailState;
-  handleEmail: (arg0: EmailState) => void;
-}
-
-export const EmailForm = ({ name, label, email, handleEmail }: EmailFormProps) => (
+export const EmailForm = ({ name, label, email, handleEmail }) => (
   <TextField
     variant="outlined"
     margin="normal"

@@ -1,4 +1,4 @@
-export const days: string[] = [
+export const days = [
   'Sunday',
   'Monday',
   'Tuesday',

@@ -1,15 +1,6 @@
 import React from 'react';
 import TextField from '@material-ui/core/TextField';
 
-interface FormFieldProps {
-  name: string;
-  label: string;
-  value: string;
-  className?: string;
-  handleChange: (value: string) => void;
-  [x: string]: any;
-}
-
 export const FormField = ({
   name,
   label,
@@ -17,7 +8,7 @@ export const FormField = ({
   handleChange,
   className,
   ...props
-}: FormFieldProps) => (
+}) => (
   <TextField
     variant="outlined"
     margin="normal"

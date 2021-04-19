@@ -6,11 +6,11 @@ export const useTasksAutocompleteHooks = (dataId, roleId, dataSet) => {
     roleId,
     dataSet,
   });
-  const [isCellModified, setIsCellModified] = useState<boolean>(false);
-  const [isCellWarning, setIsCellWarning] = useState<boolean>(false);
+  const [isCellModified, setIsCellModified] = useState < boolean > false;
+  const [isCellWarning, setIsCellWarning] = useState < boolean > false;
 
   const [managedDataSet, setManagedDataSet] = useState(dataSet);
-  const [prevRole, setPrevRole] = useState<number>(roleId);
+  const [prevRole, setPrevRole] = useState(roleId);
   const [prevDetails, setPrevDetails] = useState(createDetails()); // stores info of prev selected, needed because when dataset changes, details are lost
 
   // TODO In next PR, when db updates with saved data, will have to see if initialData will re-initiate properly.

@@ -1,21 +1,14 @@
 import React from 'react';
 
 import { MenuItem, Button } from '@material-ui/core/';
-import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
+import { makeStyles, createStyles } from '@material-ui/core/styles';
 
 import { ValidatedSelect, ValidatedTextField } from '../FormControl';
 import { useValidatedField } from '../../hooks';
 
 import { buttonTheme, tooltipContainer } from '../../shared/styles/theme.js';
 import { stringLengthCheck } from '../../shared/utilities';
-import { NewServiceData } from '../../shared/types';
-import { AxiosError } from 'axios';
 
-interface NewServiceFormProps {
-  onSubmit: (newServiceData: NewServiceData) => void;
-  onClose: () => void;
-  error: AxiosError<any>;
-}
 
 const daysOfWeek = [
   'Sunday',
@@ -27,7 +20,7 @@ const daysOfWeek = [
   'Saturday',
 ];
 
-export const NewServiceForm = ({ onSubmit, onClose, error }: NewServiceFormProps) => {
+export const NewServiceForm = ({ onSubmit, onClose, error }) => {
   const [
     serviceName,
     setServiceName,
@@ -109,7 +102,7 @@ export const NewServiceForm = ({ onSubmit, onClose, error }: NewServiceFormProps
   );
 };
 
-const useStyles = makeStyles((theme: Theme) =>
+const useStyles = makeStyles((theme) =>
   createStyles({
     newServiceForm: {
       display: 'flex',

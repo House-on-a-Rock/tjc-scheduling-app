@@ -1,20 +1,7 @@
 import dotenv from 'dotenv';
-
 dotenv.config();
 
-interface DevelopmentInterface {
-  database: string;
-  username: string;
-  password: string;
-  host: string;
-  dialect: string;
-  [key: string]: any;
-}
-interface ConfigInterface {
-  development: DevelopmentInterface;
-  [key: string]: any;
-}
-const config: ConfigInterface = {
+const config = {
   development: {
     database: process.env.DB_NAME ?? '',
     username: process.env.DB_USER ?? '',

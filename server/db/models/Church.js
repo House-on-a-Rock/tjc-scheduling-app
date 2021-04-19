@@ -1,15 +1,5 @@
-import * as Sequelize from 'sequelize';
-import { SequelizeAttributes } from 'shared/SequelizeTypings/typings/SequelizeAttributes';
-import {
-  ChurchInstance,
-  ChurchAttributes,
-} from 'shared/SequelizeTypings/models/ChurchModel';
-
-const ChurchFactory = (
-  sequelize: Sequelize.Sequelize,
-  DataTypes: Sequelize.DataTypes,
-): Sequelize.Model<ChurchInstance, ChurchAttributes> => {
-  const attributes: SequelizeAttributes<ChurchAttributes> = {
+const ChurchFactory = (sequelize, DataTypes) => {
+  const attributes = {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     name: { type: DataTypes.STRING },
     address: { type: DataTypes.TEXT },
@@ -17,7 +7,7 @@ const ChurchFactory = (
     timezone: { type: DataTypes.STRING },
   };
 
-  const Church = sequelize.define<ChurchInstance, ChurchAttributes>('Church', attributes);
+  const Church = sequelize.define('Church', attributes);
 
   Church.associate = (models) => {
     Church.hasMany(models.User, { foreignKey: 'churchId' });

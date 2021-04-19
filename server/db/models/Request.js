@@ -1,12 +1,5 @@
-import * as Sequelize from 'sequelize';
-import { SequelizeAttributes } from 'shared/SequelizeTypings/typings/SequelizeAttributes';
-import { RequestInstance, RequestAttributes } from 'shared/SequelizeTypings/models';
-
-const RequestFactory = (
-  sequelize: Sequelize.Sequelize,
-  DataTypes: Sequelize.DataTypes,
-): Sequelize.Model<RequestInstance, RequestAttributes> => {
-  const attributes: SequelizeAttributes<RequestAttributes> = {
+const RequestFactory = (sequelize, DataTypes) => {
+  const attributes = {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     requesteeUserId: { type: DataTypes.INTEGER },
     type: { type: DataTypes.STRING },
@@ -22,10 +15,7 @@ const RequestFactory = (
     replace: { type: DataTypes.BOOLEAN },
   };
 
-  const Request = sequelize.define<RequestInstance, RequestAttributes>(
-    'Request',
-    attributes,
-  );
+  const Request = sequelize.define('Request', attributes);
 
   Request.associate = (models) => {
     Request.belongsTo(models.Task, { as: 'task', foreignKey: 'taskId' });

@@ -1,15 +1,5 @@
-import * as Sequelize from 'sequelize';
-import { SequelizeAttributes } from 'shared/SequelizeTypings/typings/SequelizeAttributes';
-import {
-  ScheduleInstance,
-  ScheduleAttributes,
-} from 'shared/SequelizeTypings/models/ScheduleModel';
-
-const ScheduleFactory = (
-  sequelize: Sequelize.Sequelize,
-  DataTypes: Sequelize.DataTypes,
-): Sequelize.Model<ScheduleInstance, ScheduleAttributes> => {
-  const attributes: SequelizeAttributes<ScheduleAttributes> = {
+const ScheduleFactory = (sequelize, DataTypes) => {
+  const attributes = {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     title: { type: DataTypes.STRING },
     view: { type: DataTypes.STRING },
@@ -19,10 +9,7 @@ const ScheduleFactory = (
     churchId: { type: DataTypes.INTEGER },
   };
 
-  const Schedule = sequelize.define<ScheduleInstance, ScheduleAttributes>(
-    'Schedule',
-    attributes,
-  );
+  const Schedule = sequelize.define('Schedule', attributes);
 
   Schedule.associate = (models) => {
     Schedule.belongsTo(models.Church, { as: 'church', foreignKey: 'churchId' });

@@ -19,7 +19,7 @@ export const TeamMemberRow = ({
   dragHandleProps,
   snapshot,
   onDelete,
-}: any) => {
+}) => {
   const classes = useStyles();
   return (
     <div ref={providedRef} {...draggableProps} {...dragHandleProps}>
@@ -35,7 +35,7 @@ export const TeamMemberRow = ({
   );
 };
 
-const useStyles = makeStyles((theme: Theme) =>
+const useStyles = makeStyles((theme) =>
   createStyles({
     root: {
       transition: transitionTheme.fast,

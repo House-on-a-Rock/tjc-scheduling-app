@@ -1,10 +1,10 @@
 import React from 'react';
 import { IconButton } from '@material-ui/core';
-import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
+import { makeStyles, createStyles } from '@material-ui/core/styles';
 import PersonAddIcon from '@material-ui/icons/PersonAdd';
 import DeleteIcon from '@material-ui/icons/Delete';
 
-export const Toolbar = ({ handleAddOpen, handleDeleteOpen }: any) => {
+export const Toolbar = ({ handleAddOpen, handleDeleteOpen }) => {
   const classes = useStyles();
   return (
     <div className={classes.iconBar}>
@@ -17,7 +17,7 @@ export const Toolbar = ({ handleAddOpen, handleDeleteOpen }: any) => {
     </div>
   );
 };
-const useStyles = makeStyles((theme: Theme) =>
+const useStyles = makeStyles((theme) =>
   createStyles({
     iconBar: {
       display: 'flex',

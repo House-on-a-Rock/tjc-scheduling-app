@@ -1,12 +1,7 @@
-/* eslint-disable @typescript-eslint/unbound-method */
 import React, { useState } from 'react';
 import {
   Droppable,
   Draggable,
-  DraggableProvided,
-  DroppableProvided,
-  DraggableStateSnapshot,
-  DroppableStateSnapshot,
 } from 'react-beautiful-dnd';
 import { v4 as uuid } from 'uuid';
 
@@ -17,29 +12,21 @@ import ListItem from '@material-ui/core/ListItem';
 import { TextField } from '@material-ui/core';
 
 import { TeamMemberRow } from './TeamMemberRow';
-import { MembersData, DraggedItem } from './models';
-
-interface DroppableTeamMembersListProps {
-  role: string;
-  members: MembersData[];
-  canDrop: () => boolean;
-  draggedItem: DraggedItem;
-}
 
 export const DroppableTeamMembersList = ({
   role,
   members,
   canDrop,
   draggedItem,
-}: DroppableTeamMembersListProps) => {
+}) => {
   const classes = useStyles();
 
   const [memberInput, setMemberInput] = useState({ value: '', error: '' });
 
   // handleSubmit and handleDelete are placeholder functions
-  function handleSubmit(event: any) {
+  function handleSubmit(event) {
     event.preventDefault();
-    if (members.find((member: any) => member.name === memberInput.value)) {
+    if (members.find((member) => member.name === memberInput.value)) {
       setMemberInput({ ...memberInput, error: 'User already exists' });
     } else {
       members.push({ id: uuid(), name: memberInput.value });
@@ -47,7 +34,7 @@ export const DroppableTeamMembersList = ({
     }
   }
 
-  function handleDelete(selectedMember: any, index: any) {
+  function handleDelete(selectedMember, index) {
     if (members.find((member) => member.name === selectedMember.name)) {
       members.splice(index, 1);
       setMemberInput({ ...memberInput, value: '', error: '' });
@@ -56,7 +43,7 @@ export const DroppableTeamMembersList = ({
 
   return (
     <Droppable droppableId={role} key={role} isDropDisabled={!canDrop()}>
-      {(provided: DroppableProvided, snapshot: DroppableStateSnapshot) => (
+      {(provided, snapshot) => (
         <List
           dense
           ref={provided.innerRef}
@@ -64,12 +51,12 @@ export const DroppableTeamMembersList = ({
             snapshot?.isDraggingOver && canDrop() && classes.droppableArea
           }`}
         >
-          {members.map((member: MembersData, index: number) => {
+          {members.map((member, index) => {
             return !(draggedItem.source === 'USERBANK') ? (
               <Draggable draggableId={member.id} index={index} key={member.id}>
                 {(
-                  dragProvided: DraggableProvided,
-                  dragSnapshot: DraggableStateSnapshot,
+                  dragProvided,
+                  dragSnapshot,
                 ) => (
                   <TeamMemberRow
                     member={member}
@@ -116,7 +103,7 @@ export const DroppableTeamMembersList = ({
   );
 };
 
-const useStyles = makeStyles((theme: Theme) => ({
+const useStyles = makeStyles((theme) => ({
   root: {
     display: 'flex',
     margin: '.5em',

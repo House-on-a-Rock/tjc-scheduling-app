@@ -1,17 +1,9 @@
 import React, { useState } from 'react';
 import { TableCell, TextField } from '@material-ui/core';
 
-interface TimeCellProps {
-  time: string;
-  isDisplayed: boolean;
-  onChange: (change: string, rowIndex: number, serviceIndex) => void;
-  rowIndex: number;
-  serviceIndex: number;
-}
-
-export const TimeCell = (props: TimeCellProps) => {
+export const TimeCell = (props) => {
   const { time, isDisplayed, onChange, rowIndex, serviceIndex } = props;
-  const [value, setValue] = useState<string>(time);
+  const [value, setValue] = useState(time);
 
   const inputProps = isDisplayed
     ? { style: { color: 'black' } }

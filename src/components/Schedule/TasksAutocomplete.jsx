@@ -1,10 +1,9 @@
 import React from 'react';
-import { TaskDataContext } from '../../container/Schedules/ScheduleContainer';
 
 // mat ui
 import TableCell from '@material-ui/core/TableCell';
 import Autocomplete from '@material-ui/lab/Autocomplete';
-import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
+import { makeStyles, createStyles } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
 
 import { typographyTheme } from '../../shared/styles/theme.js';
@@ -26,20 +25,10 @@ import {
   dataContext:        contains info like rowIndex/serviceIndex/roleId, used by onChange callback. 
   getOptionLabel:     string that shows in autocomplete
   renderOption?:      basically just adds an icon to indicate which was the previously saved option, may be used to add more stuff
-  isSaved: boolean;   if initialData should update to the latest dataId
+  isSaved;   if initialData should update to the latest dataId
 */
 
-interface AutocompleteCellProps {
-  dataId: number;
-  options: any;
-  roleId: number;
-  onChange: (dataContext: any, newValue: number) => void;
-  dataContext: TaskDataContext;
-  renderOption?: (display: string, isIconVisible: boolean) => JSX.Element;
-  isSaved?: boolean;
-}
-
-export const TasksAutocomplete = React.memo((props: AutocompleteCellProps) => {
+export const TasksAutocomplete = React.memo((props) => {
   const { dataId, options, roleId, dataContext, isSaved, onChange, renderOption } = props;
   const classes = useStyles();
 
@@ -56,7 +45,7 @@ export const TasksAutocomplete = React.memo((props: AutocompleteCellProps) => {
     ? classes.modified
     : classes.cell;
 
-  function onCellModify(isChanged: boolean, newValue: number) {
+  function onCellModify(isChanged, newValue) {
     onChange(dataContext, newValue);
   }
 
@@ -65,7 +54,7 @@ export const TasksAutocomplete = React.memo((props: AutocompleteCellProps) => {
       <Autocomplete
         id="combo-box"
         options={extractTeammateIds(managedDataSet)}
-        renderInput={(params: any) => (
+        renderInput={(params) => (
           <TextField
             {...params}
             inputProps={{
@@ -74,7 +63,7 @@ export const TasksAutocomplete = React.memo((props: AutocompleteCellProps) => {
             }}
           />
         )}
-        getOptionLabel={(option: number) => getUserOptionLabel(option, managedDataSet)}
+        getOptionLabel={(option) => getUserOptionLabel(option, managedDataSet)}
         getOptionDisabled={(option) => option === dataId}
         renderOption={(option) =>
           renderOption(
@@ -83,7 +72,7 @@ export const TasksAutocomplete = React.memo((props: AutocompleteCellProps) => {
           )
         }
         value={dataId}
-        onChange={(event, newValue: number) =>
+        onChange={(event, newValue) =>
           onCellModify(newValue !== initialData.dataId, newValue)
         }
         disableClearable
@@ -98,8 +87,8 @@ export const TasksAutocomplete = React.memo((props: AutocompleteCellProps) => {
 }, arePropsEqual);
 
 function arePropsEqual(
-  prevProps: AutocompleteCellProps,
-  nextProps: AutocompleteCellProps,
+  prevProps,
+  nextProps,
 ) {
   return (
     prevProps.dataId === nextProps.dataId &&
@@ -107,7 +96,7 @@ function arePropsEqual(
   );
 }
 
-const useStyles = makeStyles((theme: Theme) =>
+const useStyles = makeStyles((theme) =>
   createStyles({
     cell: {
       color: typographyTheme.common.color,

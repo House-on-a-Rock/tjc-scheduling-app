@@ -7,16 +7,10 @@ import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import IconButton from '@material-ui/core/IconButton';
 import Typography from '@material-ui/core/Typography';
-
 import { TeamCard } from './TeamCard';
-import { TeamState, DraggedItem } from './models';
 
-interface TeamListProps {
-  teams: TeamState;
-  draggedMember: DraggedItem;
-}
 
-export const TeamList = ({ teams, draggedMember }: TeamListProps) => {
+export const TeamList = ({ teams, draggedMember }) => {
   return (
     <>
       <Typography variant="h4" align="center">
@@ -35,7 +29,7 @@ export const TeamList = ({ teams, draggedMember }: TeamListProps) => {
   );
 };
 
-const NewTeamCard = ({ handleClick }: any) => {
+const NewTeamCard = ({ handleClick }) => {
   const classes = useStyles();
   return (
     <Card className={classes.card}>
@@ -48,7 +42,7 @@ const NewTeamCard = ({ handleClick }: any) => {
   );
 };
 
-const useStyles = makeStyles((theme: Theme) => ({
+const useStyles = makeStyles((theme) => ({
   card: {
     display: 'flex',
     margin: '.5em',

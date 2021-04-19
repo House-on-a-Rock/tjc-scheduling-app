@@ -3,20 +3,16 @@ import { Route, Redirect } from 'react-router-dom';
 import { AuthContext } from '../../shared/services/AuthContext';
 import { extractTokenInfo, useToken } from '../../shared/utilities';
 
-const validateUser = (condition: string, token): boolean => {
+const validateUser = (condition, token) => {
   const userId = token && extractTokenInfo(token, 'userId');
   const access = token && extractTokenInfo(token, 'access');
   const exp = token && extractTokenInfo(token, 'exp');
   return token && !!userId;
 };
 
-interface PrivateRouteProps {
-  redirection: string;
-  path: string;
-  condition: string;
-}
 
-export const PrivateRoute: React.FC<PrivateRouteProps> = ({
+
+export const PrivateRoute = ({
   children,
   redirection,
   condition,

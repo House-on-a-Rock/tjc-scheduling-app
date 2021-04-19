@@ -1,5 +1,4 @@
-import express, { Request, Response, NextFunction } from 'express';
-import { RoleInstance, UserRoleInstance } from 'shared/SequelizeTypings/models';
+import express from 'express';
 import Sequelize from 'sequelize';
 import { certify } from '../utilities/helperFunctions';
 import db from '../index';
@@ -8,15 +7,15 @@ const router = express.Router();
 
 module.exports = router;
 
-router.get('/roles', certify, async (req: Request, res: Response, next: NextFunction) => {
+router.get('/roles', certify, async (req, res, next) => {
   try {
     const { churchId } = req.query;
     if (churchId) {
-      const roles: RoleInstance[] = await db.Role.findAll({
+      const roles = await db.Role.findAll({
         where: { churchId: churchId.toString() },
         attributes: ['id', 'name'],
       });
-      const userRoles: UserRoleInstance[] = await db.UserRole.findAll({
+      const userRoles = await db.UserRole.findAll({
         where: {
           roleId: {
             [Sequelize.Op.or]: roles.map((role) => role.id),

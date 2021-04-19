@@ -1,13 +1,7 @@
-import { UsersDataInterface } from '../Schedules/ScheduleContainer';
-
-export function updateSelectedRows(
-  start: number,
-  end: number,
-  data: UsersDataInterface[],
-) {
-  const newRows: number[] = [];
+export function updateSelectedRows(start, end, data) {
+  const newRows = [];
   let startPushing = false;
-  const vectoredData: UsersDataInterface[] = start < end ? data : data.reverse();
+  const vectoredData = start < end ? data : data.reverse();
 
   for (let i = 0; i < vectoredData.length; i++) {
     if (startPushing) {

@@ -1,15 +1,5 @@
-import * as Sequelize from 'sequelize';
-import { SequelizeAttributes } from 'shared/SequelizeTypings/typings/SequelizeAttributes';
-import {
-  ServiceInstance,
-  ServiceAttributes,
-} from 'shared/SequelizeTypings/models/ServiceModel';
-
-const ServiceFactory = (
-  sequelize: Sequelize.Sequelize,
-  DataTypes: Sequelize.DataTypes,
-): Sequelize.Model<ServiceInstance, ServiceAttributes> => {
-  const attributes: SequelizeAttributes<ServiceAttributes> = {
+const ServiceFactory = (sequelize, DataTypes) => {
+  const attributes = {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     name: {
       type: DataTypes.STRING,
@@ -20,10 +10,7 @@ const ServiceFactory = (
     scheduleId: { type: DataTypes.INTEGER },
   };
 
-  const Service = sequelize.define<ServiceInstance, ServiceAttributes>(
-    'Service',
-    attributes,
-  );
+  const Service = sequelize.define('Service', attributes);
 
   Service.associate = (models) => {
     Service.belongsTo(models.Schedule, {

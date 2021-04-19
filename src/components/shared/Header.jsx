@@ -14,12 +14,12 @@ import MailIcon from '@material-ui/icons/Mail';
 import NotificationsIcon from '@material-ui/icons/Notifications';
 import MoreIcon from '@material-ui/icons/MoreVert';
 import Button from '@material-ui/core/Button';
-import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
+import { makeStyles, createStyles } from '@material-ui/core/styles';
 import { buttonTheme } from '../../shared/styles/theme.js';
 
 import { AuthContext } from '../../shared/services/AuthContext';
 
-export const Header = (props: any) => {
+export const Header = (props) => {
   const auth = useContext(AuthContext);
   const classes = useStyles();
 
@@ -104,7 +104,7 @@ export const Header = (props: any) => {
   );
 };
 
-function ElevationScroll(props: any) {
+function ElevationScroll(props) {
   const { children } = props;
   const trigger = useScrollTrigger({
     disableHysteresis: true,
@@ -116,7 +116,7 @@ function ElevationScroll(props: any) {
   });
 }
 
-const useStyles = makeStyles((theme: Theme) =>
+const useStyles = makeStyles((theme) =>
   createStyles({
     logoutButton: {
       position: 'fixed',

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/camelcase */
 const Kevin_Wang = 'Kevin Wang';
 const Sun_Yu_Yang = 'Sun-Yu Yang';
 const Shenney_Lin = 'Shenney Lin';

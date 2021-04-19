@@ -11,7 +11,6 @@ import Container from '@material-ui/core/Container';
 // Custom
 import { TransitionsModal } from '../shared/TransitionsModal';
 import { PasswordStrengthMeter, PasswordForm } from '../FormControl';
-import { PasswordState } from '../../shared/types/models';
 import { useQuery } from '../../shared/utilities/helperFunctions';
 import { sendNewPassword } from '../../query/apis';
 
@@ -20,24 +19,24 @@ export const ResetPassword = () => {
   const query = useQuery();
   const token = query.get('token') ?? '';
 
-  const [password, setPassword] = useState<PasswordState>({
+  const [password, setPassword] = useState({
     value: '',
     valid: true,
     visible: false,
     message: null,
   });
-  const [confirmPassword, setConfirmPassword] = useState<PasswordState>({
+  const [confirmPassword, setConfirmPassword] = useState({
     value: '',
     valid: true,
     visible: false,
     message: null,
   });
-  const [passwordMessage, setPasswordMessage] = useState<string>('');
-  const [openModal, setOpenModal] = useState<boolean>(false);
+  const [passwordMessage, setPasswordMessage] = useState('');
+  const [openModal, setOpenModal] = useState(false);
   const [loading, setLoading] = useState(null);
   const testedResult = zxcvbn(password.value);
 
-  function onHandlePassword(newPassword: PasswordState) {
+  function onHandlePassword(newPassword) {
     if (!password.valid) {
       setPassword({
         ...password,
@@ -47,7 +46,7 @@ export const ResetPassword = () => {
       });
     } else setPassword({ ...password, value: newPassword.value });
   }
-  function onHandleConfirmPassword(newConfirmPassword: PasswordState) {
+  function onHandleConfirmPassword(newConfirmPassword) {
     if (!confirmPassword.valid)
       setConfirmPassword({
         ...confirmPassword,
@@ -58,7 +57,7 @@ export const ResetPassword = () => {
     else setConfirmPassword({ ...confirmPassword, value: newConfirmPassword.value });
   }
 
-  function createPasswordLabel(result: any) {
+  function createPasswordLabel(result) {
     switch (result.score) {
       case 0:
         return 'Weak';
@@ -75,9 +74,9 @@ export const ResetPassword = () => {
     }
   }
   async function submitNewPassword(
-    newPasswordValue: string,
-    confirmPasswordValue: string,
-    event?: FormEvent<HTMLFormElement>,
+    newPasswordValue,
+    confirmPasswordValue,
+    event
   ) {
     event?.preventDefault();
     setLoading('LOADING');

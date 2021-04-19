@@ -2,14 +2,10 @@ import React from 'react';
 import InfoIcon from '@material-ui/icons/Info';
 
 import ReactTooltip from 'react-tooltip';
-import { makeStyles, Theme, createStyles } from '@material-ui/core';
+import { makeStyles, createStyles } from '@material-ui/core';
 
-interface TooltipProps {
-  id: string;
-  text: string;
-}
 
-export const Tooltip = ({ id, text }: TooltipProps) => {
+export const Tooltip = ({ id, text }) => {
   const classes = useStyles();
   return (
     <div className={classes.tooltip}>
@@ -21,7 +17,7 @@ export const Tooltip = ({ id, text }: TooltipProps) => {
   );
 };
 
-const useStyles = makeStyles((theme: Theme) =>
+const useStyles = makeStyles((theme) =>
   createStyles({
     tooltip: {
       position: 'relative',

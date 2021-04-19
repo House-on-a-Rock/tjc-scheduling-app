@@ -1,12 +1,11 @@
 /* eslint-disable react/jsx-closing-tag-location */
 /* eslint-disable react/self-closing-comp */
-// https://codesandbox.io/s/react-material-ui-and-react-beautiful-dnd-forked-bmheb?file=/src/MaterialTable.tsx draggable table
+// https://codesandbox.io/s/react-material-ui-and-react-beautiful-dnd-forked-bmheb?file=/src/MaterialTable.jsx draggable table
 import React, { useRef, useState, useCallback } from 'react';
 import { Prompt } from 'react-router-dom';
 import { Dialog, TableRow, TableCell } from '@material-ui/core';
 import ReorderIcon from '@material-ui/icons/Reorder';
 import RemoveIcon from '@material-ui/icons/Remove';
-import { SchedulesDataInterface } from '../../query';
 import {
   ScheduleTabs,
   ScheduleTable,
@@ -43,41 +42,29 @@ import {
   DragDropContext,
   Draggable,
   Droppable,
-  DraggableProvided,
-  DraggableStateSnapshot,
+  
+  
 } from 'react-beautiful-dnd';
-
-export interface BootstrapData {
-  schedules: ScheduleTableInterface[];
-  users: UsersDataInterface[];
-  teams: TeamsDataInterface[];
-  churchId: number;
-}
-
-interface ScheduleContainerProps {
-  tabs: SchedulesDataInterface[];
-  data: BootstrapData;
-}
 
 const SERVICE = 'service';
 const EVENT = 'event';
 const SCHEDULE = 'schedule';
 
-export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
+export const ScheduleContainer = ({ tabs, data }) => {
   const [tab, setTab] = useState(0);
-  const [isScheduleModified, setIsScheduleModified] = useState<boolean>(false);
-  const [isSaved, setIsSaved] = useState<boolean>(false);
-  const [isNewScheduleOpen, setIsNewScheduleOpen] = useState<boolean>(false);
-  const [isNewServiceOpen, setIsNewServiceOpen] = useState<boolean>(false);
-  const [warningDialog, setWarningDialog] = useState<string>('');
-  const [selectedEvents, setSelectedEvents] = useState<number[]>([]);
-  //   const [alert, setAlert] = useState<AlertInterface>();
+  const [isScheduleModified, setIsScheduleModified] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
+  const [isNewScheduleOpen, setIsNewScheduleOpen] = useState(false);
+  const [isNewServiceOpen, setIsNewServiceOpen] = useState(false);
+  const [warningDialog, setWarningDialog] = useState('');
+  const [selectedEvents, setSelectedEvents] = useState([]);
+  
 
   // manipulate events
-  const [dataModel, setDataModel] = useState<ScheduleTableInterface[]>(
+  const [dataModel, setDataModel] = useState(
     ld.cloneDeep(data.schedules),
   );
-  const templateChanges = useRef<TemplateChangesInterface>({
+  const templateChanges = useRef({
     changesSeed: -1,
   });
 
@@ -105,7 +92,7 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
     },
   };
 
-  const handleRowSelected = (isSelected: boolean, eventId: number) =>
+  const handleRowSelected = (isSelected, eventId) =>
     isSelected
       ? setSelectedEvents(selectedEvents.filter((id) => id !== eventId))
       : setSelectedEvents([...selectedEvents, eventId]);
@@ -131,7 +118,7 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
     };
   };
 
-  function addEvent(serviceIndex: number) {
+  function addEvent(serviceIndex) {
     const dataClone = [...dataModel];
     const targetEvents = dataClone[tab].services[serviceIndex].events;
     const newEvent = createBlankEvent(dataClone[tab].columns.length, retrieveChangesSeed);
@@ -162,7 +149,7 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
     setDataModel(dataClone);
   }
 
-  function deleteService(serviceId: number) {
+  function deleteService(serviceId) {
     const dataClone = [...dataModel];
     const filteredServices = dataClone[tab].services.filter(
       (service) => service.serviceId !== serviceId,
@@ -175,7 +162,7 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
   // autocomplete cell callback
   // in the future, can pass in warning icons or tooltips depending on the usecase.
   // maybe move elsewhere?
-  function renderOption(display, isIconVisible: boolean) {
+  function renderOption(display, isIconVisible) {
     return (
       // TODO move div styling somewhere else?
       <div
@@ -194,10 +181,10 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
   }
 
   function shouldDisplayTime(
-    time: string,
-    rowIndex: number,
-    serviceIndex: number,
-  ): boolean {
+    time,
+    rowIndex,
+    serviceIndex,
+  ) {
     // TODO update time string to standardized UTC string and use dedicated time inputs
     if (rowIndex === 0) return true;
     const previousEventsTime =
@@ -206,7 +193,7 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
   }
 
   // onChange Handlers
-  function onTaskChange(dataContext, newAssignee: number) {
+  function onTaskChange(dataContext, newAssignee) {
     const { taskId, serviceIndex, rowIndex, columnIndex } = dataContext;
     const dataClone = [...dataModel];
     dataClone[tab].services[serviceIndex].events[rowIndex].cells[
@@ -225,13 +212,13 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
     setDataModel(dataClone);
   }
 
-  function onTimeChange(newValue: string, rowIndex: number, serviceIndex: number) {
+  function onTimeChange(newValue, rowIndex, serviceIndex) {
     const dataClone = [...dataModel];
     dataClone[tab].services[serviceIndex].events[rowIndex].time = newValue;
     setDataModel(dataClone);
   }
 
-  function onChangeTabs(value: number) {
+  function onChangeTabs(value) {
     if (value === tabs.length) return;
     setTab(value);
   }
@@ -245,7 +232,7 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
     if (!result.destination || result.destination.index === result.source.index) {
       return;
     }
-    setDataModel((prev: ScheduleTableInterface[]) => {
+    setDataModel((prev) => {
       const temp = [...prev];
       const scope = temp[tab].services[sourceService].events;
       const src = scope.splice(source, 1);
@@ -289,7 +276,7 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
         />
         {!dataModel && <div style={{ height: '50vh' }}></div>}
         {/* {alert && <Alert alert={alert} unMountAlert={() => setAlert(null)} />} */}
-        {dataModel.map((schedule: ScheduleTableInterface, scheduleIndex) => {
+        {dataModel.map((schedule, scheduleIndex) => {
           const { columns: headers, services, title, view } = schedule;
           return (
             <div key={scheduleIndex}>
@@ -302,7 +289,7 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
                   <ScheduleTableHeader key={`Header-${Header}`} header={Header} />
                 ))}
 
-                {services.map((service: ServiceDataInterface, serviceIndex: number) => {
+                {services.map((service, serviceIndex) => {
                   const { day, name, events, serviceId } = service;
                   return (
                     <DragDropContext onDragEnd={onDragEnd}>
@@ -348,8 +335,8 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
                                   key={`DragRow_${eventId}`}
                                 >
                                   {(
-                                    provided: DraggableProvided,
-                                    snapshot: DraggableStateSnapshot,
+                                    provided,
+                                    snapshot
                                   ) => (
                                     <TableRow
                                       key={`${serviceIndex}-${rowIndex}`}
@@ -373,12 +360,12 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
                                         </div>
                                       </TableCell>
                                       {cells.map((cell, columnIndex) => {
-                                        const roleDataContext: RoleDataContext = {
+                                        const roleDataContext = {
                                           serviceIndex,
                                           rowIndex,
                                           roleId,
                                         };
-                                        const taskDataContext: TaskDataContext = {
+                                        const taskDataContext = {
                                           taskId: cell.taskId,
                                           roleId: roleId,
                                           serviceIndex,
@@ -469,129 +456,3 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
     </>
   );
 };
-
-interface ScheduleTableInterface {
-  columns: ColumnsInterface[];
-  role: RoleData;
-  title: string;
-  view: string;
-  services: ServiceDataInterface[];
-}
-
-interface RoleData {
-  churchId: number;
-  createdAt?: string;
-  updatedAt?: string;
-  id: number;
-  name: string;
-  roleId: null; // TODO: remove from db
-}
-
-interface ColumnsInterface {
-  Header: string;
-  Accessor: string;
-}
-
-interface ServiceData {
-  day: number;
-  name: string;
-  serviceId: number;
-  order?: number;
-}
-
-interface ServiceDataInterface extends ServiceData {
-  events: EventsDataInterface[];
-}
-
-interface EventData {
-  eventId: number;
-  roleId: number;
-  time: string;
-  order?: number;
-}
-
-interface EventsDataInterface extends EventData {
-  cells: AssignmentDataInterface[];
-}
-
-interface AssignmentDataInterface {
-  // we need a better system than this to differentiate cells that display time, and cells that are dynamic
-  role?: RoleAssociation;
-  display?: string;
-  time?: string;
-  taskId?: number;
-  date?: string;
-  firstName?: string;
-  lastName?: string;
-  userId: number;
-}
-
-interface RoleAssociation {
-  id: number;
-  name: string;
-}
-
-export interface UsersDataInterface {
-  userId: number;
-  firstName: string;
-  lastName: string;
-  email: string;
-  church: ChurchInterface;
-  churchId: number;
-  disabled: boolean;
-  teams: TeamsInterface[];
-}
-interface ChurchInterface {
-  name: string;
-}
-
-interface TeamsInterface {
-  id: number;
-  name: string;
-  users: Teammates[];
-}
-
-interface Teammates {
-  id: number;
-  roleId: number;
-  teamLead: boolean;
-  user: UserInterface;
-}
-
-interface UserInterface {
-  id: number;
-  firstName: string;
-  lastName: string;
-}
-
-interface TemplateChangesInterface {
-  changesSeed: number;
-}
-
-interface TeamsDataInterface {
-  id: number;
-  name: string;
-  users: UserRolesInterface[];
-}
-
-interface UserRolesInterface {
-  id: number;
-  roleId: number;
-  teamLead: boolean;
-  user: UserInterface;
-}
-
-interface DataContext {
-  serviceIndex: number;
-  rowIndex: number;
-}
-
-export interface RoleDataContext extends DataContext {
-  roleId: number;
-}
-
-export interface TaskDataContext extends DataContext {
-  taskId: number;
-  roleId: number;
-  columnIndex: number;
-}

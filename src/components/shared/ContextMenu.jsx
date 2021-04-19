@@ -1,22 +1,16 @@
 /* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 import React from 'react';
-import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
+import { makeStyles, createStyles } from '@material-ui/core/styles';
 
 import { useContextMenu } from '../../hooks';
 import { buttonTheme } from '../../shared/styles/theme';
-
-interface ContextMenuProps {
-  outerRef: any;
-  addRowHandler: (row: number) => void;
-  deleteRowHandler: () => void;
-}
 
 export const ContextMenu = ({
   outerRef,
   addRowHandler,
   deleteRowHandler,
-}: ContextMenuProps) => {
+}) => {
   const { xPos, yPos, menu, cellValue, cellRow } = useContextMenu(outerRef);
   const classes = useStyles();
   const rowIndex = parseInt(cellRow, 10);
@@ -43,8 +37,8 @@ export const ContextMenu = ({
   return <></>;
 };
 
-const contextMenuBackground: string = 'lightgray';
-const useStyles = makeStyles((theme: Theme) =>
+const contextMenuBackground = 'lightgray';
+const useStyles = makeStyles((theme) =>
   createStyles({
     contextMenu: {
       background: contextMenuBackground,

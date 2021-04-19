@@ -1,23 +1,22 @@
-import axios, { AxiosResponse } from 'axios';
+import axios from 'axios';
 import { secretIp } from '../../../secrets/secretStuff';
 import { getLocalStorageItem } from '../../shared/utilities';
-import { NewUserData } from '../../shared/types';
 
-export function getAllUsers(churchId: number): Promise<AxiosResponse> {
+export function getAllUsers(churchId) {
   const token = getLocalStorageItem('access_token')?.token;
   axios.defaults.headers.common.authorization = token;
   return axios.get(`${secretIp}/api/users?churchId=${churchId}`);
 }
 
-export function getUser(userId: string): Promise<AxiosResponse> {
+export function getUser(userId) {
   return axios.get(`${secretIp}/api/user/${userId}`);
 }
 
-export function destroyUser(userId: number): Promise<AxiosResponse | void> {
+export function destroyUser(userId) {
   // only admins can delete, and they can't delete themselves
   return axios.delete(`${secretIp}/api/user/${userId}`);
 }
 
-export function addUser(data: NewUserData): Promise<AxiosResponse> {
+export function addUser(data) {
   return axios.post(`${secretIp}/api/user`, data);
 }

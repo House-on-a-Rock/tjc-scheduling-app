@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { AuthContext } from '../../shared/services/AuthContext';
 
-export const AuthProvider: React.FC = ({ children }) => {
+export const AuthProvider = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(true);
   const login = () => setIsLoggedIn(true);
   const logout = () => setIsLoggedIn(false);

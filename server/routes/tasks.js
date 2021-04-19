@@ -1,6 +1,5 @@
-import express, { Request, Response, NextFunction } from 'express';
+import express from 'express';
 import Sequelize from 'sequelize';
-import { UserInstance } from 'shared/SequelizeTypings/models';
 import db from '../index';
 import { certify, setDate } from '../utilities/helperFunctions';
 
@@ -9,7 +8,7 @@ const { Op } = Sequelize;
 
 module.exports = router;
 
-router.get('/tasks', certify, async (req: Request, res: Response, next: NextFunction) => {
+router.get('/tasks', certify, async (req, res, next) => {
   try {
     const searchArray = [];
     const { userId, churchId, roleId } = req.query;
@@ -25,7 +24,7 @@ router.get('/tasks', certify, async (req: Request, res: Response, next: NextFunc
     const tasks = [];
     if (userId) {
       // and not role
-      const users: UserInstance[] = await db.User.findAll({ where: searchParams });
+      const users = await db.User.findAll({ where: searchParams });
       const query = users.map(async ({ id }) => {
         const task = await db.Task.findOne({ where: { user: id } });
         tasks.push(task);
@@ -48,70 +47,58 @@ router.get('/tasks', certify, async (req: Request, res: Response, next: NextFunc
   }
 });
 
-router.get(
-  '/tasks/:taskId',
-  certify,
-  async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const task = await db.Task.findOne({
-        where: { id: req.params.taskId },
-        attributes: ['id', 'date', 'churchId', 'userId'],
-      });
-      return task
-        ? res.status(200).json(task)
-        : res.status(404).send({ message: 'Task not found' });
-    } catch (err) {
-      next(err);
-      return res.status(503).send({ message: 'Server error, try again later' });
-    }
-  },
-);
+router.get('/tasks/:taskId', certify, async (req, res, next) => {
+  try {
+    const task = await db.Task.findOne({
+      where: { id: req.params.taskId },
+      attributes: ['id', 'date', 'churchId', 'userId'],
+    });
+    return task
+      ? res.status(200).json(task)
+      : res.status(404).send({ message: 'Task not found' });
+  } catch (err) {
+    next(err);
+    return res.status(503).send({ message: 'Server error, try again later' });
+  }
+});
 
-router.post(
-  '/tasks',
-  certify,
-  async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      // req.body could have userId + roleId, or userRoleId
-      const { date, time, userId, churchId, eventId } = req.body;
-      const { timezone } = await db.Church.findOne({ where: { id: churchId } });
-      const taskDate = setDate(date, time, timezone);
-      const task = await db.Task.create({
-        eventId,
-        userId,
-        date: new Date(taskDate.toString()),
-      });
-      return res.status(201).json(task);
-    } catch (err) {
-      next(err);
-      return res.status(503).send({ message: 'Server error, try again later' });
-    }
-  },
-);
+router.post('/tasks', certify, async (req, res, next) => {
+  try {
+    // req.body could have userId + roleId, or userRoleId
+    const { date, time, userId, churchId, eventId } = req.body;
+    const { timezone } = await db.Church.findOne({ where: { id: churchId } });
+    const taskDate = setDate(date, time, timezone);
+    const task = await db.Task.create({
+      eventId,
+      userId,
+      date: new Date(taskDate.toString()),
+    });
+    return res.status(201).json(task);
+  } catch (err) {
+    next(err);
+    return res.status(503).send({ message: 'Server error, try again later' });
+  }
+});
 
-router.delete(
-  '/tasks/:taskId',
-  certify,
-  async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const task = await db.Task.findOne({
-        where: { id: req.params.taskId },
-      });
-      const [message, status] = task ? ['Task deleted', 200] : ['Task not found', 404];
-      if (status === 200) await task.destroy();
-      return res.status(status).send({ message });
-    } catch (err) {
-      next(err);
-      return res.status(503).send({ message: 'Server error, try again later' });
-    }
-  },
-);
+router.delete('/tasks/:taskId', certify, async (req, res, next) => {
+  try {
+    const task = await db.Task.findOne({
+      where: { id: req.params.taskId },
+    });
+    const [message, status] = task ? ['Task deleted', 200] : ['Task not found', 404];
+    if (status === 200) await task.destroy();
+    return res.status(status).send({ message });
+  } catch (err) {
+    next(err);
+    return res.status(503).send({ message: 'Server error, try again later' });
+  }
+});
 
 // update schedule (changing who is assigned to a task), no swapping involved
 router.patch(
   '/tasks/updateTask/:targetTaskId/assignTo/:assigneeId',
   certify,
-  async (req: Request, res: Response, next: NextFunction) => {
+  async (req, res, next) => {
     try {
       const { targetTaskId, assigneeId } = req.params;
       const targetTask = await db.Task.findOne({
@@ -134,7 +121,7 @@ router.patch(
 router.patch(
   '/tasks/replaceTask/:taskId/replacedBy/:userRoleId',
   certify,
-  async (req: Request, res: Response, next: NextFunction) => {
+  async (req, res, next) => {
     try {
       const { taskId, userRoleId } = req.params;
       // this endpoint is messed up. needs rewriting

@@ -1,16 +1,9 @@
-import * as Sequelize from 'sequelize';
-import { SequelizeAttributes } from 'shared/SequelizeTypings/typings/SequelizeAttributes';
-import { TokenInstance, TokenAttributes } from 'shared/SequelizeTypings/models';
-
-function addMinutes(date: Date, minutes: number) {
+function addMinutes(date, minutes) {
   return new Date(date.getTime() + minutes * 60000);
 }
 
-const TokenFactory = (
-  sequelize: Sequelize.Sequelize,
-  DataTypes: Sequelize.DataTypes,
-): Sequelize.Model<TokenInstance, TokenAttributes> => {
-  const attributes: SequelizeAttributes<TokenAttributes> = {
+const TokenFactory = (sequelize, DataTypes) => {
+  const attributes = {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     userId: { type: DataTypes.INTEGER },
     token: { type: DataTypes.STRING },
@@ -24,7 +17,7 @@ const TokenFactory = (
     },
   };
 
-  const Token = sequelize.define<TokenInstance, TokenAttributes>('Token', attributes);
+  const Token = sequelize.define('Token', attributes);
 
   return Token;
 };

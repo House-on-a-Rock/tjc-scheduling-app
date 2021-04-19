@@ -2,14 +2,14 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 
 // Material UI components
-import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
+import { makeStyles, createStyles } from '@material-ui/core/styles';
 import Modal from '@material-ui/core/Modal';
 import Backdrop from '@material-ui/core/Backdrop';
 import Fade from '@material-ui/core/Fade';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Button from '@material-ui/core/Button';
 
-const useStyles = makeStyles((theme: Theme) =>
+const useStyles = makeStyles((theme) =>
   createStyles({
     modal: {
       display: 'flex',
@@ -25,19 +25,13 @@ const useStyles = makeStyles((theme: Theme) =>
   }),
 );
 
-interface TransitionsModalProps {
-  open: boolean;
-  setOpen: (arg0: boolean) => void;
-  description: string;
-  status: string | null;
-}
 
 export const TransitionsModal = ({
   open,
   setOpen,
   description,
   status,
-}: TransitionsModalProps) => {
+}) => {
   const classes = useStyles();
   return (
     <>

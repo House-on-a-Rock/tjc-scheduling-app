@@ -1,15 +1,5 @@
-import * as Sequelize from 'sequelize';
-import { SequelizeAttributes } from 'shared/SequelizeTypings/typings/SequelizeAttributes';
-import {
-  EventInstance,
-  EventAttributes,
-} from 'shared/SequelizeTypings/models/EventModel';
-
-const EventFactory = (
-  sequelize: Sequelize.Sequelize,
-  DataTypes: Sequelize.DataTypes,
-): Sequelize.Model<EventInstance, EventAttributes> => {
-  const attributes: SequelizeAttributes<EventAttributes> = {
+const EventFactory = (sequelize, DataTypes) => {
+  const attributes = {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     serviceId: { type: DataTypes.INTEGER },
     order: { type: DataTypes.INTEGER },
@@ -17,7 +7,7 @@ const EventFactory = (
     roleId: { type: DataTypes.INTEGER },
   };
 
-  const Event = sequelize.define<EventInstance, EventAttributes>('Event', attributes);
+  const Event = sequelize.define('Event', attributes);
 
   Event.associate = (models) => {
     Event.belongsTo(models.Service, {

@@ -4,19 +4,13 @@ import React, { ReactNode } from 'react';
 import MaUTable from '@material-ui/core/Table';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
-import { makeStyles, Theme, createStyles, fade, darken } from '@material-ui/core/styles';
+import { makeStyles, createStyles, fade, darken } from '@material-ui/core/styles';
 
 // Styles
 import { paletteTheme } from '../../shared/styles/theme.js';
 
-interface ScheduleTableProps {
-  title: string;
-  hidden: boolean;
-  children: ReactNode[];
-  outerRef?: any;
-}
 
-export const ScheduleTable: React.FC<ScheduleTableProps> = ({
+export const ScheduleTable = ({
   title,
   hidden,
   children,
@@ -43,7 +37,7 @@ export const ScheduleTable: React.FC<ScheduleTableProps> = ({
 const normalCellBorderColor = 'rgba(234, 234, 234, 1)';
 const normalCellBorder = `1px solid ${normalCellBorderColor}`;
 
-const useStyles = makeStyles((theme: Theme) =>
+const useStyles = makeStyles((theme) =>
   createStyles({
     scheduleTable: {
       position: 'absolute',

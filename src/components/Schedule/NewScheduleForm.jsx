@@ -1,6 +1,7 @@
 import React from 'react';
 import { MenuItem, Button } from '@material-ui/core';
-import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
+import { makeStyles, createStyles } from '@material-ui/core/styles';
+
 
 import { ValidatedTextField, ValidatedSelect } from '../FormControl';
 import { useValidatedField } from '../../hooks';
@@ -9,17 +10,10 @@ import { buttonTheme, tooltipContainer } from '../../shared/styles/theme.js';
 
 import { Tooltip } from '../shared/Tooltip';
 import { stringLengthCheck } from '../../shared/utilities';
-import { NewScheduleData } from '../../shared/types';
-import { AxiosError } from 'axios';
+
 // TODO hook up teams with data from DB
 
-interface NewScheduleFormProps {
-  onClose: (data: any) => void;
-  error: AxiosError<any>;
-  onSubmit: (newScheduleData: NewScheduleData) => void;
-  templateId?: number;
-  templates?: any;
-}
+
 
 export const NewScheduleForm = ({
   onClose,
@@ -27,7 +21,7 @@ export const NewScheduleForm = ({
   onSubmit,
   templateId,
   templates,
-}: NewScheduleFormProps) => {
+}) => {
   const tomorrow = new Date(new Date().setDate(new Date().getDate() + 1));
   const classes = useStyles();
 
@@ -189,7 +183,7 @@ export const NewScheduleForm = ({
 };
 
 // needed to format date so that the date picker can display it properly
-function toDateString(date: Date): string {
+function toDateString(date) {
   // need to pad months/dates with 0s if single digit
   let month = (date.getMonth() + 1).toString();
   let day = date.getDate().toString();
@@ -198,7 +192,7 @@ function toDateString(date: Date): string {
   return `${date.getFullYear()}-${month}-${day}`;
 }
 
-const useStyles = makeStyles((theme: Theme) =>
+const useStyles = makeStyles((theme) =>
   createStyles({
     newScheduleForm: {
       display: 'flex',

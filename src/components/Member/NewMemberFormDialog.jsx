@@ -14,15 +14,8 @@ import { makeStyles, createStyles } from '@material-ui/core/styles';
 
 import { EmailForm } from '../FormControl';
 import { FormField } from '../shared/FormField';
-import { EmailState, NewUserData } from '../../shared/types';
 import { isValidEmail } from '../../shared/utilities';
 
-export interface NewMemberFormDialogProps {
-  title: string;
-  state: boolean;
-  handleClose: () => void;
-  handleSubmit: (args: NewUserData) => void;
-}
 
 // FormDialog is inherently tightly coupled
 export function NewMemberFormDialog({
@@ -30,11 +23,11 @@ export function NewMemberFormDialog({
   handleClose,
   state,
   title,
-}: NewMemberFormDialogProps) {
+}) {
   const classes = useStyles();
-  const [firstName, setFirstName] = useState<string>('');
-  const [lastName, setLastName] = useState<string>('');
-  const [email, setEmail] = useState<EmailState>({
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [email, setEmail] = useState({
     value: '',
     valid: true,
     message: null,

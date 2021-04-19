@@ -1,25 +1,12 @@
-import * as Sequelize from 'sequelize';
-import { SequelizeAttributes } from 'shared/SequelizeTypings/typings/SequelizeAttributes';
-import {
-  NotificationInstance,
-  NotificationAttributes,
-} from 'shared/SequelizeTypings/models';
-
-const NotificationFactory = (
-  sequelize: Sequelize.Sequelize,
-  DataTypes: Sequelize.DataTypes,
-): Sequelize.Model<NotificationInstance, NotificationAttributes> => {
-  const attributes: SequelizeAttributes<NotificationAttributes> = {
+const NotificationFactory = (sequelize, DataTypes) => {
+  const attributes = {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     userId: { type: DataTypes.INTEGER },
     message: { type: DataTypes.STRING },
     isRead: { type: DataTypes.BOOLEAN, defaultValue: false },
   };
 
-  const Notification = sequelize.define<NotificationInstance, NotificationAttributes>(
-    'Notification',
-    attributes,
-  );
+  const Notification = sequelize.define('Notification', attributes);
 
   Notification.associate = (models) => {
     Notification.belongsTo(models.Request, {

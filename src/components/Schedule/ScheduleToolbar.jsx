@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { IconButton } from '@material-ui/core';
-import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
+import { makeStyles, createStyles } from '@material-ui/core/styles';
 import DeleteIcon from '@material-ui/icons/Delete';
 import SaveIcon from '@material-ui/icons/Save';
 import PublishIcon from '@material-ui/icons/Publish';
@@ -25,19 +25,12 @@ const TooltipForDisabledButton = ({ title, disabled, handleClick, children }) =>
   );
 };
 
-interface ScheduleToolbar {
-  isScheduleModified: boolean;
-  destroySchedule: () => void;
-  handleNewServiceClicked: () => void;
-  onSaveScheduleChanges: () => void;
-}
-
 export const ScheduleToolbar = ({
   handleNewServiceClicked,
   destroySchedule,
   isScheduleModified,
   onSaveScheduleChanges,
-}: ScheduleToolbar) => {
+}) => {
   const classes = useStyles();
   return (
     <div className={classes.scheduleToolbar}>
@@ -69,7 +62,7 @@ export const ScheduleToolbar = ({
   );
 };
 
-const useStyles = makeStyles((theme: Theme) =>
+const useStyles = makeStyles((theme) =>
   createStyles({
     scheduleToolbar: {
       display: 'flex',

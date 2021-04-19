@@ -1,23 +1,10 @@
-import * as Sequelize from 'sequelize';
-import { SequelizeAttributes } from 'shared/SequelizeTypings/typings/SequelizeAttributes';
-import {
-  UserRoleInstance,
-  UserRoleAttributes,
-} from 'shared/SequelizeTypings/models/UserRoleModel';
-
-const UserRoleFactory = (
-  sequelize: Sequelize.Sequelize,
-  DataTypes: Sequelize.DataTypes,
-): Sequelize.Model<UserRoleInstance, UserRoleAttributes> => {
-  const attributes: SequelizeAttributes<UserRoleAttributes> = {
+const UserRoleFactory = (sequelize, DataTypes) => {
+  const attributes = {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     teamLead: { type: DataTypes.BOOLEAN },
   };
 
-  const UserRole = sequelize.define<UserRoleInstance, UserRoleAttributes>(
-    'UserRole',
-    attributes,
-  );
+  const UserRole = sequelize.define('UserRole', attributes);
 
   UserRole.associate = (models) => {
     UserRole.belongsTo(models.Role, { as: 'role', foreignKey: 'roleId' });

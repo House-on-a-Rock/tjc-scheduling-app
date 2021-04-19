@@ -9,26 +9,16 @@ import Container from '@material-ui/core/Container';
 // Custom
 import { TransitionsModal } from '../shared/TransitionsModal';
 import { EmailForm } from '../FormControl';
-import { HttpResponseStatus, EmailState } from '../../shared/types/models';
 import { useQuery, isValidEmail } from '../../shared/utilities/helperFunctions';
 import history from '../../shared/services/history';
 import { recoverEmail } from '../../query/apis';
 
-interface AuthEmailProps {
-  data: AuthEmailDataProps;
-}
 
-interface AuthEmailDataProps {
-  history: boolean;
-  title: string;
-  description?: string;
-  button: string;
-}
 
-export const AuthEmail = ({ data }: AuthEmailProps) => {
+export const AuthEmail = ({ data }) => {
   const classes = useStyles();
 
-  const [email, setEmail] = useState<EmailState>({
+  const [email, setEmail] = useState({
     value: '',
     valid: true,
     message: null,
@@ -37,12 +27,12 @@ export const AuthEmail = ({ data }: AuthEmailProps) => {
   const [loadingState, setLoadingState] = useState(null);
 
   const query = JSON.parse(useQuery().get('message'));
-  const error: HttpResponseStatus = query && {
+  const error = query && {
     status: query?.status,
     message: query?.message,
   };
 
-  async function handleClick(event?: FormEvent<HTMLFormElement>) {
+  async function handleClick(event) {
     event?.preventDefault();
     setEmail({ ...email, valid: true, message: '' });
     if (isValidEmail(email.value)) {

@@ -1,32 +1,26 @@
-import axios, { AxiosResponse } from 'axios';
+import axios from 'axios';
 import { secretIp } from '../../../secrets/secretStuff';
 
-export function recoverEmail(email: string): Promise<AxiosResponse> {
+export function recoverEmail(email) {
   return axios.post(`${secretIp}/api/authentication/sendResetEmail`, {
     email: email,
   });
 }
 
-export function checkResetToken(token: string): Promise<AxiosResponse> {
+export function checkResetToken(token) {
   return axios.get(`${secretIp}/api/authentication/checkResetToken`, {
     headers: { authorization: token },
   });
 }
 
-export function authenticateLogin(
-  email: string,
-  password: string,
-): Promise<AxiosResponse> {
+export function authenticateLogin(email, password) {
   return axios.post(`${secretIp}/api/authentication/webLogin`, {
     email: email,
     password: password,
   });
 }
 
-export function sendNewPassword(
-  token: string,
-  newPassword: string,
-): Promise<AxiosResponse> {
+export function sendNewPassword(token, newPassword) {
   return axios.post(
     `${secretIp}/api/authentication/resetPassword`,
     { email: 'shaun.tung@gmail.com', password: newPassword },

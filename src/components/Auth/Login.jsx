@@ -20,9 +20,6 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 import { Copyright } from '../shared';
 import { PasswordForm, ValidatedTextField, VisiblePassword } from '../FormControl';
 import history from '../../shared/services/history';
-
-// Types
-import { HttpResponseStatus, PasswordState, EmailState } from '../../shared/types/models';
 import {
   setLocalStorageState,
   removeLocalStorageState,
@@ -34,27 +31,27 @@ import { authenticateLogin } from '../../query/apis';
 
 export const Login = () => {
   const classes = useStyles();
-  const rememberedEmailState: EmailState = {
+  const rememberedEmailState= {
     value: getLocalStorageItem('rmmbrshvs')?.email,
     valid: true,
     message: '',
   };
-  const rememberedPasswordState: PasswordState = {
+  const rememberedPasswordState= {
     value: getLocalStorageItem('rmmbrshvs')?.password,
     valid: true,
     message: '',
     visible: false,
   };
 
-  const [remembered, setRemembered] = useState<boolean>(
+  const [remembered, setRemembered] = useState(
     !!getLocalStorageItem('rmmbrshvs'),
   );
-  const [email, setEmail] = useState<EmailState>(
+  const [email, setEmail] = useState(
     rememberedEmailState.value
       ? rememberedEmailState
       : { value: '', valid: true, message: null },
   );
-  const [password, setPassword] = useState<PasswordState>(
+  const [password, setPassword] = useState(
     rememberedPasswordState.value
       ? rememberedPasswordState
       : {
@@ -65,7 +62,7 @@ export const Login = () => {
         },
   );
 
-  async function handleLogin(event?: FormEvent<HTMLFormElement>) {
+  async function handleLogin(event) {
     event?.preventDefault();
     setEmail({ ...email, valid: true, message: '' });
     setPassword({ ...password, valid: true, message: '' });

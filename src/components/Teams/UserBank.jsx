@@ -1,13 +1,8 @@
-/* eslint-disable @typescript-eslint/unbound-method */
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
 import {
   Droppable,
   Draggable,
-  DroppableProvided,
-  DroppableStateSnapshot,
-  DraggableProvided,
-  DraggableStateSnapshot,
   DroppableId,
 } from 'react-beautiful-dnd';
 
@@ -24,13 +19,8 @@ import './UserBank.css';
 import { transitionTheme, sideBarTheme, buttonTheme } from '../../shared/styles/theme.js';
 import { verticalScrollIndicatorShadow } from '../../shared/styles/scroll-indicator-shadow';
 
-interface UserBankProps {
-  members: MembersData[];
-  className: string;
-  droppableId: DroppableId;
-}
 
-export const UserBank = ({ members, className, droppableId }: UserBankProps) => {
+export const UserBank = ({ members, className, droppableId }) => {
   const classes = useStyles();
   const churchName = 'Philadelphia';
   return (
@@ -45,19 +35,13 @@ export const UserBank = ({ members, className, droppableId }: UserBankProps) => 
   );
 };
 
-interface DroppableBankProps {
-  members: MembersData[];
-  className: string;
-  droppableId: DroppableId;
-  church: string;
-}
 
 const DroppableBank = ({
   members,
   className,
   droppableId,
   church,
-}: DroppableBankProps) => {
+}) => {
   const classes = useStyles();
   return (
     <Droppable
@@ -65,12 +49,12 @@ const DroppableBank = ({
       droppableId={droppableId}
       isDropDisabled
     >
-      {(provided: DroppableProvided, snapshot: DroppableStateSnapshot) => (
+      {(provided, snapshot) => (
         <List dense ref={provided.innerRef}>
           <ListSubheader className={classes.listSubheader}>
             {`List of ${church} church members`}
           </ListSubheader>
-          {members.map((member: MembersData, index: number) => {
+          {members.map((member, index) => {
             const shouldRenderClone = member.id === snapshot.draggingFromThisWith;
             return (
               <React.Fragment key={member.id}>
@@ -81,8 +65,8 @@ const DroppableBank = ({
                 ) : (
                   <Draggable index={index} draggableId={member.id}>
                     {(
-                      childProvided: DraggableProvided,
-                      childSnapshot: DraggableStateSnapshot,
+                      childProvided,
+                      childSnapshot,
                     ) => (
                       <ListItem
                         ref={childProvided.innerRef}
@@ -107,7 +91,7 @@ const DroppableBank = ({
   );
 };
 
-const useStyles = makeStyles((theme: Theme) =>
+const useStyles = makeStyles((theme) =>
   createStyles({
     root: {
       ...verticalScrollIndicatorShadow('#edeef3'),

@@ -1,16 +1,10 @@
-import * as Sequelize from 'sequelize';
-import { SequelizeAttributes } from 'shared/SequelizeTypings/typings/SequelizeAttributes';
 import crypto from 'crypto';
 import dotenv from 'dotenv';
-import { UserAttributes, UserInstance, UserModel } from 'shared/SequelizeTypings/models';
 
 dotenv.config();
 
-const UserFactory = (
-  sequelize: Sequelize.Sequelize,
-  DataTypes: Sequelize.DataTypes,
-): Sequelize.Model<UserInstance, UserAttributes> => {
-  const attributes: SequelizeAttributes<UserAttributes> = {
+const UserFactory = (sequelize, DataTypes) => {
+  const attributes = {
     firstName: { type: DataTypes.STRING },
     lastName: { type: DataTypes.STRING },
     email: {
@@ -55,10 +49,7 @@ const UserFactory = (
     },
   };
 
-  const User = sequelize.define<UserInstance, UserAttributes>(
-    'User',
-    attributes,
-  ) as UserModel;
+  const User = sequelize.define('User', attributes);
 
   User.generateSalt = function () {
     return crypto.randomBytes(16).toString('base64');
@@ -69,7 +60,7 @@ const UserFactory = (
     return crypto.createHash(hash).update(plainText).update(salt).digest('hex');
   };
 
-  const createSaltyPassword = (user: UserInstance) => {
+  const createSaltyPassword = (user) => {
     if (user.changed('password')) {
       const verySalty = User.generateSalt();
       user.salt = verySalty;
@@ -77,9 +68,7 @@ const UserFactory = (
     }
   };
 
-  User.beforeBulkCreate((users: UserInstance[]) =>
-    users.map((user) => createSaltyPassword(user)),
-  );
+  User.beforeBulkCreate((users) => users.map((user) => createSaltyPassword(user)));
   User.beforeCreate(createSaltyPassword);
   User.beforeUpdate(createSaltyPassword);
 

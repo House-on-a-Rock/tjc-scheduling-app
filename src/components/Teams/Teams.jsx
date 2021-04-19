@@ -15,16 +15,14 @@ import { add, reorder } from './services';
 // 3. new team apis
 // 4. validation apis/reducers need to be fleshed out
 
-interface TeamsProps {
-  churchId: number;
-}
-export const Teams = ({ churchId }: TeamsProps) => {
+
+export const Teams = ({ churchId }) => {
   const classes = useStyles();
-  const initialState: TeamState = {};
+  const initialState = {};
   TEAMS.map((team) => (initialState[team.role] = team.members));
 
-  const [teams, setTeams] = useState<TeamState>(initialState);
-  const [draggedItem, setDraggedItem] = useState<DraggedItem>({
+  const [teams, setTeams] = useState(initialState);
+  const [draggedItem, setDraggedItem] = useState({
     member: { id: '', name: '' },
     source: '',
   });
@@ -51,28 +49,22 @@ export const Teams = ({ churchId }: TeamsProps) => {
   );
 };
 
-interface DragDropContextWrapperProps {
-  teams: TeamState;
-  handleTeams: (state: TeamState) => void;
-  handleDraggedItem: (draggedMember: DraggedItem) => void;
-  children: JSX.Element;
-}
 
 const DragDropContextWrapper = ({
   teams,
   handleTeams,
   handleDraggedItem,
   children,
-}: DragDropContextWrapperProps) => {
-  const onDragStart: (result: DropResult) => void = useCallback(
-    ({ source }: DropResult) => {
+}) => {
+  const onDragStart = useCallback(
+    ({ source }) => {
       handleDraggedItem({ member: MEMBERS[source.index], source: source.droppableId });
     },
     [handleDraggedItem],
   );
 
-  const onDragEnd: (result: DropResult) => void = useCallback(
-    ({ source, destination }: DropResult) => {
+  const onDragEnd = useCallback(
+    ({ source, destination }) => {
       handleDraggedItem({
         member: { id: '', name: '' },
         source: '', // always reset (cleans up classes)

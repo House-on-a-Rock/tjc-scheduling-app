@@ -7,16 +7,13 @@ import {
   getTeamsData,
 } from '../../query';
 import { ScheduleContainer } from './ScheduleContainer';
-import { createStyles, makeStyles, Theme } from '@material-ui/core';
+import { createStyles, makeStyles } from '@material-ui/core';
 import { loadingTheme } from '../../shared/styles/theme';
 
-interface ScheduleProps {
-  churchId: number;
-}
 
-export const Schedule = ({ churchId }: ScheduleProps) => {
+export const Schedule = ({ churchId }) => {
   const classes = useStyles();
-  const [fetchedSchedules, setFetchedSchedules] = useState<number[]>([]);
+  const [fetchedSchedules, setFetchedSchedules] = useState([]);
 
   const tabs = useQuery(['tabs', churchId], () => getAllSchedules(churchId), {
     enabled: !!churchId,
@@ -75,7 +72,7 @@ function makeScheduleIdxs(tabsData) {
   return scheduleIdxs;
 }
 
-const useStyles = makeStyles((theme: Theme) =>
+const useStyles = makeStyles((theme) =>
   createStyles({
     loading: {
       ...loadingTheme,

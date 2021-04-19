@@ -1,20 +1,18 @@
 import nodemailer from 'nodemailer';
 import crypto from 'crypto';
-import jwt, { Algorithm, TokenExpiredError, JsonWebTokenError } from 'jsonwebtoken';
-import { Request, Response, NextFunction } from 'express';
+import jwt, { TokenExpiredError, JsonWebTokenError } from 'jsonwebtoken';
 import fs from 'fs';
 import { DateTime } from 'luxon';
-import { RoleAttributes, ServiceInstance } from 'shared/SequelizeTypings/models';
 import db from '../index';
 
 const privateKey = fs.readFileSync('tjcschedule.pem');
-let cert: Buffer;
-fs.readFile('tjcschedule_pub.pem', function read(err, data: Buffer) {
+let cert;
+fs.readFile('tjcschedule_pub.pem', function read(err, data) {
   if (err) throw err;
   cert = data;
 });
 
-export function certify(req: Request, res: Response, next: NextFunction) {
+export function certify(req, res, next) {
   try {
     const { authorization = '' } = req.headers;
     jwt.verify(authorization, cert);
@@ -29,7 +27,7 @@ export function certify(req: Request, res: Response, next: NextFunction) {
   }
 }
 
-export function sendGenericEmail(username: string, link: string) {
+export function sendGenericEmail(username, link) {
   try {
     console.log('Sending email..');
     const transporter = nodemailer.createTransport({
@@ -59,11 +57,11 @@ export function sendGenericEmail(username: string, link: string) {
 }
 
 export function sendVerEmail(
-  username: string,
-  { hostname }: Request, // https://github.com/getsentry/raven-node/issues/96
-  token: string,
-  api: string,
-): [string, number] {
+  username,
+  { hostname }, // https://github.com/getsentry/raven-node/issues/96
+  token,
+  api,
+) {
   try {
     console.log('Sending email..');
     const message =
@@ -96,17 +94,17 @@ export function sendVerEmail(
   }
 }
 
-export function addMinutes(date: Date, minutes: number) {
+export function addMinutes(date, minutes) {
   return new Date(date.getTime() + minutes * 60000);
 }
 
 export function createToken(
-  tokenType: string,
-  userId: number,
-  churchId: number,
-  expiresInMinutes: number,
+  tokenType,
+  userId,
+  churchId,
+  expiresInMinutes,
   isAdmin = false,
-  roleIds: (number | RoleAttributes | undefined)[] = [],
+  roleIds = [],
 ) {
   console.log('Creating token');
   let mappedRoleIds = '';
@@ -129,16 +127,12 @@ export function createToken(
       key: privateKey,
       passphrase: process.env.PRIVATEKEY_PASS ?? '',
     },
-    { algorithm: process.env.JWT_ALGORITHM as Algorithm },
+    { algorithm: process.env.JWT_ALGORITHM },
   );
 
   return token;
 }
-export function createResetToken(
-  userId: number,
-  expiresInMinutes: number,
-  secret: string,
-) {
+export function createResetToken(userId, expiresInMinutes, secret) {
   console.log('Creating reset token');
   const token = jwt.sign(
     {
@@ -151,23 +145,19 @@ export function createResetToken(
 
   return token;
 }
-export function validateEmail(email: string) {
+export function validateEmail(email) {
   return /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(email);
 }
 
-export function setDate(date: string, time: string, timeZone: string) {
+export function setDate(date, time, timeZone) {
   return DateTime.fromISO(`${date}T${time}`, { zone: timeZone });
 }
 
-export function hashPassword(password: string, salt: string) {
+export function hashPassword(password, salt) {
   const hashbrown = process.env.SECRET_HASH ?? '';
   return crypto.createHash(hashbrown).update(password).update(salt).digest('hex');
 }
-export function makeMyNotificationMessage(
-  notification: string,
-  type: string,
-  firstName: string,
-): string {
+export function makeMyNotificationMessage(notification, type, firstName) {
   switch (notification) {
     case 'accepted':
       return `Your requested has been accepted by ${firstName}`;
@@ -199,20 +189,20 @@ export function timeToMilliSeconds(time = '') {
   return convertedHour + convertedMin + convertedPeriod;
 }
 
-export function isInTime(target: string, start: string, end: string): boolean {
+export function isInTime(target, start, end) {
   const targetTime = timeToMilliSeconds(target);
   const startTime = timeToMilliSeconds(start);
   const endTime = timeToMilliSeconds(end);
   return startTime <= targetTime && targetTime <= endTime;
 }
 
-export function isTimeBefore(comparing: string, target: string): boolean {
+export function isTimeBefore(comparing, target) {
   const targetTime = timeToMilliSeconds(target);
   const comparingTime = timeToMilliSeconds(comparing);
   return comparingTime < targetTime;
 }
 
-const zeroPaddingDates = (date: Date): string => {
+const zeroPaddingDates = (date) => {
   let month = (date.getMonth() + 1).toString();
   let day = date.getDate().toString();
 
@@ -222,7 +212,7 @@ const zeroPaddingDates = (date: Date): string => {
   return `${month}/${day}`;
 };
 
-const setStartAndEnd = (arg1: Date, arg2?: Date) => {
+const setStartAndEnd = (arg1, arg2?) => {
   const start = new Date(arg1);
   start.setDate(start.getDate() - start.getDay()); // sets start to sunday
   const end = arg2 ? new Date(arg2) : new Date(start);
@@ -230,8 +220,8 @@ const setStartAndEnd = (arg1: Date, arg2?: Date) => {
   return [start, end];
 };
 
-export function columnizedDates(everyRepeatingDay: Date[]) {
-  return everyRepeatingDay.map((date: Date) => {
+export function columnizedDates(everyRepeatingDay) {
+  return everyRepeatingDay.map((date) => {
     const startDate = new Date(date);
     const endDate = new Date(date);
     endDate.setDate(startDate.getDate() + 6);
@@ -243,9 +233,9 @@ export function columnizedDates(everyRepeatingDay: Date[]) {
   });
 }
 
-export function determineWeeks(startDate: Date, endDate: Date) {
+export function determineWeeks(startDate, endDate) {
   const [start, end] = setStartAndEnd(startDate, endDate);
-  const weeks: Date[] = [];
+  const weeks = [];
   let current = new Date(start);
   while (current <= end) {
     weeks.push(new Date(current));
@@ -254,7 +244,7 @@ export function determineWeeks(startDate: Date, endDate: Date) {
   return weeks;
 }
 
-export function createColumns(start: Date, end: Date) {
+export function createColumns(start, end) {
   return [
     {
       Header: 'Time',
@@ -268,11 +258,7 @@ export function createColumns(start: Date, end: Date) {
   ];
 }
 
-export async function populateServiceData({
-  name,
-  day,
-  id,
-}: ServiceInstance): Promise<any> {
+export async function populateServiceData({ name, day, id }) {
   const events = await db.Event.findAll({
     where: { serviceId: id },
     order: [['order', 'ASC']],
@@ -307,7 +293,7 @@ async function retrieveTaskData(eventId, role) {
     attributes: ['id', 'userId'],
     order: [['date', 'ASC']],
   });
-  const organizedTasks = tasks.map((task: any) => {
+  const organizedTasks = tasks.map((task) => {
     return {
       taskId: task.id,
       userId: task.userId,
@@ -316,7 +302,7 @@ async function retrieveTaskData(eventId, role) {
   return organizedTasks;
 }
 
-export const recurringDaysOfWeek = (start: Date, end: Date, dayOfWeeK: number) => {
+export const recurringDaysOfWeek = (start, end, dayOfWeeK) => {
   const weeks = [];
   let startDayOfWeek = new Date(start).getDay();
   let dayModifier = dayOfWeeK - startDayOfWeek;

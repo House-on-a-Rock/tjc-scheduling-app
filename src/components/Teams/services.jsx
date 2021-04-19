@@ -2,17 +2,17 @@ import React from 'react';
 import { v4 as uuid } from 'uuid';
 import {
   DraggableLocation,
-  DraggableStateSnapshot,
-  DraggableProvided,
+  
+  
   DraggableRubric,
 } from 'react-beautiful-dnd';
 
 import { MembersData, TeamData, TeamState } from './models';
 import ListItem from '@material-ui/core/ListItem';
 
-export const getRenderItem = (items: MembersData[], className: string) => (
-  provided: DraggableProvided,
-  snapshot: DraggableStateSnapshot,
+export const getRenderItem = (items, className) => (
+  provided,
+  snapshot: 
   rubric: DraggableRubric,
 ) => {
   const item = items[rubric.source.index];
@@ -33,11 +33,11 @@ export const getRenderItem = (items: MembersData[], className: string) => (
 };
 
 export function add(
-  members: MembersData[],
-  teamsState: TeamState,
+  members,
+  teamsState,
   droppableSource: DraggableLocation,
   droppableDestination: DraggableLocation,
-): TeamState {
+) {
   const stateClone: TeamData[] = teamsState[droppableDestination.droppableId];
   const member = members[droppableSource.index];
   stateClone.push({ ...member, id: uuid() });
@@ -45,10 +45,10 @@ export function add(
 }
 
 export function reorder(
-  state: TeamState,
+  state,
   start: DraggableLocation,
   end: DraggableLocation,
-): TeamState {
+) {
   const list = state[start.droppableId];
   const [removed] = list.splice(start.index, 1);
   list.splice(end.index, 0, removed);

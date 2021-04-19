@@ -7,22 +7,16 @@ import CardContent from '@material-ui/core/CardContent';
 import Divider from '@material-ui/core/Divider';
 import Typography from '@material-ui/core/Typography';
 import { DroppableTeamMembersList } from './DroppableTeamMemberList';
-import { MembersData, DraggedItem } from './models';
 import { cardTheme } from '../../shared/styles/theme';
 import { verticalScrollIndicatorShadow } from '../../shared/styles/scroll-indicator-shadow';
 
-interface TeamCardProps {
-  type: string;
-  members: MembersData[];
-  draggedItem: DraggedItem;
-}
 
-export const TeamCard = ({ type, members, draggedItem }: TeamCardProps) => {
+export const TeamCard = ({ type, members, draggedItem }) => {
   const classes = useStyles();
-  const canDrop: () => boolean = () =>
+  const canDrop = () =>
     draggedItem.source === 'USERBANK'
       ? !members
-          .map((member: MembersData) => member.name)
+          .map((member) => member.name)
           .includes(draggedItem.member.name)
       : draggedItem.source === type || draggedItem.source === '';
 
@@ -49,7 +43,7 @@ export const TeamCard = ({ type, members, draggedItem }: TeamCardProps) => {
   );
 };
 
-const useStyles = makeStyles((theme: Theme) => ({
+const useStyles = makeStyles((theme) => ({
   root: {
     ...cardTheme,
     display: 'flex',

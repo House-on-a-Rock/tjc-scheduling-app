@@ -1,7 +1,5 @@
-import React, { useEffect, useRef, useState, ChangeEvent } from 'react';
-
+import React, { useEffect, useState } from 'react';
 import Grid from '@material-ui/core/Grid';
-
 import { ConfirmationDialog } from '../../components/shared';
 import {
   MembersHeader,
@@ -9,21 +7,7 @@ import {
   NewMemberFormDialog,
   Toolbar,
 } from '../../components/Member';
-import { UsersDataInterface } from '../Schedules/ScheduleContainer';
-
 import { updateSelectedRows } from './utilities';
-import { DataStateProp } from '../types';
-import { NewUserData } from '../../shared/types';
-
-interface BootstrapMembersContainer {
-  users: UsersDataInterface[];
-}
-
-interface MembersContainerProps {
-  state: DataStateProp<BootstrapMembersContainer>;
-  addUser: (newInfo: NewUserData) => void;
-  removeUser: (newInfo: any) => void;
-}
 
 const USER = 'user';
 
@@ -31,19 +15,19 @@ export const MembersContainer = ({
   state,
   addUser,
   removeUser,
-}: MembersContainerProps) => {
+}) => {
   const { isLoading, error, data, isSuccess } = state;
   // Component state
-  const [filteredMembers, setFilteredMembers] = useState<UsersDataInterface[]>([]);
-  const [searchField, setSearchField] = useState<string>('');
-  const [lastSelected, setLastSelected] = useState<number>(-1);
-  const [selectedRows, setSelectedRows] = useState<number[]>([]);
+  const [filteredMembers, setFilteredMembers] = useState([]);
+  const [searchField, setSearchField] = useState('');
+  const [lastSelected, setLastSelected] = useState(-1);
+  const [selectedRows, setSelectedRows] = useState([]);
 
-  // const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState<boolean>(false);
-  const [isNewMemberDialogOpen, setIsNewMemberDialogOpen] = useState<boolean>(false);
-  const [warningDialog, setWarningDialog] = useState<string>('');
+  // const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
+  const [isNewMemberDialogOpen, setIsNewMemberDialogOpen] = useState(false);
+  const [warningDialog, setWarningDialog] = useState('');
 
-  const isSelected: (arg: number) => boolean = (id: number) => selectedRows.includes(id);
+  const isSelected = (id) => selectedRows.includes(id);
 
   const handleDeleteMembers = () => {
     // try {
@@ -55,7 +39,7 @@ export const MembersContainer = ({
     // setSelectedRows([]);
   };
 
-  const onCloseAddMemberDialog = (firstName: string, lastName: string, email: string) => {
+  const onCloseAddMemberDialog = (firstName, lastName, email) => {
     // if (
     //   shouldAdd &&
     //   firstName &&
@@ -77,13 +61,13 @@ export const MembersContainer = ({
     // setIsAddMemberDialogOpen(false);
   };
 
-  const onSelectAll = (checked: boolean) =>
+  const onSelectAll = (checked) =>
     checked
-      ? setSelectedRows(data.users.map(({ userId }: UsersDataInterface) => userId))
+      ? setSelectedRows(data.users.map(({ userId }) => userId))
       : setSelectedRows([]);
 
-  const onSelect = (shiftKeyPressed: boolean, { userId: id }: UsersDataInterface) => {
-    const targetRows: number[] = shiftKeyPressed
+  const onSelect = (shiftKeyPressed, { userId: id }) => {
+    const targetRows = shiftKeyPressed
       ? updateSelectedRows(lastSelected, id, data.users)
       : [id];
     if (selectedRows.includes(id))
@@ -122,7 +106,7 @@ export const MembersContainer = ({
           <Grid item xs={12}>
             <MembersHeader
               localChurch="Philadelphia"
-              onSearchChange={(event: ChangeEvent<HTMLInputElement>) =>
+              onSearchChange={(event) =>
                 setSearchField(event.target.value)
               }
             />
@@ -140,7 +124,7 @@ export const MembersContainer = ({
           </Grid>
           <ConfirmationDialog
             state={!!warningDialog}
-            handleClick={(accepted: boolean) => {
+            handleClick={(accepted) => {
               if (accepted) warningDialogConfig[warningDialog].accepted();
               else setWarningDialog('');
             }}
@@ -158,7 +142,7 @@ export const MembersContainer = ({
   );
 };
 
-const filterMembers = (users: UsersDataInterface[], target: string) =>
+const filterMembers = (users, target) =>
   users.filter(({ email, firstName, lastName }) => {
     const filterChar = target.toLowerCase();
     return (

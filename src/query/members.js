@@ -1,6 +1,6 @@
 import { getAllUsers, getAllRoles, getAllUserRoles } from './apis';
 
-export const getChurchMembersData = async (churchId: number) => {
+export const getChurchMembersData = async (churchId) => {
   if (churchId) {
     const { data: users } = await getAllUsers(churchId);
     const { data: userRoles } = await getAllUserRoles(churchId);
@@ -11,7 +11,7 @@ export const getChurchMembersData = async (churchId: number) => {
         const teams = [];
         userRoles.forEach((ur) => {
           if (user.userId === ur.user.id) {
-            let teammates: any = {};
+            let teammates = {};
             roles.forEach((role) => {
               if (role.id === ur.roleId) teammates = { ...role };
             });

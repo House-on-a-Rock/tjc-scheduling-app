@@ -1,21 +1,15 @@
 import React from 'react';
 import TextField from '@material-ui/core/TextField';
 import { VisiblePassword } from './VisiblePassword';
-import { PasswordState } from '../../shared/types/models';
 
-interface PasswordFormProps {
-  name: string;
-  label: string;
-  password: PasswordState;
-  handlePassword: (arg0: PasswordState) => void;
-}
+
 
 export const PasswordForm = ({
   name,
   label,
   password,
   handlePassword,
-}: PasswordFormProps) => (
+}) => (
   <TextField
     variant="outlined"
     margin="normal"

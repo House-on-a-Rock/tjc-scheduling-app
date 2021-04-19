@@ -1,7 +1,6 @@
 import express, { Request, Response } from 'express';
 import Sequelize from 'sequelize';
 import crypto from 'crypto';
-import { UserInstance, UserRoleInstance } from 'shared/SequelizeTypings/models';
 import db from '../index';
 import { certify, sendVerEmail, validateEmail } from '../utilities/helperFunctions';
 
@@ -10,13 +9,13 @@ const { Op } = Sequelize;
 
 module.exports = router;
 
-router.get('/users', certify, async (req: Request, res: Response, next) => {
+router.get('/users', certify, async (req, res, next) => {
   try {
     const { roleId, churchId } = req.query;
     const searchArray = [];
     if (churchId) searchArray.push({ churchId });
     if (roleId) {
-      const userRoles: UserRoleInstance[] = await db.UserRole.findAll({
+      const userRoles = await db.UserRole.findAll({
         where: { roleId: roleId.toString() },
         attributes: ['userId'],
       });
@@ -79,15 +78,15 @@ router.get('/user/:userId', certify, async (req, res, next) => {
   }
 });
 
-router.post('/user', certify, async (req: Request, res: Response, next) => {
+router.post('/user', certify, async (req, res, next) => {
   try {
     const { email, firstName, lastName, churchId } = req.body;
     const token = crypto.randomBytes(16).toString('hex');
-    const userExists: UserInstance | null = await db.User.findOne({
+    const userExists = await db.User.findOne({
       where: { email },
       attributes: ['id', 'email'],
     });
-    const { id }: UserInstance =
+    const { id } =
       !userExists &&
       (await db.User.create({
         firstName,
@@ -113,7 +112,7 @@ router.post('/user', certify, async (req: Request, res: Response, next) => {
 
     if (addedUser) await db.Token.create({ userId: addedUser.id, token });
 
-    const determineMessageStatus: () => [string, number] = () => {
+    const determineMessageStatus = () => {
       switch (true) {
         case !validateEmail(email):
           return ['Invalid email', 406];
@@ -136,7 +135,7 @@ router.post('/user', certify, async (req: Request, res: Response, next) => {
   }
 });
 
-router.delete('/user/:userId', certify, async (req: Request, res: Response, next) => {
+router.delete('/user/:userId', certify, async (req, res, next) => {
   try {
     const user = await db.User.findOne({
       where: { id: req.params.userId },
@@ -152,22 +151,18 @@ router.delete('/user/:userId', certify, async (req: Request, res: Response, next
 });
 
 // updates expoPushToken on login, may need cleanup or be moved around
-router.patch(
-  '/user/expoPushToken/:userId',
-  certify,
-  async (req: Request, res: Response, next) => {
-    try {
-      const user = await db.User.findOne({
-        where: { id: req.params.userId },
-      });
-      const [message, status] = user
-        ? ['Push Token updated', 200]
-        : ['User not found', 404];
-      if (status === 200) await user.update({ expoPushToken: req.body.pushToken });
-      return res.status(status).send({ message });
-    } catch (err) {
-      next(err);
-      return res.status(503).send({ message: 'Server error, try again later' });
-    }
-  },
-);
+router.patch('/user/expoPushToken/:userId', certify, async (req, res, next) => {
+  try {
+    const user = await db.User.findOne({
+      where: { id: req.params.userId },
+    });
+    const [message, status] = user
+      ? ['Push Token updated', 200]
+      : ['User not found', 404];
+    if (status === 200) await user.update({ expoPushToken: req.body.pushToken });
+    return res.status(status).send({ message });
+  } catch (err) {
+    next(err);
+    return res.status(503).send({ message: 'Server error, try again later' });
+  }
+});
