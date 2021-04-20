@@ -12,8 +12,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors());
 
 app.get('/', (req, res, next) => {
-  console.log('Hello World');
-  res.send('Hello World');
+  res.send('Hello Ted');
   next();
 });
 
@@ -28,11 +27,11 @@ app.use((req, res, next) => {
 });
 
 // error handling endware
-app.use((err, req, res) => {
-  console.error(err);
-  console.error(err.stack);
-  res.status(err.status || 500).send(err.message || 'Internal server error.');
-});
+// app.use((err, req, res) => {
+//   console.error(err);
+//   console.error(err.stack);
+//   res.status(err.status || 500).send(err.message || 'Internal server error.');
+// });
 
 const syncDb = () =>
   db.sequelize.sync().then(() => {
