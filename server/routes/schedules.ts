@@ -10,6 +10,8 @@ import {
   recurringDaysOfWeek,
 } from '../utilities/helperFunctions';
 import { daysOfWeek } from '../../shared/constants';
+import sequelize from 'sequelize';
+import Sequelize from 'sequelize';
 
 const router = express.Router();
 module.exports = router;
@@ -197,16 +199,54 @@ router.post(
     }
   },
 );
-
+// object can have updated, added, removed
+/*  
+         each will have an array of objects
+         each of those objects can have at least 2 of several properties
+         order of these properties matter
+         
+         ids- scheduleId, serviceId, eventId, taskId
+         updateTarget- title, roleId, userId, order, time, 
+      */
 router.post(
   '/schedule/update',
   certify,
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      console.log(req.body);
-    } catch {}
+      const tr = db.sequelize.transaction(async (t) => {
+        const { updated, added, removed } = req.body;
+        if (updated) {
+          await Promise.all(
+            updated.map(async (x) => {
+              const keys = Object.keys(x);
+
+              switch (keys[0]) {
+                case 'taskId':
+                  const targetTaskId = x[keys[0]];
+                  const targetUserId = x[keys[1]];
+                  const targetTask = await db.Task.findOne({
+                    where: { id: targetTaskId },
+                    attributes: ['id', 'userId'],
+                  });
+                  return await targetTask.update(
+                    { userId: targetUserId },
+                    { transaction: t },
+                  );
+                default:
+                  break;
+              }
+            }),
+          );
+        }
+      });
+    } catch (err) {
+      next(err);
+      return res.status(503).send({ message: 'Server error, try again later' });
+    }
   },
 );
+
+const updateTask = (x) => {};
 
 router.delete(
   '/schedule',

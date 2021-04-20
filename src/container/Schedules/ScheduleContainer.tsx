@@ -96,13 +96,10 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
 
   function onSaveScheduleChanges() {
     const diff = updatedDiff(data.schedules, dataModel);
-    console.log(`diff`, diff);
 
     // need error checking before running diff
     const updiff = processUpdate(diff, dataModel, tab);
-
-    updateSchedule.mutate(updiff);
-
+    updateSchedule.mutate({ updated: updiff });
     setIsScheduleModified(false);
   }
 
@@ -128,14 +125,14 @@ export const ScheduleContainer = ({ tabs, data }: ScheduleContainerProps) => {
   }
 
   // Model manipulation functions
-  const createBlankService = () => {
+  function createBlankService() {
     return {
       name: 'test',
       day: 0,
       events: [],
       serviceId: retrieveChangesSeed(),
     };
-  };
+  }
 
   function addEvent(serviceIndex: number) {
     const dataClone = [...dataModel];
