@@ -6,8 +6,6 @@ import { certify } from '../utilities/helperFunctions';
 const router = express.Router();
 const { Op } = Sequelize;
 
-module.exports = router;
-
 router.get('/templates', certify, async (req, res, next) => {
   try {
     const { churchId } = req.query;
@@ -21,3 +19,5 @@ router.get('/templates', certify, async (req, res, next) => {
     return res.status(503).send({ message: 'Server error, try again later' });
   }
 });
+
+export default router;

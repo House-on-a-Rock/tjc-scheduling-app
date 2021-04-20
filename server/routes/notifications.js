@@ -8,8 +8,6 @@ import {
 
 const router = express.Router();
 
-module.exports = router;
-
 async function sendPushNotification(userId, userPushToken, title, body) {
   const user = await db.Notification.findAll({
     where: { id: userId, isRead: false },
@@ -223,3 +221,5 @@ router.delete('/notifications/:notificationId', certify, async (req, res, next) 
     return res.status(503).send({ message: 'Server error, try again later' });
   }
 });
+
+export default router;

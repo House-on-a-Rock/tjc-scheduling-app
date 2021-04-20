@@ -1,7 +1,7 @@
-import express from 'express';
-import crypto from 'crypto';
-import jwt, { TokenExpiredError, JsonWebTokenError } from 'jsonwebtoken';
-import {
+const express = require('express');
+const crypto = require('crypto');
+const { jwt, TokenExpiredError, JsonWebTokenError } = require('jsonwebtoken');
+const {
   addMinutes,
   createToken,
   createResetToken,
@@ -9,13 +9,14 @@ import {
   sendGenericEmail,
   sendVerEmail,
   certify,
-} from '../utilities/helperFunctions';
-import db from '../index';
-
+} = require('../utilities/helperFunctions');
+const db = require('../index');
 // to destructure db into { Token, User}, cannot use default exports
 const router = express.Router();
 
-module.exports = router;
+// router.get('/', function (req, res, next) {
+//   res.render('index', { title: 'Express' });
+// });
 
 router.get('/confirmation', async (req, res, next) => {
   try {
@@ -368,3 +369,5 @@ router.post('/resetPassword', certify, async (req, res, next) => {
     return res.status(503).send({ message: 'Server error, try again later' });
   }
 });
+
+export default router;

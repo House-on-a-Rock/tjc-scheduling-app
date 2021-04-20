@@ -6,8 +6,6 @@ import { certify, setDate } from '../utilities/helperFunctions';
 const router = express.Router();
 const { Op } = Sequelize;
 
-module.exports = router;
-
 router.get('/tasks', certify, async (req, res, next) => {
   try {
     const searchArray = [];
@@ -157,3 +155,4 @@ router.patch(
     }
   },
 );
+export default router;

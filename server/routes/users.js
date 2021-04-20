@@ -7,8 +7,6 @@ import { certify, sendVerEmail, validateEmail } from '../utilities/helperFunctio
 const router = express.Router();
 const { Op } = Sequelize;
 
-module.exports = router;
-
 router.get('/users', certify, async (req, res, next) => {
   try {
     const { roleId, churchId } = req.query;
@@ -166,3 +164,5 @@ router.patch('/user/expoPushToken/:userId', certify, async (req, res, next) => {
     return res.status(503).send({ message: 'Server error, try again later' });
   }
 });
+
+export default router;

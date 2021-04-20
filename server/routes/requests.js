@@ -6,7 +6,6 @@ import db from '../index';
 
 const router = express.Router();
 
-module.exports = router;
 const determineMessageStatus = (request, accepted, approved) => {
   switch (true) {
     case !request:
@@ -239,3 +238,5 @@ router.delete('/requests/:requestId', certify, async (req, res, next) => {
     return res.status(503).send({ message: 'Server error, try again later' });
   }
 });
+
+export default router;

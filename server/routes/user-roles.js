@@ -5,8 +5,6 @@ import db from '../index';
 
 const router = express.Router();
 
-module.exports = router;
-
 router.get('/user-roles', certify, async (req, res, next) => {
   try {
     const { churchId } = req.query;
@@ -54,3 +52,4 @@ router.get('/user-role/:userId', certify, async (req, res, next) => {
     return res.status(503).send({ message: 'Server error, try again later' });
   }
 });
+export default router;

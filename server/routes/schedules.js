@@ -11,7 +11,6 @@ import {
 import { daysOfWeek } from '../../shared/constants';
 
 const router = express.Router();
-module.exports = router;
 
 router.get('/schedules', certify, async (req, res, next) => {
   try {
@@ -131,7 +130,7 @@ router.delete('/schedule', certify, async (req, res, next) => {
     await db.Schedule.destroy({
       where: {
         id: scheduleId,
-        title: title,
+        title,
       },
     });
     return res.status(200).send(`Schedule ${title} successfully deleted`);
@@ -140,3 +139,4 @@ router.delete('/schedule', certify, async (req, res, next) => {
     return res.status(503).send({ message: 'Server error, try again later' });
   }
 });
+export default router;

@@ -9,8 +9,6 @@ const router = express.Router();
 // const { Op } = Sequelize;
 const { green, red, blue } = require('chalk');
 
-module.exports = router;
-
 router.post('/service', certify, async (req, res, next) => {
   try {
     const { name, order, dayOfWeek, scheduleId } = req.body;
@@ -27,7 +25,7 @@ router.post('/service', certify, async (req, res, next) => {
       name,
       order,
       day: dayOfWeek,
-      scheduleId: scheduleId,
+      scheduleId,
     });
 
     // return res.status(200).json(newService);
@@ -37,3 +35,5 @@ router.post('/service', certify, async (req, res, next) => {
     return res.status(503).send({ message: 'Server error, try again later' });
   }
 });
+
+export default router;

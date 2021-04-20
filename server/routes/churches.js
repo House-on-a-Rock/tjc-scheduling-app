@@ -5,8 +5,6 @@ import db from '../index';
 
 const router = express.Router();
 
-module.exports = router;
-
 router.get('/churches', certify, async (req, res, next) => {
   try {
     const church = await db.Church.findAll({
@@ -44,3 +42,5 @@ router.post('/churches', certify, async (req, res, next) => {
 //         next(err);
 //     }
 // })
+
+export default router;

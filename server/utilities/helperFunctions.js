@@ -212,7 +212,7 @@ const zeroPaddingDates = (date) => {
   return `${month}/${day}`;
 };
 
-const setStartAndEnd = (arg1, arg2?) => {
+const setStartAndEnd = (arg1, arg2) => {
   const start = new Date(arg1);
   start.setDate(start.getDate() - start.getDay()); // sets start to sunday
   const end = arg2 ? new Date(arg2) : new Date(start);
