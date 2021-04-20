@@ -199,15 +199,20 @@ router.post(
     }
   },
 );
-// object can have updated, added, removed
+
 /*  
-         each will have an array of objects
-         each of those objects can have at least 2 of several properties
-         order of these properties matter
-         
-         ids- scheduleId, serviceId, eventId, taskId
-         updateTarget- title, roleId, userId, order, time, 
-      */
+  body can have updated, added, removed
+  each will have an array of objects, handle them diffferently based on key[0]
+
+  {taskId: 123, userId: 123}
+  {eventId: 123, roleId: 123, order: 3, time: '10:15 am'}
+  {scheduleId: 3, title: "new main", view: "monthly"}
+  {serviceId: 1, name: "morning", order: 3, day: 5}
+
+  should the backend have error checking to ensure the submitted items are valid?? 
+  i think it'll be a lot of extra work, and the front end will be handling that already. 
+  on the other hand, kinda feels risky not having validation 
+*/
 router.post(
   '/schedule/update',
   certify,
@@ -215,21 +220,29 @@ router.post(
     try {
       const tr = db.sequelize.transaction(async (t) => {
         const { updated, added, removed } = req.body;
+
         if (updated) {
           await Promise.all(
-            updated.map(async (x) => {
-              const keys = Object.keys(x);
+            updated.map(async (item) => {
+              const keys = Object.keys(item);
 
               switch (keys[0]) {
                 case 'taskId':
-                  const targetTaskId = x[keys[0]];
-                  const targetUserId = x[keys[1]];
                   const targetTask = await db.Task.findOne({
-                    where: { id: targetTaskId },
-                    attributes: ['id', 'userId'],
+                    where: { id: item[keys[0]] },
                   });
                   return await targetTask.update(
-                    { userId: targetUserId },
+                    { userId: item[keys[1]] },
+                    { transaction: t },
+                  );
+                // this need more work on both ends - i'd like to eventually pass the entire event info back in one obj
+                // if there are multiple changes to one event (eg. both time and duty are changed), this only needs to be run once
+                case 'eventId':
+                  const targetEvent = await db.Event.findOne({
+                    where: { id: item[keys[0]] },
+                  });
+                  return await targetEvent.update(
+                    { roleId: item[keys[1]] },
                     { transaction: t },
                   );
                 default:
@@ -245,8 +258,6 @@ router.post(
     }
   },
 );
-
-const updateTask = (x) => {};
 
 router.delete(
   '/schedule',
