@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
 // mat ui
 import Tooltip from '@material-ui/core/Tooltip';
@@ -12,7 +13,6 @@ import TableRow from '@material-ui/core/TableRow';
 import TableCell from '@material-ui/core/TableCell';
 
 import { makeStyles, createStyles } from '@material-ui/core/styles';
-
 
 // TODO make pretty
 export const TemplateDisplay = ({ template }) => {

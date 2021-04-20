@@ -1,9 +1,9 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import InfoIcon from '@material-ui/icons/Info';
 
 import ReactTooltip from 'react-tooltip';
 import { makeStyles, createStyles } from '@material-ui/core';
-
 
 export const Tooltip = ({ id, text }) => {
   const classes = useStyles();

@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
 // material ui
 import DialogTitle from '@material-ui/core/DialogTitle';
@@ -8,7 +9,7 @@ import { makeStyles, createStyles } from '@material-ui/core/styles';
 import { Button } from '@material-ui/core';
 import { buttonTheme } from '../../shared/styles/theme';
 
-export function ConfirmationDialog({ handleClick, state, title }) {
+function ConfirmationDialog({ handleClick, state, title }) {
   const classes = useStyles();
   return (
     <Dialog onBackdropClick={() => handleClick(!state)} open={state}>
@@ -66,3 +67,10 @@ const useStyles = makeStyles((theme) =>
     },
   }),
 );
+ConfirmationDialog.propTypes = {
+  handleClick: PropTypes.func,
+  state: PropTypes.bool,
+  title: PropTypes.string,
+};
+
+export default ConfirmationDialog;

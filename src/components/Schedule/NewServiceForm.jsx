@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
 import { MenuItem, Button } from '@material-ui/core/';
 import { makeStyles, createStyles } from '@material-ui/core/styles';
@@ -6,9 +7,8 @@ import { makeStyles, createStyles } from '@material-ui/core/styles';
 import { ValidatedSelect, ValidatedTextField } from '../FormControl';
 import { useValidatedField } from '../../hooks';
 
-import { buttonTheme, tooltipContainer } from '../../shared/styles/theme.js';
+import { buttonTheme, tooltipContainer } from '../../shared/styles/theme';
 import { stringLengthCheck } from '../../shared/utilities';
-
 
 const daysOfWeek = [
   'Sunday',
@@ -20,7 +20,7 @@ const daysOfWeek = [
   'Saturday',
 ];
 
-export const NewServiceForm = ({ onSubmit, onClose, error }) => {
+const NewServiceForm = ({ onSubmit, onClose, error }) => {
   const [
     serviceName,
     setServiceName,
@@ -102,7 +102,7 @@ export const NewServiceForm = ({ onSubmit, onClose, error }) => {
   );
 };
 
-const useStyles = makeStyles((theme) =>
+const useStyles = makeStyles(() =>
   createStyles({
     newServiceForm: {
       display: 'flex',
@@ -148,3 +148,11 @@ const useStyles = makeStyles((theme) =>
     },
   }),
 );
+
+NewServiceForm.propTypes = {
+  onSubmit: PropTypes.func,
+  onClose: PropTypes.func,
+  error: PropTypes.string,
+};
+
+export default NewServiceForm;

@@ -1,6 +1,15 @@
-export * from './EmailForm';
-export * from './PasswordForm';
-export * from './PasswordStrengthMeter';
-export * from './ValidatedSelect';
-export * from './ValidatedTextField';
-export * from './VisiblePassword';
+import PasswordStrengthMeter from './PasswordStrengthMeter';
+import EmailForm from './EmailForm';
+import PasswordForm from './PasswordForm';
+import ValidatedSelect from './ValidatedSelect';
+import ValidatedTextField from './ValidatedTextField';
+import VisiblePassword from './VisiblePassword';
+
+export {
+  PasswordStrengthMeter,
+  EmailForm,
+  PasswordForm,
+  ValidatedSelect,
+  ValidatedTextField,
+  VisiblePassword,
+};

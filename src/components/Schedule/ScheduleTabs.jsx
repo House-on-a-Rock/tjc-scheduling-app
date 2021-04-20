@@ -1,8 +1,8 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
 import Tab from '@material-ui/core/Tab';
 import Tabs from '@material-ui/core/Tabs';
-import IconButton from '@material-ui/core/IconButton';
 import AddIcon from '@material-ui/icons/Add';
 import { makeStyles, createStyles } from '@material-ui/core/styles';
 
@@ -11,14 +11,9 @@ import {
   tabTheme,
   tabIndicatorTheme,
   buttonTheme,
-} from '../../shared/styles/theme.js';
+} from '../../shared/styles/theme';
 
-export const ScheduleTabs = ({
-  tabs,
-  tabIdx,
-  onTabClick,
-  handleAddClicked,
-}) => {
+export const ScheduleTabs = ({ tabs, tabIdx, onTabClick, handleAddClicked }) => {
   const classes = useStyles();
   return (
     <div className={classes.scheduleTabs}>
@@ -36,7 +31,6 @@ export const ScheduleTabs = ({
       >
         {tabs.map((tabData, index) => (
           <Tab
-            // eslint-disable-next-line react/no-array-index-key
             key={`${tabData.title}-${index}`}
             label={tabData.title}
             className={classes.tab}
@@ -52,7 +46,7 @@ export const ScheduleTabs = ({
   );
 };
 
-const useStyles = makeStyles((theme) =>
+const useStyles = makeStyles(() =>
   createStyles({
     scheduleTabs: {
       height: '3.5rem',
@@ -83,3 +77,12 @@ const useStyles = makeStyles((theme) =>
     },
   }),
 );
+
+ScheduleTabs.propTypes = {
+  tabs: PropTypes.array,
+  tabIdx: PropTypes.number,
+  onTabClick: PropTypes.func,
+  handleAddClicked: PropTypes.func,
+};
+
+export default ScheduleTabs;

@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
 // mat ui
 import TableCell from '@material-ui/core/TableCell';
@@ -6,7 +7,7 @@ import Autocomplete from '@material-ui/lab/Autocomplete';
 import { makeStyles, createStyles } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
 
-import { typographyTheme } from '../../shared/styles/theme.js';
+import { typographyTheme } from '../../shared/styles/theme';
 
 import { useTasksAutocompleteHooks } from './useTasksAutocompleteHooks';
 
@@ -18,17 +19,17 @@ import {
 /*
   Props explanation
 
-  dataId:             userId/roleId assigned 
+  dataId:             userId/roleId assigned
   extractOptionId?:   function to extract ids from dataset, needed for mat ui autocomplete
-  dataSet:            dataset from which to display autocomplete options, contains all the other info 
+  dataSet:            dataset from which to display autocomplete options, contains all the other info
   onChange:           onChangeHandler
-  dataContext:        contains info like rowIndex/serviceIndex/roleId, used by onChange callback. 
+  dataContext:        contains info like rowIndex/serviceIndex/roleId, used by onChange callback.
   getOptionLabel:     string that shows in autocomplete
   renderOption?:      basically just adds an icon to indicate which was the previously saved option, may be used to add more stuff
   isSaved;   if initialData should update to the latest dataId
 */
 
-export const TasksAutocomplete = React.memo((props) => {
+const TasksAutocomplete = React.memo((props) => {
   const { dataId, options, roleId, dataContext, isSaved, onChange, renderOption } = props;
   const classes = useStyles();
 
@@ -86,17 +87,14 @@ export const TasksAutocomplete = React.memo((props) => {
   );
 }, arePropsEqual);
 
-function arePropsEqual(
-  prevProps,
-  nextProps,
-) {
+function arePropsEqual(prevProps, nextProps) {
   return (
     prevProps.dataId === nextProps.dataId &&
     prevProps.dataContext.roleId === nextProps.dataContext.roleId
   );
 }
 
-const useStyles = makeStyles((theme) =>
+const useStyles = makeStyles(() =>
   createStyles({
     cell: {
       color: typographyTheme.common.color,
@@ -138,3 +136,15 @@ const useStyles = makeStyles((theme) =>
     },
   }),
 );
+
+TasksAutocomplete.propTypes = {
+  dataId: PropTypes.number,
+  options: PropTypes.array,
+  roleId: PropTypes.number,
+  dataContext: PropTypes.object,
+  isSaved: PropTypes.bool,
+  onChange: PropTypes.func,
+  renderOption: PropTypes.func,
+};
+
+export default TasksAutocomplete;

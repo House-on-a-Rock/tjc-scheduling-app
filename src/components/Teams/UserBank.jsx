@@ -1,5 +1,5 @@
-/* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
+import PropTypes from 'prop-types';
 import { Droppable, Draggable } from 'react-beautiful-dnd';
 
 // Material UI Components
@@ -11,7 +11,7 @@ import ListSubheader from '@material-ui/core/ListSubheader';
 import Paper from '@material-ui/core/Paper';
 import { getRenderItem } from './services';
 import './UserBank.css';
-import { transitionTheme, sideBarTheme, buttonTheme } from '../../shared/styles/theme.js';
+import { transitionTheme, sideBarTheme, buttonTheme } from '../../shared/styles/theme';
 import { verticalScrollIndicatorShadow } from '../../shared/styles/scroll-indicator-shadow';
 
 export const UserBank = ({ members, className, droppableId }) => {
@@ -106,3 +106,18 @@ const useStyles = makeStyles((theme) =>
     },
   }),
 );
+
+UserBank.propTypes = {
+  members: PropTypes.array,
+  className: PropTypes.object,
+  droppableId: PropTypes.string,
+};
+
+DroppableBank.propTypes = {
+  members: PropTypes.array,
+  className: PropTypes.object,
+  droppableId: PropTypes.string,
+  church: PropTypes.string,
+};
+
+export default UserBank;

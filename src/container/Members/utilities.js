@@ -1,3 +1,4 @@
+// eslint-disable-next-line import/prefer-default-export
 export function updateSelectedRows(start, end, data) {
   const newRows = [];
   let startPushing = false;

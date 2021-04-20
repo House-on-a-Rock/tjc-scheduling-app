@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
 import { useQuery, useMutation, useQueryClient } from 'react-query';
 import { MembersContainer } from './MembersContainer';
 import { getChurchMembersData } from '../../query';
 import { addUser, destroyUser } from '../../query/apis';
 
-export const Members = ({ churchId }) => {
+const Members = ({ churchId }) => {
   const queryClient = useQueryClient();
   const [isLoading, setIsLoading] = useState(false);
   const [data, setData] = useState();
@@ -17,17 +18,14 @@ export const Members = ({ churchId }) => {
     cacheTime: 3000000,
   });
 
-  const createUser = useMutation(
-    addUser,
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries('users');
-        setIsSuccess('NewUser');
-      },
-      onError: (result) => errorHandling(result, setError),
-      onSettled: () => setIsSuccess(''),
+  const createUser = useMutation(addUser, {
+    onSuccess: () => {
+      queryClient.invalidateQueries('users');
+      setIsSuccess('NewUser');
     },
-  );
+    onError: (result) => errorHandling(result, setError),
+    onSettled: () => setIsSuccess(''),
+  });
   const deleteUser = useMutation(destroyUser, {
     onSuccess: () => queryClient.invalidateQueries('roleData'),
   });
@@ -59,3 +57,9 @@ function errorHandling(result, setError) {
     message: result.response.statusText,
   });
 }
+
+Members.propTypes = {
+  churchId: PropTypes.string,
+};
+
+export default Members;

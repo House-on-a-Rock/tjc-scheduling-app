@@ -1,27 +1,19 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { MenuItem, Button } from '@material-ui/core';
 import { makeStyles, createStyles } from '@material-ui/core/styles';
-
 
 import { ValidatedTextField, ValidatedSelect } from '../FormControl';
 import { useValidatedField } from '../../hooks';
 
-import { buttonTheme, tooltipContainer } from '../../shared/styles/theme.js';
+import { buttonTheme, tooltipContainer } from '../../shared/styles/theme';
 
 import { Tooltip } from '../shared/Tooltip';
 import { stringLengthCheck } from '../../shared/utilities';
 
 // TODO hook up teams with data from DB
 
-
-
-export const NewScheduleForm = ({
-  onClose,
-  error,
-  onSubmit,
-  templateId,
-  templates,
-}) => {
+export const NewScheduleForm = ({ onClose, error, onSubmit, templateId, templates }) => {
   const tomorrow = new Date(new Date().setDate(new Date().getDate() + 1));
   const classes = useStyles();
 
@@ -259,3 +251,13 @@ const useStyles = makeStyles((theme) =>
     },
   }),
 );
+
+NewScheduleForm.propTypes = {
+  onClose: PropTypes.func,
+  error: PropTypes.string,
+  onSubmit: PropTypes.func,
+  templateId: PropTypes.number,
+  templates: PropTypes.array,
+};
+
+export default NewScheduleForm;

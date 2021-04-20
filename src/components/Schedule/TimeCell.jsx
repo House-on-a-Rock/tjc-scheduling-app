@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
+import PropTypes from 'prop-types';
 import { TableCell, TextField } from '@material-ui/core';
 
-export const TimeCell = (props) => {
-  const { time, isDisplayed, onChange, rowIndex, serviceIndex } = props;
+const TimeCell = ({ time, isDisplayed, onChange, rowIndex, serviceIndex }) => {
   const [value, setValue] = useState(time);
 
   const inputProps = isDisplayed
@@ -23,3 +23,13 @@ export const TimeCell = (props) => {
     </TableCell>
   );
 };
+
+TimeCell.propTypes = {
+  time: PropTypes.string,
+  isDisplayed: PropTypes.bool,
+  onChange: PropTypes.func,
+  rowIndex: PropTypes.number,
+  serviceIndex: PropTypes.number,
+};
+
+export default TimeCell;

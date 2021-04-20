@@ -1,4 +1,4 @@
-import React, { useState, FormEvent, useContext } from 'react';
+import React, { useState, useContext } from 'react';
 import axios from 'axios';
 import { Link as RouterLink, Redirect } from 'react-router-dom';
 
@@ -18,7 +18,7 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 
 // Custom Components
 import { Copyright } from '../shared';
-import { PasswordForm, ValidatedTextField, VisiblePassword } from '../FormControl';
+import { PasswordForm, ValidatedTextField } from '../FormControl';
 import history from '../../shared/services/history';
 import {
   setLocalStorageState,
@@ -29,23 +29,21 @@ import {
 import { AuthContext } from '../../shared/services/AuthContext';
 import { authenticateLogin } from '../../query/apis';
 
-export const Login = () => {
+const Login = () => {
   const classes = useStyles();
-  const rememberedEmailState= {
+  const rememberedEmailState = {
     value: getLocalStorageItem('rmmbrshvs')?.email,
     valid: true,
     message: '',
   };
-  const rememberedPasswordState= {
+  const rememberedPasswordState = {
     value: getLocalStorageItem('rmmbrshvs')?.password,
     valid: true,
     message: '',
     visible: false,
   };
 
-  const [remembered, setRemembered] = useState(
-    !!getLocalStorageItem('rmmbrshvs'),
-  );
+  const [remembered, setRemembered] = useState(!!getLocalStorageItem('rmmbrshvs'));
   const [email, setEmail] = useState(
     rememberedEmailState.value
       ? rememberedEmailState
@@ -201,3 +199,5 @@ const useStyles = makeStyles((theme) => ({
     margin: theme.spacing(3, 0, 2),
   },
 }));
+
+export default Login;

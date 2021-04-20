@@ -1,13 +1,8 @@
-/* eslint-disable jsx-a11y/label-has-associated-control */
 import React from 'react';
+import PropTypes from 'prop-types';
 import './PasswordStrengthMeter.css';
 
-
-export const PasswordStrengthMeter = ({
-  password,
-  strength,
-  testedResult,
-}) => {
+const PasswordStrengthMeter = ({ password, strength, testedResult }) => {
   return (
     <div className="password-strength-meter">
       <progress
@@ -26,3 +21,11 @@ export const PasswordStrengthMeter = ({
     </div>
   );
 };
+
+PasswordStrengthMeter.propTypes = {
+  password: PropTypes.string,
+  strength: PropTypes.string,
+  testedResult: PropTypes.object,
+};
+
+export default PasswordStrengthMeter;

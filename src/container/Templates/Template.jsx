@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
 
 // queries
 import { useQuery } from 'react-query';
@@ -22,7 +23,7 @@ export const Template = ({ churchId }) => {
     staleTime: 100000000000000,
   });
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (templates.isSuccess) setError(null);
     if (templates.isError) setError(templates.error);
     if (templates.data) setData({ ...data, templates: templates.data });
@@ -34,3 +35,9 @@ export const Template = ({ churchId }) => {
   // TODO add confirmation alerts
   return <TemplateContainer state={{ data, isLoading, error, isSuccess }} />;
 };
+
+Template.propTypes = {
+  churchId: PropTypes.string,
+};
+
+export default Template;

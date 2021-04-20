@@ -3,7 +3,12 @@
     "browser": true,
     "es2021": true
   },
-  "extends": ["eslint:recommended", "plugin:react/recommended"],
+  "extends": [
+    "plugin:react/recommended",
+    "plugin:prettier/recommended",
+    "eslint:recommended",
+    "plugin:react/recommended"
+  ],
   "parserOptions": {
     "ecmaFeatures": {
       "jsx": true
@@ -96,14 +101,14 @@
     "max-classes-per-file": "error",
     "max-depth": "error",
     "max-len": "off",
-    "max-lines": "error",
+    "max-lines": "warn",
     "max-lines-per-function": "off",
     "max-nested-callbacks": "error",
-    "max-params": "error",
+    "max-params": "off",
     "max-statements": "off",
     "max-statements-per-line": "error",
-    "multiline-comment-style": ["error", "separate-lines"],
-    "multiline-ternary": ["error", "always-multiline"],
+    "multiline-comment-style": ["off", "bare-block"],
+    "multiline-ternary": ["off", "always-multiline"],
     "new-cap": "error",
     "new-parens": "error",
     "newline-per-chained-call": "error",
@@ -112,8 +117,8 @@
     "no-await-in-loop": "error",
     "no-bitwise": "error",
     "no-caller": "error",
-    "no-confusing-arrow": "error",
-    "no-console": "error",
+    "no-confusing-arrow": "off",
+    "no-console": "warn",
     "no-constructor-return": "error",
     "no-continue": "error",
     "no-div-regex": "error",
@@ -125,7 +130,7 @@
     "no-extend-native": "error",
     "no-extra-bind": "error",
     "no-extra-label": "error",
-    "no-extra-parens": "error",
+    "no-extra-parens": "off",
     "no-floating-decimal": "error",
     "no-implicit-coercion": "error",
     "no-implicit-globals": "error",
@@ -155,7 +160,7 @@
     "no-octal-escape": "error",
     "no-param-reassign": "error",
     "no-plusplus": [
-      "error",
+      "off",
       {
         "allowForLoopAfterthoughts": true
       }
@@ -186,6 +191,7 @@
     "no-unreachable-loop": "error",
     "no-unsafe-optional-chaining": "error",
     "no-unused-expressions": "error",
+    "no-unused-vars": "warn",
     "no-use-before-define": "off",
     "no-useless-backreference": "error",
     "no-useless-call": "error",
@@ -199,7 +205,7 @@
     "no-warning-comments": "off",
     "no-whitespace-before-property": "error",
     "nonblock-statement-body-position": ["error", "any"],
-    "object-curly-newline": "error",
+    "object-curly-newline": "off",
     "object-curly-spacing": ["error", "always"],
     "object-shorthand": "off",
     "one-var": "off",
@@ -221,7 +227,7 @@
     "prefer-spread": "error",
     "prefer-template": "error",
     "quote-props": "off",
-    "quotes": ["error", "single"],
+    "quotes": ["error", "single", { "allowTemplateLiterals": true }],
     "radix": "off",
     "require-atomic-updates": "error",
     "require-await": "off",
@@ -254,6 +260,15 @@
     "wrap-iife": "error",
     "wrap-regex": "error",
     "yield-star-spacing": "error",
-    "yoda": ["error", "never"]
+    "yoda": ["error", "never"],
+    "react/display-name": ["off"],
+    "import/no-named-as-default": ["off"]
+  },
+  "settings": {
+    "import/resolver": {
+      "node": {
+        "extensions": [".js", ".jsx"]
+      }
+    }
   }
 }

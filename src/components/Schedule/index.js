@@ -1,10 +1,23 @@
-export * from './NewServiceForm';
-export * from './NewScheduleForm';
-export * from './ScheduleTable';
-export * from './ScheduleTableBody';
-export * from './ScheduleTableHeader';
-export * from './ScheduleTabs';
-export * from './ScheduleToolbar';
-export * from './TimeCell';
-export * from './DutyAutocomplete';
-export * from './TasksAutocomplete';
+import NewServiceForm from './NewServiceForm';
+import NewScheduleForm from './NewScheduleForm';
+import ScheduleTable from './ScheduleTable';
+import ScheduleTableBody from './ScheduleTableBody';
+import ScheduleTableHeader from './ScheduleTableHeader';
+import ScheduleTabs from './ScheduleTabs';
+import ScheduleToolbar from './ScheduleToolbar';
+import TimeCell from './TimeCell';
+import DutyAutocomplete from './DutyAutocomplete';
+import TasksAutocomplete from './TasksAutocomplete';
+
+export {
+  NewServiceForm,
+  NewScheduleForm,
+  ScheduleTable,
+  ScheduleTableBody,
+  ScheduleTableHeader,
+  ScheduleTabs,
+  ScheduleToolbar,
+  TimeCell,
+  DutyAutocomplete,
+  TasksAutocomplete,
+};

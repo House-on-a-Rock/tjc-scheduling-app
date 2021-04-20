@@ -1,4 +1,5 @@
-import React, { CSSProperties, ChangeEvent, MouseEvent } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 
 import { makeStyles, createStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
@@ -10,9 +11,9 @@ import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Checkbox from '@material-ui/core/Checkbox';
 
-import { cardTheme } from '../../shared/styles/theme.js';
+import { cardTheme } from '../../shared/styles/theme';
 
-export const MembersTable = ({
+const MembersTable = ({
   selectedRowLength,
   members,
   isSelected,
@@ -20,8 +21,7 @@ export const MembersTable = ({
   handleSelect,
 }) => {
   const classes = useStyles();
-  const setIndeterminate =
-    !!selectedRowLength && selectedRowLength !== members.length;
+  const setIndeterminate = !!selectedRowLength && selectedRowLength !== members.length;
   return (
     <TableContainer component={Paper} className={classes.root}>
       <Table className={classes.table} aria-label="members table">
@@ -102,3 +102,13 @@ const useStyles = makeStyles(() =>
     },
   }),
 );
+
+MembersTable.propTypes = {
+  selectedRowLength: PropTypes.number,
+  members: PropTypes.array,
+  isSelected: PropTypes.bool,
+  handleSelectAll: PropTypes.func,
+  handleSelect: PropTypes.func,
+};
+
+export default MembersTable;

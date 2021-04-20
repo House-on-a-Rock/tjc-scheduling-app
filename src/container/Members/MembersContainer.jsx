@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import PropTypes from 'prop-types';
 import Grid from '@material-ui/core/Grid';
 import { ConfirmationDialog } from '../../components/shared';
 import {
@@ -11,11 +12,7 @@ import { updateSelectedRows } from './utilities';
 
 const USER = 'user';
 
-export const MembersContainer = ({
-  state,
-  addUser,
-  removeUser,
-}) => {
+const MembersContainer = ({ state, addUser, removeUser }) => {
   const { isLoading, error, data, isSuccess } = state;
   // Component state
   const [filteredMembers, setFilteredMembers] = useState([]);
@@ -106,9 +103,7 @@ export const MembersContainer = ({
           <Grid item xs={12}>
             <MembersHeader
               localChurch="Philadelphia"
-              onSearchChange={(event) =>
-                setSearchField(event.target.value)
-              }
+              onSearchChange={(event) => setSearchField(event.target.value)}
             />
             <Toolbar
               handleAddOpen={() => setIsNewMemberDialogOpen(!isNewMemberDialogOpen)}
@@ -151,3 +146,11 @@ const filterMembers = (users, target) =>
       email.toLowerCase().includes(filterChar)
     );
   });
+
+MembersContainer.propTypes = {
+  state: PropTypes.object,
+  addUser: PropTypes.func,
+  removeUser: PropTypes.func,
+};
+
+export default MembersContainer;

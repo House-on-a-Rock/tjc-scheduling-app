@@ -1,7 +1,7 @@
 import React from 'react';
 import { useQuery } from '../../shared/utilities';
 
-export const ErrorPage = () => {
+const ErrorPage = () => {
   const query = useQuery();
   return (
     <>
@@ -9,3 +9,5 @@ export const ErrorPage = () => {
     </>
   );
 };
+
+export default ErrorPage;

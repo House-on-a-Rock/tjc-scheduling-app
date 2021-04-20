@@ -1,4 +1,5 @@
-import React, { ReactNode } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 
 // Material UI
 import MaUTable from '@material-ui/core/Table';
@@ -7,15 +8,9 @@ import TableRow from '@material-ui/core/TableRow';
 import { makeStyles, createStyles, fade, darken } from '@material-ui/core/styles';
 
 // Styles
-import { paletteTheme } from '../../shared/styles/theme.js';
+import { paletteTheme } from '../../shared/styles/theme';
 
-
-export const ScheduleTable = ({
-  title,
-  hidden,
-  children,
-  outerRef,
-}) => {
+const ScheduleTable = ({ title, hidden, children, outerRef }) => {
   const classes = useStyles();
   const [header, body] = children;
 
@@ -37,7 +32,7 @@ export const ScheduleTable = ({
 const normalCellBorderColor = 'rgba(234, 234, 234, 1)';
 const normalCellBorder = `1px solid ${normalCellBorderColor}`;
 
-const useStyles = makeStyles((theme) =>
+const useStyles = makeStyles(() =>
   createStyles({
     scheduleTable: {
       position: 'absolute',
@@ -100,3 +95,16 @@ const useStyles = makeStyles((theme) =>
     },
   }),
 );
+
+ScheduleTable.propTypes = {
+  title: PropTypes.string,
+  hidden: PropTypes.bool,
+  children: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.node), PropTypes.node])
+    .isRequired,
+  outerRef: PropTypes.oneOfType([
+    PropTypes.func,
+    PropTypes.shape({ current: PropTypes.instanceOf(Element) }),
+  ]),
+};
+
+export default ScheduleTable;

@@ -15,11 +15,11 @@ import NotificationsIcon from '@material-ui/icons/Notifications';
 import MoreIcon from '@material-ui/icons/MoreVert';
 import Button from '@material-ui/core/Button';
 import { makeStyles, createStyles } from '@material-ui/core/styles';
-import { buttonTheme } from '../../shared/styles/theme.js';
+import { buttonTheme } from '../../shared/styles/theme';
 
 import { AuthContext } from '../../shared/services/AuthContext';
 
-export const Header = (props) => {
+const Header = (props) => {
   const auth = useContext(AuthContext);
   const classes = useStyles();
 
@@ -161,3 +161,5 @@ const useStyles = makeStyles((theme) =>
     titleContainer: {},
   }),
 );
+
+export default Header;

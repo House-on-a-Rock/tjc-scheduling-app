@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
 import { makeStyles, createStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
@@ -10,10 +11,9 @@ import TableRow from '@material-ui/core/TableRow';
 import SearchIcon from '@material-ui/icons/Search';
 import InputBase from '@material-ui/core/InputBase';
 
-import { themeExtension } from '../../shared/styles/theme.js';
+import { themeExtension } from '../../shared/styles/theme';
 
-
-export const MembersHeader = ({ localChurch, onSearchChange }) => {
+const MembersHeader = ({ localChurch, onSearchChange }) => {
   const classes = useStyles();
 
   return (
@@ -100,3 +100,10 @@ const useStyles = makeStyles((theme) =>
     },
   }),
 );
+
+MembersHeader.propTypes = {
+  localChurch: PropTypes.string,
+  onSearchChange: PropTypes.func,
+};
+
+export default MembersHeader;

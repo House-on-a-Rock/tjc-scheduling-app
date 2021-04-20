@@ -1,10 +1,11 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { IconButton } from '@material-ui/core';
 import { makeStyles, createStyles } from '@material-ui/core/styles';
 import PersonAddIcon from '@material-ui/icons/PersonAdd';
 import DeleteIcon from '@material-ui/icons/Delete';
 
-export const Toolbar = ({ handleAddOpen, handleDeleteOpen }) => {
+const Toolbar = ({ handleAddOpen, handleDeleteOpen }) => {
   const classes = useStyles();
   return (
     <div className={classes.iconBar}>
@@ -17,10 +18,17 @@ export const Toolbar = ({ handleAddOpen, handleDeleteOpen }) => {
     </div>
   );
 };
-const useStyles = makeStyles((theme) =>
+const useStyles = makeStyles(() =>
   createStyles({
     iconBar: {
       display: 'flex',
     },
   }),
 );
+
+Toolbar.propTypes = {
+  handleAddOpen: PropTypes.func,
+  handleDeleteOpen: PropTypes.func,
+};
+
+export default Toolbar;

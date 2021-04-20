@@ -6,7 +6,7 @@ const createFieldState = (value) => ({
   valid: true,
 });
 
-export function useValidatedField(initialState, message) {
+function useValidatedField(initialState, message) {
   const [inputState, setInputState] = useState(createFieldState(initialState));
 
   const setInputStateError = (condition) => {
@@ -22,3 +22,5 @@ export function useValidatedField(initialState, message) {
 
   return [inputState, setInputState, setInputStateError, resetInputState];
 }
+
+export default useValidatedField;

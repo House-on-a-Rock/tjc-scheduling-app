@@ -1,9 +1,9 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import IconButton from '@material-ui/core/IconButton';
 import Visibility from '@material-ui/icons/Visibility';
 import VisibilityOff from '@material-ui/icons/VisibilityOff';
-
 
 export const VisiblePassword = ({ data, handleVisible }) => (
   <InputAdornment position="end">
@@ -16,3 +16,10 @@ export const VisiblePassword = ({ data, handleVisible }) => (
     </IconButton>
   </InputAdornment>
 );
+
+VisiblePassword.propTypes = {
+  data: PropTypes.object,
+  handleVisible: PropTypes.func,
+};
+
+export default VisiblePassword;

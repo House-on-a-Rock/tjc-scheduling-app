@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import PropTypes from 'prop-types';
 import { IconButton } from '@material-ui/core';
 import { makeStyles, createStyles } from '@material-ui/core/styles';
 import DeleteIcon from '@material-ui/icons/Delete';
@@ -25,7 +26,7 @@ const TooltipForDisabledButton = ({ title, disabled, handleClick, children }) =>
   );
 };
 
-export const ScheduleToolbar = ({
+const ScheduleToolbar = ({
   handleNewServiceClicked,
   destroySchedule,
   isScheduleModified,
@@ -62,10 +63,27 @@ export const ScheduleToolbar = ({
   );
 };
 
-const useStyles = makeStyles((theme) =>
+const useStyles = makeStyles(() =>
   createStyles({
     scheduleToolbar: {
       display: 'flex',
     },
   }),
 );
+
+ScheduleToolbar.propTypes = {
+  handleNewServiceClicked: PropTypes.func,
+  destroySchedule: PropTypes.func,
+  isScheduleModified: PropTypes.func,
+  onSaveScheduleChanges: PropTypes.func,
+};
+
+TooltipForDisabledButton.propTypes = {
+  title: PropTypes.bool,
+  disabled: PropTypes.bool,
+  handleClick: PropTypes.func,
+  children: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.node), PropTypes.node])
+    .isRequired,
+};
+
+export default ScheduleToolbar;

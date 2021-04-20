@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 
 // Material UI components
@@ -9,29 +10,7 @@ import Fade from '@material-ui/core/Fade';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Button from '@material-ui/core/Button';
 
-const useStyles = makeStyles((theme) =>
-  createStyles({
-    modal: {
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-    paper: {
-      backgroundColor: theme.palette.background.paper,
-      border: '2px solid #000',
-      boxShadow: theme.shadows[5],
-      padding: theme.spacing(2, 4, 3),
-    },
-  }),
-);
-
-
-export const TransitionsModal = ({
-  open,
-  setOpen,
-  description,
-  status,
-}) => {
+const TransitionsModal = ({ open, setOpen, description, status }) => {
   const classes = useStyles();
   return (
     <>
@@ -68,3 +47,28 @@ export const TransitionsModal = ({
     </>
   );
 };
+
+const useStyles = makeStyles((theme) =>
+  createStyles({
+    modal: {
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    paper: {
+      backgroundColor: theme.palette.background.paper,
+      border: '2px solid #000',
+      boxShadow: theme.shadows[5],
+      padding: theme.spacing(2, 4, 3),
+    },
+  }),
+);
+
+TransitionsModal.propTypes = {
+  open: PropTypes.bool,
+  setOpen: PropTypes.func,
+  description: PropTypes.string,
+  status: PropTypes.string,
+};
+
+export default TransitionsModal;

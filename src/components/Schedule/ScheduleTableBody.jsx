@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import ReactTooltip from 'react-tooltip';
 import { TableCell, TableRow, TableBody } from '@material-ui/core';
 import { makeStyles, createStyles } from '@material-ui/core/styles';
@@ -63,3 +64,15 @@ const useStyles = makeStyles((theme) =>
     },
   }),
 );
+
+ScheduleTableBody.propTypes = {
+  children: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.node), PropTypes.node])
+    .isRequired,
+  providedRef: PropTypes.oneOfType([
+    PropTypes.func,
+    PropTypes.shape({ current: PropTypes.instanceOf(Element) }),
+  ]),
+  title: PropTypes.string,
+};
+
+export default ScheduleTableBody;

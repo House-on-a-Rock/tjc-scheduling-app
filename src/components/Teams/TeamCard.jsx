@@ -1,23 +1,21 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
 // Material UI Components
-import { makeStyles, Theme } from '@material-ui/core/styles';
+import { makeStyles } from '@material-ui/core/styles';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import Divider from '@material-ui/core/Divider';
 import Typography from '@material-ui/core/Typography';
-import { DroppableTeamMembersList } from './DroppableTeamMemberList';
+import DroppableTeamMembersList from './DroppableTeamMemberList';
 import { cardTheme } from '../../shared/styles/theme';
 import { verticalScrollIndicatorShadow } from '../../shared/styles/scroll-indicator-shadow';
 
-
-export const TeamCard = ({ type, members, draggedItem }) => {
+const TeamCard = ({ type, members, draggedItem }) => {
   const classes = useStyles();
   const canDrop = () =>
     draggedItem.source === 'USERBANK'
-      ? !members
-          .map((member) => member.name)
-          .includes(draggedItem.member.name)
+      ? !members.map((member) => member.name).includes(draggedItem.member.name)
       : draggedItem.source === type || draggedItem.source === '';
 
   return (
@@ -43,7 +41,7 @@ export const TeamCard = ({ type, members, draggedItem }) => {
   );
 };
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
   root: {
     ...cardTheme,
     display: 'flex',
@@ -70,3 +68,11 @@ const useStyles = makeStyles((theme) => ({
     width: '79%',
   },
 }));
+
+TeamCard.propTypes = {
+  type: PropTypes.string,
+  members: PropTypes.array,
+  draggedItem: PropTypes.object,
+};
+
+export default TeamCard;

@@ -1,16 +1,16 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
 // Material UI Components
-import { makeStyles, Theme } from '@material-ui/core/styles';
+import { makeStyles } from '@material-ui/core/styles';
 import AddIcon from '@material-ui/icons/Add';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import IconButton from '@material-ui/core/IconButton';
 import Typography from '@material-ui/core/Typography';
-import { TeamCard } from './TeamCard';
+import TeamCard from './TeamCard';
 
-
-export const TeamList = ({ teams, draggedMember }) => {
+const TeamList = ({ teams, draggedMember }) => {
   return (
     <>
       <Typography variant="h4" align="center">
@@ -29,7 +29,12 @@ export const TeamList = ({ teams, draggedMember }) => {
   );
 };
 
-const NewTeamCard = ({ handleClick }) => {
+TeamList.propTypes = {
+  teams: PropTypes.object,
+  draggedMember: PropTypes.object,
+};
+
+const NewTeamCard = () => {
   const classes = useStyles();
   return (
     <Card className={classes.card}>
@@ -42,7 +47,7 @@ const NewTeamCard = ({ handleClick }) => {
   );
 };
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
   card: {
     display: 'flex',
     margin: '.5em',
@@ -55,3 +60,5 @@ const useStyles = makeStyles((theme) => ({
     width: '15vw',
   },
 }));
+
+export default TeamList;

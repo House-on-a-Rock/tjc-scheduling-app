@@ -1,13 +1,8 @@
-/* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
+import PropTypes from 'prop-types';
 import TextField from '@material-ui/core/TextField';
 
-export const ValidatedTextField = ({
-  label,
-  input,
-  handleChange,
-  ...props
-}) => (
+const ValidatedTextField = ({ label, input, handleChange, ...props }) => (
   <TextField
     variant="outlined"
     margin="normal"
@@ -23,3 +18,11 @@ export const ValidatedTextField = ({
     {...props}
   />
 );
+
+ValidatedTextField.propTypes = {
+  label: PropTypes.string,
+  input: PropTypes.string,
+  handleChange: PropTypes.func,
+};
+
+export default ValidatedTextField;

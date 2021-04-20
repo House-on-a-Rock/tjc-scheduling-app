@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
+import PropTypes from 'prop-types';
 import { useQuery } from 'react-query';
+
+import { createStyles, makeStyles } from '@material-ui/core';
 import {
   getChurchMembersData,
   getAllSchedules,
@@ -7,11 +10,9 @@ import {
   getTeamsData,
 } from '../../query';
 import { ScheduleContainer } from './ScheduleContainer';
-import { createStyles, makeStyles } from '@material-ui/core';
 import { loadingTheme } from '../../shared/styles/theme';
 
-
-export const Schedule = ({ churchId }) => {
+const Schedule = ({ churchId }) => {
   const classes = useStyles();
   const [fetchedSchedules, setFetchedSchedules] = useState([]);
 
@@ -72,10 +73,16 @@ function makeScheduleIdxs(tabsData) {
   return scheduleIdxs;
 }
 
-const useStyles = makeStyles((theme) =>
+const useStyles = makeStyles(() =>
   createStyles({
     loading: {
       ...loadingTheme,
     },
   }),
 );
+
+Schedule.propTypes = {
+  churchId: PropTypes.string,
+};
+
+export default Schedule;

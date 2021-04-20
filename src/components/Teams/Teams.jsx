@@ -1,10 +1,11 @@
 import React, { useState, useCallback } from 'react';
+import PropTypes from 'prop-types';
 import { DragDropContext, DropResult } from 'react-beautiful-dnd';
 import { makeStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
 
 import { UserBank } from './UserBank';
-import { TeamList } from './TeamList';
+import TeamList from './TeamList';
 import { add, reorder } from './services';
 
 // TODOS
@@ -13,10 +14,10 @@ import { add, reorder } from './services';
 // 3. new team apis
 // 4. validation apis/reducers need to be fleshed out
 
-export const Teams = ({ churchId }) => {
+const Teams = () => {
   const classes = useStyles();
   const initialState = {};
-  TEAMS.map((team) => (initialState[team.role] = team.members));
+  // TEAMS.map((team) => (initialState[team.role] = team.members));
 
   const [teams, setTeams] = useState(initialState);
   const [draggedItem, setDraggedItem] = useState({
@@ -34,7 +35,7 @@ export const Teams = ({ churchId }) => {
         >
           <>
             <Grid item md={3} sm={4} xs={12}>
-              <UserBank members={MEMBERS} droppableId="USERBANK" className="userbank" />
+              {/* <UserBank members={MEMBERS} droppableId="USERBANK" className="userbank" /> */}
             </Grid>
             <Grid item md={9} sm={8} xs={12}>
               <TeamList teams={teams} draggedMember={draggedItem} />
@@ -47,12 +48,12 @@ export const Teams = ({ churchId }) => {
 };
 
 const DragDropContextWrapper = ({ teams, handleTeams, handleDraggedItem, children }) => {
-  const onDragStart = useCallback(
-    ({ source }) => {
-      handleDraggedItem({ member: MEMBERS[source.index], source: source.droppableId });
-    },
-    [handleDraggedItem],
-  );
+  // const onDragStart = useCallback(
+  //   ({ source }) => {
+  //     handleDraggedItem({ member: MEMBERS[source.index], source: source.droppableId });
+  //   },
+  //   [handleDraggedItem],
+  // );
 
   const onDragEnd = useCallback(
     ({ source, destination }) => {
@@ -60,25 +61,25 @@ const DragDropContextWrapper = ({ teams, handleTeams, handleDraggedItem, childre
         member: { id: '', name: '' },
         source: '', // always reset (cleans up classes)
       });
-      if (!destination) return;
-      switch (source.droppableId) {
-        case destination.droppableId:
-          handleTeams(reorder(teams, source, destination));
-          break;
-        case 'USERBANK':
-          handleTeams(add(MEMBERS, teams, source, destination));
-          break;
-        default:
-          break;
-      }
+      // if (!destination) return;
+      // switch (source.droppableId) {
+      //   case destination.droppableId:
+      //     handleTeams(reorder(teams, source, destination));
+      //     break;
+      //   case 'USERBANK':
+      //     handleTeams(add(MEMBERS, teams, source, destination));
+      //     break;
+      //   default:
+      //     break;
+      // }
     },
     [handleTeams],
   );
-  return (
-    <DragDropContext onDragEnd={onDragEnd} onDragStart={onDragStart}>
-      {children}
-    </DragDropContext>
-  );
+  // return (
+  //   <DragDropContext onDragEnd={onDragEnd} onDragStart={onDragStart}>
+  //     {children}
+  //   </DragDropContext>
+  // );
 };
 
 const useStyles = makeStyles((theme) => ({
@@ -86,3 +87,5 @@ const useStyles = makeStyles((theme) => ({
     position: 'relative',
   },
 }));
+
+export default Teams;

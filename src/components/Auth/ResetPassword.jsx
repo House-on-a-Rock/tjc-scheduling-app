@@ -1,4 +1,4 @@
-import React, { useState, FormEvent } from 'react';
+import React, { useState } from 'react';
 import zxcvbn from 'zxcvbn';
 
 // Material UI
@@ -14,7 +14,7 @@ import { PasswordStrengthMeter, PasswordForm } from '../FormControl';
 import { useQuery } from '../../shared/utilities/helperFunctions';
 import { sendNewPassword } from '../../query/apis';
 
-export const ResetPassword = () => {
+const ResetPassword = () => {
   const classes = useStyles();
   const query = useQuery();
   const token = query.get('token') ?? '';
@@ -73,11 +73,7 @@ export const ResetPassword = () => {
         return 'Weak';
     }
   }
-  async function submitNewPassword(
-    newPasswordValue,
-    confirmPasswordValue,
-    event
-  ) {
+  async function submitNewPassword(newPasswordValue, confirmPasswordValue, event) {
     event?.preventDefault();
     setLoading('LOADING');
     if (newPasswordValue.length === 0)
@@ -93,7 +89,7 @@ export const ResetPassword = () => {
         message: 'Please enter a password',
       });
     else if (newPasswordValue !== confirmPasswordValue) {
-      setPasswordMessage("Passwords aren't the same");
+      setPasswordMessage(`Passwords aren't the same`);
       setPassword({
         ...password,
         value: '',
@@ -129,7 +125,7 @@ export const ResetPassword = () => {
       <TransitionsModal
         open={openModal}
         setOpen={setOpenModal}
-        description={"You've successfully changed your password!"}
+        description={`You've successfully changed your password!`}
         status={loading}
       />
       <div className={classes.paper}>
@@ -206,3 +202,5 @@ const useStyles = makeStyles((theme) => ({
     },
   },
 }));
+
+export default ResetPassword;

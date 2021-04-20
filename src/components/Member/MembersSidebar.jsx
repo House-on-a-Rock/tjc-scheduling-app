@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
@@ -9,15 +10,9 @@ import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
 import { makeStyles, createStyles } from '@material-ui/core/styles';
 
-import { sideBarTheme } from '../../shared/styles/theme.js';
+import { sideBarTheme } from '../../shared/styles/theme';
 
-export const MembersSidebar = ({
-  firstName,
-  lastName,
-  email,
-  church,
-  roles,
-}) => {
+const MembersSidebar = ({ firstName, lastName, email, church, roles }) => {
   const classes = useStyles();
   return (
     <Grid item xs={3}>
@@ -83,3 +78,13 @@ const useStyles = makeStyles((theme) =>
     },
   }),
 );
+
+MembersSidebar.propTypes = {
+  firstName: PropTypes.string,
+  lastName: PropTypes.string,
+  email: PropTypes.string,
+  church: PropTypes.string,
+  roles: PropTypes.array,
+};
+
+export default MembersSidebar;

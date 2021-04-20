@@ -1,4 +1,5 @@
 import React, { useContext } from 'react';
+import PropTypes from 'prop-types';
 import { Route, Redirect } from 'react-router-dom';
 import { AuthContext } from '../../shared/services/AuthContext';
 import { extractTokenInfo, useToken } from '../../shared/utilities';
@@ -10,14 +11,7 @@ const validateUser = (condition, token) => {
   return token && !!userId;
 };
 
-
-
-export const PrivateRoute = ({
-  children,
-  redirection,
-  condition,
-  ...rest
-}) => {
+export const PrivateRoute = ({ children, redirection, condition, ...rest }) => {
   const auth = useContext(AuthContext);
   const token = useToken();
   const isValidToken = validateUser(condition, token);
@@ -29,3 +23,12 @@ export const PrivateRoute = ({
     />
   );
 };
+
+PrivateRoute.propTypes = {
+  children: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.node), PropTypes.node])
+    .isRequired,
+  redirection: PropTypes.string,
+  condition: PropTypes.bool,
+};
+
+export default PrivateRoute;

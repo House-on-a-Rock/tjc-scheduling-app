@@ -1,7 +1,7 @@
 import { useEffect, useCallback, useState } from 'react';
 
 // from here https://dev.to/rafi993/implementing-context-menu-using-react-hooks-34ke
-export const useContextMenu = (outerRef) => {
+const useContextMenu = (outerRef) => {
   const [xPos, setXPos] = useState('0px');
   const [yPos, setYPos] = useState('0px');
   const [menu, showMenu] = useState(false);
@@ -39,3 +39,5 @@ export const useContextMenu = (outerRef) => {
 
   return { xPos, yPos, menu, cellValue, cellRow };
 };
+
+export default useContextMenu;

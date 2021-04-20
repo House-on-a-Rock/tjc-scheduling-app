@@ -1,24 +1,17 @@
 import React, { useState } from 'react';
-import {
-  Droppable,
-  Draggable,
-} from 'react-beautiful-dnd';
+import PropTypes from 'prop-types';
+import { Droppable, Draggable } from 'react-beautiful-dnd';
 import { v4 as uuid } from 'uuid';
 
 // Material UI Components
-import { makeStyles, Theme } from '@material-ui/core/styles';
+import { makeStyles } from '@material-ui/core/styles';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import { TextField } from '@material-ui/core';
 
-import { TeamMemberRow } from './TeamMemberRow';
+import TeamMemberRow from './TeamMemberRow';
 
-export const DroppableTeamMembersList = ({
-  role,
-  members,
-  canDrop,
-  draggedItem,
-}) => {
+const DroppableTeamMembersList = ({ role, members, canDrop, draggedItem }) => {
   const classes = useStyles();
 
   const [memberInput, setMemberInput] = useState({ value: '', error: '' });
@@ -54,10 +47,7 @@ export const DroppableTeamMembersList = ({
           {members.map((member, index) => {
             return !(draggedItem.source === 'USERBANK') ? (
               <Draggable draggableId={member.id} index={index} key={member.id}>
-                {(
-                  dragProvided,
-                  dragSnapshot,
-                ) => (
+                {(dragProvided, dragSnapshot) => (
                   <TeamMemberRow
                     member={member}
                     role={role}
@@ -102,8 +92,7 @@ export const DroppableTeamMembersList = ({
     </Droppable>
   );
 };
-
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
   root: {
     display: 'flex',
     margin: '.5em',
@@ -130,3 +119,12 @@ const useStyles = makeStyles((theme) => ({
     },
   },
 }));
+
+DroppableTeamMembersList.propTypes = {
+  role: PropTypes.number,
+  members: PropTypes.array,
+  canDrop: PropTypes.func,
+  draggedItem: PropTypes.object,
+};
+
+export default DroppableTeamMembersList;

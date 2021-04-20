@@ -1,4 +1,5 @@
-import React, { useState, FormEvent } from 'react';
+import React, { useState } from 'react';
+import PropTypes from 'prop-types';
 
 // Material UI
 import { makeStyles } from '@material-ui/core/styles';
@@ -13,9 +14,7 @@ import { useQuery, isValidEmail } from '../../shared/utilities/helperFunctions';
 import history from '../../shared/services/history';
 import { recoverEmail } from '../../query/apis';
 
-
-
-export const AuthEmail = ({ data }) => {
+const AuthEmail = ({ data }) => {
   const classes = useStyles();
 
   const [email, setEmail] = useState({
@@ -107,3 +106,9 @@ const useStyles = makeStyles((theme) => ({
   },
   buttonRow: { display: 'flex', justifyContent: 'space-between' },
 }));
+
+AuthEmail.propTypes = {
+  data: PropTypes.object,
+};
+
+export default AuthEmail;

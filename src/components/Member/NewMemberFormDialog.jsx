@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import PropTypes from 'prop-types';
 
 // material ui
 import DialogTitle from '@material-ui/core/DialogTitle';
@@ -16,14 +17,8 @@ import { EmailForm } from '../FormControl';
 import { FormField } from '../shared/FormField';
 import { isValidEmail } from '../../shared/utilities';
 
-
 // FormDialog is inherently tightly coupled
-export function NewMemberFormDialog({
-  handleSubmit,
-  handleClose,
-  state,
-  title,
-}) {
+const NewMemberFormDialog = ({ handleSubmit, handleClose, state, title }) => {
   const classes = useStyles();
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -96,7 +91,7 @@ export function NewMemberFormDialog({
       </List>
     </Dialog>
   );
-}
+};
 
 const useStyles = makeStyles(() =>
   createStyles({
@@ -122,3 +117,11 @@ const useStyles = makeStyles(() =>
     },
   }),
 );
+NewMemberFormDialog.propTypes = {
+  handleSubmit: PropTypes.func,
+  handleClose: PropTypes.func,
+  state: PropTypes.string,
+  title: PropTypes.string,
+};
+
+export default NewMemberFormDialog;

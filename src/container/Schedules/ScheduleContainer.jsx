@@ -1,11 +1,15 @@
-/* eslint-disable react/jsx-closing-tag-location */
-/* eslint-disable react/self-closing-comp */
 // https://codesandbox.io/s/react-material-ui-and-react-beautiful-dnd-forked-bmheb?file=/src/MaterialTable.jsx draggable table
 import React, { useRef, useState, useCallback } from 'react';
+import PropTypes from 'prop-types';
 import { Prompt } from 'react-router-dom';
 import { Dialog, TableRow, TableCell } from '@material-ui/core';
 import ReorderIcon from '@material-ui/icons/Reorder';
 import RemoveIcon from '@material-ui/icons/Remove';
+import ld from 'lodash';
+
+import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
+
+import { detailedDiff } from 'deep-object-diff';
 import {
   ScheduleTabs,
   ScheduleTable,
@@ -35,22 +39,11 @@ import {
   useDeleteEvent,
 } from '../utilities/useMutations';
 
-import { detailedDiff } from 'deep-object-diff';
-const ld = require('lodash');
-
-import {
-  DragDropContext,
-  Draggable,
-  Droppable,
-  
-  
-} from 'react-beautiful-dnd';
-
 const SERVICE = 'service';
 const EVENT = 'event';
 const SCHEDULE = 'schedule';
 
-export const ScheduleContainer = ({ tabs, data }) => {
+const ScheduleContainer = ({ tabs, data }) => {
   const [tab, setTab] = useState(0);
   const [isScheduleModified, setIsScheduleModified] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
@@ -58,12 +51,9 @@ export const ScheduleContainer = ({ tabs, data }) => {
   const [isNewServiceOpen, setIsNewServiceOpen] = useState(false);
   const [warningDialog, setWarningDialog] = useState('');
   const [selectedEvents, setSelectedEvents] = useState([]);
-  
 
   // manipulate events
-  const [dataModel, setDataModel] = useState(
-    ld.cloneDeep(data.schedules),
-  );
+  const [dataModel, setDataModel] = useState(ld.cloneDeep(data.schedules));
   const templateChanges = useRef({
     changesSeed: -1,
   });
@@ -180,11 +170,7 @@ export const ScheduleContainer = ({ tabs, data }) => {
     );
   }
 
-  function shouldDisplayTime(
-    time,
-    rowIndex,
-    serviceIndex,
-  ) {
+  function shouldDisplayTime(time, rowIndex, serviceIndex) {
     // TODO update time string to standardized UTC string and use dedicated time inputs
     if (rowIndex === 0) return true;
     const previousEventsTime =
@@ -334,10 +320,7 @@ export const ScheduleContainer = ({ tabs, data }) => {
                                   index={rowIndex}
                                   key={`DragRow_${eventId}`}
                                 >
-                                  {(
-                                    provided,
-                                    snapshot
-                                  ) => (
+                                  {(provided, snapshot) => (
                                     <TableRow
                                       key={`${serviceIndex}-${rowIndex}`}
                                       hover
@@ -456,3 +439,10 @@ export const ScheduleContainer = ({ tabs, data }) => {
     </>
   );
 };
+
+ScheduleContainer.propTypes = {
+  tabs: PropTypes.array,
+  data: PropTypes.object,
+};
+
+export default ScheduleContainer;
