@@ -206,8 +206,8 @@ router.post(
 
   {taskId: 123, userId: 123}
   {eventId: 123, roleId: 123, order: 3, time: '10:15 am'}
-  {scheduleId: 3, title: "new main", view: "monthly"}
   {serviceId: 1, name: "morning", order: 3, day: 5}
+  {scheduleId: 3, title: "new main", view: "monthly"}
 
   should the backend have error checking to ensure the submitted items are valid?? 
   i think it'll be a lot of extra work, and the front end will be handling that already. 
@@ -218,7 +218,7 @@ router.post(
   certify,
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const tr = db.sequelize.transaction(async (t) => {
+      const transaction = db.sequelize.transaction(async (t) => {
         const { updated, added, removed } = req.body;
 
         if (updated) {
@@ -229,22 +229,26 @@ router.post(
               switch (keys[0]) {
                 case 'taskId':
                   const targetTask = await db.Task.findOne({
-                    where: { id: item[keys[0]] },
+                    where: { id: item.taskId },
                   });
                   return await targetTask.update(
-                    { userId: item[keys[1]] },
+                    { userId: item.userId },
                     { transaction: t },
                   );
                 // this need more work on both ends - i'd like to eventually pass the entire event info back in one obj
                 // if there are multiple changes to one event (eg. both time and duty are changed), this only needs to be run once
                 case 'eventId':
                   const targetEvent = await db.Event.findOne({
-                    where: { id: item[keys[0]] },
+                    where: { id: item.eventId },
                   });
                   return await targetEvent.update(
-                    { roleId: item[keys[1]] },
+                    { roleId: item.roleId },
                     { transaction: t },
                   );
+                case 'serviceId':
+                  return;
+                case 'scheduleId':
+                  return;
                 default:
                   break;
               }
@@ -252,6 +256,7 @@ router.post(
           );
         }
       });
+      return res.status(200).send(`Schedule successfully updated`);
     } catch (err) {
       next(err);
       return res.status(503).send({ message: 'Server error, try again later' });
