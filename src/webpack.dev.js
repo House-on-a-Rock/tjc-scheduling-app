@@ -10,7 +10,7 @@ const config = {
   mode: 'development',
   entry: './index.jsx',
   resolve: {
-    extensions: ['.js', '.json'],
+    extensions: ['.js', '.jsx', '.json'],
   },
   output: {
     path: path.join(__dirname, 'dist'),
@@ -24,6 +24,16 @@ const config = {
   },
   module: {
     rules: [
+      {
+        test: /\.js$|jsx/,
+        exclude: /(node_modules|bower_components)/,
+        use: {
+          loader: 'babel-loader',
+          options: {
+            presets: ['@babel/preset-env'],
+          },
+        },
+      },
       {
         test: /\.css$/i,
         use: ['style-loader', 'css-loader'],
@@ -46,4 +56,5 @@ const config = {
   plugins: [htmlPlugin],
 };
 
-export default config;
+module.exports = config;
+// export default config;

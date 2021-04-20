@@ -5,8 +5,6 @@ import Grid from '@material-ui/core/Grid';
 
 import { UserBank } from './UserBank';
 import { TeamList } from './TeamList';
-import { TEAMS, MEMBERS } from './database';
-import { TeamState, DraggedItem } from './models';
 import { add, reorder } from './services';
 
 // TODOS
@@ -14,7 +12,6 @@ import { add, reorder } from './services';
 // 2. need to figure out how to handle new teams- modal or instantaneous
 // 3. new team apis
 // 4. validation apis/reducers need to be fleshed out
-
 
 export const Teams = ({ churchId }) => {
   const classes = useStyles();
@@ -49,13 +46,7 @@ export const Teams = ({ churchId }) => {
   );
 };
 
-
-const DragDropContextWrapper = ({
-  teams,
-  handleTeams,
-  handleDraggedItem,
-  children,
-}) => {
+const DragDropContextWrapper = ({ teams, handleTeams, handleDraggedItem, children }) => {
   const onDragStart = useCallback(
     ({ source }) => {
       handleDraggedItem({ member: MEMBERS[source.index], source: source.droppableId });

@@ -1,24 +1,18 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import {
-  Droppable,
-  Draggable,
-  DroppableId,
-} from 'react-beautiful-dnd';
+import { Droppable, Draggable } from 'react-beautiful-dnd';
 
 // Material UI Components
-import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
+import { createStyles, makeStyles } from '@material-ui/core/styles';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import ListSubheader from '@material-ui/core/ListSubheader';
 import Paper from '@material-ui/core/Paper';
-import { MembersData } from './models';
 import { getRenderItem } from './services';
 import './UserBank.css';
 import { transitionTheme, sideBarTheme, buttonTheme } from '../../shared/styles/theme.js';
 import { verticalScrollIndicatorShadow } from '../../shared/styles/scroll-indicator-shadow';
-
 
 export const UserBank = ({ members, className, droppableId }) => {
   const classes = useStyles();
@@ -35,13 +29,7 @@ export const UserBank = ({ members, className, droppableId }) => {
   );
 };
 
-
-const DroppableBank = ({
-  members,
-  className,
-  droppableId,
-  church,
-}) => {
+const DroppableBank = ({ members, className, droppableId, church }) => {
   const classes = useStyles();
   return (
     <Droppable
@@ -64,10 +52,7 @@ const DroppableBank = ({
                   </ListItem>
                 ) : (
                   <Draggable index={index} draggableId={member.id}>
-                    {(
-                      childProvided,
-                      childSnapshot,
-                    ) => (
+                    {(childProvided, childSnapshot) => (
                       <ListItem
                         ref={childProvided.innerRef}
                         {...childProvided.draggableProps}
