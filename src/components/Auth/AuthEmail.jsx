@@ -8,7 +8,7 @@ import Typography from '@material-ui/core/Typography';
 import Container from '@material-ui/core/Container';
 
 // Custom
-import { TransitionsModal } from '../shared/TransitionsModal';
+import  TransitionsModal  from '../shared/TransitionsModal';
 import { EmailForm } from '../FormControl';
 import { useQuery, isValidEmail } from '../../shared/utilities/helperFunctions';
 import history from '../../shared/services/history';

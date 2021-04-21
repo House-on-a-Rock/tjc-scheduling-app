@@ -9,7 +9,7 @@ import CssBaseline from '@material-ui/core/CssBaseline';
 import Container from '@material-ui/core/Container';
 
 // Custom
-import { TransitionsModal } from '../shared/TransitionsModal';
+import  TransitionsModal  from '../shared/TransitionsModal';
 import { PasswordStrengthMeter, PasswordForm } from '../FormControl';
 import { useQuery } from '../../shared/utilities/helperFunctions';
 import { sendNewPassword } from '../../query/apis';

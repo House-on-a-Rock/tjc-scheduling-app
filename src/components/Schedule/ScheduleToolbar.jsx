@@ -72,14 +72,14 @@ const useStyles = makeStyles(() =>
 );
 
 ScheduleToolbar.propTypes = {
+  isScheduleModified: PropTypes.bool,
   handleNewServiceClicked: PropTypes.func,
   destroySchedule: PropTypes.func,
-  isScheduleModified: PropTypes.func,
   onSaveScheduleChanges: PropTypes.func,
-};
 
+};
 TooltipForDisabledButton.propTypes = {
-  title: PropTypes.bool,
+  title: PropTypes.string,
   disabled: PropTypes.bool,
   handleClick: PropTypes.func,
   children: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.node), PropTypes.node])

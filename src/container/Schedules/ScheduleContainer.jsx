@@ -94,8 +94,6 @@ const ScheduleContainer = ({ tabs, data }) => {
   function dataModelDiff() {
     const diff = detailedDiff(data.schedules, dataModel);
     // in progress
-    // console.log(`diff`, diff);
-    // console.log(`dataModel`, dataModel);
   }
 
   // Model manipulation functions

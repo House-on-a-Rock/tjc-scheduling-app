@@ -16,7 +16,18 @@ app.get('/', (req, res, next) => {
   next();
 });
 
-app.use('/api', require('./routes').default);
+app.use('/api/auth', require('./routes/authentication').default);
+app.use('/api', require('./routes/churches').default);
+app.use('/api', require('./routes/users').default);
+app.use('/api', require('./routes/tasks').default);
+app.use('/api', require('./routes/requests').default);
+app.use('/api', require('./routes/user-roles').default);
+app.use('/api', require('./routes/notifications').default);
+app.use('/api', require('./routes/schedules').default);
+app.use('/api', require('./routes/services').default);
+app.use('/api', require('./routes/roles').default);
+app.use('/api', require('./routes/templates').default);
+app.use('/api', require('./routes/events').default);
 
 app.use((req, res, next) => {
   if (path.extname(req.path).length) {

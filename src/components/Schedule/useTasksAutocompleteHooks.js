@@ -7,8 +7,8 @@ export const useTasksAutocompleteHooks = (dataId, roleId, dataSet) => {
     roleId,
     dataSet,
   });
-  const [isCellModified, setIsCellModified] = useState < boolean > false;
-  const [isCellWarning, setIsCellWarning] = useState < boolean > false;
+  const [isCellModified, setIsCellModified] = useState(false);
+  const [isCellWarning, setIsCellWarning] = useState(false);
 
   const [managedDataSet, setManagedDataSet] = useState(dataSet);
   const [prevRole, setPrevRole] = useState(roleId);

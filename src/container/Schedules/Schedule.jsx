@@ -9,7 +9,7 @@ import {
   getScheduleData,
   getTeamsData,
 } from '../../query';
-import { ScheduleContainer } from './ScheduleContainer';
+import ScheduleContainer  from './ScheduleContainer';
 import { loadingTheme } from '../../shared/styles/theme';
 
 const Schedule = ({ churchId }) => {
@@ -82,7 +82,7 @@ const useStyles = makeStyles(() =>
 );
 
 Schedule.propTypes = {
-  churchId: PropTypes.string,
+  churchId: PropTypes.number,
 };
 
 export default Schedule;

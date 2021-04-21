@@ -37,7 +37,7 @@ export const Template = ({ churchId }) => {
 };
 
 Template.propTypes = {
-  churchId: PropTypes.string,
+  churchId: PropTypes.number,
 };
 
 export default Template;

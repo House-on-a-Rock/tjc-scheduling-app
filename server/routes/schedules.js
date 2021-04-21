@@ -12,7 +12,7 @@ import { daysOfWeek } from '../../shared/constants';
 
 const router = express.Router();
 
-router.get('/', certify, async (req, res, next) => {
+router.get('/schedules', certify, async (req, res, next) => {
   try {
     const { churchId } = req.query;
     const schedules = await db.Schedule.findAll({

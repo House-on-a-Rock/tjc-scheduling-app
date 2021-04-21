@@ -3,10 +3,10 @@ module.exports = {
     browser: false,
     es2021: true,
   },
-  extends: ['airbnb-base'],
+  extends: ['plugin:prettier/recommended', 'plugin:react/recommended', 'airbnb-base'],
   parserOptions: {
     ecmaVersion: 12,
     sourceType: 'module',
   },
-  rules: {},
+  rules: { 'no-nested-ternary': 'off' },
 };

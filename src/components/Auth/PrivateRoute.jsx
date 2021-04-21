@@ -28,7 +28,7 @@ PrivateRoute.propTypes = {
   children: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.node), PropTypes.node])
     .isRequired,
   redirection: PropTypes.string,
-  condition: PropTypes.bool,
+  condition: PropTypes.string,
 };
 
 export default PrivateRoute;
