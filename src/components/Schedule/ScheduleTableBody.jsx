@@ -3,8 +3,11 @@ import PropTypes from 'prop-types';
 import ReactTooltip from 'react-tooltip';
 import { TableCell, TableRow, TableBody } from '@material-ui/core';
 import { makeStyles, createStyles } from '@material-ui/core/styles';
+import EditIcon from '@material-ui/icons/Edit';
 
-export const ScheduleTableBody = ({ title, children, providedRef }) => {
+// TODO add service-name editing functionality to the edit button here
+
+export const ScheduleTableBody = ({ title, children, providedRef, isEdit }) => {
   const tooltipId = `${title}_tooltip`;
   const classes = useStyles();
   const [open, setOpen] = React.useState(true);
@@ -20,8 +23,20 @@ export const ScheduleTableBody = ({ title, children, providedRef }) => {
             }
           }}
         >
-          <TableCell className={classes.scheduleTitle} data-tip data-for={tooltipId}>
-            {title}
+          <TableCell className={classes.scheduleTitle}>
+            <div
+              data-tip
+              data-for={tooltipId}
+              onClick={() => {
+                setOpen(!open);
+                if (!open) {
+                  setExpandedBefore(true);
+                }
+              }}
+            >
+              {title}
+            </div>
+            {isEdit && <EditIcon />}
           </TableCell>
           <ReactTooltip id={tooltipId}>
             <span>{`Click to ${open ? 'collapse' : 'expand'}`}</span>

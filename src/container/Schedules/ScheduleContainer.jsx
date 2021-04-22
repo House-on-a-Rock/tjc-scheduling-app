@@ -9,7 +9,7 @@ import ld from 'lodash';
 
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
 
-import { detailedDiff } from 'deep-object-diff';
+import { detailedDiff, updatedDiff } from 'deep-object-diff';
 import {
   ScheduleTabs,
   ScheduleTable,
@@ -30,6 +30,9 @@ import {
   teammates,
   createBlankEvent,
   retrieveDroppableServiceId,
+  processUpdate,
+  processAdded,
+  processRemoved,
 } from './utilities';
 
 import {
@@ -37,6 +40,7 @@ import {
   useDeleteSchedule,
   useCreateService,
   useDeleteEvent,
+  useUpdateSchedule,
 } from '../utilities/useMutations';
 
 const SERVICE = 'service';
@@ -51,6 +55,8 @@ const ScheduleContainer = ({ tabs, data }) => {
   const [isNewServiceOpen, setIsNewServiceOpen] = useState(false);
   const [warningDialog, setWarningDialog] = useState('');
   const [selectedEvents, setSelectedEvents] = useState([]);
+  const [isEditMode, setIsEditMode] = useState(false);
+  // const [alert, setAlert] = useState<AlertInterface>();
 
   // manipulate events
   const [dataModel, setDataModel] = useState(ld.cloneDeep(data.schedules));
@@ -64,9 +70,14 @@ const ScheduleContainer = ({ tabs, data }) => {
   const deleteSchedule = useDeleteSchedule(setWarningDialog);
   const createService = useCreateService(setIsNewServiceOpen);
   const deleteEvent = useDeleteEvent();
+  const updateSchedule = useUpdateSchedule();
 
   function onSaveScheduleChanges() {
-    dataModelDiff();
+    const diff = updatedDiff(data.schedules, dataModel);
+
+    // need error checking before running diff
+    const updiff = processUpdate(diff, dataModel, tab);
+    updateSchedule.mutate({ updated: updiff });
     setIsScheduleModified(false);
   }
 
@@ -97,19 +108,22 @@ const ScheduleContainer = ({ tabs, data }) => {
   }
 
   // Model manipulation functions
-  const createBlankService = () => {
+  function createBlankService() {
     return {
       name: 'test',
       day: 0,
       events: [],
       serviceId: retrieveChangesSeed(),
     };
-  };
+  }
 
   function addEvent(serviceIndex) {
     const dataClone = [...dataModel];
     const targetEvents = dataClone[tab].services[serviceIndex].events;
-    const newEvent = createBlankEvent(dataClone[tab].columns.length, retrieveChangesSeed);
+    const newEvent = createBlankEvent(
+      dataClone[tab].columns.length - 1,
+      retrieveChangesSeed,
+    );
     targetEvents.push(newEvent);
     setDataModel(dataClone);
   }
@@ -217,13 +231,38 @@ const ScheduleContainer = ({ tabs, data }) => {
       return;
     }
     setDataModel((prev) => {
-      const temp = [...prev];
-      const scope = temp[tab].services[sourceService].events;
-      const src = scope.splice(source, 1);
-      scope.splice(destination, 0, src[0]);
-      return temp;
+      return rearrangeEvents(prev, sourceService, source, destination);
     });
   }, []);
+
+  function rearrangeEvents(prevModel, sourceService, source, destination) {
+    const temp = [...prevModel];
+    const scope = temp[tab].services[sourceService].events;
+    const src = scope.splice(source, 1);
+    scope.splice(destination, 0, src[0]);
+    return temp;
+  }
+
+  function onEditClick() {
+    if (!isEditMode) {
+      if (isScheduleModified) {
+        setWarningDialog(
+          'Changes to the schedule must be saved before editing the template',
+        );
+        // this needs to be redone
+      } else {
+        setIsEditMode(true);
+      }
+    } else {
+      saveTemplateChanges();
+      setIsEditMode(false);
+    }
+  }
+
+  function saveTemplateChanges() {
+    console.log('saving template changes');
+    // process the diffs
+  }
 
   // TODO
   // contextmenu functions don't work
@@ -231,6 +270,8 @@ const ScheduleContainer = ({ tabs, data }) => {
   // newly created schedule has strange set of dates
   // rethink where to put draggable handles and how to display them
   // broke selection/hover of rows?
+  // make sure the edit schedule button works only when schedule is saved.
+  // rework warning dialogs
 
   return (
     <>
@@ -288,13 +329,18 @@ const ScheduleContainer = ({ tabs, data }) => {
                             title={`${days[day]} ${name}`}
                             providedRef={droppableProvided.innerRef}
                             {...droppableProvided.droppableProps}
+                            isEdit={isEditMode}
                           >
-                            <button onClick={() => deleteService(serviceId)}>
-                              Delete Service
-                            </button>
-                            <button onClick={() => addEvent(serviceIndex)}>
-                              Add Event
-                            </button>
+                            {isEditMode && (
+                              <>
+                                <button onClick={() => deleteService(serviceId)}>
+                                  Delete Service
+                                </button>
+                                <button onClick={() => addEvent(serviceIndex)}>
+                                  Add Event
+                                </button>
+                              </>
+                            )}
 
                             {events.map((event, rowIndex) => {
                               const { roleId, cells, time, eventId } = event;
@@ -336,9 +382,11 @@ const ScheduleContainer = ({ tabs, data }) => {
                                       }}
                                     >
                                       <TableCell align="left">
-                                        <div {...provided.dragHandleProps}>
-                                          <ReorderIcon />
-                                        </div>
+                                        {isEditMode && (
+                                          <div {...provided.dragHandleProps}>
+                                            <ReorderIcon />
+                                          </div>
+                                        )}
                                       </TableCell>
                                       {cells.map((cell, columnIndex) => {
                                         const roleDataContext = {

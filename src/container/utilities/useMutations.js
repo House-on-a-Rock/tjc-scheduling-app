@@ -4,6 +4,7 @@ import {
   destroySchedule,
   postService,
   destroyEvent,
+  updateScheduleAssignments,
 } from '../../query/apis';
 
 export const useCreateSchedule = (setDialogOpen) => {
@@ -40,6 +41,15 @@ export const useCreateService = (setDialogOpen) => {
 export const useDeleteEvent = () => {
   const queryClient = useQueryClient();
   return useMutation(destroyEvent, {
+    onSuccess: () => {
+      queryClient.invalidateQueries('schedules');
+    },
+  });
+};
+
+export const useUpdateSchedule = () => {
+  const queryClient = useQueryClient();
+  return useMutation(updateScheduleAssignments, {
     onSuccess: () => {
       queryClient.invalidateQueries('schedules');
     },

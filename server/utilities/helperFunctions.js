@@ -247,6 +247,10 @@ export function determineWeeks(startDate, endDate) {
 export function createColumns(start, end) {
   return [
     {
+      Header: '',
+      accessor: '',
+    },
+    {
       Header: 'Time',
       accessor: 'time',
     },

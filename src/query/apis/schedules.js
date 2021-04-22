@@ -22,11 +22,6 @@ export const destroyEvent = (eventId) => {
   return axios.delete(`${secretIp}/api/event`, { data: { eventId } });
 };
 
-export const updateScheduleAssignments = async (changedTasks) => {
-  const response = await Promise.all(
-    Object.entries(changedTasks).map((task) =>
-      axios.patch(`${secretIp}/api/tasks/updateTask/${task[0]}/assignTo/${task[1]}`),
-    ),
-  );
-  return response;
+export const updateScheduleAssignments = (data) => {
+  return axios.post(`${secretIp}/api/schedule/update`, data);
 };

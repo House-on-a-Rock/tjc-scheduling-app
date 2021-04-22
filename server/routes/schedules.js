@@ -124,6 +124,64 @@ router.post('/schedule', certify, async (req, res, next) => {
   }
 });
 
+/*  
+  body can have updated, added, removed
+  each will have an array of objects, handle them diffferently based on key[0]
+  {taskId: 123, userId: 123}
+  {eventId: 123, roleId: 123, order: 3, time: '10:15 am'}
+  {serviceId: 1, name: "morning", order: 3, day: 5}
+  {scheduleId: 3, title: "new main", view: "monthly"}
+  should the backend have error checking to ensure the submitted items are valid?? 
+  i think it'll be a lot of extra work, and the front end will be handling that already. 
+  on the other hand, kinda feels risky not having validation 
+*/
+router.post('/schedule/update', certify, async (req, res, next) => {
+  try {
+    const transaction = db.sequelize.transaction(async (t) => {
+      const { updated, added, removed } = req.body;
+
+      if (updated) {
+        await Promise.all(
+          updated.map(async (item) => {
+            const keys = Object.keys(item);
+
+            switch (keys[0]) {
+              case 'taskId':
+                const targetTask = await db.Task.findOne({
+                  where: { id: item.taskId },
+                });
+                return await targetTask.update(
+                  { userId: item.userId },
+                  { transaction: t },
+                );
+              // this need more work on both ends - i'd like to eventually pass the entire event info back in one obj
+              // if there are multiple changes to one event (eg. both time and duty are changed), this only needs to be run once
+              case 'eventId':
+                const targetEvent = await db.Event.findOne({
+                  where: { id: item.eventId },
+                });
+                return await targetEvent.update(
+                  { roleId: item.roleId },
+                  { transaction: t },
+                );
+              case 'serviceId':
+                return;
+              case 'scheduleId':
+                return;
+              default:
+                break;
+            }
+          }),
+        );
+      }
+    });
+    return res.status(200).send(`Schedule successfully updated`);
+  } catch (err) {
+    next(err);
+    return res.status(503).send({ message: 'Server error, try again later' });
+  }
+});
+
 router.delete('/schedule', certify, async (req, res, next) => {
   try {
     const { scheduleId, title } = req.body;
