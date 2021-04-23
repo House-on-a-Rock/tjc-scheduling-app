@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 
 // mat ui
 import { makeStyles, createStyles } from '@material-ui/core/styles';
@@ -7,7 +6,7 @@ import { makeStyles, createStyles } from '@material-ui/core/styles';
 import { TemplateDisplay } from '../../components/Template/TemplateDisplay';
 import { buttonTheme } from '../../shared/styles/theme';
 
-export const TemplateContainer = ({ state }) => {
+const TemplateMain = ({ state }) => {
   const classes = useStyles();
   const { isLoading, error, data, isSuccess } = state;
 
@@ -48,3 +47,5 @@ const useStyles = makeStyles((theme) =>
     },
   }),
 );
+
+export default TemplateMain;

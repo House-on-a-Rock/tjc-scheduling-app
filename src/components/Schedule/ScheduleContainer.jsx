@@ -9,10 +9,10 @@ import {
   getScheduleData,
   getTeamsData,
 } from '../../query';
-import ScheduleContainer  from './ScheduleContainer';
+import ScheduleMain from './ScheduleMain';
 import { loadingTheme } from '../../shared/styles/theme';
 
-const Schedule = ({ churchId }) => {
+const ScheduleContainer = ({ churchId }) => {
   const classes = useStyles();
   const [fetchedSchedules, setFetchedSchedules] = useState([]);
 
@@ -51,7 +51,7 @@ const Schedule = ({ churchId }) => {
   return (
     <div className={!loaded ? classes.loading : ''}>
       {loaded && (
-        <ScheduleContainer
+        <ScheduleMain
           tabs={tabs.data}
           data={{
             schedules: schedules.data,
@@ -81,8 +81,8 @@ const useStyles = makeStyles(() =>
   }),
 );
 
-Schedule.propTypes = {
+ScheduleContainer.propTypes = {
   churchId: PropTypes.number,
 };
 
-export default Schedule;
+export default ScheduleContainer;

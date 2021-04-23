@@ -8,9 +8,9 @@ import { useQuery } from 'react-query';
 import { getTemplateData } from '../../query';
 
 // components
-import { TemplateContainer } from './TemplateContainer';
+import TemplateMain from './TemplateMain';
 
-export const Template = ({ churchId }) => {
+export const TemplateContainer = ({ churchId }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [data, setData] = useState();
   const [error, setError] = useState(null);
@@ -33,11 +33,11 @@ export const Template = ({ churchId }) => {
   // if (isTemplatesLoading) return <div>Loading</div>;
 
   // TODO add confirmation alerts
-  return <TemplateContainer state={{ data, isLoading, error, isSuccess }} />;
+  return <TemplateMain state={{ data, isLoading, error, isSuccess }} />;
 };
 
-Template.propTypes = {
+TemplateContainer.propTypes = {
   churchId: PropTypes.number,
 };
 
-export default Template;
+export default TemplateContainer;

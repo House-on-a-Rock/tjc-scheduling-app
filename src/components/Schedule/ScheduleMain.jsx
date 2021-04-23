@@ -21,9 +21,9 @@ import {
   TimeCell,
   DutyAutocomplete,
   TasksAutocomplete,
-} from '../../components/Schedule';
+} from '.';
 
-import { ContextMenu, ConfirmationDialog } from '../../components/shared';
+import { ContextMenu, ConfirmationDialog } from '../shared';
 
 import {
   days,
@@ -47,7 +47,7 @@ const SERVICE = 'service';
 const EVENT = 'event';
 const SCHEDULE = 'schedule';
 
-const ScheduleContainer = ({ tabs, data }) => {
+const ScheduleMain = ({ tabs, data }) => {
   const [tab, setTab] = useState(0);
   const [isScheduleModified, setIsScheduleModified] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
@@ -486,9 +486,9 @@ const ScheduleContainer = ({ tabs, data }) => {
   );
 };
 
-ScheduleContainer.propTypes = {
+ScheduleMain.propTypes = {
   tabs: PropTypes.array,
   data: PropTypes.object,
 };
 
-export default ScheduleContainer;
+export default ScheduleMain;

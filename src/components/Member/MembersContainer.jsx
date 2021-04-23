@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { useQuery, useMutation, useQueryClient } from 'react-query';
-import MembersContainer  from './MembersContainer';
+import MembersMain from './MembersMain';
 import { getChurchMembersData } from '../../query';
 import { addUser, destroyUser } from '../../query/apis';
 
-const Members = ({ churchId }) => {
+const MembersContainer = ({ churchId }) => {
   const queryClient = useQueryClient();
   const [isLoading, setIsLoading] = useState(false);
   const [data, setData] = useState();
@@ -39,7 +39,7 @@ const Members = ({ churchId }) => {
   }, [users]);
 
   return (
-    <MembersContainer
+    <MembersMain
       state={{ data, isLoading, error, isSuccess }}
       addUser={(newInfo) => createUser.mutate({ ...newInfo, churchId })}
       removeUser={(info) => deleteUser.mutate(info)}
@@ -58,8 +58,8 @@ function errorHandling(result, setError) {
   });
 }
 
-Members.propTypes = {
+MembersContainer.propTypes = {
   churchId: PropTypes.number,
 };
 
-export default Members;
+export default MembersContainer;

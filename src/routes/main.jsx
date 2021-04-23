@@ -1,12 +1,13 @@
 import React, { useContext, useEffect } from 'react';
-import PropTypes from 'prop-types';
 import { BrowserRouter as Router, Route, Switch, Redirect } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from 'react-query';
-
-import { ReactQueryDevtools } from 'react-query-devtools';
 import { ThemeProvider } from '@material-ui/core';
 
-import { Teams, Members, Template, Schedule } from '../container';
+// import { Teams, Members, Template, Schedule } from '../container';
+import { Teams } from '../components/Teams';
+import { ScheduleContainer } from '../components/Schedule';
+import { MembersContainer } from '../components/Member';
+import { TemplateContainer } from '../components/Template';
 import { Header } from '../components/shared';
 import theme from '../shared/styles/theme';
 import { extractTokenInfo, useToken } from '../shared/utilities';
@@ -36,17 +37,17 @@ const Main = () => {
             <Header />
             <Switch>
               <Route path="/home">
-                <Schedule churchId={churchId} />
+                <ScheduleContainer churchId={churchId} />
               </Route>
               <Route path="/teams">
                 <Teams churchId={churchId} />
               </Route>
               <Route path="/templates">
                 {/* history is messed up. you can't route to a page */}
-                <Template churchId={churchId} />
+                <TemplateContainer churchId={churchId} />
               </Route>
               <Route path="/members">
-                <Members churchId={churchId} />
+                <MembersContainer churchId={churchId} />
               </Route>
               <Route path="/">
                 <Redirect to="/home" />

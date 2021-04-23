@@ -12,7 +12,7 @@ import { updateSelectedRows } from './utilities';
 
 const USER = 'user';
 
-const MembersContainer = ({ state, addUser, removeUser }) => {
+const MembersMain = ({ state, addUser, removeUser }) => {
   const { isLoading, error, data, isSuccess } = state;
   // Component state
   const [filteredMembers, setFilteredMembers] = useState([]);
@@ -147,10 +147,10 @@ const filterMembers = (users, target) =>
     );
   });
 
-MembersContainer.propTypes = {
+MembersMain.propTypes = {
   state: PropTypes.object,
   addUser: PropTypes.func,
   removeUser: PropTypes.func,
 };
 
-export default MembersContainer;
+export default MembersMain;

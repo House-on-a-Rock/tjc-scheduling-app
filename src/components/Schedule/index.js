@@ -8,6 +8,8 @@ import ScheduleToolbar from './ScheduleToolbar';
 import TimeCell from './TimeCell';
 import DutyAutocomplete from './DutyAutocomplete';
 import TasksAutocomplete from './TasksAutocomplete';
+import ScheduleContainer from './ScheduleContainer';
+import ScheduleMain from './ScheduleMain';
 
 export {
   NewServiceForm,
@@ -20,4 +22,6 @@ export {
   TimeCell,
   DutyAutocomplete,
   TasksAutocomplete,
+  ScheduleContainer,
+  ScheduleMain,
 };
