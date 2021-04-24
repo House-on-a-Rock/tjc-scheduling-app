@@ -244,6 +244,7 @@ const ScheduleMain = ({ tabs, data }) => {
   }
 
   function onEditClick() {
+    console.log('edit clicked');
     if (!isEditMode) {
       if (isScheduleModified) {
         setWarningDialog(
@@ -289,6 +290,7 @@ const ScheduleMain = ({ tabs, data }) => {
           destroySchedule={() => setWarningDialog(SCHEDULE)}
           isScheduleModified={isScheduleModified}
           onSaveScheduleChanges={onSaveScheduleChanges}
+          setEditMode={onEditClick}
         />
         <ContextMenu
           outerRef={outerRef}

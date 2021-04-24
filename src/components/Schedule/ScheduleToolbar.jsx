@@ -9,13 +9,7 @@ import CreateNewFolderIcon from '@material-ui/icons/CreateNewFolder';
 import Tooltip from '@material-ui/core/Tooltip';
 import EditIcon from '@material-ui/icons/Edit';
 
-const TooltipForDisabledButton = ({
-  title,
-  disabled,
-  handleClick,
-  children,
-  setEditMode,
-}) => {
+const TooltipForDisabledButton = ({ title, disabled, handleClick, children }) => {
   const [open, setOpen] = useState(false);
   return (
     <Tooltip title={title} open={open}>
@@ -38,6 +32,7 @@ const ScheduleToolbar = ({
   destroySchedule,
   isScheduleModified,
   onSaveScheduleChanges,
+  setEditMode,
 }) => {
   const classes = useStyles();
   return (
@@ -62,7 +57,7 @@ const ScheduleToolbar = ({
       <TooltipForDisabledButton
         title="Edit Template (Changes must be saved before editing)"
         disabled={isScheduleModified}
-        handleClick={() => setEditMode((prev) => !prev)}
+        handleClick={() => setEditMode()}
       >
         <EditIcon />
       </TooltipForDisabledButton>
