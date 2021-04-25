@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { MenuItem, Button } from '@material-ui/core';
+import { MenuItem, Button, Dialog } from '@material-ui/core';
 import { makeStyles, createStyles } from '@material-ui/core/styles';
 
 import { ValidatedTextField, ValidatedSelect } from '../FormControl';
@@ -13,7 +13,14 @@ import { stringLengthCheck } from '../../shared/utilities';
 
 // TODO hook up teams with data from DB
 
-export const NewScheduleForm = ({ onClose, error, onSubmit, templateId, templates }) => {
+export const NewScheduleForm = ({
+  onClose,
+  error,
+  onSubmit,
+  templateId,
+  templates,
+  isOpen,
+}) => {
   const tomorrow = new Date(new Date().setDate(new Date().getDate() + 1));
   const classes = useStyles();
 
@@ -72,105 +79,107 @@ export const NewScheduleForm = ({ onClose, error, onSubmit, templateId, template
 
   // TODO display error message from server side
   return (
-    <div className={classes.newScheduleForm}>
-      <h2>Create a New Schedule</h2>
-      <form className={classes.formStyle}>
-        {error && (
-          <div style={{ color: 'red' }}>
-            {`Status code ${error?.response.status}: ${error?.response.statusText}`}
+    <Dialog open={isOpen} onClose={onClose}>
+      <div className={classes.newScheduleForm}>
+        <h2>Create a New Schedule</h2>
+        <form className={classes.formStyle}>
+          {error && (
+            <div style={{ color: 'red' }}>
+              {`Status code ${error?.response.status}: ${error?.response.statusText}`}
+            </div>
+          )}
+          <div className={classes.tooltipContainer}>
+            <ValidatedTextField
+              className={classes.nameInput}
+              label="Schedule Title"
+              input={title}
+              handleChange={setTitle}
+              autoFocus
+            />
+            <Tooltip
+              id="scheduleName"
+              text="Example name: Jan-Mar Schedule. Must be unique"
+            />
           </div>
-        )}
-        <div className={classes.tooltipContainer}>
-          <ValidatedTextField
-            className={classes.nameInput}
-            label="Schedule Title"
-            input={title}
-            handleChange={setTitle}
-            autoFocus
-          />
-          <Tooltip
-            id="scheduleName"
-            text="Example name: Jan-Mar Schedule. Must be unique"
-          />
-        </div>
-        <div className={classes.tooltipContainer}>
-          <ValidatedTextField
-            className={classes.datePicker}
-            label="Start Date"
-            input={startDate}
-            handleChange={setStartDate}
-            type="date"
-            InputLabelProps={{
-              shrink: true,
-            }}
-          />
-          <ValidatedTextField
-            className={classes.datePicker}
-            label="End Date"
-            input={endDate}
-            handleChange={setEndDate}
-            type="date"
-            InputLabelProps={{
-              shrink: true,
-            }}
-          />
-          <Tooltip
-            id="datePicker"
-            text="Select the begin date and end date for this schedule"
-          />
-        </div>
-        <div className={classes.tooltipContainer}>
-          <ValidatedSelect
-            className={classes.selectContainer}
-            input={team}
-            label="Team"
-            onChange={setTeam}
-            toolTip={{ id: 'team', text: 'Assign a team to this schedule' }}
+          <div className={classes.tooltipContainer}>
+            <ValidatedTextField
+              className={classes.datePicker}
+              label="Start Date"
+              input={startDate}
+              handleChange={setStartDate}
+              type="date"
+              InputLabelProps={{
+                shrink: true,
+              }}
+            />
+            <ValidatedTextField
+              className={classes.datePicker}
+              label="End Date"
+              input={endDate}
+              handleChange={setEndDate}
+              type="date"
+              InputLabelProps={{
+                shrink: true,
+              }}
+            />
+            <Tooltip
+              id="datePicker"
+              text="Select the begin date and end date for this schedule"
+            />
+          </div>
+          <div className={classes.tooltipContainer}>
+            <ValidatedSelect
+              className={classes.selectContainer}
+              input={team}
+              label="Team"
+              onChange={setTeam}
+              toolTip={{ id: 'team', text: 'Assign a team to this schedule' }}
+            >
+              <MenuItem value={0}>Assign this schedule to a team</MenuItem>
+              <MenuItem value={1}>Church Council</MenuItem>
+              <MenuItem value={2}>RE</MenuItem>
+            </ValidatedSelect>
+          </div>
+          <div className={classes.tooltipContainer}>
+            <ValidatedSelect
+              className={classes.selectContainer}
+              input={template}
+              onChange={setTemplate}
+              label="Template"
+              toolTip={{ id: 'template', text: 'Assign a template to this schedule' }}
+            >
+              <MenuItem value={0}>Pick a template</MenuItem>
+              {templates
+                ? templates.map(({ templateId: id, name }) => (
+                    <MenuItem key={id} value={id}>
+                      {name}
+                    </MenuItem>
+                  ))
+                : [
+                    <MenuItem value={1} key="1">
+                      Weekly Services
+                    </MenuItem>,
+                    <MenuItem value={2} key="2">
+                      RE
+                    </MenuItem>,
+                  ]}
+            </ValidatedSelect>
+          </div>
+        </form>
+        <div className={classes.buttonBottomBar}>
+          <Button
+            onClick={onSubmitForm}
+            variant="contained"
+            className={classes.submitButton}
           >
-            <MenuItem value={0}>Assign this schedule to a team</MenuItem>
-            <MenuItem value={1}>Church Council</MenuItem>
-            <MenuItem value={2}>RE</MenuItem>
-          </ValidatedSelect>
+            Create a new schedule!
+          </Button>
+          <Button onClick={onClose} className={classes.button}>
+            Cancel
+          </Button>
         </div>
-        <div className={classes.tooltipContainer}>
-          <ValidatedSelect
-            className={classes.selectContainer}
-            input={template}
-            onChange={setTemplate}
-            label="Template"
-            toolTip={{ id: 'template', text: 'Assign a template to this schedule' }}
-          >
-            <MenuItem value={0}>Pick a template</MenuItem>
-            {templates
-              ? templates.map(({ templateId: id, name }) => (
-                  <MenuItem key={id} value={id}>
-                    {name}
-                  </MenuItem>
-                ))
-              : [
-                  <MenuItem value={1} key="1">
-                    Weekly Services
-                  </MenuItem>,
-                  <MenuItem value={2} key="2">
-                    RE
-                  </MenuItem>,
-                ]}
-          </ValidatedSelect>
-        </div>
-      </form>
-      <div className={classes.buttonBottomBar}>
-        <Button
-          onClick={onSubmitForm}
-          variant="contained"
-          className={classes.submitButton}
-        >
-          Create a new schedule!
-        </Button>
-        <Button onClick={onClose} className={classes.button}>
-          Cancel
-        </Button>
       </div>
-    </div>
+    </Dialog>
   );
 };
 

@@ -13,12 +13,12 @@ import {
   buttonTheme,
 } from '../../shared/styles/theme';
 
-export const ScheduleTabs = ({ tabs, tabIdx, onTabClick, handleAddClicked }) => {
+export const ScheduleTabs = ({ tabs, tabIndex, onTabClick, handleAddClicked }) => {
   const classes = useStyles();
   return (
     <div className={classes.scheduleTabs}>
       <Tabs
-        value={tabIdx}
+        value={tabIndex}
         onChange={(e, value) => onTabClick(value)}
         textColor="primary"
         centered
@@ -80,7 +80,7 @@ const useStyles = makeStyles(() =>
 
 ScheduleTabs.propTypes = {
   tabs: PropTypes.array,
-  tabIdx: PropTypes.number,
+  tabIndex: PropTypes.number,
   onTabClick: PropTypes.func,
   handleAddClicked: PropTypes.func,
 };

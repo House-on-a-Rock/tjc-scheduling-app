@@ -10,6 +10,7 @@ export const getScheduleData = async (scheduleIds) => {
     : [];
 };
 
+// unused
 export const getAllSchedules = async (churchId) => {
   return (await getSchedules(churchId)).data;
 };
