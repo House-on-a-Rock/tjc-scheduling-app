@@ -1,55 +1,49 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { useQuery, useMutation, useQueryClient } from 'react-query';
+
 import MembersMain from './MembersMain';
-import { getChurchMembersData } from '../../query';
+
 import { addUser, destroyUser } from '../../query/apis';
+import useMembersContainerData from '../../hooks/containerHooks/useMembersContainerData';
+
+import { createStyles, makeStyles } from '@material-ui/core';
+import { loadingTheme } from '../../shared/styles/theme';
+
+// TODO fix this thingy
 
 const MembersContainer = ({ churchId }) => {
-  const queryClient = useQueryClient();
+  const classes = useStyles();
   const [isLoading, setIsLoading] = useState(false);
   const [data, setData] = useState();
-  const [error, setError] = useState(null);
 
-  const [isSuccess, setIsSuccess] = useState('');
-  const users = useQuery(['users', churchId], () => getChurchMembersData(churchId), {
-    enabled: !!churchId,
-    staleTime: 300000,
-    cacheTime: 3000000,
-  });
+  const [isUsersLoading, users, createUser, deleteUser] = useMembersContainerData(
+    churchId,
+  );
 
-  const createUser = useMutation(addUser, {
-    onSuccess: () => {
-      queryClient.invalidateQueries('users');
-      setIsSuccess('NewUser');
-    },
-    onError: (result) => errorHandling(result, setError),
-    onSettled: () => setIsSuccess(''),
-  });
-  const deleteUser = useMutation(destroyUser, {
-    onSuccess: () => queryClient.invalidateQueries('roleData'),
-  });
-
-  useEffect(() => {
-    if (users.isSuccess) setError(null);
-    if (users.isError) setError(users.error);
-    if (users.data) setData({ ...data, users: users.data });
-
-    if (users.isLoading !== isLoading) setIsLoading(users.isLoading);
-  }, [users]);
+  // can pbly condense this down to just members main
 
   return (
-    <MembersMain
-      state={{ data, isLoading, error, isSuccess }}
-      addUser={(newInfo) => createUser.mutate({ ...newInfo, churchId })}
-      removeUser={(info) => deleteUser.mutate(info)}
-      // addSchedule={(newInfo: NewScheduleData) =>
-      //   createSchedule.mutate({ ...newInfo, churchId })
-      // }
-      // removeSchedule={(info: DeleteScheduleData) => deleteSchedule.mutate(info)}
-    />
+    <div className={isUsersLoading ? classes.loading : ''}>
+      <MembersMain
+        state={{ data, isLoading, error, isSuccess }}
+        addUser={(newInfo) => createUser.mutate({ ...newInfo, churchId })}
+        removeUser={(info) => deleteUser.mutate(info)}
+        // addSchedule={(newInfo: NewScheduleData) =>
+        //   createSchedule.mutate({ ...newInfo, churchId })
+        // }
+        // removeSchedule={(info: DeleteScheduleData) => deleteSchedule.mutate(info)}
+      />
+    </div>
   );
 };
+
+const useStyles = makeStyles(() =>
+  createStyles({
+    loading: {
+      ...loadingTheme,
+    },
+  }),
+);
 
 function errorHandling(result, setError) {
   setError({

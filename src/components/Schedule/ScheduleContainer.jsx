@@ -1,21 +1,18 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { useQuery } from 'react-query';
 
 import { createStyles, makeStyles } from '@material-ui/core';
-import { getChurchMembersData, getTeamsData } from '../../query';
 import ScheduleMain from './ScheduleMain';
 import ScheduleTabs from './ScheduleTabs';
 import NewScheduleForm from './NewScheduleForm';
 import { loadingTheme } from '../../shared/styles/theme';
 
-import { getSchedules } from '../../apis/schedules';
-import useScheduleContainerData from './useScheduleContainerData';
+import useScheduleContainerData from '../../hooks/containerHooks/useScheduleContainerData';
 /*
   fetch schedule ids, use those to create tabs
   fetch teams and users since they will be used across every schedule
-  by default, fetch first schedule id
-  render toolbars here, hold most of the common state here
+  
+   common state
     - alerts
     - create schedule o7
     - delete schedule
@@ -31,22 +28,14 @@ import useScheduleContainerData from './useScheduleContainerData';
 const ScheduleContainer = ({ churchId }) => {
   const classes = useStyles();
 
-  const [isTabsLoading, tabs, users, teams] = useScheduleContainerData(churchId);
-  // const users = useQuery(['users'], () => getChurchMembersData(churchId), {
-  //   staleTime: 300000,
-  //   cacheTime: 3000000,
-  // });
-  // const teams = useQuery(['teams'], () => getTeamsData(churchId), {
-  //   staleTime: 300000,
-  //   cacheTime: 3000000,
-  // });
-
-  // const [mutateAddSchedule, { error: mutateScheduleError }] = useMutation(addSchedule, {
-  //   onSuccess: (response) => {
-  //     cache.invalidateQueries('scheduleTabs');
-  //     closeDialogHandler(response);
-  //   },
-  // });
+  const [
+    isTabsLoading,
+    tabs,
+    isUsersLoading,
+    users,
+    isTeamsLoading,
+    teams,
+  ] = useScheduleContainerData(churchId);
 
   // const schedules = useQuery(
   //   ['schedules', fetchedSchedules],
@@ -63,7 +52,9 @@ const ScheduleContainer = ({ churchId }) => {
   const [openedTabs, setOpenedTabs] = useState([0]);
   const [isNewScheduleOpen, setIsNewScheduleOpen] = useState(false);
 
-  console.log(`teams`, teams);
+  console.log(`users`, users);
+
+  const loaded = !isTabsLoading && !isUsersLoading && !isTeamsLoading;
 
   return (
     <div className={isTabsLoading ? classes.loading : ''}>
