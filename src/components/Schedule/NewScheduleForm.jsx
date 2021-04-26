@@ -263,7 +263,7 @@ const useStyles = makeStyles((theme) =>
 
 NewScheduleForm.propTypes = {
   onClose: PropTypes.func,
-  error: PropTypes.string,
+  error: PropTypes.object,
   onSubmit: PropTypes.func,
   templateId: PropTypes.number,
   templates: PropTypes.array,

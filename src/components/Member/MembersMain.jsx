@@ -12,8 +12,8 @@ import { updateSelectedRows } from './utilities';
 
 const USER = 'user';
 
-const MembersMain = ({ state, addUser, removeUser }) => {
-  const { isLoading, error, data, isSuccess } = state;
+const MembersMain = ({ users, addUser, removeUser }) => {
+  // const { isLoading, error, data, isSuccess } = state;
   // Component state
   const [filteredMembers, setFilteredMembers] = useState([]);
   const [searchField, setSearchField] = useState('');
@@ -85,20 +85,20 @@ const MembersMain = ({ state, addUser, removeUser }) => {
     },
   };
 
-  useEffect(() => {
-    if (data?.users) setFilteredMembers(filterMembers(data.users, searchField));
-  }, [data, searchField]);
+  // useEffect(() => {
+  //   if (data?.users) setFilteredMembers(filterMembers(data.users, searchField));
+  // }, [data, searchField]);
 
-  useEffect(() => {
-    if (isSuccess === 'NewUser') setIsNewMemberDialogOpen(false);
-    if (isSuccess === 'DeleteUser') {
-      console.log('deleted');
-    }
-  }, [isSuccess]);
+  // useEffect(() => {
+  //   if (isSuccess === 'NewUser') setIsNewMemberDialogOpen(false);
+  //   if (isSuccess === 'DeleteUser') {
+  //     console.log('deleted');
+  //   }
+  // }, [isSuccess]);
 
   return (
     <>
-      {data?.users && !isLoading && (
+      {users && (
         <Grid container spacing={3}>
           <Grid item xs={12}>
             <MembersHeader

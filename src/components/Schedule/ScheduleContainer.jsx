@@ -6,27 +6,16 @@ import ScheduleMain from './ScheduleMain';
 import ScheduleTabs from './ScheduleTabs';
 import NewScheduleForm from './NewScheduleForm';
 import { loadingTheme } from '../../shared/styles/theme';
-
 import useScheduleContainerData from '../../hooks/containerHooks/useScheduleContainerData';
-/*
-  fetch schedule ids, use those to create tabs
-  fetch teams and users since they will be used across every schedule
-  
-   common state
-    - alerts
-    - create schedule o7
-    - delete schedule
-
-    remain in scheduleMain
-    - warning dialog
-    - context menu
-    - toolbar stuff
-
-  schedule specific stuff goes into schedule main, along with the usequeries
-*/
 
 const ScheduleContainer = ({ churchId }) => {
   const classes = useStyles();
+
+  // these are the indices that correlate to the array of scheduleIds retrieved from the DB
+  const [tabIndex, setTabIndex] = useState(0);
+  const [openedTabs, setOpenedTabs] = useState([0]);
+
+  const [isNewScheduleOpen, setIsNewScheduleOpen] = useState(false);
 
   const [
     isTabsLoading,
@@ -35,45 +24,41 @@ const ScheduleContainer = ({ churchId }) => {
     users,
     isTeamsLoading,
     teams,
-  ] = useScheduleContainerData(churchId);
+    createSchedule,
+  ] = useScheduleContainerData(churchId, setIsNewScheduleOpen);
 
-  // const schedules = useQuery(
-  //   ['schedules', fetchedSchedules],
-  //   () => getScheduleData(makeScheduleIdxs(tabs.data)),
-  //   {
-  //     enabled: !!tabs.data,
-  //     refetchOnWindowFocus: false,
-  //     staleTime: 100000000000000,
-  //     keepPreviousData: true,
-  //   },
-  // );
-
-  const [tabIndex, setTabIndex] = useState(0);
-  const [openedTabs, setOpenedTabs] = useState([0]);
-  const [isNewScheduleOpen, setIsNewScheduleOpen] = useState(false);
-
-  console.log(`users`, users);
+  // console.log(`tabs, users, teams`, tabs, users, teams);
 
   const loaded = !isTabsLoading && !isUsersLoading && !isTeamsLoading;
 
   return (
     <div className={isTabsLoading ? classes.loading : ''}>
-      {!isTabsLoading && (
+      {loaded && (
         <div>
           <ScheduleTabs
             tabIndex={tabIndex}
             onTabClick={onTabClick}
             handleAddClicked={() => setIsNewScheduleOpen(true)}
-            tabs={tabs.data}
+            tabs={tabs}
           />
           <NewScheduleForm
             onClose={() => setIsNewScheduleOpen(false)}
             isOpen={isNewScheduleOpen}
-            // onSubmit={(newScheduleData) =>
-            //   createSchedule.mutate({ ...newScheduleData, churchId: data.churchId })
-            // }
-            // error={createSchedule.error}
+            onSubmit={(newScheduleData) =>
+              createSchedule.mutate({ ...newScheduleData, churchId: churchId })
+            }
+            error={createSchedule.error}
           />
+          {openedTabs.map((tab) => (
+            <ScheduleMain
+              scheduleId={tabs[tab].id}
+              isViewed={tab === tabIndex}
+              users={users}
+              teams={teams}
+              key={tab.toString()}
+              // alert stuff
+            />
+          ))}
         </div>
       )}
     </div>
@@ -87,14 +72,6 @@ const ScheduleContainer = ({ churchId }) => {
     } else setIsNewScheduleOpen(true); // if last tab, open dialog to make new schedule
   }
 };
-
-function makeScheduleIdxs(tabsData) {
-  const scheduleIdxs = [];
-  for (let i = 0; i < tabsData.length && i < 3; i++) {
-    scheduleIdxs.push(tabsData[i].id);
-  }
-  return scheduleIdxs;
-}
 
 const useStyles = makeStyles(() =>
   createStyles({

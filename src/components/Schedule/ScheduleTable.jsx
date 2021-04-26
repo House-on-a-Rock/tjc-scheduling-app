@@ -10,12 +10,12 @@ import { makeStyles, createStyles, fade, darken } from '@material-ui/core/styles
 // Styles
 import { paletteTheme } from '../../shared/styles/theme';
 
-const ScheduleTable = ({ title, hidden, children, outerRef }) => {
+const ScheduleTable = ({ title, children, outerRef }) => {
   const classes = useStyles();
   const [header, body] = children;
 
   return (
-    <div className={classes.scheduleTable} style={{ display: hidden ? 'none' : 'block' }}>
+    <div className={classes.scheduleTable}>
       <MaUTable className={classes.table} ref={outerRef ?? null}>
         <TableHead>
           <TableRow key={`${title} Column header`}>{header}</TableRow>
@@ -98,7 +98,6 @@ const useStyles = makeStyles(() =>
 
 ScheduleTable.propTypes = {
   title: PropTypes.string,
-  hidden: PropTypes.bool,
   children: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.node), PropTypes.node])
     .isRequired,
   outerRef: PropTypes.oneOfType([

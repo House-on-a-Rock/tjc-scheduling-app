@@ -13,19 +13,18 @@ import { loadingTheme } from '../../shared/styles/theme';
 
 const MembersContainer = ({ churchId }) => {
   const classes = useStyles();
-  const [isLoading, setIsLoading] = useState(false);
-  const [data, setData] = useState();
 
   const [isUsersLoading, users, createUser, deleteUser] = useMembersContainerData(
     churchId,
   );
 
   // can pbly condense this down to just members main
+  console.log(`users`, users);
 
   return (
     <div className={isUsersLoading ? classes.loading : ''}>
       <MembersMain
-        state={{ data, isLoading, error, isSuccess }}
+        users={users}
         addUser={(newInfo) => createUser.mutate({ ...newInfo, churchId })}
         removeUser={(info) => deleteUser.mutate(info)}
         // addSchedule={(newInfo: NewScheduleData) =>

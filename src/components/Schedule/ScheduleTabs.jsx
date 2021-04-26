@@ -15,6 +15,8 @@ import {
 
 export const ScheduleTabs = ({ tabs, tabIndex, onTabClick, handleAddClicked }) => {
   const classes = useStyles();
+  /* 1) Add an arrow into the tab that opens context menu */
+  /* 2) Options in this context menu: rename schedule, delete schedule, color/style tabs */
   return (
     <div className={classes.scheduleTabs}>
       <Tabs
