@@ -1,20 +1,6 @@
 import React from 'react';
 import RemoveIcon from '@material-ui/icons/Remove';
 
-const idxToMonth = [
-  'Jan',
-  'Feb',
-  'Mar',
-  'Apr',
-  'May',
-  'June',
-  'July',
-  'Aug',
-  'Sept',
-  'Oct',
-  'Nov',
-  'Dec',
-];
 export const days = [
   'Sunday',
   'Monday',
@@ -24,93 +10,6 @@ export const days = [
   'Friday',
   'Saturday',
 ];
-
-const dayIndex = {
-  Sunday: 0,
-  Monday: 1,
-  Tuesday: 2,
-  Wednesday: 3,
-  Thursday: 4,
-  Friday: 5,
-  Saturday: 6,
-};
-
-const readableDate = (unreadableDate) =>
-  `${
-    unreadableDate.getMonth() + 1
-  }/${unreadableDate.getDate()}/${unreadableDate.getFullYear()}`;
-
-const incrementDay = (date) => new Date(date.setDate(date.getDate() + 1));
-
-// these look unused, i think this functionality was moved to server since I had to modify a function there
-function determineStartDate(startDate, day) {
-  let current = incrementDay(new Date(startDate));
-  while (current.getDay() !== day) current = incrementDay(current);
-  return current;
-}
-
-export function everyRepeatingDayBetweenTwoDates(startDate, endDate, day) {
-  const everyRepeatingDay = [];
-  let start = new Date(startDate);
-
-  if (start.getDay() !== dayIndex[day])
-    start = determineStartDate(startDate, dayIndex[day]);
-
-  let current = new Date(start);
-  const end = new Date(endDate);
-
-  while (current <= end) {
-    everyRepeatingDay.push(readableDate(current));
-    current = new Date(current.setDate(current.getDate() + 7));
-  }
-  return everyRepeatingDay;
-}
-
-const zeroPaddingDates = (monthIdx, dayIdx) => {
-  let month = (monthIdx + 1).toString();
-  let day = dayIdx.toString();
-
-  month = month.length > 1 ? month : `0${month}`;
-  day = day.length > 1 ? day : `0${day}`;
-
-  return `${month}/${day}`;
-};
-
-export function columnizedDates(everyRepeatingDay) {
-  return everyRepeatingDay.map((date) => {
-    const jsDate = new Date(date);
-    const monthIdx = jsDate.getMonth();
-    const dayIdx = jsDate.getDate();
-    return {
-      Header: zeroPaddingDates(monthIdx, dayIdx),
-      accessor: zeroPaddingDates(monthIdx, dayIdx),
-    };
-  });
-}
-
-export function isInTime(target, start, end) {
-  const targetTime = timeToMilliSeconds(target);
-  const startTime = timeToMilliSeconds(start);
-  const endTime = timeToMilliSeconds(end);
-  return startTime <= targetTime && targetTime <= endTime;
-}
-
-export function timeToMilliSeconds(time) {
-  const [hourMin, period] = time.split(' ');
-  const [hour, min] = hourMin.split(':');
-  const convertedHour = hour === '12' ? 3600000 : 3600000 * parseInt(hour, 10);
-  const convertedMin = 60000 * parseInt(min, 10);
-  const convertedPeriod = period === 'AM' ? 0 : 43200000;
-
-  return convertedHour + convertedMin + convertedPeriod;
-}
-
-export const contrivedDate = (date) => {
-  const jsDate = new Date(date);
-  const monthIdx = jsDate.getMonth();
-  const dayIdx = jsDate.getDate();
-  return zeroPaddingDates(monthIdx, dayIdx);
-};
 
 // autocomplete cell functions
 export function extractRoleIds(teams) {

@@ -7,7 +7,14 @@ import EditIcon from '@material-ui/icons/Edit';
 
 // TODO add service-name editing functionality to the edit button here
 
-export const TableBody = ({ title, children, providedRef, isEdit }) => {
+export const TableBody = ({
+  title,
+  children,
+  providedRef,
+  isEdit,
+  addEvent,
+  deleteService,
+}) => {
   const tooltipId = `${title}_tooltip`;
   const classes = useStyles();
   const [open, setOpen] = React.useState(true);
@@ -36,11 +43,17 @@ export const TableBody = ({ title, children, providedRef, isEdit }) => {
             >
               {title}
             </div>
-            {isEdit && <EditIcon />}
+            {isEdit && (
+              <div>
+                <EditIcon />
+                <button onClick={deleteService}>Delete Service</button>
+                <button onClick={addEvent}>Add Event</button>
+              </div>
+            )}
+            <ReactTooltip id={tooltipId}>
+              <span>{`Click to ${open ? 'collapse' : 'expand'}`}</span>
+            </ReactTooltip>
           </TableCell>
-          <ReactTooltip id={tooltipId}>
-            <span>{`Click to ${open ? 'collapse' : 'expand'}`}</span>
-          </ReactTooltip>
         </TableRow>
       </MuiTableBody>
       <MuiTableBody
@@ -88,6 +101,8 @@ TableBody.propTypes = {
     PropTypes.shape({ current: PropTypes.instanceOf(Element) }),
   ]),
   title: PropTypes.string,
+  addEvent: PropTypes.func,
+  deleteService: PropTypes.func,
 };
 
 export default TableBody;

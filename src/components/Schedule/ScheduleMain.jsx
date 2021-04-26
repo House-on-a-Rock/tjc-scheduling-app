@@ -7,7 +7,7 @@ import ld from 'lodash';
 import { loadingTheme } from '../../shared/styles/theme';
 import { createStyles, makeStyles } from '@material-ui/core';
 
-import { Table, ScheduleToolbar } from '.';
+import { Table, Toolbar } from '.';
 
 import { ContextMenu, ConfirmationDialog } from '../shared';
 
@@ -56,7 +56,7 @@ const ScheduleMain = ({ churchId, scheduleId, isViewed, users, teams }) => {
   });
 
   useEffect(() => {
-    setDataModel(ld.cloneDeep(schedule));
+    if (schedule) setDataModel(ld.cloneDeep(schedule.services));
   }, [schedule]);
 
   const outerRef = useRef(null);
@@ -72,7 +72,7 @@ const ScheduleMain = ({ churchId, scheduleId, isViewed, users, teams }) => {
       style={{ display: isViewed ? 'block' : 'none' }}
       ref={outerRef}
     >
-      <ScheduleToolbar
+      <Toolbar
         handleNewServiceClicked={addService}
         destroySchedule={() => {}}
         isScheduleModified={isScheduleModified}
@@ -87,6 +87,8 @@ const ScheduleMain = ({ churchId, scheduleId, isViewed, users, teams }) => {
         users={users}
         teams={teams}
         churchId={churchId}
+        isScheduleModified={isScheduleModified}
+        setIsScheduleModified={setIsScheduleModified}
       />
     </div>
   );
@@ -128,53 +130,6 @@ const ScheduleMain = ({ churchId, scheduleId, isViewed, users, teams }) => {
   //   };
   // }
 
-  // // autocomplete cell callback
-  // // in the future, can pass in warning icons or tooltips depending on the usecase.
-  // // maybe move elsewhere?
-  // function renderOption(display, isIconVisible) {
-  //   return (
-  //     // TODO move div styling somewhere else?
-  //     <div
-  //       style={{
-  //         display: 'flex',
-  //         justifyContent: 'center',
-  //         alignItems: 'center',
-  //       }}
-  //     >
-  //       {display}
-  //       {isIconVisible && (
-  //         <RemoveIcon style={{ height: 10, width: 10, paddingLeft: 4 }} /> // icon to show which one the original assignee is. any ideas on a more appropriate icon?
-  //       )}
-  //     </div>
-  //   );
-  // }
-
-  // // onChange Handlers
-  // function onTaskChange(dataContext, newAssignee) {
-  //   const { taskId, serviceIndex, rowIndex, columnIndex } = dataContext;
-  //   const dataClone = [...dataModel];
-  //   dataClone[tab].services[serviceIndex].events[rowIndex].cells[
-  //     columnIndex
-  //   ].userId = newAssignee;
-  //   setDataModel(dataClone);
-  //   setIsScheduleModified(true);
-  // }
-
-  // function onAssignedRoleChange(dataContext, newRoleId) {
-  //   const { serviceIndex, rowIndex } = dataContext;
-  //   const dataClone = [...dataModel];
-  //   const targetEvent = dataClone[tab].services[serviceIndex].events[rowIndex];
-  //   targetEvent.roleId = newRoleId;
-
-  //   setDataModel(dataClone);
-  // }
-
-  // function onTimeChange(newValue, rowIndex, serviceIndex) {
-  //   const dataClone = [...dataModel];
-  //   dataClone[tab].services[serviceIndex].events[rowIndex].time = newValue;
-  //   setDataModel(dataClone);
-  // }
-
   // function rearrangeEvents(prevModel, sourceService, source, destination) {
   //   const temp = [...prevModel];
   //   const scope = temp[tab].services[sourceService].events;
@@ -184,26 +139,21 @@ const ScheduleMain = ({ churchId, scheduleId, isViewed, users, teams }) => {
   // }
 
   function onEditClick() {
-    //   console.log('edit clicked');
-    //   if (!isEditMode) {
-    //     if (isScheduleModified) {
-    //       setWarningDialog(
-    //         'Changes to the schedule must be saved before editing the template',
-    //       );
-    //       // this needs to be redone
-    //     } else {
-    //       setIsEditMode(true);
-    //     }
-    //   } else {
-    //     saveTemplateChanges();
-    //     setIsEditMode(false);
-    //   }
+    if (!isEditMode) {
+      if (isScheduleModified) {
+      } else {
+        setIsEditMode(true);
+      }
+    } else {
+      saveTemplateChanges();
+      setIsEditMode(false);
+    }
   }
 
-  // function saveTemplateChanges() {
-  //   console.log('saving template changes');
-  //   // process the diffs
-  // }
+  function saveTemplateChanges() {
+    console.log('saving template changes');
+    // process the diffs
+  }
 };
 
 const useStyles = makeStyles(() =>

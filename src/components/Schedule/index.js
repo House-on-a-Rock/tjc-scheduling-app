@@ -4,7 +4,7 @@ import Table from './Table';
 import TableBody from './TableBody';
 import TableHeader from './TableHeader';
 import Tabs from './Tabs';
-import ScheduleToolbar from './ScheduleToolbar';
+import Toolbar from './Toolbar';
 import TimeCell from './TimeCell';
 import DutyAutocomplete from './DutyAutocomplete';
 import TasksAutocomplete from './TasksAutocomplete';
@@ -18,7 +18,7 @@ export {
   TableBody,
   TableHeader,
   Tabs,
-  ScheduleToolbar,
+  Toolbar,
   TimeCell,
   DutyAutocomplete,
   TasksAutocomplete,

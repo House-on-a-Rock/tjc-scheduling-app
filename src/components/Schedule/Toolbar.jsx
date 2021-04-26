@@ -27,7 +27,7 @@ const TooltipForDisabledButton = ({ title, disabled, handleClick, children }) =>
   );
 };
 
-const ScheduleToolbar = ({
+const Toolbar = ({
   handleNewServiceClicked,
   destroySchedule,
   isScheduleModified,
@@ -36,7 +36,7 @@ const ScheduleToolbar = ({
 }) => {
   const classes = useStyles();
   return (
-    <div className={classes.scheduleToolbar}>
+    <div className={classes.toolbar}>
       <Tooltip title="Add A New Service">
         <IconButton onClick={() => handleNewServiceClicked()}>
           <CreateNewFolderIcon />
@@ -74,13 +74,13 @@ const ScheduleToolbar = ({
 
 const useStyles = makeStyles(() =>
   createStyles({
-    scheduleToolbar: {
+    toolbar: {
       display: 'flex',
     },
   }),
 );
 
-ScheduleToolbar.propTypes = {
+Toolbar.propTypes = {
   isScheduleModified: PropTypes.bool,
   handleNewServiceClicked: PropTypes.func,
   destroySchedule: PropTypes.func,
@@ -94,4 +94,4 @@ TooltipForDisabledButton.propTypes = {
     .isRequired,
 };
 
-export default ScheduleToolbar;
+export default Toolbar;

@@ -1,6 +1,12 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
+import {
+  DragDropContext,
+  Draggable,
+  Droppable,
+  DraggableProvided,
+  DraggableStateSnapshot,
+} from 'react-beautiful-dnd';
 import { TimeCell, DutyAutocomplete, TasksAutocomplete, TableHeader, TableBody } from '.';
 import {
   renderOption,
@@ -20,7 +26,7 @@ import TableRow from '@material-ui/core/TableRow';
 import TableCell from '@material-ui/core/TableCell';
 import { makeStyles, createStyles, fade, darken } from '@material-ui/core/styles';
 import ReorderIcon from '@material-ui/icons/Reorder';
-import RemoveIcon from '@material-ui/icons/Remove';
+
 // Styles
 import { paletteTheme } from '../../shared/styles/theme';
 
@@ -32,6 +38,8 @@ const Table = ({
   users,
   teams,
   churchId,
+  isScheduleModified,
+  setIsScheduleModified,
 }) => {
   const classes = useStyles();
   const [selectedEvents, setSelectedEvents] = useState([]);
@@ -59,16 +67,9 @@ const Table = ({
                     providedRef={droppableProvided.innerRef}
                     {...droppableProvided.droppableProps}
                     isEdit={isEditMode}
+                    addEvent={() => addEvent(serviceIndex)}
+                    deleteService={() => deleteService(serviceId)}
                   >
-                    {isEditMode && (
-                      <>
-                        <button onClick={() => deleteService(serviceId)}>
-                          Delete Service
-                        </button>
-                        <button onClick={() => addEvent(serviceIndex)}>Add Event</button>
-                      </>
-                    )}
-
                     {events.map((event, rowIndex) => {
                       const { roleId, cells, time, eventId } = event;
                       const isSelected = selectedEvents.includes(eventId);
@@ -84,6 +85,7 @@ const Table = ({
                           draggableId={`DragRow_${eventId}`}
                           index={rowIndex}
                           key={`DragRow_${eventId}`}
+                          isDragDisabled={!isEditMode}
                         >
                           {(provided, snapshot) => (
                             <TableRow
@@ -137,7 +139,6 @@ const Table = ({
                                     onChange={onAssignedRoleChange}
                                     key={`Team_${serviceIndex}_${rowIndex}_${columnIndex}`}
                                     renderOption={renderOption}
-                                    // isSaved={isSaved}
                                   />
                                 ) : (
                                   <TasksAutocomplete
@@ -147,7 +148,6 @@ const Table = ({
                                     dataContext={taskDataContext}
                                     onChange={onTaskChange}
                                     renderOption={renderOption}
-                                    // isSaved={isSaved}
                                     key={`Task_${serviceIndex}_${rowIndex}_${columnIndex}`}
                                   />
                                 );
@@ -184,17 +184,17 @@ const Table = ({
 
   function deleteService(serviceId) {
     const dataClone = [...dataModel];
-    const filteredServices = dataClone.services.filter(
+    const filteredServices = dataClone.filter(
       (service) => service.serviceId !== serviceId,
     );
-    dataClone.services = filteredServices;
+    dataClone = filteredServices;
     setDataModel(dataClone);
     // retrieveChangesSeed();
   }
 
   function addEvent(serviceIndex) {
     const dataClone = [...dataModel];
-    const targetEvents = dataClone.services[serviceIndex].events;
+    const targetEvents = dataClone[serviceIndex].events;
     const newEvent = createBlankEvent(dataClone.columns.length - 1, retrieveChangesSeed);
     targetEvents.push(newEvent);
     setDataModel(dataClone);
@@ -204,13 +204,13 @@ const Table = ({
     // TODO: make sure it works once contextmenu is fixed
     const dataClone = [...dataModel];
     const target = dataClone;
-    const mutatedData = target.services.map((service) => {
+    const mutatedData = target.map((service) => {
       return {
         ...service,
         events: service.events.filter(({ eventId }) => !selectedEvents.includes(eventId)),
       };
     });
-    target.services = mutatedData;
+    target = mutatedData;
     setDataModel(dataClone);
     retrieveChangesSeed(); // called just to update changesSeed.
   }
@@ -218,16 +218,14 @@ const Table = ({
   function shouldDisplayTime(time, rowIndex, serviceIndex) {
     // TODO update time string to standardized UTC string and use dedicated time inputs
     if (rowIndex === 0) return true;
-    const previousEventsTime = dataModel.services[serviceIndex].events[rowIndex - 1].time;
+    const previousEventsTime = dataModel[serviceIndex].events[rowIndex - 1].time;
     return previousEventsTime !== time;
   }
   // onChange Handlers
   function onTaskChange(dataContext, newAssignee) {
     const { taskId, serviceIndex, rowIndex, columnIndex } = dataContext;
     const dataClone = [...dataModel];
-    dataClone.services[serviceIndex].events[rowIndex].cells[
-      columnIndex
-    ].userId = newAssignee;
+    dataClone[serviceIndex].events[rowIndex].cells[columnIndex].userId = newAssignee;
     setDataModel(dataClone);
     setIsScheduleModified(true);
   }
@@ -235,7 +233,7 @@ const Table = ({
   function onAssignedRoleChange(dataContext, newRoleId) {
     const { serviceIndex, rowIndex } = dataContext;
     const dataClone = [...dataModel];
-    const targetEvent = dataClone.services[serviceIndex].events[rowIndex];
+    const targetEvent = dataClone[serviceIndex].events[rowIndex];
     targetEvent.roleId = newRoleId;
 
     setDataModel(dataClone);
@@ -243,13 +241,25 @@ const Table = ({
 
   function onTimeChange(newValue, rowIndex, serviceIndex) {
     const dataClone = [...dataModel];
-    dataClone.services[serviceIndex].events[rowIndex].time = newValue;
+    dataClone[serviceIndex].events[rowIndex].time = newValue;
     setDataModel(dataClone);
   }
 
   function rearrangeEvents(prevModel, sourceService, source, destination) {
     const temp = [...prevModel];
-    const scope = temp.services[sourceService].events;
+    const scope = temp[sourceService].events;
+    const src = scope.splice(source, 1);
+    scope.splice(destination, 0, src[0]);
+    return temp;
+  }
+  function handleRowSelected(isSelected, eventId) {
+    return isSelected
+      ? setSelectedEvents(selectedEvents.filter((id) => id !== eventId))
+      : setSelectedEvents([...selectedEvents, eventId]);
+  }
+  function rearrangeEvents(prevModel, sourceService, source, destination) {
+    const temp = [...prevModel];
+    const scope = temp[tab].services[sourceService].events;
     const src = scope.splice(source, 1);
     scope.splice(destination, 0, src[0]);
     return temp;
