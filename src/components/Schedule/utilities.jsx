@@ -1,3 +1,6 @@
+import React from 'react';
+import RemoveIcon from '@material-ui/icons/Remove';
+
 const idxToMonth = [
   'Jan',
   'Feb',
@@ -279,3 +282,28 @@ export function processRemoved(diff, tab) {
   // }
   return changes;
 }
+
+export function renderOption(display, isIconVisible) {
+  return (
+    // TODO move div styling somewhere else?
+    <div
+      style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+      }}
+    >
+      {display}
+      {isIconVisible && (
+        <RemoveIcon style={{ height: 10, width: 10, paddingLeft: 4 }} /> // icon to show which one the original assignee is. any ideas on a more appropriate icon?
+      )}
+    </div>
+  );
+}
+
+// export function shouldDisplayTime(time, rowIndex, serviceIndex, dataModel) {
+//   // TODO update time string to standardized UTC string and use dedicated time inputs
+//   if (rowIndex === 0) return true;
+//   const previousEventsTime = dataModel.services[serviceIndex].events[rowIndex - 1].time;
+//   return previousEventsTime !== time;
+// }

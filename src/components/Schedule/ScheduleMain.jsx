@@ -2,25 +2,12 @@
 import React, { useRef, useState, useCallback, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Prompt } from 'react-router-dom';
-import { Dialog, TableRow, TableCell } from '@material-ui/core';
-import ReorderIcon from '@material-ui/icons/Reorder';
-import RemoveIcon from '@material-ui/icons/Remove';
+
 import ld from 'lodash';
 import { loadingTheme } from '../../shared/styles/theme';
 import { createStyles, makeStyles } from '@material-ui/core';
 
-import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
-
-import { detailedDiff, updatedDiff } from 'deep-object-diff';
-import {
-  Table,
-  ScheduleTableBody,
-  ScheduleToolbar,
-  NewServiceForm,
-  TimeCell,
-  DutyAutocomplete,
-  TasksAutocomplete,
-} from '.';
+import { Table, ScheduleToolbar } from '.';
 
 import { ContextMenu, ConfirmationDialog } from '../shared';
 
@@ -49,7 +36,7 @@ const SCHEDULE = 'schedule';
 // make sure the edit schedule button works only when schedule is saved.
 // rework warning dialogs
 
-const ScheduleMain = ({ scheduleId, isViewed, users, teams }) => {
+const ScheduleMain = ({ churchId, scheduleId, isViewed, users, teams }) => {
   const classes = useStyles();
   const [
     isScheduleLoading,
@@ -61,12 +48,8 @@ const ScheduleMain = ({ scheduleId, isViewed, users, teams }) => {
   const [isScheduleModified, setIsScheduleModified] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
 
-  // const [selectedEvents, setSelectedEvents] = useState([]);
-  // const [warningDialog, setWarningDialog] = useState('');
   // const [isNewServiceOpen, setIsNewServiceOpen] = useState(false);
-  // const [alert, setAlert] = useState<AlertInterface>();
 
-  // manipulate events
   const [dataModel, setDataModel] = useState();
   const templateChanges = useRef({
     changesSeed: -1,
@@ -78,7 +61,7 @@ const ScheduleMain = ({ scheduleId, isViewed, users, teams }) => {
 
   const outerRef = useRef(null);
 
-  if (isScheduleLoading) return <div className={classes.loading}></div>;
+  if (!dataModel) return <div className={classes.loading}></div>;
 
   console.log(`dataModel`, dataModel);
   // console.log(`isViewed`, isViewed, scheduleId);
@@ -91,9 +74,7 @@ const ScheduleMain = ({ scheduleId, isViewed, users, teams }) => {
     >
       <ScheduleToolbar
         handleNewServiceClicked={addService}
-        destroySchedule={() => {
-          // setWarningDialog(SCHEDULE)
-        }}
+        destroySchedule={() => {}}
         isScheduleModified={isScheduleModified}
         onSaveScheduleChanges={onSaveScheduleChanges}
         setEditMode={onEditClick}
@@ -103,29 +84,30 @@ const ScheduleMain = ({ scheduleId, isViewed, users, teams }) => {
         isEditMode={isEditMode}
         dataModel={dataModel}
         setDataModel={setDataModel}
+        users={users}
+        teams={teams}
+        churchId={churchId}
       />
     </div>
   );
 
   function onSaveScheduleChanges() {
-    //   const diff = updatedDiff(data.schedules, dataModel);
-    //   // need error checking before running diff
-    //   const updiff = processUpdate(diff, dataModel, tab);
-    //   updateSchedule.mutate({ updated: updiff });
-    //   setIsScheduleModified(false);
+    const diff = updatedDiff(schedule, dataModel);
+    // need error checking before running diff
+    const updiff = processUpdate(diff, dataModel, tab);
+    updateSchedule.mutate({ updated: updiff });
+    // setIsScheduleModified(false);  make this an onsuccess?
+  }
+
+  function addService() {
+    // TODO: bring back create new service form? or another solution is better
+    const dataClone = [...dataModel];
+    const target = dataClone.services;
+    target.push(createBlankService());
+    setDataModel(dataClone);
   }
 
   // function insertRow() {}
-
-  // const warningDialogConfig = {
-  //   [SCHEDULE]: {
-  //     title: 'Are you sure you want to delete this schedule? This cannot be undone',
-  //     accepted: () => {
-  //       setTab(0);
-  //       deleteSchedule.mutate({ scheduleId: tabs[tab].id, title: tabs[tab].title });
-  //     },
-  //   },
-  // };
 
   // const handleRowSelected = (isSelected, eventId) =>
   //   isSelected
@@ -136,11 +118,6 @@ const ScheduleMain = ({ scheduleId, isViewed, users, teams }) => {
   //   return templateChanges.current.changesSeed--;
   // }
 
-  // function dataModelDiff() {
-  //   const diff = detailedDiff(data.schedules, dataModel);
-  //   // in progress
-  // }
-
   // // Model manipulation functions
   // function createBlankService() {
   //   return {
@@ -149,50 +126,6 @@ const ScheduleMain = ({ scheduleId, isViewed, users, teams }) => {
   //     events: [],
   //     serviceId: retrieveChangesSeed(),
   //   };
-  // }
-
-  // function addEvent(serviceIndex) {
-  //   const dataClone = [...dataModel];
-  //   const targetEvents = dataClone[tab].services[serviceIndex].events;
-  //   const newEvent = createBlankEvent(
-  //     dataClone[tab].columns.length - 1,
-  //     retrieveChangesSeed,
-  //   );
-  //   targetEvents.push(newEvent);
-  //   setDataModel(dataClone);
-  // }
-
-  // function removeEvent() {
-  //   // TODO: make sure it works once contextmenu is fixed
-  //   const dataClone = [...dataModel];
-  //   const target = dataClone[tab];
-  //   const mutatedData = target.services.map((service) => {
-  //     return {
-  //       ...service,
-  //       events: service.events.filter(({ eventId }) => !selectedEvents.includes(eventId)),
-  //     };
-  //   });
-  //   target.services = mutatedData;
-  //   setDataModel(dataClone);
-  //   retrieveChangesSeed(); // called just to update changesSeed.
-  // }
-
-  function addService() {
-    // TODO: bring back create new service form? or another solution is better
-    // const dataClone = [...dataModel];
-    // const target = dataClone[tab].services;
-    // target.push(createBlankService());
-    // setDataModel(dataClone);
-  }
-
-  // function deleteService(serviceId) {
-  //   const dataClone = [...dataModel];
-  //   const filteredServices = dataClone[tab].services.filter(
-  //     (service) => service.serviceId !== serviceId,
-  //   );
-  //   dataClone[tab].services = filteredServices;
-  //   setDataModel(dataClone);
-  //   // retrieveChangesSeed();
   // }
 
   // // autocomplete cell callback
@@ -214,14 +147,6 @@ const ScheduleMain = ({ scheduleId, isViewed, users, teams }) => {
   //       )}
   //     </div>
   //   );
-  // }
-
-  // function shouldDisplayTime(time, rowIndex, serviceIndex) {
-  //   // TODO update time string to standardized UTC string and use dedicated time inputs
-  //   if (rowIndex === 0) return true;
-  //   const previousEventsTime =
-  //     dataModel[tab].services[serviceIndex].events[rowIndex - 1].time;
-  //   return previousEventsTime !== time;
   // }
 
   // // onChange Handlers
@@ -249,25 +174,6 @@ const ScheduleMain = ({ scheduleId, isViewed, users, teams }) => {
   //   dataClone[tab].services[serviceIndex].events[rowIndex].time = newValue;
   //   setDataModel(dataClone);
   // }
-
-  // function onChangeTabs(value) {
-  //   if (value === tabs.length) return;
-  //   setTab(value);
-  // }
-
-  // const onDragEnd = useCallback((result) => {
-  //   const {
-  //     destination: { index: destination },
-  //     source: { index: source },
-  //   } = result;
-  //   const sourceService = retrieveDroppableServiceId(result);
-  //   if (!result.destination || result.destination.index === result.source.index) {
-  //     return;
-  //   }
-  //   setDataModel((prev) => {
-  //     return rearrangeEvents(prev, sourceService, source, destination);
-  //   });
-  // }, []);
 
   // function rearrangeEvents(prevModel, sourceService, source, destination) {
   //   const temp = [...prevModel];

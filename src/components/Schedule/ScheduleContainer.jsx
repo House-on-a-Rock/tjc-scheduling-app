@@ -8,13 +8,12 @@ import NewScheduleForm from './NewScheduleForm';
 import { loadingTheme } from '../../shared/styles/theme';
 import useScheduleContainerData from '../../hooks/containerHooks/useScheduleContainerData';
 
+// TODO tab switching doesnt quite work, make sure alert works
+
 const ScheduleContainer = ({ churchId }) => {
   const classes = useStyles();
-
-  // these are the indices that correlate to the array of scheduleIds retrieved from the DB
   const [tabIndex, setTabIndex] = useState(0);
   const [openedTabs, setOpenedTabs] = useState([0]);
-
   const [isNewScheduleOpen, setIsNewScheduleOpen] = useState(false);
 
   const [
@@ -51,6 +50,7 @@ const ScheduleContainer = ({ churchId }) => {
           />
           {openedTabs.map((tab) => (
             <ScheduleMain
+              churchId={churchId}
               scheduleId={tabs[tab].id}
               isViewed={tab === tabIndex}
               users={users}

@@ -1,20 +1,20 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import ReactTooltip from 'react-tooltip';
-import { TableCell, TableRow, TableBody } from '@material-ui/core';
+import { TableCell, TableRow, TableBody as MuiTableBody } from '@material-ui/core';
 import { makeStyles, createStyles } from '@material-ui/core/styles';
 import EditIcon from '@material-ui/icons/Edit';
 
 // TODO add service-name editing functionality to the edit button here
 
-export const ScheduleTableBody = ({ title, children, providedRef, isEdit }) => {
+export const TableBody = ({ title, children, providedRef, isEdit }) => {
   const tooltipId = `${title}_tooltip`;
   const classes = useStyles();
   const [open, setOpen] = React.useState(true);
   const [expandedBefore, setExpandedBefore] = React.useState(false);
   return (
     <>
-      <TableBody>
+      <MuiTableBody>
         <TableRow
           onClick={() => {
             setOpen(!open);
@@ -42,15 +42,15 @@ export const ScheduleTableBody = ({ title, children, providedRef, isEdit }) => {
             <span>{`Click to ${open ? 'collapse' : 'expand'}`}</span>
           </ReactTooltip>
         </TableRow>
-      </TableBody>
-      <TableBody
+      </MuiTableBody>
+      <MuiTableBody
         ref={providedRef}
         className={`${classes.groupOfRows} ${!open && classes.collapsedGroupOfRows} ${
           open && expandedBefore && classes.expandedGroupOfRows
         }`}
       >
         {children}
-      </TableBody>
+      </MuiTableBody>
     </>
   );
 };
@@ -80,7 +80,7 @@ const useStyles = makeStyles((theme) =>
   }),
 );
 
-ScheduleTableBody.propTypes = {
+TableBody.propTypes = {
   children: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.node), PropTypes.node])
     .isRequired,
   providedRef: PropTypes.oneOfType([
@@ -90,4 +90,4 @@ ScheduleTableBody.propTypes = {
   title: PropTypes.string,
 };
 
-export default ScheduleTableBody;
+export default TableBody;

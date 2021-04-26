@@ -1,7 +1,7 @@
 import NewServiceForm from './NewServiceForm';
 import NewScheduleForm from './NewScheduleForm';
 import Table from './Table';
-import ScheduleTableBody from './ScheduleTableBody';
+import TableBody from './TableBody';
 import TableHeader from './TableHeader';
 import Tabs from './Tabs';
 import ScheduleToolbar from './ScheduleToolbar';
@@ -15,7 +15,7 @@ export {
   NewServiceForm,
   NewScheduleForm,
   Table,
-  ScheduleTableBody,
+  TableBody,
   TableHeader,
   Tabs,
   ScheduleToolbar,
