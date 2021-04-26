@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import Tab from '@material-ui/core/Tab';
-import Tabs from '@material-ui/core/Tabs';
+import MuiTabs from '@material-ui/core/Tabs';
 import AddIcon from '@material-ui/icons/Add';
 import { makeStyles, createStyles } from '@material-ui/core/styles';
 
@@ -13,13 +13,13 @@ import {
   buttonTheme,
 } from '../../shared/styles/theme';
 
-export const ScheduleTabs = ({ tabs, tabIndex, onTabClick, handleAddClicked }) => {
+export const Tabs = ({ tabs, tabIndex, onTabClick, handleAddClicked }) => {
   const classes = useStyles();
   /* 1) Add an arrow into the tab that opens context menu */
   /* 2) Options in this context menu: rename schedule, delete schedule, color/style tabs */
   return (
     <div className={classes.scheduleTabs}>
-      <Tabs
+      <MuiTabs
         value={tabIndex}
         onChange={(e, value) => onTabClick(value)}
         textColor="primary"
@@ -43,7 +43,7 @@ export const ScheduleTabs = ({ tabs, tabIndex, onTabClick, handleAddClicked }) =
           className={classes.addTab}
           onClick={() => handleAddClicked()}
         />
-      </Tabs>
+      </MuiTabs>
     </div>
   );
 };
@@ -80,11 +80,11 @@ const useStyles = makeStyles(() =>
   }),
 );
 
-ScheduleTabs.propTypes = {
+Tabs.propTypes = {
   tabs: PropTypes.array,
   tabIndex: PropTypes.number,
   onTabClick: PropTypes.func,
   handleAddClicked: PropTypes.func,
 };
 
-export default ScheduleTabs;
+export default Tabs;

@@ -1,20 +1,19 @@
 // https://codesandbox.io/s/react-material-ui-and-react-beautiful-dnd-forked-bmheb?file=/src/MaterialTable.jsx draggable table
-import React, { useRef, useState, useCallback } from 'react';
+import React, { useRef, useState, useCallback, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Prompt } from 'react-router-dom';
 import { Dialog, TableRow, TableCell } from '@material-ui/core';
 import ReorderIcon from '@material-ui/icons/Reorder';
 import RemoveIcon from '@material-ui/icons/Remove';
 import ld from 'lodash';
+import { loadingTheme } from '../../shared/styles/theme';
+import { createStyles, makeStyles } from '@material-ui/core';
 
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
 
 import { detailedDiff, updatedDiff } from 'deep-object-diff';
 import {
-  ScheduleTabs,
-  ScheduleTable,
-  NewScheduleForm,
-  ScheduleTableHeader,
+  Table,
   ScheduleTableBody,
   ScheduleToolbar,
   NewServiceForm,
@@ -35,13 +34,6 @@ import {
   processRemoved,
 } from './utilities';
 
-import {
-  useCreateSchedule,
-  useDeleteSchedule,
-  useCreateService,
-  useDeleteEvent,
-  useUpdateSchedule,
-} from '../utilities/useMutations';
 import useScheduleMainData from '../../hooks/containerHooks/useScheduleMainData';
 
 const SERVICE = 'service';
@@ -57,43 +49,39 @@ const SCHEDULE = 'schedule';
 // make sure the edit schedule button works only when schedule is saved.
 // rework warning dialogs
 
-/* 
-  data manipulation
-    - retrieve schedule data
-    - usemutations for deleting and updating schedule
-  hold state for 
-
-*/
-
 const ScheduleMain = ({ scheduleId, isViewed, users, teams }) => {
-  const [isScheduleModified, setIsScheduleModified] = useState(false);
-  const [isSaved, setIsSaved] = useState(false);
+  const classes = useStyles();
+  const [
+    isScheduleLoading,
+    schedule,
+    deleteSchedule,
+    updateSchedule,
+  ] = useScheduleMainData(scheduleId);
 
-  const [isNewServiceOpen, setIsNewServiceOpen] = useState(false);
-  // const [warningDialog, setWarningDialog] = useState('');
-  const [selectedEvents, setSelectedEvents] = useState([]);
+  const [isScheduleModified, setIsScheduleModified] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
+
+  // const [selectedEvents, setSelectedEvents] = useState([]);
+  // const [warningDialog, setWarningDialog] = useState('');
+  // const [isNewServiceOpen, setIsNewServiceOpen] = useState(false);
   // const [alert, setAlert] = useState<AlertInterface>();
 
   // manipulate events
-  // const [dataModel, setDataModel] = useState(ld.cloneDeep(data.schedules));
+  const [dataModel, setDataModel] = useState();
   const templateChanges = useRef({
     changesSeed: -1,
   });
 
+  useEffect(() => {
+    setDataModel(ld.cloneDeep(schedule));
+  }, [schedule]);
+
   const outerRef = useRef(null);
 
-  const [isScheduleLoading, schedule] = useScheduleMainData(scheduleId);
+  if (isScheduleLoading) return <div className={classes.loading}></div>;
 
-  if (isScheduleLoading) return <div>loading</div>;
-
-  // these will be used, but extracted out to hook
-  // const deleteSchedule = useDeleteSchedule(setWarningDialog);
-  // const updateSchedule = useUpdateSchedule();
-
-  console.log(`schedule`, schedule);
-
-  const { columns: headers, services, title, view } = schedule;
+  console.log(`dataModel`, dataModel);
+  // console.log(`isViewed`, isViewed, scheduleId);
 
   return (
     <div
@@ -110,141 +98,12 @@ const ScheduleMain = ({ scheduleId, isViewed, users, teams }) => {
         onSaveScheduleChanges={onSaveScheduleChanges}
         setEditMode={onEditClick}
       />
-
-      <ScheduleTable
-        key={`${title}-${view}`}
-        title={title}
-        // hidden={tab !== scheduleIndex}
-      >
-        {headers.map(({ Header }) => (
-          <ScheduleTableHeader key={`Header-${Header}`} header={Header} />
-        ))}
-        <div>hi</div>
-
-        {/* {services.map((service, serviceIndex) => {
-          const { day, name, events, serviceId } = service;
-          return (
-            <DragDropContext onDragEnd={onDragEnd}>
-              <Droppable
-                droppableId={`DroppableTable-${serviceIndex}`}
-                key={`Droppable_${serviceId}`}
-                direction="vertical"
-              >
-                {(droppableProvided) => (
-                  <ScheduleTableBody
-                    key={`ScheduleTableBody-${name}`}
-                    title={`${days[day]} ${name}`}
-                    providedRef={droppableProvided.innerRef}
-                    {...droppableProvided.droppableProps}
-                    isEdit={isEditMode}
-                  >
-                    {isEditMode && (
-                      <>
-                        <button onClick={() => deleteService(serviceId)}>
-                          Delete Service
-                        </button>
-                        <button onClick={() => addEvent(serviceIndex)}>Add Event</button>
-                      </>
-                    )}
-
-                    {events.map((event, rowIndex) => {
-                      const { roleId, cells, time, eventId } = event;
-
-                      const isSelected = selectedEvents.includes(eventId);
-
-                      const tasksDataSet = teammates(data.users, roleId, data.churchId);
-                      const isTimeDisplayed = shouldDisplayTime(
-                        time,
-                        rowIndex,
-                        serviceIndex,
-                      );
-
-                      return (
-                        <Draggable
-                          draggableId={`DragRow_${eventId}`}
-                          index={rowIndex}
-                          key={`DragRow_${eventId}`}
-                        >
-                          {(provided, snapshot) => (
-                            <TableRow
-                              key={`${serviceIndex}-${rowIndex}`}
-                              hover
-                              onDoubleClick={() => handleRowSelected(isSelected, eventId)}
-                              selected={isSelected}
-                              ref={provided.innerRef}
-                              {...provided.draggableProps}
-                              style={{
-                                ...provided.draggableProps.style,
-                                background: snapshot.isDragging
-                                  ? 'rgba(245,245,245, 0.75)'
-                                  : 'none',
-                              }}
-                            >
-                              <TableCell align="left">
-                                {isEditMode && (
-                                  <div {...provided.dragHandleProps}>
-                                    <ReorderIcon />
-                                  </div>
-                                )}
-                              </TableCell>
-                              {cells.map((cell, columnIndex) => {
-                                const roleDataContext = {
-                                  serviceIndex,
-                                  rowIndex,
-                                  roleId,
-                                };
-                                const taskDataContext = {
-                                  taskId: cell.taskId,
-                                  roleId: roleId,
-                                  serviceIndex,
-                                  rowIndex,
-                                  columnIndex,
-                                };
-                                return columnIndex === 0 ? (
-                                  <TimeCell
-                                    time={time}
-                                    isDisplayed={isTimeDisplayed}
-                                    onChange={onTimeChange}
-                                    rowIndex={rowIndex}
-                                    serviceIndex={serviceIndex}
-                                    key={`Time_${serviceIndex}`}
-                                  />
-                                ) : columnIndex === 1 ? (
-                                  <DutyAutocomplete
-                                    dataId={roleId}
-                                    options={data.teams}
-                                    dataContext={roleDataContext}
-                                    onChange={onAssignedRoleChange}
-                                    key={`Team_${serviceIndex}_${rowIndex}_${columnIndex}`}
-                                    renderOption={renderOption}
-                                    isSaved={isSaved}
-                                  />
-                                ) : (
-                                  <TasksAutocomplete
-                                    dataId={cell.userId}
-                                    roleId={roleId}
-                                    options={tasksDataSet}
-                                    dataContext={taskDataContext}
-                                    onChange={onTaskChange}
-                                    renderOption={renderOption}
-                                    // isSaved={isSaved}
-                                    key={`Task_${serviceIndex}_${rowIndex}_${columnIndex}`}
-                                  />
-                                );
-                              })}
-                            </TableRow>
-                          )}
-                        </Draggable>
-                      );
-                    })}
-                    {droppableProvided.placeholder}
-                  </ScheduleTableBody>
-                )}
-              </Droppable>
-            </DragDropContext>
-          );
-        })} */}
-      </ScheduleTable>
+      <Table
+        schedule={schedule}
+        isEditMode={isEditMode}
+        dataModel={dataModel}
+        setDataModel={setDataModel}
+      />
     </div>
   );
 
@@ -440,6 +299,14 @@ const ScheduleMain = ({ scheduleId, isViewed, users, teams }) => {
   //   // process the diffs
   // }
 };
+
+const useStyles = makeStyles(() =>
+  createStyles({
+    loading: {
+      ...loadingTheme,
+    },
+  }),
+);
 
 ScheduleMain.propTypes = {
   scheduleId: PropTypes.number,

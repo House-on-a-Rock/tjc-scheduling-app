@@ -3,27 +3,21 @@ import PropTypes from 'prop-types';
 
 // Material UI
 import MaUTable from '@material-ui/core/Table';
-import TableHead from '@material-ui/core/TableHead';
-import TableRow from '@material-ui/core/TableRow';
 import { makeStyles, createStyles, fade, darken } from '@material-ui/core/styles';
+
+import TableHeader from './TableHeader';
 
 // Styles
 import { paletteTheme } from '../../shared/styles/theme';
 
-const ScheduleTable = ({ title, children, outerRef }) => {
+const Table = ({ schedule, outerRef }) => {
   const classes = useStyles();
-  const [header, body] = children;
+  const { columns: headers, services, title, view } = schedule;
 
   return (
     <div className={classes.scheduleTable}>
       <MaUTable className={classes.table} ref={outerRef ?? null}>
-        <TableHead>
-          <TableRow key={`${title} Column header`}>{header}</TableRow>
-        </TableHead>
-        {
-          /* let body contain multiple <TableBody>s, to enable children to be grouped and styled */
-          body
-        }
+        <TableHeader headers={headers} title={title} />
       </MaUTable>
     </div>
   );
@@ -96,14 +90,14 @@ const useStyles = makeStyles(() =>
   }),
 );
 
-ScheduleTable.propTypes = {
-  title: PropTypes.string,
-  children: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.node), PropTypes.node])
-    .isRequired,
-  outerRef: PropTypes.oneOfType([
-    PropTypes.func,
-    PropTypes.shape({ current: PropTypes.instanceOf(Element) }),
-  ]),
-};
+// Table.propTypes = {
+//   title: PropTypes.string,
+//   children: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.node), PropTypes.node])
+//     .isRequired,
+//   outerRef: PropTypes.oneOfType([
+//     PropTypes.func,
+//     PropTypes.shape({ current: PropTypes.instanceOf(Element) }),
+//   ]),
+// };
 
-export default ScheduleTable;
+export default Table;

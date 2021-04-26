@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 
 import { createStyles, makeStyles } from '@material-ui/core';
 import ScheduleMain from './ScheduleMain';
-import ScheduleTabs from './ScheduleTabs';
+import ScheduleTabs from './Tabs';
 import NewScheduleForm from './NewScheduleForm';
 import { loadingTheme } from '../../shared/styles/theme';
 import useScheduleContainerData from '../../hooks/containerHooks/useScheduleContainerData';
@@ -65,7 +65,7 @@ const ScheduleContainer = ({ churchId }) => {
   );
 
   function onTabClick(value) {
-    if (value <= tabs.data.length - 1) {
+    if (value <= tabs.length - 1) {
       setTabIndex(value);
       const isOpened = openedTabs.indexOf(value);
       if (isOpened < 0) setOpenedTabs([...openedTabs, value]); // adds unopened tabs to array. need way to handle lots of tabs

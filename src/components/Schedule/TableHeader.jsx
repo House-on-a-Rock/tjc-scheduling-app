@@ -3,14 +3,27 @@ import PropTypes from 'prop-types';
 
 // Material UI
 import TableCell from '@material-ui/core/TableCell';
+import TableHead from '@material-ui/core/TableHead';
+import TableRow from '@material-ui/core/TableRow';
 import { makeStyles, createStyles } from '@material-ui/core/styles';
 
 // Styles
 import { typographyTheme } from '../../shared/styles/theme';
 
-const ScheduleTableHeader = ({ header }) => {
+const TableHeader = ({ headers, title }) => {
   const classes = useStyles();
-  return <TableCell className={classes.headerCell}>{header}</TableCell>;
+
+  return (
+    <TableHead>
+      <TableRow key={`${title} Column header`}>
+        {headers.map((cell) => (
+          <TableCell className={classes.headerCell} key={`cell_${cell.Header}`}>
+            {cell.Header}
+          </TableCell>
+        ))}
+      </TableRow>
+    </TableHead>
+  );
 };
 
 const useStyles = makeStyles(() =>
@@ -28,8 +41,9 @@ const useStyles = makeStyles(() =>
 const normalCellBorderColor = 'rgba(234, 234, 234, 1)';
 const normalCellBorder = `1px solid ${normalCellBorderColor}`;
 
-ScheduleTableHeader.propTypes = {
-  header: PropTypes.string,
+TableHeader.propTypes = {
+  header: PropTypes.array,
+  title: PropTypes.string,
 };
 
-export default ScheduleTableHeader;
+export default TableHeader;
