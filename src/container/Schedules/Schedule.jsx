@@ -9,7 +9,7 @@ import {
   getScheduleData,
   getTeamsData,
 } from '../../query';
-import ScheduleContainer  from './ScheduleContainer';
+import ScheduleContainer from './ScheduleContainer';
 import { loadingTheme } from '../../shared/styles/theme';
 
 const Schedule = ({ churchId }) => {

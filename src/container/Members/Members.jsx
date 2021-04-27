@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { useQuery, useMutation, useQueryClient } from 'react-query';
-import MembersContainer  from './MembersContainer';
+import MembersContainer from './MembersContainer';
 import { getChurchMembersData } from '../../query';
 import { addUser, destroyUser } from '../../query/apis';
 

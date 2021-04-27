@@ -24,8 +24,8 @@ const Header = (props) => {
   const classes = useStyles();
 
   const logoutHandler = () => {
-    localStorage.removeItem('access_token');
-    auth.logout();
+    localStorage.removeItem("access_token");
+    auth.logout(); 
   };
   return (
     <>

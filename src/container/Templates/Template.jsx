@@ -8,7 +8,7 @@ import { useQuery } from 'react-query';
 import { getTemplateData } from '../../query';
 
 // components
-import { TemplateContainer } from './TemplateContainer';
+import TemplateContainer from './TemplateContainer';
 
 export const Template = ({ churchId }) => {
   const [isLoading, setIsLoading] = useState(false);

@@ -7,7 +7,7 @@ import { makeStyles, createStyles } from '@material-ui/core/styles';
 import { TemplateDisplay } from '../../components/Template/TemplateDisplay';
 import { buttonTheme } from '../../shared/styles/theme';
 
-export const TemplateContainer = ({ state }) => {
+const TemplateContainer = ({ state }) => {
   const classes = useStyles();
   const { isLoading, error, data, isSuccess } = state;
 
@@ -48,3 +48,9 @@ const useStyles = makeStyles((theme) =>
     },
   }),
 );
+
+TemplateContainer.propTypes = {
+  state: PropTypes.object,
+};
+
+export default TemplateContainer;

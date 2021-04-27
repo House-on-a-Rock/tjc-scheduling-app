@@ -1,15 +1,14 @@
 // https://codesandbox.io/s/react-material-ui-and-react-beautiful-dnd-forked-bmheb?file=/src/MaterialTable.jsx draggable table
 import React, { useRef, useState, useCallback } from 'react';
-import PropTypes from 'prop-types';
-import { Prompt } from 'react-router-dom';
-import { Dialog, TableRow, TableCell } from '@material-ui/core';
-import ReorderIcon from '@material-ui/icons/Reorder';
-import RemoveIcon from '@material-ui/icons/Remove';
-import ld from 'lodash';
-
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
-
+import { Prompt } from 'react-router-dom';
+import ld from 'lodash';
 import { detailedDiff, updatedDiff } from 'deep-object-diff';
+import PropTypes from 'prop-types';
+
+import { Dialog, TableRow, TableCell } from '@material-ui/core';
+import RemoveIcon from '@material-ui/icons/Remove';
+import ReorderIcon from '@material-ui/icons/Reorder';
 import {
   ScheduleTabs,
   ScheduleTable,
@@ -22,8 +21,15 @@ import {
   DutyAutocomplete,
   TasksAutocomplete,
 } from '../../components/Schedule';
-
 import { ContextMenu, ConfirmationDialog } from '../../components/shared';
+
+import {
+  useCreateSchedule,
+  useDeleteSchedule,
+  useCreateService,
+  useDeleteEvent,
+  useUpdateSchedule,
+} from '../utilities/useMutations';
 
 import {
   days,
@@ -34,14 +40,6 @@ import {
   processAdded,
   processRemoved,
 } from './utilities';
-
-import {
-  useCreateSchedule,
-  useDeleteSchedule,
-  useCreateService,
-  useDeleteEvent,
-  useUpdateSchedule,
-} from '../utilities/useMutations';
 
 const SERVICE = 'service';
 const EVENT = 'event';
@@ -317,7 +315,10 @@ const ScheduleContainer = ({ tabs, data }) => {
                 {services.map((service, serviceIndex) => {
                   const { day, name, events, serviceId } = service;
                   return (
-                    <DragDropContext onDragEnd={onDragEnd}>
+                    <DragDropContext
+                      key={`${serviceId}-${serviceIndex}`}
+                      onDragEnd={onDragEnd}
+                    >
                       <Droppable
                         droppableId={`DroppableTable-${serviceIndex}`}
                         key={`Droppable_${serviceId}`}
