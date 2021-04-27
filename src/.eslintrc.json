@@ -3,12 +3,6 @@
     "browser": true,
     "es2021": true
   },
-  "extends": [
-    "plugin:react/recommended",
-    "plugin:prettier/recommended",
-    "eslint:recommended",
-    "plugin:react/recommended"
-  ],
   "parserOptions": {
     "ecmaFeatures": {
       "jsx": true
@@ -16,7 +10,6 @@
     "ecmaVersion": 12,
     "sourceType": "module"
   },
-  "plugins": ["react"],
   "rules": {
     "accessor-pairs": "error",
     "array-bracket-newline": "error",
@@ -101,7 +94,7 @@
     "max-classes-per-file": "error",
     "max-depth": "error",
     "max-len": "off",
-    "max-lines": "warn",
+    "max-lines": "off",
     "max-lines-per-function": "off",
     "max-nested-callbacks": "error",
     "max-params": "off",
@@ -262,7 +255,8 @@
     "yield-star-spacing": "error",
     "yoda": ["error", "never"],
     "react/display-name": ["off"],
-    "import/no-named-as-default": ["off"]
+    "import/no-named-as-default": ["off"],
+    "import/order": ["off"]
   },
   "settings": {
     "import/resolver": {

@@ -1,13 +1,15 @@
-import React, { useEffect, useState } from 'react';
-import PropTypes from 'prop-types';
 import Grid from '@material-ui/core/Grid';
-import { ConfirmationDialog } from '../../components/shared';
+import PropTypes from 'prop-types';
+import React, { useEffect, useState } from 'react';
+
 import {
   MembersHeader,
   MembersTable,
   NewMemberFormDialog,
   Toolbar,
 } from '../../components/Member';
+import { ConfirmationDialog } from '../../components/shared';
+
 import { updateSelectedRows } from './utilities';
 
 const USER = 'user';
