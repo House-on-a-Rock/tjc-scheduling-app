@@ -60,7 +60,7 @@ const useTasksAutocompleteHooks = (dataId, roleId, dataSet) => {
   }
 };
 
-useTasksAutocompleteHooks.PropTypes = {
+useTasksAutocompleteHooks.propTypes = {
   dataId: PropTypes.number,
   roleId: PropTypes.number,
   dataSet: PropTypes.array,

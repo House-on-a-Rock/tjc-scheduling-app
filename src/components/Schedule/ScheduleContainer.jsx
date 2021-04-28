@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 
 import { createStyles, makeStyles } from '@material-ui/core';
+// eslint-disable-next-line import/no-cycle
 import ScheduleMain from './ScheduleMain';
 import ScheduleTabs from './Tabs';
 import NewScheduleForm from './NewScheduleForm';
@@ -40,14 +41,6 @@ const ScheduleContainer = ({ churchId }) => {
             handleAddClicked={() => setIsNewScheduleOpen(true)}
             tabs={tabs}
           />
-          <NewScheduleForm
-            onClose={() => setIsNewScheduleOpen(false)}
-            isOpen={isNewScheduleOpen}
-            onSubmit={(newScheduleData) =>
-              createSchedule.mutate({ ...newScheduleData, churchId: churchId })
-            }
-            error={createSchedule.error}
-          />
           {openedTabs.map((tab) => (
             <ScheduleMain
               churchId={churchId}
@@ -59,6 +52,14 @@ const ScheduleContainer = ({ churchId }) => {
               // alert stuff
             />
           ))}
+          <NewScheduleForm
+            onClose={() => setIsNewScheduleOpen(false)}
+            isOpen={isNewScheduleOpen}
+            onSubmit={(newScheduleData) =>
+              createSchedule.mutate({ ...newScheduleData, churchId: churchId })
+            }
+            error={createSchedule.error}
+          />
         </div>
       )}
     </div>

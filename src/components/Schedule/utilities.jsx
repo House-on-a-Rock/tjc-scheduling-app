@@ -1,3 +1,5 @@
+/* eslint-disable no-restricted-syntax */
+/* eslint-disable guard-for-in */
 import React from 'react';
 import RemoveIcon from '@material-ui/icons/Remove';
 
@@ -92,17 +94,18 @@ function isObjectEmpty(obj) {
   return Object.keys(obj).length === 0;
 }
 
-export function processUpdate(diff, dm, tab) {
-  if (isObjectEmpty(diff)) return;
-  const scheduleScope = diff[tab];
+export function processUpdate(diff, dataModel) {
+  if (isObjectEmpty(diff)) return [];
+  const scheduleScope = diff;
+
   const changes = [];
 
-  for (let serviceIndex in scheduleScope.services) {
-    const serviceScope = scheduleScope.services[serviceIndex];
-    const serviceModel = dm[tab].services[serviceIndex];
+  for (const serviceIndex in scheduleScope) {
+    const serviceScope = scheduleScope[serviceIndex];
+    const serviceModel = dataModel[serviceIndex];
 
     // (eventually) changeable items: day, name
-    for (let eventIndex in serviceScope.events) {
+    for (const eventIndex in serviceScope.events) {
       // items: roleId, time
       const eventScope = serviceScope.events[eventIndex];
       const eventModel = serviceModel.events[eventIndex];
@@ -112,7 +115,7 @@ export function processUpdate(diff, dm, tab) {
       if (eventScope.roleId)
         changes.push({ eventId: eventModel.eventId, roleId: eventScope.roleId });
 
-      for (let cellIndex in eventScope.cells) {
+      for (const cellIndex in eventScope.cells) {
         // items: userId
         const cellScope = eventScope.cells[cellIndex];
         const cellModel = eventModel.cells[cellIndex];
@@ -125,18 +128,18 @@ export function processUpdate(diff, dm, tab) {
 
 // how are cells tracking the correct dates?
 export function processAdded(diff, tab) {
-  if (isObjectEmpty(diff.added)) return;
+  if (isObjectEmpty(diff.added)) return [];
   const scheduleScope = diff.added[tab];
   const changes = [];
 
-  for (let serviceIndex in scheduleScope.services) {
+  for (const serviceIndex in scheduleScope.services) {
     const serviceScope = scheduleScope.services[serviceIndex];
 
-    for (let eventIndex in serviceScope.events) {
+    for (const eventIndex in serviceScope.events) {
       const eventScope = serviceScope.events[eventIndex];
 
       const cells = [];
-      for (let cellIndex in eventScope.cells) {
+      for (const cellIndex in eventScope.cells) {
         const cellScope = eventScope.cells[cellIndex];
         if (cellScope.taskId)
           cells.push({ taskId: cellScope.taskId, userId: cellScope.userId });
@@ -154,10 +157,9 @@ export function processAdded(diff, tab) {
 
 // TODO
 export function processRemoved(diff, tab) {
-  if (isObjectEmpty(diff.removed)) return;
+  if (isObjectEmpty(diff.removed)) return [];
   const scheduleScope = diff.removed[tab];
   const changes = [];
-  console.log(`scheduleScope`, scheduleScope);
 
   // for (let serviceIndex in scheduleScope.services) {
   //   const serviceScope = scheduleScope.services[serviceIndex];
@@ -200,9 +202,19 @@ export function renderOption(display, isIconVisible) {
   );
 }
 
-// export function shouldDisplayTime(time, rowIndex, serviceIndex, dataModel) {
-//   // TODO update time string to standardized UTC string and use dedicated time inputs
-//   if (rowIndex === 0) return true;
-//   const previousEventsTime = dataModel.services[serviceIndex].events[rowIndex - 1].time;
-//   return previousEventsTime !== time;
-// }
+export function rearrangeEvents(prevModel, sourceService, source, destination) {
+  const temp = [...prevModel];
+  const scope = temp[sourceService].events;
+  const src = scope.splice(source, 1);
+  scope.splice(destination, 0, src[0]);
+  return temp;
+}
+
+export function createBlankService(retrieveChangesSeed) {
+  return {
+    name: 'test',
+    day: 0,
+    events: [],
+    serviceId: retrieveChangesSeed(),
+  };
+}

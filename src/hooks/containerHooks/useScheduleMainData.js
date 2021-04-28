@@ -17,7 +17,7 @@ const useScheduleMainData = (scheduleId) => {
   const deleteSchedule = useMutation(destroySchedule, {
     onSuccess: () => {
       queryClient.invalidateQueries('tabs');
-      setWarning('');
+      // setWarning('');
     },
   });
 
@@ -28,10 +28,10 @@ const useScheduleMainData = (scheduleId) => {
   });
 
   const returnData = {
-    schedule: isScheduleLoading ? undefined : schedule.data,
+    schedule: isScheduleLoading ? null : schedule.data,
   };
 
-  return [isScheduleLoading, returnData.schedule, deleteSchedule, updateSchedule];
+  return [returnData.schedule, deleteSchedule, updateSchedule];
 };
 
 export default useScheduleMainData;

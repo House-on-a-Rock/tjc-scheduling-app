@@ -1,12 +1,6 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import {
-  DragDropContext,
-  Draggable,
-  Droppable,
-  DraggableProvided,
-  DraggableStateSnapshot,
-} from 'react-beautiful-dnd';
+import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
 import { TimeCell, DutyAutocomplete, TasksAutocomplete, TableHeader, TableBody } from '.';
 import {
   renderOption,
@@ -14,9 +8,6 @@ import {
   teammates,
   createBlankEvent,
   retrieveDroppableServiceId,
-  processUpdate,
-  processAdded,
-  processRemoved,
   // shouldDisplayTime,
 } from './utilities';
 
@@ -30,7 +21,6 @@ import ReorderIcon from '@material-ui/icons/Reorder';
 // Styles
 import { paletteTheme } from '../../shared/styles/theme';
 
-
 const Table = ({
   schedule,
   isEditMode,
@@ -41,18 +31,21 @@ const Table = ({
   churchId,
   isScheduleModified,
   setIsScheduleModified,
+  retrieveChangesSeed,
 }) => {
   const classes = useStyles();
   const [selectedEvents, setSelectedEvents] = useState([]);
 
+  // eslint-disable-next-line no-unused-vars
   const { columns: headers, services, title, view } = schedule;
+  // console.log(`dataModel`, dataModel);
 
   return (
     <div className={classes.scheduleTable}>
       <MuiTable className={classes.table}>
         <TableHeader headers={headers} title={title} />
 
-        {services.map((service, serviceIndex) => {
+        {dataModel.map((service, serviceIndex) => {
           const { day, name, events, serviceId } = service;
           return (
             <DragDropContext onDragEnd={onDragEnd} key={`${serviceIndex}`}>
@@ -184,7 +177,7 @@ const Table = ({
   }
 
   function deleteService(serviceId) {
-    const dataClone = [...dataModel];
+    let dataClone = [...dataModel];
     const filteredServices = dataClone.filter(
       (service) => service.serviceId !== serviceId,
     );
@@ -204,7 +197,7 @@ const Table = ({
   function removeEvent() {
     // TODO: make sure it works once contextmenu is fixed
     const dataClone = [...dataModel];
-    const target = dataClone;
+    let target = dataClone;
     const mutatedData = target.map((service) => {
       return {
         ...service,
@@ -216,12 +209,6 @@ const Table = ({
     retrieveChangesSeed(); // called just to update changesSeed.
   }
 
-  function shouldDisplayTime(time, rowIndex, serviceIndex) {
-    // TODO update time string to standardized UTC string and use dedicated time inputs
-    if (rowIndex === 0) return true;
-    const previousEventsTime = dataModel[serviceIndex].events[rowIndex - 1].time;
-    return previousEventsTime !== time;
-  }
   // onChange Handlers
   function onTaskChange(dataContext, newAssignee) {
     const { taskId, serviceIndex, rowIndex, columnIndex } = dataContext;
@@ -246,29 +233,21 @@ const Table = ({
     setDataModel(dataClone);
   }
 
-  function rearrangeEvents(prevModel, sourceService, source, destination) {
-    const temp = [...prevModel];
-    const scope = temp[sourceService].events;
-    const src = scope.splice(source, 1);
-    scope.splice(destination, 0, src[0]);
-    return temp;
-  }
   function handleRowSelected(isSelected, eventId) {
     return isSelected
       ? setSelectedEvents(selectedEvents.filter((id) => id !== eventId))
       : setSelectedEvents([...selectedEvents, eventId]);
   }
-  function rearrangeEvents(prevModel, sourceService, source, destination) {
-    const temp = [...prevModel];
-    const scope = temp[tab].services[sourceService].events;
-    const src = scope.splice(source, 1);
-    scope.splice(destination, 0, src[0]);
-    return temp;
+  function shouldDisplayTime(time, rowIndex, serviceIndex) {
+    // TODO update time string to standardized UTC string and use dedicated time inputs
+    if (rowIndex === 0) return true;
+    const previousEventsTime = dataModel[serviceIndex].events[rowIndex - 1].time;
+    return previousEventsTime !== time;
   }
 };
 
 const normalCellBorderColor = 'rgba(234, 234, 234, 1)';
-const normalCellBorder = `1px solid ${normalCellBorderColor}`;
+// const normalCellBorder = `1px solid ${normalCellBorderColor}`;
 
 const useStyles = makeStyles(() =>
   createStyles({
@@ -333,15 +312,19 @@ const useStyles = makeStyles(() =>
     },
   }),
 );
+// { columns: headers, services, title, view } = schedule
 
-// Table.propTypes = {
-//   title: PropTypes.string,
-//   children: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.node), PropTypes.node])
-//     .isRequired,
-//   outerRef: PropTypes.oneOfType([
-//     PropTypes.func,
-//     PropTypes.shape({ current: PropTypes.instanceOf(Element) }),
-//   ]),
-// };
+Table.propTypes = {
+  schedule: PropTypes.object,
+  isEditMode: PropTypes.bool,
+  dataModel: PropTypes.array,
+  setDataModel: PropTypes.func,
+  users: PropTypes.array,
+  teams: PropTypes.array,
+  churchId: PropTypes.number,
+  isScheduleModified: PropTypes.bool,
+  setIsScheduleModified: PropTypes.func,
+  retrieveChangesSeed: PropTypes.func,
+};
 
 export default Table;
