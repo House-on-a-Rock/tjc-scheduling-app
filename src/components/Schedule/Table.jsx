@@ -30,6 +30,7 @@ import ReorderIcon from '@material-ui/icons/Reorder';
 // Styles
 import { paletteTheme } from '../../shared/styles/theme';
 
+
 const Table = ({
   schedule,
   isEditMode,

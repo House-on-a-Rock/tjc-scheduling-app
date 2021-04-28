@@ -1,6 +1,8 @@
 import axios from 'axios';
 import { secretIp } from '../../secrets/secretStuff';
 
-export const postService = (serviceInfo) => {
+const postService = (serviceInfo) => {
   return axios.post(`${secretIp}/api/service`, serviceInfo);
 };
+
+export default postService;

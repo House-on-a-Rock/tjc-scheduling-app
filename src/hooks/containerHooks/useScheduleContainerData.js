@@ -31,9 +31,9 @@ const useScheduleContainerData = (churchId, setDialogOpen) => {
   });
 
   const returnData = {
-    tabs: isTabsLoading ? undefined : tabsData.data,
-    users: isUsersLoading ? undefined : usersData,
-    teams: isTeamsLoading ? undefined : teamsData.data,
+    tabs: isTabsLoading ? null : tabsData.data,
+    users: isUsersLoading ? null : usersData,
+    teams: isTeamsLoading ? null : teamsData.data,
   };
 
   return [

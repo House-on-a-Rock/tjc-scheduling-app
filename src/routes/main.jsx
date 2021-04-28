@@ -11,7 +11,7 @@ import { TemplateContainer } from '../components/Template';
 import { Header } from '../components/shared';
 import theme from '../shared/styles/theme';
 import { extractTokenInfo, useToken } from '../shared/utilities';
-import { AuthContext } from '../shared/services/AuthContext';
+import AuthContext from '../shared/services/AuthContext';
 
 const Main = () => {
   const auth = useContext(AuthContext);

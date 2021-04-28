@@ -1,3 +1,4 @@
+/* eslint-disable no-case-declarations */
 import jwtDecode from 'jwt-decode';
 import { getLocalStorageItem } from './helperFunctions';
 

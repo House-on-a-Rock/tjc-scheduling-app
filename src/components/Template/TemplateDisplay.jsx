@@ -15,7 +15,7 @@ import TableCell from '@material-ui/core/TableCell';
 import { makeStyles, createStyles } from '@material-ui/core/styles';
 
 // TODO make pretty
-export const TemplateDisplay = ({ template }) => {
+ const TemplateDisplay = ({ template }) => {
   const classes = useStyles();
   const { data, name, templateId } = template;
 
@@ -75,3 +75,5 @@ const useStyles = makeStyles((theme) =>
     },
   }),
 );
+
+export default TemplateDisplay

@@ -480,7 +480,7 @@ const ScheduleMain2 = ({ tabs, data }) => {
       </Dialog> */}
       <ConfirmationDialog
         title={warningDialogConfig[warningDialog]?.title}
-        state={!!warningDialog}
+        state={Boolean(warningDialog)}
         handleClick={(accepted) => {
           if (accepted) warningDialogConfig[warningDialog]?.accepted();
           else setWarningDialog('');

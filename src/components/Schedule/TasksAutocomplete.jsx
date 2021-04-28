@@ -9,7 +9,7 @@ import TextField from '@material-ui/core/TextField';
 
 import { typographyTheme } from '../../shared/styles/theme';
 
-import { useTasksAutocompleteHooks } from './useTasksAutocompleteHooks';
+import useTasksAutocompleteHooks from './useTasksAutocompleteHooks';
 
 import { extractTeammateIds, getUserOptionLabel } from './utilities';
 
