@@ -17,15 +17,15 @@ import Button from '@material-ui/core/Button';
 import { makeStyles, createStyles } from '@material-ui/core/styles';
 import { buttonTheme } from '../../shared/styles/theme';
 
-import { AuthContext } from '../../shared/services/AuthContext';
+import AuthContext from '../../shared/services/AuthContext';
 
 const Header = (props) => {
   const auth = useContext(AuthContext);
   const classes = useStyles();
 
   const logoutHandler = () => {
-    localStorage.removeItem("access_token");
-    auth.logout(); 
+    localStorage.removeItem('access_token');
+    auth.logout();
   };
   return (
     <>

@@ -1,23 +1,25 @@
 import NewServiceForm from './NewServiceForm';
-import NewScheduleForm from './NewScheduleForm';
-import ScheduleTable from './ScheduleTable';
-import ScheduleTableBody from './ScheduleTableBody';
-import ScheduleTableHeader from './ScheduleTableHeader';
-import ScheduleTabs from './ScheduleTabs';
-import ScheduleToolbar from './ScheduleToolbar';
+import Table from './Table';
+import TableBody from './TableBody';
+import TableHeader from './TableHeader';
+import Tabs from './Tabs';
+import Toolbar from './Toolbar';
 import TimeCell from './TimeCell';
 import DutyAutocomplete from './DutyAutocomplete';
 import TasksAutocomplete from './TasksAutocomplete';
+import ScheduleContainer from './ScheduleContainer';
+import ScheduleMain from './ScheduleMain';
 
 export {
   NewServiceForm,
-  NewScheduleForm,
-  ScheduleTable,
-  ScheduleTableBody,
-  ScheduleTableHeader,
-  ScheduleTabs,
-  ScheduleToolbar,
+  Table,
+  TableBody,
+  TableHeader,
+  Tabs,
+  Toolbar,
   TimeCell,
   DutyAutocomplete,
   TasksAutocomplete,
+  ScheduleContainer,
+  ScheduleMain,
 };

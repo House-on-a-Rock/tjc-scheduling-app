@@ -14,7 +14,7 @@ import Box from '@material-ui/core/Box';
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import Typography from '@material-ui/core/Typography';
 import Container from '@material-ui/core/Container';
-import CircularProgress from '@material-ui/core/CircularProgress';
+// import CircularProgress from '@material-ui/core/CircularProgress';
 
 // Custom Components
 import { Copyright } from '../shared';
@@ -26,8 +26,8 @@ import {
   getLocalStorageItem,
   isValidEmail,
 } from '../../shared/utilities';
-import { AuthContext } from '../../shared/services/AuthContext';
-import { authenticateLogin } from '../../query/apis';
+import AuthContext from '../../shared/services/AuthContext';
+import { authenticateLogin } from '../../apis';
 
 const Login = () => {
   const classes = useStyles();

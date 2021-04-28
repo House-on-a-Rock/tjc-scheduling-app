@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { Redirect, Route, Switch, useRouteMatch } from 'react-router-dom';
 import { ErrorPage, Login, ResetPassword, AuthEmail } from '../components/Auth';
 
