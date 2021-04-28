@@ -9,6 +9,7 @@ import {
   createBlankEvent,
   retrieveDroppableServiceId,
   // shouldDisplayTime,
+  rearrangeEvents,
 } from './utilities';
 
 // Material UI

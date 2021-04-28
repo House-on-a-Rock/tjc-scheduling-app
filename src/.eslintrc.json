@@ -256,7 +256,8 @@
     "yoda": ["error", "never"],
     "react/display-name": ["off"],
     "import/no-named-as-default": ["off"],
-    "import/order": ["off"]
+    "import/order": ["off"],
+    "import/no-cycle": ["off"]
   },
   "settings": {
     "import/resolver": {

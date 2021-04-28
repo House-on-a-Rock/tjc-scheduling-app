@@ -1,5 +1,5 @@
 // https://codesandbox.io/s/react-material-ui-and-react-beautiful-dnd-forked-bmheb?file=/src/MaterialTable.jsx draggable table
-import React, { useRef, useState, useEffect, useMemo } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 // import { Prompt } from 'react-router-dom';
 
@@ -10,25 +10,12 @@ import { createStyles, makeStyles } from '@material-ui/core';
 import Table from './Table';
 import Toolbar from './Toolbar';
 
-import { ContextMenu, ConfirmationDialog } from '../shared';
+// import { ContextMenu, ConfirmationDialog } from '../shared';
 
-import {
-  days,
-  teammates,
-  createBlankEvent,
-  retrieveDroppableServiceId,
-  processUpdate,
-  processAdded,
-  processRemoved,
-  createBlankService,
-} from './utilities';
-import { detailedDiff, updatedDiff } from 'deep-object-diff';
+import { processUpdate, createBlankService } from './utilities';
+import { updatedDiff } from 'deep-object-diff';
 
 import useScheduleMainData from '../../hooks/containerHooks/useScheduleMainData';
-
-const SERVICE = 'service';
-const EVENT = 'event';
-const SCHEDULE = 'schedule';
 
 // TODO
 // contextmenu functions don't work
@@ -45,7 +32,6 @@ const ScheduleMain = ({ churchId, scheduleId, isViewed, users, teams }) => {
 
   const [isScheduleModified, setIsScheduleModified] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
-
   // const [isNewServiceOpen, setIsNewServiceOpen] = useState(false);
 
   const [dataModel, setDataModel] = useState();
@@ -63,13 +49,18 @@ const ScheduleMain = ({ churchId, scheduleId, isViewed, users, teams }) => {
 
   return (
     <div
-      className="schedule-container"
+      className={`main_${scheduleId}`}
       style={{ display: isViewed ? 'block' : 'none' }}
       ref={outerRef}
     >
       <Toolbar
         handleNewServiceClicked={addService}
-        destroySchedule={() => {}}
+        destroySchedule={() =>
+          deleteSchedule.mutate({
+            scheduleId: schedule.scheduleId,
+            title: schedule.title,
+          })
+        }
         isScheduleModified={isScheduleModified}
         onSaveScheduleChanges={onSaveScheduleChanges}
         setEditMode={onEditClick}
@@ -91,7 +82,6 @@ const ScheduleMain = ({ churchId, scheduleId, isViewed, users, teams }) => {
 
   function onSaveScheduleChanges() {
     const diff = updatedDiff(schedule.services, dataModel);
-    console.log(`diff`, diff);
     // need error checking before running diff
     const updiff = processUpdate(diff, dataModel);
     updateSchedule.mutate({ updated: updiff });
@@ -143,6 +133,7 @@ const useStyles = makeStyles(() =>
 );
 
 ScheduleMain.propTypes = {
+  churchId: PropTypes.number,
   scheduleId: PropTypes.number,
   isViewed: PropTypes.bool,
   users: PropTypes.array,

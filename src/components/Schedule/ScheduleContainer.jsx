@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 
 import { createStyles, makeStyles } from '@material-ui/core';
-// eslint-disable-next-line import/no-cycle
 import ScheduleMain from './ScheduleMain';
 import ScheduleTabs from './Tabs';
 import NewScheduleForm from './NewScheduleForm';
@@ -10,10 +9,11 @@ import { loadingTheme } from '../../shared/styles/theme';
 import useScheduleContainerData from '../../hooks/containerHooks/useScheduleContainerData';
 
 // TODO tab switching doesnt quite work, make sure alert works
+// error checking if there are no schedules
 
 const ScheduleContainer = ({ churchId }) => {
   const classes = useStyles();
-  const [tabIndex, setTabIndex] = useState(0);
+  const [viewedTab, setViewedTab] = useState(0);
   const [openedTabs, setOpenedTabs] = useState([0]);
   const [isNewScheduleOpen, setIsNewScheduleOpen] = useState(false);
 
@@ -27,8 +27,6 @@ const ScheduleContainer = ({ churchId }) => {
     createSchedule,
   ] = useScheduleContainerData(churchId, setIsNewScheduleOpen);
 
-  // console.log(`tabs, users, teams`, tabs, users, teams);
-
   const loaded = !isTabsLoading && !isUsersLoading && !isTeamsLoading;
 
   return (
@@ -36,7 +34,7 @@ const ScheduleContainer = ({ churchId }) => {
       {loaded && (
         <div>
           <ScheduleTabs
-            tabIndex={tabIndex}
+            tabIndex={viewedTab}
             onTabClick={onTabClick}
             handleAddClicked={() => setIsNewScheduleOpen(true)}
             tabs={tabs}
@@ -44,8 +42,8 @@ const ScheduleContainer = ({ churchId }) => {
           {openedTabs.map((tab) => (
             <ScheduleMain
               churchId={churchId}
-              scheduleId={tabs[tab].id}
-              isViewed={tab === tabIndex}
+              scheduleId={tabs.length > 0 ? tabs[tab].id : null}
+              isViewed={tab === viewedTab}
               users={users}
               teams={teams}
               key={tab.toString()}
@@ -67,7 +65,7 @@ const ScheduleContainer = ({ churchId }) => {
 
   function onTabClick(value) {
     if (value <= tabs.length - 1) {
-      setTabIndex(value);
+      setViewedTab(value);
       const isOpened = openedTabs.indexOf(value);
       if (isOpened < 0) setOpenedTabs([...openedTabs, value]); // adds unopened tabs to array. need way to handle lots of tabs
     } else setIsNewScheduleOpen(true); // if last tab, open dialog to make new schedule
