@@ -14,7 +14,7 @@ import ListItemText from '@material-ui/core/ListItemText';
 import { makeStyles, createStyles } from '@material-ui/core/styles';
 
 import { EmailForm } from '../FormControl';
-import { FormField } from '../shared/FormField';
+import FormField from '../shared/FormField';
 import { isValidEmail } from '../../shared/utilities';
 
 // FormDialog is inherently tightly coupled

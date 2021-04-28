@@ -42,7 +42,7 @@ const normalCellBorderColor = 'rgba(234, 234, 234, 1)';
 const normalCellBorder = `1px solid ${normalCellBorderColor}`;
 
 TableHeader.propTypes = {
-  header: PropTypes.array,
+  headers: PropTypes.array,
   title: PropTypes.string,
 };
 

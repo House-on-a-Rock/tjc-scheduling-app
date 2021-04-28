@@ -1,40 +1,76 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-
-// queries
-import { useQuery } from 'react-query';
-
-// api
-import { getTemplateData } from '../../query';
+import useTemplateContainer from '../../hooks/containerHooks/useTemplateContainer';
+import { makeStyles, createStyles } from '@material-ui/core/styles';
+import { buttonTheme } from '../../shared/styles/theme';
+import NewScheduleForm from '../shared/NewScheduleForm';
 
 // components
-import TemplateMain from './TemplateMain';
+import TemplateDisplay from './TemplateDisplay';
 
 export const TemplateContainer = ({ churchId }) => {
-  const [isLoading, setIsLoading] = useState(false);
-  const [data, setData] = useState();
-  const [error, setError] = useState(null);
-  const [isSuccess, setIsSuccess] = useState('');
+  const classes = useStyles();
+  const [isNewScheduleOpen, setIsNewScheduleOpen] = useState(false);
+  const [selectedTemplateId, setSelectedTemplateId] = useState(0);
+  const [isLoading, templates, createSchedule] = useTemplateContainer(
+    churchId,
+    setIsNewScheduleOpen,
+  );
 
-  // queries
-  const templates = useQuery(['templates', churchId], () => getTemplateData(churchId), {
-    enabled: !!churchId,
-    refetchOnWindowFocus: false,
-    staleTime: 100000000000000,
-  });
-
-  useEffect(() => {
-    if (templates.isSuccess) setError(null);
-    if (templates.isError) setError(templates.error);
-    if (templates.data) setData({ ...data, templates: templates.data });
-    if (templates.isLoading !== isLoading) setIsLoading(templates.isLoading);
-  }, [templates]);
-
-  // if (isTemplatesLoading) return <div>Loading</div>;
+  if (isLoading) return <div>Loading</div>;
 
   // TODO add confirmation alerts
-  return <TemplateMain state={{ data, isLoading, error, isSuccess }} />;
+  return (
+    <div className={classes.templateContainer}>
+      {templates.map((template, index) => (
+        <TemplateDisplay
+          template={template}
+          key={index.toString()}
+          onAddClick={onAddClick}
+        />
+      ))}
+      {isNewScheduleOpen && (
+        <NewScheduleForm
+          onClose={() => setIsNewScheduleOpen(false)}
+          isOpen={isNewScheduleOpen}
+          onSubmit={(newScheduleData) =>
+            createSchedule.mutate({ ...newScheduleData, churchId: churchId })
+          }
+          error={createSchedule.error}
+          templateId={selectedTemplateId}
+        />
+      )}
+    </div>
+  );
+
+  function onAddClick(templateId) {
+    setSelectedTemplateId(templateId);
+    setIsNewScheduleOpen(true);
+  }
 };
+
+const useStyles = makeStyles((theme) =>
+  createStyles({
+    templateContainer: {
+      width: '100%',
+      display: 'grid',
+      'grid-template-columns': '25% 25% 25% 25%',
+    },
+    button: {
+      position: 'sticky',
+      padding: '10px',
+      borderRadius: '5px',
+      border: 'none',
+      '&:hover, &:focus': {
+        ...buttonTheme.filled.hover,
+      },
+      display: 'flex',
+      '& *': {
+        margin: 'auto',
+      },
+    },
+  }),
+);
 
 TemplateContainer.propTypes = {
   churchId: PropTypes.number,

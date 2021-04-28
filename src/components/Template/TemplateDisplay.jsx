@@ -15,19 +15,20 @@ import TableCell from '@material-ui/core/TableCell';
 import { makeStyles, createStyles } from '@material-ui/core/styles';
 
 // TODO make pretty
- const TemplateDisplay = ({ template }) => {
+const TemplateDisplay = ({ template, onAddClick }) => {
   const classes = useStyles();
   const { data, name, templateId } = template;
 
   return (
-    <Card raised className={classes.card}>
+    <Card raised className={classes.card} key={templateId.toString()}>
       <Tooltip title="Edit this template">
         <EditIcon />
       </Tooltip>
+      <AddIcon onClick={() => onAddClick(templateId)} />
       <h3 style={{ margin: 5 }}>{name}</h3>
       <MaUTable>
         <TableHead>
-          <TableRow>
+          <TableRow key="head">
             <TableCell key="time">Time</TableCell>
             <TableCell key="duty">Duty</TableCell>
           </TableRow>
@@ -36,7 +37,10 @@ import { makeStyles, createStyles } from '@material-ui/core/styles';
           {data?.map((service) => (
             <>
               <TableRow key={`${service.name}_name`}>
-                <TableCell className={classes.tableCell}>
+                <TableCell
+                  className={classes.tableCell}
+                  key={`${service.name}_name_cell`}
+                >
                   <h4 style={{ margin: 1 }}>{service.name}</h4>
                 </TableCell>
               </TableRow>
@@ -76,4 +80,9 @@ const useStyles = makeStyles((theme) =>
   }),
 );
 
-export default TemplateDisplay
+TemplateDisplay.propTypes = {
+  template: PropTypes.object,
+  onAddClick: PropTypes.func,
+};
+
+export default TemplateDisplay;

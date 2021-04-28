@@ -1,4 +1,4 @@
 import TemplateContainer from './TemplateContainer';
-import TemplateMain from './TemplateMain';
+import TemplateDisplay from './TemplateDisplay';
 
-export { TemplateContainer, TemplateMain };
+export { TemplateContainer, TemplateDisplay };

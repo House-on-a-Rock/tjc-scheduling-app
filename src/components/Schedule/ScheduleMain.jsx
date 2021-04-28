@@ -19,17 +19,15 @@ import useScheduleMainData from '../../hooks/containerHooks/useScheduleMainData'
 
 // TODO
 // contextmenu functions don't work
-// Need to wait for create schedule to finish updating db before the user can click on the new tab, or else data will be missing
 // newly created schedule has strange set of dates
-// rethink where to put draggable handles and how to display them
-// broke selection/hover of rows?
-// make sure the edit schedule button works only when schedule is saved.
+// broke selection/hover of rows
 // rework warning dialogs
+// fix changing tabs
+// how to incorporate NewServiceForm
 
 const ScheduleMain = ({ churchId, scheduleId, isViewed, users, teams }) => {
   const classes = useStyles();
   const [schedule, deleteSchedule, updateSchedule] = useScheduleMainData(scheduleId);
-
   const [isScheduleModified, setIsScheduleModified] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   // const [isNewServiceOpen, setIsNewServiceOpen] = useState(false);
@@ -106,8 +104,6 @@ const ScheduleMain = ({ churchId, scheduleId, isViewed, users, teams }) => {
   function retrieveChangesSeed() {
     return templateChanges.current.changesSeed--;
   }
-
-  // // Model manipulation functions
 
   function onEditClick() {
     if (!isEditMode && !isScheduleModified) {

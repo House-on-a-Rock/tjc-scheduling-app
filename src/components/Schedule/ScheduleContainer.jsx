@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { createStyles, makeStyles } from '@material-ui/core';
 import ScheduleMain from './ScheduleMain';
 import ScheduleTabs from './Tabs';
-import NewScheduleForm from './NewScheduleForm';
+import NewScheduleForm from '../shared/NewScheduleForm';
 import { loadingTheme } from '../../shared/styles/theme';
 import useScheduleContainerData from '../../hooks/containerHooks/useScheduleContainerData';
 
@@ -17,20 +17,13 @@ const ScheduleContainer = ({ churchId }) => {
   const [openedTabs, setOpenedTabs] = useState([0]);
   const [isNewScheduleOpen, setIsNewScheduleOpen] = useState(false);
 
-  const [
-    isTabsLoading,
-    tabs,
-    isUsersLoading,
-    users,
-    isTeamsLoading,
-    teams,
-    createSchedule,
-  ] = useScheduleContainerData(churchId, setIsNewScheduleOpen);
-
-  const loaded = !isTabsLoading && !isUsersLoading && !isTeamsLoading;
+  const [loaded, tabs, users, teams, createSchedule] = useScheduleContainerData(
+    churchId,
+    setIsNewScheduleOpen,
+  );
 
   return (
-    <div className={isTabsLoading ? classes.loading : ''}>
+    <div className={!loaded ? classes.loading : ''}>
       {loaded && (
         <div>
           <ScheduleTabs
@@ -50,14 +43,16 @@ const ScheduleContainer = ({ churchId }) => {
               // alert stuff
             />
           ))}
-          <NewScheduleForm
-            onClose={() => setIsNewScheduleOpen(false)}
-            isOpen={isNewScheduleOpen}
-            onSubmit={(newScheduleData) =>
-              createSchedule.mutate({ ...newScheduleData, churchId: churchId })
-            }
-            error={createSchedule.error}
-          />
+          {isNewScheduleOpen && (
+            <NewScheduleForm
+              onClose={() => setIsNewScheduleOpen(false)}
+              isOpen={isNewScheduleOpen}
+              onSubmit={(newScheduleData) =>
+                createSchedule.mutate({ ...newScheduleData, churchId: churchId })
+              }
+              error={createSchedule.error}
+            />
+          )}
         </div>
       )}
     </div>
@@ -66,7 +61,7 @@ const ScheduleContainer = ({ churchId }) => {
   function onTabClick(value) {
     if (value <= tabs.length - 1) {
       setViewedTab(value);
-      const isOpened = openedTabs.indexOf(value);
+      const isOpened = openedTabs.indexOf(tabs[value]);
       if (isOpened < 0) setOpenedTabs([...openedTabs, value]); // adds unopened tabs to array. need way to handle lots of tabs
     } else setIsNewScheduleOpen(true); // if last tab, open dialog to make new schedule
   }

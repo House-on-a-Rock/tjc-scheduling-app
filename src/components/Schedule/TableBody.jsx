@@ -103,6 +103,7 @@ TableBody.propTypes = {
   title: PropTypes.string,
   addEvent: PropTypes.func,
   deleteService: PropTypes.func,
+  isEdit: PropTypes.bool,
 };
 
 export default TableBody;

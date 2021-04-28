@@ -8,7 +8,7 @@ import { useValidatedField } from '../../hooks';
 
 import { buttonTheme, tooltipContainer } from '../../shared/styles/theme';
 
-import { Tooltip } from '../shared/Tooltip';
+import { Tooltip } from './Tooltip';
 import { stringLengthCheck } from '../../shared/utilities';
 
 // TODO hook up teams with data from DB
@@ -45,7 +45,7 @@ export const NewScheduleForm = ({
     '',
   );
 
-  // pass in roles/teams
+  // TODO pass in roles/teams
 
   function onSubmitForm() {
     resetTitleError();
@@ -77,7 +77,6 @@ export const NewScheduleForm = ({
     // setTemplateError(template.value === 0)
   }
 
-  // TODO display error message from server side
   return (
     <Dialog open={isOpen} onClose={onClose}>
       <div className={classes.newScheduleForm}>
@@ -193,7 +192,7 @@ function toDateString(date) {
   return `${date.getFullYear()}-${month}-${day}`;
 }
 
-const useStyles = makeStyles((theme) =>
+const useStyles = makeStyles(() =>
   createStyles({
     newScheduleForm: {
       display: 'flex',
@@ -267,6 +266,7 @@ NewScheduleForm.propTypes = {
   onSubmit: PropTypes.func,
   templateId: PropTypes.number,
   templates: PropTypes.array,
+  isOpen: PropTypes.bool,
 };
 
 export default NewScheduleForm;

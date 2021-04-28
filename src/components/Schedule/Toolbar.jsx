@@ -85,6 +85,7 @@ Toolbar.propTypes = {
   handleNewServiceClicked: PropTypes.func,
   destroySchedule: PropTypes.func,
   onSaveScheduleChanges: PropTypes.func,
+  setEditMode: PropTypes.func,
 };
 TooltipForDisabledButton.propTypes = {
   title: PropTypes.string,

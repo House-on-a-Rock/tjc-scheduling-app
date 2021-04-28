@@ -87,17 +87,6 @@ const MembersMain = ({ users, addUser, removeUser }) => {
     },
   };
 
-  // useEffect(() => {
-  //   if (data?.users) setFilteredMembers(filterMembers(data.users, searchField));
-  // }, [data, searchField]);
-
-  // useEffect(() => {
-  //   if (isSuccess === 'NewUser') setIsNewMemberDialogOpen(false);
-  //   if (isSuccess === 'DeleteUser') {
-  //     console.log('deleted');
-  //   }
-  // }, [isSuccess]);
-
   return (
     <>
       {users && (

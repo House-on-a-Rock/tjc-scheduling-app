@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import TextField from '@material-ui/core/TextField';
 
- const FormField = ({ name, label, value, handleChange, className, ...props }) => (
+const FormField = ({ name, label, value, handleChange, className, ...props }) => (
   <TextField
     variant="outlined"
     margin="normal"
@@ -18,4 +18,12 @@ import TextField from '@material-ui/core/TextField';
   />
 );
 
-export default FormField
+FormField.propTypes = {
+  name: PropTypes.string,
+  label: PropTypes.string,
+  value: PropTypes.string,
+  handleChange: PropTypes.func,
+  className: PropTypes.any,
+};
+
+export default FormField;

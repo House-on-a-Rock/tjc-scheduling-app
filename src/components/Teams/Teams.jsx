@@ -13,7 +13,7 @@ import { add, reorder } from './services';
 // 2. need to figure out how to handle new teams- modal or instantaneous
 // 3. new team apis
 // 4. validation apis/reducers need to be fleshed out
-// 5. container this thing
+// 5. container this thing, this thing be broken
 
 const Teams = () => {
   const classes = useStyles();
