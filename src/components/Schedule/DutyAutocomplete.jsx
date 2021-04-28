@@ -9,7 +9,7 @@ import TextField from '@material-ui/core/TextField';
 
 import { typographyTheme } from '../../shared/styles/theme';
 
-import { extractRoleIds, getRoleOptionLabel } from '../../container/Schedules/utilities';
+import { extractRoleIds, getRoleOptionLabel } from './utilities';
 
 /*
   Props explanation

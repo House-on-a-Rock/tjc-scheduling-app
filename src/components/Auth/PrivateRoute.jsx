@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import { Route, Redirect } from 'react-router-dom';
-import { AuthContext } from '../../shared/services/AuthContext';
+import AuthContext from '../../shared/services/AuthContext';
 import { extractTokenInfo, useToken } from '../../shared/utilities';
 
 const validateUser = (condition, token) => {

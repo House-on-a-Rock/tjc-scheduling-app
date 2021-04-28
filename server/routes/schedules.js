@@ -93,6 +93,12 @@ router.post('/schedule', certify, async (req, res, next) => {
           order: index, // should it be zero based or 1 based? currently, others are 1 based
           scheduleId: newSchedule.id,
         });
+        const taskDays = recurringDaysOfWeek(
+          newSchedule.start,
+          newSchedule.end,
+          newService.day,
+        );
+
         events.forEach(async ({ time, title: eventTitle, roleId }, order) => {
           const newEvent = await db.Event.create({
             serviceId: newService.id,
@@ -102,11 +108,7 @@ router.post('/schedule', certify, async (req, res, next) => {
             roleId,
             displayTime: true, // may be removed later
           });
-          const taskDays = recurringDaysOfWeek(
-            newSchedule.start,
-            newSchedule.end,
-            newService.day,
-          );
+
           taskDays.forEach((date) =>
             db.Task.create({
               date,

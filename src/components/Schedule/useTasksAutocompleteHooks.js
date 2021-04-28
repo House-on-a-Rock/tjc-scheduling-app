@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 
-export const useTasksAutocompleteHooks = (dataId, roleId, dataSet) => {
+const useTasksAutocompleteHooks = (dataId, roleId, dataSet) => {
   const [initialData] = useState({
     dataId,
     roleId,
@@ -59,3 +59,11 @@ export const useTasksAutocompleteHooks = (dataId, roleId, dataSet) => {
     return dataSet.filter((user) => user.userId === dataId)[0] || { userId: -1 };
   }
 };
+
+useTasksAutocompleteHooks.propTypes = {
+  dataId: PropTypes.number,
+  roleId: PropTypes.number,
+  dataSet: PropTypes.array,
+};
+
+export default useTasksAutocompleteHooks;

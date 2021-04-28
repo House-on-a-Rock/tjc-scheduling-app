@@ -35,7 +35,7 @@ const ValidatedSelect = ({
 };
 
 ValidatedSelect.propTypes = {
-  className: PropTypes.object,
+  className: PropTypes.string,
   input: PropTypes.object,
   onChange: PropTypes.func,
   toolTip: PropTypes.object,

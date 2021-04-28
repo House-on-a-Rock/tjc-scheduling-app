@@ -21,7 +21,7 @@ const ValidatedTextField = ({ label, input, handleChange, ...props }) => (
 
 ValidatedTextField.propTypes = {
   label: PropTypes.string,
-  input: PropTypes.string,
+  input: PropTypes.object,
   handleChange: PropTypes.func,
 };
 
