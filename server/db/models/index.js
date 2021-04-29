@@ -1,17 +1,18 @@
 import Sequelize from 'sequelize';
+
+import AvailabilitiesFactory from './Availabilities';
 import ChurchFactory from './Church';
 import EventFactory from './Event';
+import NotificationFactory from './Notification';
 import RequestFactory from './Request';
 import RoleFactory from './Role';
-import NotificationFactory from './Notification';
 import ScheduleFactory from './Schedule';
-import TaskFactory from './Task';
 import ServiceFactory from './Services';
+import TaskFactory from './Task';
+import TemplateFactory from './Template';
+import TokenFactory from './Token';
 import UserFactory from './User';
 import UserRoleFactory from './User_Role';
-import TokenFactory from './Token';
-import TemplateFactory from './Template';
-import AvailabilitiesFactory from './Availabilities';
 
 const createModels = (database, username, password, config) => {
   const sequelize = new Sequelize(database, username, password, config);

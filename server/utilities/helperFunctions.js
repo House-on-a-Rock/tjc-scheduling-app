@@ -8,10 +8,13 @@ import nodemailer from 'nodemailer';
 import db from '../index';
 
 const privateKey = fs.readFileSync('tjcschedule.pem');
-const cert = fs.readFile('tjcschedule_pub.pem', (err, data) => {
+let cert;
+fs.readFile('tjcschedule_pub.pem', (err, data) => {
   if (err) throw err;
-  return data;
+  cert = data;
 });
+
+console.log('cert, privateKey', cert, privateKey);
 
 export function certify(req, res, next) {
   try {

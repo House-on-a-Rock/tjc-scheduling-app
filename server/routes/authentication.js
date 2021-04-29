@@ -1,7 +1,10 @@
-const express = require('express');
-const crypto = require('crypto');
-const { jwt, TokenExpiredError, JsonWebTokenError } = require('jsonwebtoken');
-const {
+import crypto from 'crypto';
+
+import express from 'express';
+import { jwt, TokenExpiredError, JsonWebTokenError } from 'jsonwebtoken';
+
+import db from '../index';
+import {
   addMinutes,
   createUserToken,
   createResetToken,
@@ -9,8 +12,8 @@ const {
   sendGenericEmail,
   sendVerEmail,
   certify,
-} = require('../utilities/helperFunctions');
-const db = require('../index');
+} from '../utilities/helperFunctions';
+
 // to destructure db into { Token, User}, cannot use default exports
 const router = express.Router();
 
