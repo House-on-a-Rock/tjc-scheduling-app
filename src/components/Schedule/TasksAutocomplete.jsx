@@ -27,7 +27,16 @@ import { extractTeammateIds, getUserOptionLabel } from './utilities';
 */
 
 const TasksAutocomplete = React.memo((props) => {
-  const { dataId, options, roleId, dataContext, isSaved, onChange, renderOption } = props;
+  const {
+    dataId,
+    options,
+    roleId,
+    dataContext,
+    onChange,
+    renderOption,
+    isEditMode,
+    isScheduleModified,
+  } = props;
   const classes = useStyles();
 
   const [
@@ -37,17 +46,19 @@ const TasksAutocomplete = React.memo((props) => {
     initialData,
   ] = useTasksAutocompleteHooks(dataId, roleId, options);
 
-  const tableCellClass = isCellWarning
-    ? classes.warning
-    : isCellModified
-    ? classes.modified
+  const tableCellClass = isScheduleModified
+    ? isCellWarning
+      ? classes.warning
+      : isCellModified
+      ? classes.modified
+      : classes.cell
     : classes.cell;
 
   function onCellModify(isChanged, newValue) {
     onChange(dataContext, newValue);
   }
 
-  return (
+  return !isEditMode ? (
     <TableCell className={tableCellClass}>
       <Autocomplete
         id="combo-box"
@@ -81,13 +92,17 @@ const TasksAutocomplete = React.memo((props) => {
         autoHighlight={true}
       />
     </TableCell>
+  ) : (
+    <TableCell>{getUserOptionLabel(dataId, options)}</TableCell>
   );
 }, arePropsEqual);
 
 function arePropsEqual(prevProps, nextProps) {
   return (
     prevProps.dataId === nextProps.dataId &&
-    prevProps.dataContext.roleId === nextProps.dataContext.roleId
+    prevProps.dataContext.roleId === nextProps.dataContext.roleId &&
+    prevProps.isEditMode === nextProps.isEditMode &&
+    prevProps.isScheduleModified === nextProps.isScheduleModified
   );
 }
 
@@ -142,6 +157,8 @@ TasksAutocomplete.propTypes = {
   isSaved: PropTypes.bool,
   onChange: PropTypes.func,
   renderOption: PropTypes.func,
+  isEditMode: PropTypes.bool,
+  isScheduleModified: PropTypes.bool,
 };
 
 export default TasksAutocomplete;

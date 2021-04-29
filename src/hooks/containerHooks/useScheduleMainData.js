@@ -11,7 +11,12 @@ const useScheduleMainData = (scheduleId) => {
   const { isLoading: isScheduleLoading, data: schedule } = useQuery(
     ['schedules'],
     () => getScheduleAndData(scheduleId),
-    useQueryConfig,
+    {
+      ...useQueryConfig,
+      onSuccess: () => {
+        // console.log('refetching schedule data');
+      },
+    },
   );
 
   const deleteSchedule = useMutation(destroySchedule, {

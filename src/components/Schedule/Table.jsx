@@ -1,9 +1,16 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
-import { TimeCell, DutyAutocomplete, TasksAutocomplete, TableHeader, TableBody } from '.';
 import {
-  renderOption,
+  // TimeCell,
+  // DutyAutocomplete,
+  // TasksAutocomplete,
+  TableHeader,
+  TableBody,
+  TableCell,
+} from '.';
+import {
+  // renderOption,
   days,
   teammates,
   createBlankEvent,
@@ -15,7 +22,7 @@ import {
 // Material UI
 import MuiTable from '@material-ui/core/Table';
 import TableRow from '@material-ui/core/TableRow';
-import TableCell from '@material-ui/core/TableCell';
+import MuiCell from '@material-ui/core/TableCell';
 import { makeStyles, createStyles, fade, darken } from '@material-ui/core/styles';
 import ReorderIcon from '@material-ui/icons/Reorder';
 
@@ -49,7 +56,7 @@ const Table = ({
         {dataModel.map((service, serviceIndex) => {
           const { day, name, events, serviceId } = service;
           return (
-            <DragDropContext onDragEnd={onDragEnd} key={`${serviceIndex}`}>
+            <DragDropContext onDragEnd={onDragEnd} key={`${title}_${serviceIndex}`}>
               <Droppable
                 droppableId={`DroppableTable-${serviceIndex}`}
                 key={`Droppable_${serviceId}`}
@@ -97,56 +104,35 @@ const Table = ({
                                   : 'none',
                               }}
                             >
-                              <TableCell align="left">
+                              <MuiCell align="left">
                                 {isEditMode && (
                                   <div {...provided.dragHandleProps}>
                                     <ReorderIcon />
                                   </div>
                                 )}
-                              </TableCell>
-                              {cells.map((cell, columnIndex) => {
-                                const roleDataContext = {
-                                  serviceIndex,
-                                  rowIndex,
-                                  roleId,
-                                };
-                                const taskDataContext = {
-                                  taskId: cell.taskId,
-                                  roleId: roleId,
-                                  serviceIndex,
-                                  rowIndex,
-                                  columnIndex,
-                                };
-                                return columnIndex === 0 ? (
-                                  <TimeCell
-                                    time={time}
-                                    isDisplayed={isTimeDisplayed}
-                                    onChange={onTimeChange}
-                                    rowIndex={rowIndex}
-                                    serviceIndex={serviceIndex}
-                                    key={`Time_${serviceIndex}`}
-                                  />
-                                ) : columnIndex === 1 ? (
-                                  <DutyAutocomplete
-                                    dataId={roleId}
-                                    options={teams}
-                                    dataContext={roleDataContext}
-                                    onChange={onAssignedRoleChange}
-                                    key={`Team_${serviceIndex}_${rowIndex}_${columnIndex}`}
-                                    renderOption={renderOption}
-                                  />
-                                ) : (
-                                  <TasksAutocomplete
-                                    dataId={cell.userId}
-                                    roleId={roleId}
-                                    options={tasksDataSet}
-                                    dataContext={taskDataContext}
-                                    onChange={onTaskChange}
-                                    renderOption={renderOption}
-                                    key={`Task_${serviceIndex}_${rowIndex}_${columnIndex}`}
-                                  />
-                                );
-                              })}
+                              </MuiCell>
+                              {cells.map((cell, columnIndex) => (
+                                <TableCell
+                                  cellIndices={{
+                                    serviceIndex: serviceIndex,
+                                    rowIndex: rowIndex,
+                                    columnIndex: columnIndex,
+                                  }}
+                                  roleId={roleId}
+                                  userId={cell.userId ?? 0}
+                                  taskId={cell.taskId ?? 0}
+                                  time={time}
+                                  teams={teams}
+                                  onTimeChange={onTimeChange}
+                                  onAssignedRoleChange={onAssignedRoleChange}
+                                  onTaskChange={onTaskChange}
+                                  isTimeDisplayed={isTimeDisplayed}
+                                  tasksDataSet={tasksDataSet}
+                                  isScheduleModified={isScheduleModified}
+                                  isEditMode={isEditMode}
+                                  key={`${title}_${serviceIndex}_${rowIndex}_${columnIndex}`}
+                                />
+                              ))}
                             </TableRow>
                           )}
                         </Draggable>
@@ -212,7 +198,7 @@ const Table = ({
 
   // onChange Handlers
   function onTaskChange(dataContext, newAssignee) {
-    const { taskId, serviceIndex, rowIndex, columnIndex } = dataContext;
+    const { serviceIndex, rowIndex, columnIndex } = dataContext;
     const dataClone = [...dataModel];
     dataClone[serviceIndex].events[rowIndex].cells[columnIndex].userId = newAssignee;
     setDataModel(dataClone);

@@ -2,7 +2,14 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { TableCell, TextField } from '@material-ui/core';
 
-const TimeCell = ({ time, isDisplayed, onChange, rowIndex, serviceIndex }) => {
+const TimeCell = ({
+  time,
+  isDisplayed,
+  onChange,
+  rowIndex,
+  serviceIndex,
+  isEditMode,
+}) => {
   const [value, setValue] = useState(time);
 
   const inputProps = isDisplayed
@@ -13,7 +20,9 @@ const TimeCell = ({ time, isDisplayed, onChange, rowIndex, serviceIndex }) => {
     onChange(value, rowIndex, serviceIndex);
   }
 
-  return (
+  return !isEditMode ? (
+    <TableCell>{value}</TableCell>
+  ) : (
     <TableCell onBlur={onBlurHandler}>
       <TextField
         value={value}
@@ -30,6 +39,7 @@ TimeCell.propTypes = {
   onChange: PropTypes.func,
   rowIndex: PropTypes.number,
   serviceIndex: PropTypes.number,
+  isEditMode: PropTypes.bool,
 };
 
 export default TimeCell;
