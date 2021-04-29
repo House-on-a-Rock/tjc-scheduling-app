@@ -32,7 +32,6 @@ const ScheduleMain = ({
   teams,
   setAlert,
   deleteSchedule,
-  tab,
 }) => {
   const classes = useStyles();
   const [isScheduleModified, setIsScheduleModified] = useState(false);
@@ -127,7 +126,7 @@ const ScheduleMain = ({
   }
 
   function saveTemplateChanges() {
-    console.log('saving template changes');
+    // console.log('saving template changes');
     // process the diffs
   }
 };
@@ -148,7 +147,6 @@ ScheduleMain.propTypes = {
   teams: PropTypes.array,
   setAlert: PropTypes.func,
   deleteSchedule: PropTypes.object,
-  tab: PropTypes.number,
 };
 
 export default ScheduleMain;

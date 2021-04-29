@@ -54,7 +54,7 @@ const useTasksAutocompleteHooks = (dataId, roleId, dataSet, isScheduleModified) 
   const tableCellClass = () => {
     if (isScheduleModified)
       return isCellWarning ? 'warning' : isCellModified ? 'modified' : 'cell';
-    else return 'cell';
+    return 'cell';
   };
 
   return [tableCellClass(), managedDataSet, initialData];

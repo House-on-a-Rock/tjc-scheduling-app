@@ -27,7 +27,7 @@ const ScheduleContainer = ({ churchId }) => {
     teams,
     createSchedule,
     deleteSchedule,
-  ] = useScheduleContainerData(churchId, setIsNewScheduleOpen, setAlert, setViewedTab);
+  ] = useScheduleContainerData(churchId, setIsNewScheduleOpen);
 
   return (
     <div className={!loaded ? classes.loading : ''}>
@@ -69,20 +69,6 @@ const ScheduleContainer = ({ churchId }) => {
       )}
     </div>
   );
-
-  function hi() {
-    console.log('hi');
-  }
-
-  function onDeleteSchedule(tab) {
-    const tabClone = openedTabs;
-    console.log(`tabClone, tab`, tabClone, tab);
-    tabClone.splice(tab, 1);
-    console.log(`tabClone`, tabClone);
-
-    setOpenedTabs(tabClone);
-    setViewedTab(tab > 0 ? tab - 1 : 0);
-  }
 
   function onTabClick(value) {
     if (value <= tabs.length - 1) {

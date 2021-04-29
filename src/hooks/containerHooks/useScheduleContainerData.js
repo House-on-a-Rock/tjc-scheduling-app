@@ -11,7 +11,7 @@ const useScheduleContainerData = (churchId, onSuccessHandler, setAlert) => {
     {
       ...useQueryConfig,
       onSuccess: (res) => {
-        console.log('on fetch tabs success', res);
+        // console.log('on fetch tabs success', res);
       },
     },
   );
@@ -31,7 +31,6 @@ const useScheduleContainerData = (churchId, onSuccessHandler, setAlert) => {
   const createSchedule = useMutation(postSchedule, {
     onSuccess: (res) => {
       queryClient.invalidateQueries('tabs');
-      // queryClient.invalidateQueries('schedules');
       onSuccessHandler(false);
       setAlert(alertSuccess(res));
     },
