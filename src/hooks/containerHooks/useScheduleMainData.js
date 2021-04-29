@@ -10,7 +10,7 @@ import {
 const useScheduleMainData = (scheduleId, setIsScheduleModified, setAlert) => {
   const queryClient = useQueryClient();
   const { isLoading: isScheduleLoading, data: schedule } = useQuery(
-    ['schedules'],
+    [`schedules_${scheduleId}`],
     () => getScheduleAndData(scheduleId),
     {
       ...useQueryConfig,
@@ -29,7 +29,7 @@ const useScheduleMainData = (scheduleId, setIsScheduleModified, setAlert) => {
 
   const updateSchedule = useMutation(updateScheduleAssignments, {
     onSuccess: () => {
-      queryClient.invalidateQueries('schedules');
+      queryClient.invalidateQueries(`schedules_${scheduleId}`);
       setIsScheduleModified(false);
       setAlert({ status: 'success', message: 'Schedule updated successfully!' });
     },

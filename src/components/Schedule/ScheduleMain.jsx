@@ -49,8 +49,6 @@ const ScheduleMain = ({ churchId, scheduleId, isViewed, users, teams, setAlert }
 
   if (!dataModel) return <div className={classes.loading}></div>;
 
-  console.log(`scheduleId`, scheduleId);
-
   return (
     <div
       className={`main_${scheduleId}`}
