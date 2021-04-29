@@ -5,6 +5,7 @@ import TransitionsModal from './TransitionsModal';
 import Header from './Header';
 import ConfirmationDialog from './ConfirmationDialog';
 import ContextMenu from './ContextMenu';
+import ToolbarButton from './ToolbarButton';
 
 export {
   Alert,
@@ -14,4 +15,5 @@ export {
   Header,
   ConfirmationDialog,
   ContextMenu,
+  ToolbarButton,
 };

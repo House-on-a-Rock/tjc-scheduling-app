@@ -2,26 +2,48 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 // material ui
-import DialogTitle from '@material-ui/core/DialogTitle';
-import Dialog from '@material-ui/core/Dialog';
-
+import {
+  Button,
+  DialogContent,
+  DialogTitle,
+  Dialog,
+  DialogActions,
+} from '@material-ui/core';
 import { makeStyles, createStyles } from '@material-ui/core/styles';
-import { Button } from '@material-ui/core';
+import Alert from '@material-ui/lab/Alert';
+
 import { buttonTheme } from '../../shared/styles/theme';
 
-function ConfirmationDialog({ handleClick, state, title }) {
+const ACCEPT = 'ACCEPT';
+const CLOSE = 'CLOSE';
+
+function ConfirmationDialog({
+  handleClick,
+  open,
+  title = '',
+  warning = false,
+  warningText = '',
+}) {
   const classes = useStyles();
+
   return (
-    <Dialog onBackdropClick={() => handleClick(!state)} open={state}>
+    <Dialog onBackdropClick={() => handleClick(CLOSE)} open={open}>
       <DialogTitle id="confirm-dialog">{title}</DialogTitle>
-      <div className={classes.buttonBottomBar}>
-        <Button onClick={() => handleClick(true)} className={classes.confirmButton}>
+      <DialogContent>
+        {warning && (
+          <Alert severity="warning" id="delete-slide-warning-description">
+            {warningText}
+          </Alert>
+        )}
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={() => handleClick(ACCEPT)} className={classes.confirmButton}>
           Confirm
         </Button>
-        <Button onClick={() => handleClick(false)} className={classes.cancelButton}>
+        <Button onClick={() => handleClick(CLOSE)} className={classes.cancelButton}>
           Cancel
         </Button>
-      </div>
+      </DialogActions>
     </Dialog>
   );
 }
@@ -69,8 +91,10 @@ const useStyles = makeStyles((theme) =>
 );
 ConfirmationDialog.propTypes = {
   handleClick: PropTypes.func,
-  state: PropTypes.bool,
+  open: PropTypes.bool,
   title: PropTypes.string,
+  warning: PropTypes.bool,
+  warningText: PropTypes.string,
 };
 
 export default ConfirmationDialog;

@@ -36,6 +36,7 @@ export function extractTeammateIds(teammates) {
 }
 
 export const teammates = (users, roleId, churchId) => {
+  console.log('[Teammates], users', users);
   const filteredTeammates = users.filter((user) =>
     user.teams.some((team) => team.id === roleId),
   );

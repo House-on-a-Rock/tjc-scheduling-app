@@ -11,16 +11,19 @@ const useMembersContainerData = (churchId, setState) => {
     useQueryConfig,
   );
 
-  const createUser = useMutation(addUser, {
+  const { mutate: createUser } = useMutation(addUser, {
     onSuccess: () => {
       queryClient.invalidateQueries('users');
-      setState('NEW_USER', 'SUCCESS');
+      setState('CREATE_USER', 'SUCCESS');
     },
     // onError: (result) => errorHandling(result, setError),
     // onSettled: () => setIsSuccess(''),
   });
-  const deleteUser = useMutation(destroyUser, {
-    onSuccess: () => queryClient.invalidateQueries('roleData'),
+  const { mutate: deleteUser } = useMutation(destroyUser, {
+    onSuccess: () => {
+      queryClient.invalidateQueries('roleData');
+      setState('DELETE_USER', 'SUCCESS');
+    },
   });
 
   return [isUsersLoading, users, createUser, deleteUser];

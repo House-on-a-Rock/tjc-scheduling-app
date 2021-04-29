@@ -3,15 +3,22 @@ import PropTypes from 'prop-types';
 
 import Grid from '@material-ui/core/Grid';
 import { createStyles, makeStyles } from '@material-ui/core';
-import { loadingTheme } from '../../shared/styles/theme';
 
-import { MembersHeader, MembersTable, NewMemberFormDialog, Toolbar } from '.';
 import { ConfirmationDialog } from '../shared';
-
-import useMembersContainerData from '../../hooks/containerHooks/useMembersContainerData';
+import { loadingTheme } from '../../shared/styles/theme';
+import { MembersHeader, MembersTable, NewMemberFormDialog, MembersToolbar } from '.';
 import { updateSelectedRows } from './utilities';
+import useMembersContainerData from '../../hooks/containerHooks/useMembersContainerData';
+import RequestAvailabilitiesDialog from './Dialogs/RequestAvailabilitiesDialog';
 
-// TODO fix this thingy
+const CREATE = 'CREATE';
+const DELETE = 'DELETE';
+const REQUEST = 'REQUEST';
+const ACCEPT = 'ACCEPT';
+const CLOSE = 'CLOSE';
+
+// TODO fix this thingy.
+// lol ted fix this thingy
 
 const MembersContainer = ({ churchId }) => {
   const classes = useStyles();
@@ -19,9 +26,7 @@ const MembersContainer = ({ churchId }) => {
   const [searchField, setSearchField] = useState('');
   const [lastSelected, setLastSelected] = useState(-1);
   const [selectedRows, setSelectedRows] = useState([]);
-  // const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
-  const [isNewMemberDialogOpen, setIsNewMemberDialogOpen] = useState(false);
-  const [warning, setWarning] = useState('');
+  const [dialogState, setDialogState] = useState({ value: '', error: '' });
 
   const [isUsersLoading, users, createUser, deleteUser] = useMembersContainerData(
     churchId,
@@ -30,8 +35,12 @@ const MembersContainer = ({ churchId }) => {
 
   function setContainerState({ event, result, payload }) {
     switch (event) {
-      case 'NEW_USER':
-        if (result === 'SUCCESS') setIsNewMemberDialogOpen(false);
+      case 'CREATE_USER':
+        if (result === 'SUCCESS') dialogConfig[CREATE][CLOSE]();
+        else if (result === 'ERROR'); // do something with payload
+        break;
+      case 'DELETE_USER':
+        if (result === 'SUCCESS') dialogConfig[DELETE][CLOSE]();
         else if (result === 'ERROR'); // do something with payload
         break;
       default:
@@ -39,48 +48,42 @@ const MembersContainer = ({ churchId }) => {
     }
   }
 
+  function resetDialogState() {
+    setDialogState({ value: '', error: '' });
+  }
+
+  const dialogConfig = {
+    [DELETE]: {
+      title: 'Delete User(s)',
+      warningText:
+        'Are you sure you want to delete this user? This action cannot be undone.',
+      [ACCEPT]: () => {
+        // needs qs to do array deletes
+        selectedRows.map((id) => deleteUser(id));
+      },
+      [CLOSE]: () => resetDialogState(),
+      open: () => setDialogState({ ...dialogState, value: DELETE }),
+    },
+    [CREATE]: {
+      title: 'Add A New User',
+      description:
+        'To add a user, please fill out the form completely. Ensure that the email is a unique email. ',
+      [ACCEPT]: () => {
+        selectedRows.map((id) => deleteUser(id));
+      },
+      [CLOSE]: () => resetDialogState(),
+      open: () => setDialogState({ ...dialogState, value: CREATE }),
+    },
+  };
+
   useEffect(() => {
-    console.log('users', users);
     if (users) setFilteredMembers(users.filter((user) => !!user.firstName));
   }, [users]);
 
   const checkSelectedRows = (id) => selectedRows.includes(id);
-  const USER = 'user';
-
-  const handleDeleteMembers = () => {
-    // try {
-    //   selectedRows.map((member) => mutateRemoveUser.mutate(member));
-    //   // selectedRows.map(async (member) => mutateRemoveUser(member)); // removed await, unsure if this is right
-    // } catch (err) {
-    //   console.log('uh oh cant delete this guy too stonks');
-    // }
-    // setSelectedRows([]);
-  };
-
-  const onCloseAddMemberDialog = (firstName, lastName, email) => {
-    // if (
-    //   shouldAdd &&
-    //   firstName &&
-    //   lastName &&
-    //   email &&
-    //   password &&
-    //   isValidEmail(email) &&
-    //   churchId
-    // ) {
-    //   const mutateAddUserVars: AddUserProps = {
-    //     email,
-    //     firstName,
-    //     lastName,
-    //     password,
-    //     churchId,
-    //   };
-    //   mutateAddUser.mutate(mutateAddUserVars);
-    // }
-    // setIsAddMemberDialogOpen(false);
-  };
 
   const onSelectAll = (checked) =>
-    checked ? setSelectedRows(users.map(({ userId }) => userId)) : setSelectedRows([]);
+    setSelectedRows(checked ? users.map(({ userId }) => userId) : []);
 
   const onSelect = (shiftKeyPressed, { userId: id }) => {
     const targetRows = shiftKeyPressed
@@ -94,16 +97,6 @@ const MembersContainer = ({ churchId }) => {
     setLastSelected(id);
   };
 
-  const warningDialogConfig = {
-    [USER]: {
-      title: 'Are you sure you want to delete this user?',
-      accepted: () => {
-        // needs qs to do array deletes
-        selectedRows.map((id) => deleteUser(id));
-      },
-    },
-  };
-
   if (isUsersLoading || !users) return <div>loading</div>;
 
   return (
@@ -114,9 +107,11 @@ const MembersContainer = ({ churchId }) => {
             localChurch="Philadelphia"
             onSearchChange={(event) => setSearchField(event.target.value)}
           />
-          <Toolbar
-            handleAddOpen={() => setIsNewMemberDialogOpen(!isNewMemberDialogOpen)}
-            handleDeleteOpen={() => !!selectedRows.length && setWarning(USER)}
+          <MembersToolbar
+            deletable={selectedRows.length > 0}
+            handleAdd={() => setDialogState({ ...dialogState, value: CREATE })}
+            handleDelete={() => setDialogState({ ...dialogState, value: DELETE })}
+            handleRequestAvail={() => console.log('request availabilities')}
           />
           <MembersTable
             members={filteredMembers}
@@ -128,19 +123,25 @@ const MembersContainer = ({ churchId }) => {
         </Grid>
       </Grid>
       <ConfirmationDialog
-        state={!!warning}
-        handleClick={(accepted) => {
-          if (accepted) warningDialogConfig[warning].accepted();
-          else setWarning('');
+        open={dialogState.value === DELETE}
+        handleClick={(response) => {
+          dialogConfig[dialogState.value][response]();
         }}
-        title={warningDialogConfig[warning]?.title}
+        title={dialogConfig[DELETE].title}
+        warning
+        warningText={dialogConfig[DELETE].warningText}
       />
       <NewMemberFormDialog
-        state={isNewMemberDialogOpen}
-        handleSubmit={() => createUser.mutate()}
-        handleClose={() => setIsNewMemberDialogOpen(false)}
-        title="Add User"
+        open={dialogState.value === CREATE}
+        handleClick={(response, payload) =>
+          dialogConfig[dialogState.value][response](payload)
+        }
+        // handleSubmit={() => createUser.mutate()}
+        // handleClose={() => setIsNewMemberDialogOpen(false)}
+        title={dialogConfig[CREATE].title}
+        description={dialogConfig[CREATE].description}
       />
+      {/* <RequestAvailabilitiesDialog state={} handleSubmit={} title={} handleClose={} /> */}
     </div>
   );
 };
@@ -152,13 +153,6 @@ const useStyles = makeStyles(() =>
     },
   }),
 );
-
-function errorHandling(result, setError) {
-  setError({
-    status: result.response.status,
-    message: result.response.statusText,
-  });
-}
 
 MembersContainer.propTypes = {
   churchId: PropTypes.number,

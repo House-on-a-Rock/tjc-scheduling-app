@@ -9,8 +9,8 @@ import {
   Button,
 } from '@material-ui/core';
 
-import { ValidatedTextField } from '../FormControl';
-import { useValidatedField } from '../../hooks';
+import { ValidatedTextField } from '../../FormControl';
+import { useValidatedField } from '../../../hooks';
 
 const RequestAvailabilitiesDialog = ({ state, handleSubmit, title, handleClose }) => {
   const [deadline, setDeadline, setDeadlineError, resetDeadlineError] = useValidatedField(
