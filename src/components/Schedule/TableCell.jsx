@@ -82,24 +82,3 @@ TableCell.propTypes = {
   isEditMode: PropTypes.bool,
 };
 export default TableCell;
-
-/*
-<TableCell
-  rowIndex={rowIndex}
-  columnIndex={columnIndex}
-  serviceIndex={serviceIndex}
-  churchId={churchId}
-  roleId={roleId}
-  taskId={cell.taskId}
-  userId={cell.userId}
-  time={time}
-  users={users}
-  teams={teams}
-  onTimeChange={onTimeChange}
-  onAssignedRoleChange={onAssignedRoleChange}
-  onTaskChange={onTaskChange}
-  shouldDisplayTime={shouldDisplayTime}
-  isScheduleModified={isScheduleModified}
-  key={`${title}_${serviceIndex}_${rowIndex}_${columnIndex}`}
-/>
-*/

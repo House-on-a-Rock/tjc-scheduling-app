@@ -16,7 +16,6 @@ const useTasksAutocompleteHooks = (dataId, roleId, dataSet, isScheduleModified) 
 
   // TODO In next PR, when db updates with saved data, will have to see if initialData will re-initiate properly.
 
-  // colors
   useEffect(() => {
     // options logic
     if (roleId !== prevRole) setManagedDataSet(createDataSet());
@@ -33,7 +32,6 @@ const useTasksAutocompleteHooks = (dataId, roleId, dataSet, isScheduleModified) 
       if (roleId === initialData.roleId)
         setIsCellWarning(dataId !== initialData.dataId && !isInList);
       else if (isInList) {
-        // if assignee is already in the list of roles
         setIsCellModified(true);
         setIsCellWarning(false);
       }
@@ -47,6 +45,7 @@ const useTasksAutocompleteHooks = (dataId, roleId, dataSet, isScheduleModified) 
 
   useEffect(() => {
     if (!isScheduleModified) {
+      // setIsCellWarning(false) this might be needed, have not tested it yet though
       setIsCellModified(false);
       setInitialData({ dataId, roleId, dataSet });
     }
@@ -79,6 +78,7 @@ useTasksAutocompleteHooks.propTypes = {
   dataId: PropTypes.number,
   roleId: PropTypes.number,
   dataSet: PropTypes.array,
+  isScheduleModified: PropTypes.bool,
 };
 
 export default useTasksAutocompleteHooks;

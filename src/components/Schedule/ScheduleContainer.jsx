@@ -67,9 +67,9 @@ const ScheduleContainer = ({ churchId }) => {
 
   function onTabClick(value) {
     if (value <= tabs.length - 1) {
-      setViewedTab(value);
-      const isOpened = openedTabs.indexOf(tabs[value]);
+      const isOpened = openedTabs.indexOf(value);
       if (isOpened < 0) setOpenedTabs([...openedTabs, value]); // adds unopened tabs to array. need way to handle lots of tabs
+      setViewedTab(value);
     } else setIsNewScheduleOpen(true); // if last tab, open dialog to make new schedule
   }
 };
