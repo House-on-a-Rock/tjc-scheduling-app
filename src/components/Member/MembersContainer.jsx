@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 
 import Grid from '@material-ui/core/Grid';
@@ -15,23 +15,37 @@ import { updateSelectedRows } from './utilities';
 
 const MembersContainer = ({ churchId }) => {
   const classes = useStyles();
-  const [isUsersLoading, users, createUser, deleteUser] = useMembersContainerData(
-    churchId,
-  );
-
   const [filteredMembers, setFilteredMembers] = useState([]);
   const [searchField, setSearchField] = useState('');
   const [lastSelected, setLastSelected] = useState(-1);
   const [selectedRows, setSelectedRows] = useState([]);
-
   // const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
   const [isNewMemberDialogOpen, setIsNewMemberDialogOpen] = useState(false);
-  const [warningDialog, setWarningDialog] = useState('');
+  const [warning, setWarning] = useState('');
 
-  const isSelected = (id) => selectedRows.includes(id);
+  const [isUsersLoading, users, createUser, deleteUser] = useMembersContainerData(
+    churchId,
+    setContainerState,
+  );
+
+  function setContainerState({ event, result, payload }) {
+    switch (event) {
+      case 'NEW_USER':
+        if (result === 'SUCCESS') setIsNewMemberDialogOpen(false);
+        else if (result === 'ERROR'); // do something with payload
+        break;
+      default:
+        break;
+    }
+  }
+
+  useEffect(() => {
+    console.log('users', users);
+    if (users) setFilteredMembers(users.filter((user) => !!user.firstName));
+  }, [users]);
+
+  const checkSelectedRows = (id) => selectedRows.includes(id);
   const USER = 'user';
-
-  console.log(`users`, users);
 
   const handleDeleteMembers = () => {
     // try {
@@ -102,31 +116,31 @@ const MembersContainer = ({ churchId }) => {
           />
           <Toolbar
             handleAddOpen={() => setIsNewMemberDialogOpen(!isNewMemberDialogOpen)}
-            handleDeleteOpen={() => !!selectedRows.length && setWarningDialog(USER)}
+            handleDeleteOpen={() => !!selectedRows.length && setWarning(USER)}
           />
           <MembersTable
             members={filteredMembers}
             selectedRowLength={selectedRows.length}
-            isSelected={isSelected}
+            checkSelected={checkSelectedRows}
             handleSelectAll={onSelectAll}
             handleSelect={onSelect}
           />
         </Grid>
-        <ConfirmationDialog
-          state={!!warningDialog}
-          handleClick={(accepted) => {
-            if (accepted) warningDialogConfig[warningDialog].accepted();
-            else setWarningDialog('');
-          }}
-          title={warningDialogConfig[warningDialog]?.title}
-        />
-        <NewMemberFormDialog
-          state={isNewMemberDialogOpen}
-          handleSubmit={createUser}
-          handleClose={() => setIsNewMemberDialogOpen(false)}
-          title="Add User"
-        />
       </Grid>
+      <ConfirmationDialog
+        state={!!warning}
+        handleClick={(accepted) => {
+          if (accepted) warningDialogConfig[warning].accepted();
+          else setWarning('');
+        }}
+        title={warningDialogConfig[warning]?.title}
+      />
+      <NewMemberFormDialog
+        state={isNewMemberDialogOpen}
+        handleSubmit={() => createUser.mutate()}
+        handleClose={() => setIsNewMemberDialogOpen(false)}
+        title="Add User"
+      />
     </div>
   );
 };

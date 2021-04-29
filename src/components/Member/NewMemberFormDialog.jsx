@@ -120,7 +120,7 @@ const useStyles = makeStyles(() =>
 NewMemberFormDialog.propTypes = {
   handleSubmit: PropTypes.func,
   handleClose: PropTypes.func,
-  state: PropTypes.string,
+  state: PropTypes.bool,
   title: PropTypes.string,
 };
 

@@ -5,7 +5,6 @@ import NewMemberFormDialog from './NewMemberFormDialog';
 import Toolbar from './Toolbar';
 import RequestAvailabilitiesDialog from './RequestAvailabilitiesDialog';
 import MembersContainer from './MembersContainer';
-import MembersMain from './MembersMain';
 
 export {
   MembersSidebar,
@@ -15,5 +14,4 @@ export {
   Toolbar,
   RequestAvailabilitiesDialog,
   MembersContainer,
-  MembersMain,
 };

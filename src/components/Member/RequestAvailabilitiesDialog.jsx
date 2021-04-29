@@ -12,12 +12,7 @@ import {
 import { ValidatedTextField } from '../FormControl';
 import { useValidatedField } from '../../hooks';
 
-const RequestAvailabilitiesDialog = ({
-  state,
-  handleSubmit,
-  title,
-  handleClose,
-}) => {
+const RequestAvailabilitiesDialog = ({ state, handleSubmit, title, handleClose }) => {
   const [deadline, setDeadline, setDeadlineError, resetDeadlineError] = useValidatedField(
     toDateString(daysAhead(1)),
     'Invalid date range',

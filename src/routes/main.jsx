@@ -43,10 +43,9 @@ const Main = () => {
                 <Teams churchId={churchId} />
               </Route>
               <Route path="/templates">
-                {/* history is messed up. you can't route to a page */}
                 <TemplateContainer churchId={churchId} />
               </Route>
-              <Route path="/members">
+              <Route path="/users">
                 <MembersContainer churchId={churchId} />
               </Route>
               <Route path="/">
