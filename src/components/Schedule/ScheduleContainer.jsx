@@ -27,7 +27,12 @@ const ScheduleContainer = ({ churchId }) => {
     teams,
     createSchedule,
     deleteSchedule,
-  ] = useScheduleContainerData(churchId, setIsNewScheduleOpen);
+  ] = useScheduleContainerData(
+    churchId,
+    setIsNewScheduleOpen,
+    setAlert,
+    onDeleteSchedule,
+  );
 
   return (
     <div className={!loaded ? classes.loading : ''}>
@@ -69,6 +74,25 @@ const ScheduleContainer = ({ churchId }) => {
       )}
     </div>
   );
+
+  function onDeleteSchedule(tab) {
+    // pbly need a more elegant solution in the future
+
+    setOpenedTabs([0]);
+    setViewedTab(0);
+    // for future use mbbe
+    // setOpenedTabs((p) => {
+    //   const clone = p;
+    //   console.log(`clone`, clone);
+    //   const i = clone.indexOf(tab);
+    //   const next = i > 1 ? i - 1 : 0;
+    //   console.log(`next`, next);
+    //   clone.splice(i, 1, next);
+    //   console.log(`clone`, clone);
+    //   return clone;
+    // });
+    // setViewedTab((p) => (p > 0 ? p - 1 : 0));
+  }
 
   function onTabClick(value) {
     if (value <= tabs.length - 1) {
