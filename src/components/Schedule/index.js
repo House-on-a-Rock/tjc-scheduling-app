@@ -9,6 +9,7 @@ import DutyAutocomplete from './DutyAutocomplete';
 import TasksAutocomplete from './TasksAutocomplete';
 import ScheduleContainer from './ScheduleContainer';
 import ScheduleMain from './ScheduleMain';
+import TableCell from './TableCell';
 
 export {
   NewServiceForm,
@@ -22,4 +23,5 @@ export {
   TasksAutocomplete,
   ScheduleContainer,
   ScheduleMain,
+  TableCell,
 };

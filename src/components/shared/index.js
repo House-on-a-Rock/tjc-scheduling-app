@@ -1,4 +1,4 @@
-import Alert from './Alert';
+// import Alert from './Alert';
 import Copyright from './Copyright';
 import LoadingPage from './LoadingPage';
 import TransitionsModal from './TransitionsModal';
@@ -6,8 +6,9 @@ import Header from './Header';
 import ConfirmationDialog from './ConfirmationDialog';
 import ContextMenu from './ContextMenu';
 
+export * from './Alert';
 export {
-  Alert,
+  // Alert,
   Copyright,
   LoadingPage,
   TransitionsModal,
