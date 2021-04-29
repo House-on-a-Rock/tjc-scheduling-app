@@ -46,7 +46,10 @@ const useTasksAutocompleteHooks = (dataId, roleId, dataSet, isScheduleModified) 
   }, [dataId]);
 
   useEffect(() => {
-    if (!isScheduleModified) setInitialData({ dataId, roleId, dataSet });
+    if (!isScheduleModified) {
+      setIsCellModified(false);
+      setInitialData({ dataId, roleId, dataSet });
+    }
   }, [isScheduleModified]);
 
   const tableCellClass = isScheduleModified

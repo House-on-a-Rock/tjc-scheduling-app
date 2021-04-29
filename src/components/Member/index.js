@@ -4,7 +4,6 @@ import MembersTable from './MembersTable';
 import NewMemberFormDialog from './NewMemberFormDialog';
 import Toolbar from './Toolbar';
 import MembersContainer from './MembersContainer';
-import MembersMain from './MembersMain';
 
 export {
   MembersSidebar,
@@ -13,5 +12,4 @@ export {
   NewMemberFormDialog,
   Toolbar,
   MembersContainer,
-  MembersMain,
 };

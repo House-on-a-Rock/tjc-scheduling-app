@@ -5,6 +5,8 @@ import Snackbar from '@material-ui/core/Snackbar';
 import MuiAlert from '@material-ui/lab/Alert';
 import { makeStyles, createStyles } from '@material-ui/core/styles';
 
+// alert.status - 'error', 'info', 'warning', 'success'
+
 const Alert = ({ alert, isOpen, handleClose }) => (
   <Snackbar open={isOpen} autoHideDuration={2000} onClose={handleClose}>
     <MuiAlert

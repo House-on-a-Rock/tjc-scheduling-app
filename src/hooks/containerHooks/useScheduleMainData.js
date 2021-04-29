@@ -7,7 +7,7 @@ import {
   destroySchedule,
 } from '../../apis';
 
-const useScheduleMainData = (scheduleId, setIsScheduleModified) => {
+const useScheduleMainData = (scheduleId, setIsScheduleModified, setAlert) => {
   const queryClient = useQueryClient();
   const { isLoading: isScheduleLoading, data: schedule } = useQuery(
     ['schedules'],
@@ -31,6 +31,7 @@ const useScheduleMainData = (scheduleId, setIsScheduleModified) => {
     onSuccess: () => {
       queryClient.invalidateQueries('schedules');
       setIsScheduleModified(false);
+      setAlert({ status: 'success', message: 'Schedule updated successfully!' });
     },
   });
 

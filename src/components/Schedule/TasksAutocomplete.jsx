@@ -46,10 +46,6 @@ const TasksAutocomplete = React.memo((props) => {
     isScheduleModified,
   );
 
-  function onCellModify(isChanged, newValue) {
-    onChange(dataContext, newValue);
-  }
-
   return !isEditMode ? (
     <TableCell className={classes[tableCellClass]}>
       <Autocomplete

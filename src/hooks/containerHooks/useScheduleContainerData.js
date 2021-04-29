@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient } from 'react-query';
 import { getSchedules, getTeams, postSchedule } from '../../apis';
 import { useQueryConfig, getChurchMembersData } from './shared';
 
-const useScheduleContainerData = (churchId, onSuccessHandler) => {
+const useScheduleContainerData = (churchId, onSuccessHandler, setAlert) => {
   const queryClient = useQueryClient();
   const { isLoading: isTabsLoading, data: tabsData } = useQuery(
     ['tabs'],
@@ -27,6 +27,7 @@ const useScheduleContainerData = (churchId, onSuccessHandler) => {
       queryClient.invalidateQueries('tabs');
       queryClient.invalidateQueries('schedules');
       onSuccessHandler(false);
+      setAlert({ status: 'success', message: 'Schedule successsfully created!' });
     },
   });
 

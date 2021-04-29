@@ -25,12 +25,13 @@ import useScheduleMainData from '../../hooks/containerHooks/useScheduleMainData'
 // fix changing tabs
 // how to incorporate NewServiceForm
 
-const ScheduleMain = ({ churchId, scheduleId, isViewed, users, teams }) => {
+const ScheduleMain = ({ churchId, scheduleId, isViewed, users, teams, setAlert }) => {
   const classes = useStyles();
   const [isScheduleModified, setIsScheduleModified] = useState(false);
   const [schedule, deleteSchedule, updateSchedule] = useScheduleMainData(
     scheduleId,
     setIsScheduleModified,
+    setAlert,
   );
   const [isEditMode, setIsEditMode] = useState(false);
   // const [isNewServiceOpen, setIsNewServiceOpen] = useState(false);
@@ -137,6 +138,7 @@ ScheduleMain.propTypes = {
   isViewed: PropTypes.bool,
   users: PropTypes.array,
   teams: PropTypes.array,
+  setAlert: PropTypes.func,
 };
 
 export default ScheduleMain;
