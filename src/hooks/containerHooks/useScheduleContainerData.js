@@ -1,8 +1,14 @@
 import { useQuery, useMutation, useQueryClient } from 'react-query';
-import { getSchedules, getTeams, postSchedule } from '../../apis';
+import { getSchedules, getTeams, postSchedule, destroySchedule } from '../../apis';
 import { useQueryConfig, getChurchMembersData } from './shared';
+import { alertSuccess } from '../../components/shared/Alert';
 
-const useScheduleContainerData = (churchId, setNewScheduleState) => {
+const useScheduleContainerData = (
+  churchId,
+  onSuccessHandler,
+  setAlert,
+  onDeleteSchedule,
+) => {
   const queryClient = useQueryClient();
   const { isLoading: isTabsLoading, data: tabsData } = useQuery(
     ['tabs'],
@@ -23,12 +29,31 @@ const useScheduleContainerData = (churchId, setNewScheduleState) => {
   );
 
   const createSchedule = useMutation(postSchedule, {
-    onSuccess: () => {
+    onSuccess: (res) => {
       queryClient.invalidateQueries('tabs');
-      queryClient.invalidateQueries('schedules');
-      setNewScheduleState(false);
+      onSuccessHandler(false);
+      setAlert(alertSuccess(res));
     },
   });
+
+  const deleteScheduleMut = useMutation(destroySchedule, {
+    onSuccess: (res) => {
+      setAlert(alertSuccess(res));
+      // queryClient.invalidateQueries('tabs');
+      // onDeleteSchedule();
+    },
+  });
+
+  const deleteSchedule = (scheduleId, title, tab) =>
+    deleteScheduleMut.mutate(
+      { scheduleId, title },
+      {
+        onSuccess: () => {
+          onDeleteSchedule(tab);
+          queryClient.invalidateQueries('tabs');
+        },
+      },
+    );
 
   const returnData = {
     loaded: !isTabsLoading && !isUsersLoading && !isTeamsLoading,
@@ -43,6 +68,7 @@ const useScheduleContainerData = (churchId, setNewScheduleState) => {
     returnData.users,
     returnData.teams,
     createSchedule,
+    deleteSchedule,
   ];
 };
 

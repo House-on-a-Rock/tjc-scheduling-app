@@ -24,7 +24,7 @@ import { extractRoleIds, getRoleOptionLabel } from './utilities';
 */
 
 const DutyAutocomplete = React.memo(
-  ({ dataId, options, dataContext, isSaved, onChange, renderOption }) => {
+  ({ dataId, options, dataContext, isSaved, onChange, renderOption, isEditMode }) => {
     const classes = useStyles();
 
     const [isCellModified, setIsCellModified] = useState(false);
@@ -35,7 +35,9 @@ const DutyAutocomplete = React.memo(
       onChange(dataContext, newValue);
     }
 
-    return (
+    return !isEditMode ? (
+      <TableCell>{getRoleOptionLabel(dataId, options)}</TableCell>
+    ) : (
       <TableCell className={isCellModified ? classes.modified : classes.cell}>
         <Autocomplete
           id="combo-box"
@@ -72,7 +74,8 @@ const DutyAutocomplete = React.memo(
 function arePropsEqual(prevProps, nextProps) {
   return (
     prevProps.dataId === nextProps.dataId &&
-    prevProps.dataContext.roleId === nextProps.dataContext.roleId
+    prevProps.dataContext.roleId === nextProps.dataContext.roleId &&
+    prevProps.isEditMode === nextProps.isEditMode
   );
 }
 
@@ -126,6 +129,7 @@ DutyAutocomplete.propTypes = {
   isSaved: PropTypes.bool,
   onChange: PropTypes.func,
   renderOption: PropTypes.func,
+  isEditMode: PropTypes.bool,
 };
 
 export default DutyAutocomplete;

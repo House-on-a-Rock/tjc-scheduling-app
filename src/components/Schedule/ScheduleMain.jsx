@@ -22,13 +22,25 @@ import useScheduleMainData from '../../hooks/containerHooks/useScheduleMainData'
 // newly created schedule has strange set of dates
 // broke selection/hover of rows
 // rework warning dialogs
-// fix changing tabs
 // how to incorporate NewServiceForm
 
-const ScheduleMain = ({ churchId, scheduleId, isViewed, users, teams }) => {
+const ScheduleMain = ({
+  churchId,
+  scheduleId,
+  isViewed,
+  users,
+  teams,
+  setAlert,
+  deleteSchedule,
+  tab,
+}) => {
   const classes = useStyles();
-  const [schedule, deleteSchedule, updateSchedule] = useScheduleMainData(scheduleId);
   const [isScheduleModified, setIsScheduleModified] = useState(false);
+  const [schedule, updateSchedule] = useScheduleMainData(
+    scheduleId,
+    setIsScheduleModified,
+    setAlert,
+  );
   const [isEditMode, setIsEditMode] = useState(false);
   // const [isNewServiceOpen, setIsNewServiceOpen] = useState(false);
 
@@ -54,10 +66,11 @@ const ScheduleMain = ({ churchId, scheduleId, isViewed, users, teams }) => {
       <Toolbar
         handleNewServiceClicked={addService}
         destroySchedule={() =>
-          deleteSchedule.mutate({
-            scheduleId: schedule.scheduleId,
-            title: schedule.title,
-          })
+          // deleteSchedule.mutate({
+          //   scheduleId: schedule.scheduleId,
+          //   title: schedule.title,
+          // })
+          deleteSchedule(scheduleId, schedule.title, tab)
         }
         isScheduleModified={isScheduleModified}
         onSaveScheduleChanges={onSaveScheduleChanges}
@@ -115,7 +128,7 @@ const ScheduleMain = ({ churchId, scheduleId, isViewed, users, teams }) => {
   }
 
   function saveTemplateChanges() {
-    console.log('saving template changes');
+    // console.log('saving template changes');
     // process the diffs
   }
 };
@@ -134,6 +147,10 @@ ScheduleMain.propTypes = {
   isViewed: PropTypes.bool,
   users: PropTypes.array,
   teams: PropTypes.array,
+  setAlert: PropTypes.func,
+  // deleteSchedule: PropTypes.object,
+  deleteSchedule: PropTypes.func,
+  tab: PropTypes.number,
 };
 
 export default ScheduleMain;

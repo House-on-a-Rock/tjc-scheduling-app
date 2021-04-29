@@ -23,32 +23,31 @@ import { extractTeammateIds, getUserOptionLabel } from './utilities';
   dataContext:        contains info like rowIndex/serviceIndex/roleId, used by onChange callback.
   getOptionLabel:     string that shows in autocomplete
   renderOption?:      basically just adds an icon to indicate which was the previously saved option, may be used to add more stuff
-  isSaved;   if initialData should update to the latest dataId
+
 */
 
 const TasksAutocomplete = React.memo((props) => {
-  const { dataId, options, roleId, dataContext, isSaved, onChange, renderOption } = props;
+  const {
+    dataId,
+    options,
+    roleId,
+    dataContext,
+    onChange,
+    renderOption,
+    isEditMode,
+    isScheduleModified,
+  } = props;
   const classes = useStyles();
 
-  const [
-    isCellModified,
-    isCellWarning,
-    managedDataSet,
-    initialData,
-  ] = useTasksAutocompleteHooks(dataId, roleId, options);
+  const [tableCellClass, managedDataSet, initialData] = useTasksAutocompleteHooks(
+    dataId,
+    roleId,
+    options,
+    isScheduleModified,
+  );
 
-  const tableCellClass = isCellWarning
-    ? classes.warning
-    : isCellModified
-    ? classes.modified
-    : classes.cell;
-
-  function onCellModify(isChanged, newValue) {
-    onChange(dataContext, newValue);
-  }
-
-  return (
-    <TableCell className={tableCellClass}>
+  return !isEditMode ? (
+    <TableCell className={classes[tableCellClass]}>
       <Autocomplete
         id="combo-box"
         options={extractTeammateIds(managedDataSet)}
@@ -70,9 +69,7 @@ const TasksAutocomplete = React.memo((props) => {
           )
         }
         value={dataId}
-        onChange={(event, newValue) =>
-          onCellModify(newValue !== initialData.dataId, newValue)
-        }
+        onChange={(event, newValue) => onChange(dataContext, newValue)}
         disableClearable
         fullWidth
         clearOnBlur
@@ -81,13 +78,17 @@ const TasksAutocomplete = React.memo((props) => {
         autoHighlight={true}
       />
     </TableCell>
+  ) : (
+    <TableCell>{getUserOptionLabel(dataId, options)}</TableCell>
   );
 }, arePropsEqual);
 
 function arePropsEqual(prevProps, nextProps) {
   return (
     prevProps.dataId === nextProps.dataId &&
-    prevProps.dataContext.roleId === nextProps.dataContext.roleId
+    prevProps.dataContext.roleId === nextProps.dataContext.roleId &&
+    prevProps.isEditMode === nextProps.isEditMode &&
+    prevProps.isScheduleModified === nextProps.isScheduleModified
   );
 }
 
@@ -142,6 +143,8 @@ TasksAutocomplete.propTypes = {
   isSaved: PropTypes.bool,
   onChange: PropTypes.func,
   renderOption: PropTypes.func,
+  isEditMode: PropTypes.bool,
+  isScheduleModified: PropTypes.bool,
 };
 
 export default TasksAutocomplete;
