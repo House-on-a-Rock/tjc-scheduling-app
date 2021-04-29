@@ -1,6 +1,9 @@
+/* eslint-disable no-case-declarations */
 /* eslint-disable consistent-return */
 /* eslint-disable array-callback-return */
 import express from 'express';
+
+import { daysOfWeek } from '../../shared/constants';
 import db from '../index';
 import {
   certify,
@@ -8,7 +11,6 @@ import {
   populateServiceData,
   recurringDaysOfWeek,
 } from '../utilities/helperFunctions';
-import { daysOfWeek } from '../../shared/constants';
 
 const router = express.Router();
 
@@ -152,20 +154,14 @@ router.post('/schedule/update', certify, async (req, res, next) => {
                 const targetTask = await db.Task.findOne({
                   where: { id: item.taskId },
                 });
-                return await targetTask.update(
-                  { userId: item.userId },
-                  { transaction: t },
-                );
+                return targetTask.update({ userId: item.userId }, { transaction: t });
               // this need more work on both ends - i'd like to eventually pass the entire event info back in one obj
               // if there are multiple changes to one event (eg. both time and duty are changed), this only needs to be run once
               case 'eventId':
                 const targetEvent = await db.Event.findOne({
                   where: { id: item.eventId },
                 });
-                return await targetEvent.update(
-                  { roleId: item.roleId },
-                  { transaction: t },
-                );
+                return targetEvent.update({ roleId: item.roleId }, { transaction: t });
               case 'serviceId':
                 return;
               case 'scheduleId':
@@ -177,7 +173,7 @@ router.post('/schedule/update', certify, async (req, res, next) => {
         );
       }
     });
-    return res.status(200).send(`Schedule successfully updated`);
+    return res.status(200).send(`Schedule updated successfully!`);
   } catch (err) {
     next(err);
     return res.status(503).send({ message: 'Server error, try again later' });

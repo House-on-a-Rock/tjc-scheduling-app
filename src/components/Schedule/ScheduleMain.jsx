@@ -22,13 +22,21 @@ import useScheduleMainData from '../../hooks/containerHooks/useScheduleMainData'
 // newly created schedule has strange set of dates
 // broke selection/hover of rows
 // rework warning dialogs
-// fix changing tabs
 // how to incorporate NewServiceForm
 
-const ScheduleMain = ({ churchId, scheduleId, isViewed, users, teams, setAlert }) => {
+const ScheduleMain = ({
+  churchId,
+  scheduleId,
+  isViewed,
+  users,
+  teams,
+  setAlert,
+  deleteSchedule,
+  tab,
+}) => {
   const classes = useStyles();
   const [isScheduleModified, setIsScheduleModified] = useState(false);
-  const [schedule, deleteSchedule, updateSchedule] = useScheduleMainData(
+  const [schedule, updateSchedule] = useScheduleMainData(
     scheduleId,
     setIsScheduleModified,
     setAlert,
@@ -57,12 +65,7 @@ const ScheduleMain = ({ churchId, scheduleId, isViewed, users, teams, setAlert }
     >
       <Toolbar
         handleNewServiceClicked={addService}
-        destroySchedule={() =>
-          deleteSchedule.mutate({
-            scheduleId: schedule.scheduleId,
-            title: schedule.title,
-          })
-        }
+        destroySchedule={() => deleteSchedule(schedule.scheduleId, schedule.title, tab)}
         isScheduleModified={isScheduleModified}
         onSaveScheduleChanges={onSaveScheduleChanges}
         setEditMode={onEditClick}
@@ -139,6 +142,8 @@ ScheduleMain.propTypes = {
   users: PropTypes.array,
   teams: PropTypes.array,
   setAlert: PropTypes.func,
+  deleteSchedule: PropTypes.func,
+  tab: PropTypes.number,
 };
 
 export default ScheduleMain;

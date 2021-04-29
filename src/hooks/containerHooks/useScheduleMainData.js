@@ -6,6 +6,7 @@ import {
   updateScheduleAssignments,
   destroySchedule,
 } from '../../apis';
+import { alertStatus } from '../../components/shared/Alert';
 
 const useScheduleMainData = (scheduleId, setIsScheduleModified, setAlert) => {
   const queryClient = useQueryClient();
@@ -20,26 +21,20 @@ const useScheduleMainData = (scheduleId, setIsScheduleModified, setAlert) => {
     },
   );
 
-  const deleteSchedule = useMutation(destroySchedule, {
-    onSuccess: () => {
-      queryClient.invalidateQueries('tabs');
-      // setWarning('');
-    },
-  });
-
   const updateSchedule = useMutation(updateScheduleAssignments, {
-    onSuccess: () => {
+    onSuccess: (res) => {
       queryClient.invalidateQueries(`schedules_${scheduleId}`);
       setIsScheduleModified(false);
-      setAlert({ status: 'success', message: 'Schedule updated successfully!' });
+      setAlert({ status: alertStatus[res.status], message: res.data });
     },
+    onError: () => {}, // need error handling
   });
 
   const returnData = {
     schedule: isScheduleLoading ? null : schedule.data,
   };
 
-  return [returnData.schedule, deleteSchedule, updateSchedule];
+  return [returnData.schedule, updateSchedule];
 };
 
 useScheduleMainData.propTypes = {

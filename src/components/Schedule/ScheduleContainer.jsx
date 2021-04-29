@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import ScheduleMain from './ScheduleMain';
 import ScheduleTabs from './Tabs';
 import NewScheduleForm from '../shared/NewScheduleForm';
-import Alert from '../shared/Alert';
+import { Alert } from '../shared/Alert';
 import useScheduleContainerData from '../../hooks/containerHooks/useScheduleContainerData';
 
 import { createStyles, makeStyles } from '@material-ui/core';
@@ -20,10 +20,19 @@ const ScheduleContainer = ({ churchId }) => {
   const [isNewScheduleOpen, setIsNewScheduleOpen] = useState(false);
   const [alert, setAlert] = useState(null);
 
-  const [loaded, tabs, users, teams, createSchedule] = useScheduleContainerData(
+  const [
+    loaded,
+    tabs,
+    users,
+    teams,
+    createSchedule,
+    deleteSchedule,
+  ] = useScheduleContainerData(
     churchId,
     setIsNewScheduleOpen,
     setAlert,
+    setViewedTab,
+    onDeleteSchedule,
   );
 
   return (
@@ -44,6 +53,8 @@ const ScheduleContainer = ({ churchId }) => {
               users={users}
               teams={teams}
               setAlert={setAlert}
+              deleteSchedule={deleteSchedule}
+              tab={tab}
               key={tab.toString()}
             />
           ))}
@@ -64,6 +75,15 @@ const ScheduleContainer = ({ churchId }) => {
       )}
     </div>
   );
+
+  function onDeleteSchedule(tab) {
+    console.log(`tabClone, tab`, tabClone, tab);
+    const tabClone = openedTabs;
+    tabClone.splice(tab, 1);
+
+    setOpenedTabs(tabClone);
+    setViewedTab(tab > 0 ? tab - 1 : 0);
+  }
 
   function onTabClick(value) {
     if (value <= tabs.length - 1) {
