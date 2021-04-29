@@ -23,7 +23,7 @@ import { extractTeammateIds, getUserOptionLabel } from './utilities';
   dataContext:        contains info like rowIndex/serviceIndex/roleId, used by onChange callback.
   getOptionLabel:     string that shows in autocomplete
   renderOption?:      basically just adds an icon to indicate which was the previously saved option, may be used to add more stuff
-  isSaved;   if initialData should update to the latest dataId
+
 */
 
 const TasksAutocomplete = React.memo((props) => {
@@ -39,27 +39,19 @@ const TasksAutocomplete = React.memo((props) => {
   } = props;
   const classes = useStyles();
 
-  const [
-    isCellModified,
-    isCellWarning,
-    managedDataSet,
-    initialData,
-  ] = useTasksAutocompleteHooks(dataId, roleId, options);
-
-  const tableCellClass = isScheduleModified
-    ? isCellWarning
-      ? classes.warning
-      : isCellModified
-      ? classes.modified
-      : classes.cell
-    : classes.cell;
+  const [tableCellClass, managedDataSet, initialData] = useTasksAutocompleteHooks(
+    dataId,
+    roleId,
+    options,
+    isScheduleModified,
+  );
 
   function onCellModify(isChanged, newValue) {
     onChange(dataContext, newValue);
   }
 
   return !isEditMode ? (
-    <TableCell className={tableCellClass}>
+    <TableCell className={classes[tableCellClass]}>
       <Autocomplete
         id="combo-box"
         options={extractTeammateIds(managedDataSet)}
@@ -81,9 +73,7 @@ const TasksAutocomplete = React.memo((props) => {
           )
         }
         value={dataId}
-        onChange={(event, newValue) =>
-          onCellModify(newValue !== initialData.dataId, newValue)
-        }
+        onChange={(event, newValue) => onChange(dataContext, newValue)}
         disableClearable
         fullWidth
         clearOnBlur

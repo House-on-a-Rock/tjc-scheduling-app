@@ -40,6 +40,7 @@ const TableCell = ({
       rowIndex={cellIndices.rowIndex}
       serviceIndex={cellIndices.serviceIndex}
       isEditMode={isEditMode}
+      isScheduleModified={isScheduleModified}
     />
   ) : cellIndices.columnIndex === 1 ? (
     <DutyAutocomplete
@@ -47,8 +48,9 @@ const TableCell = ({
       options={teams}
       dataContext={roleDataContext}
       onChange={onAssignedRoleChange}
-      isEditMode={isEditMode}
       renderOption={renderOption}
+      isEditMode={isEditMode}
+      isScheduleModified={isScheduleModified}
     />
   ) : (
     <TasksAutocomplete
@@ -59,6 +61,7 @@ const TableCell = ({
       onChange={onTaskChange}
       renderOption={renderOption}
       isEditMode={isEditMode}
+      isScheduleModified={isScheduleModified}
     />
   );
 };

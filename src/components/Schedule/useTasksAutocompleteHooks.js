@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 
-const useTasksAutocompleteHooks = (dataId, roleId, dataSet) => {
-  const [initialData] = useState({
+const useTasksAutocompleteHooks = (dataId, roleId, dataSet, isScheduleModified) => {
+  const [initialData, setInitialData] = useState({
     dataId,
     roleId,
     dataSet,
@@ -45,7 +45,19 @@ const useTasksAutocompleteHooks = (dataId, roleId, dataSet) => {
     setPrevDetails(createDetails());
   }, [dataId]);
 
-  return [isCellModified, isCellWarning, managedDataSet, initialData];
+  useEffect(() => {
+    if (!isScheduleModified) setInitialData({ dataId, roleId, dataSet });
+  }, [isScheduleModified]);
+
+  const tableCellClass = isScheduleModified
+    ? isCellWarning
+      ? 'warning'
+      : isCellModified
+      ? 'modified'
+      : 'cell'
+    : 'cell';
+
+  return [tableCellClass, managedDataSet, initialData];
 
   function createDataSet() {
     const managedDataClone = [...dataSet];

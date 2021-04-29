@@ -44,9 +44,7 @@ const Table = ({
   const classes = useStyles();
   const [selectedEvents, setSelectedEvents] = useState([]);
 
-  // eslint-disable-next-line no-unused-vars
   const { columns: headers, services, title, view } = schedule;
-  // console.log(`dataModel`, dataModel);
 
   return (
     <div className={classes.scheduleTable}>

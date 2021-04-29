@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import { useQuery, useQueryClient, useMutation } from 'react-query';
 import { useQueryConfig } from './shared';
 import {
@@ -6,7 +7,7 @@ import {
   destroySchedule,
 } from '../../apis';
 
-const useScheduleMainData = (scheduleId) => {
+const useScheduleMainData = (scheduleId, setIsScheduleModified) => {
   const queryClient = useQueryClient();
   const { isLoading: isScheduleLoading, data: schedule } = useQuery(
     ['schedules'],
@@ -29,6 +30,7 @@ const useScheduleMainData = (scheduleId) => {
   const updateSchedule = useMutation(updateScheduleAssignments, {
     onSuccess: () => {
       queryClient.invalidateQueries('schedules');
+      setIsScheduleModified(false);
     },
   });
 
@@ -37,6 +39,11 @@ const useScheduleMainData = (scheduleId) => {
   };
 
   return [returnData.schedule, deleteSchedule, updateSchedule];
+};
+
+useScheduleMainData.propTypes = {
+  scheduleId: PropTypes.number,
+  setIsScheduleModified: PropTypes.func,
 };
 
 export default useScheduleMainData;

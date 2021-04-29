@@ -27,8 +27,11 @@ import useScheduleMainData from '../../hooks/containerHooks/useScheduleMainData'
 
 const ScheduleMain = ({ churchId, scheduleId, isViewed, users, teams }) => {
   const classes = useStyles();
-  const [schedule, deleteSchedule, updateSchedule] = useScheduleMainData(scheduleId);
   const [isScheduleModified, setIsScheduleModified] = useState(false);
+  const [schedule, deleteSchedule, updateSchedule] = useScheduleMainData(
+    scheduleId,
+    setIsScheduleModified,
+  );
   const [isEditMode, setIsEditMode] = useState(false);
   // const [isNewServiceOpen, setIsNewServiceOpen] = useState(false);
 
