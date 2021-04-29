@@ -121,7 +121,7 @@ router.post('/schedule', certify, async (req, res, next) => {
       });
     }
 
-    return res.status(200).send(`Schedule ${newSchedule.title} successfully added`);
+    return res.status(200).send(`Schedule ${newSchedule.title} created successfully`);
   } catch (err) {
     next(err);
     return res.status(503).send({ message: 'Server error, try again later' });
