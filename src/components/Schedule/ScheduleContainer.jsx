@@ -11,7 +11,7 @@ import { createStyles, makeStyles } from '@material-ui/core';
 import { loadingTheme } from '../../shared/styles/theme';
 
 // TODO tab switching doesnt quite work, make sure alert works
-// error checking if there are no schedules
+// error checking if there are no schedules, make sure delete schedule works
 
 const ScheduleContainer = ({ churchId }) => {
   const classes = useStyles();
@@ -27,13 +27,7 @@ const ScheduleContainer = ({ churchId }) => {
     teams,
     createSchedule,
     deleteSchedule,
-  ] = useScheduleContainerData(
-    churchId,
-    setIsNewScheduleOpen,
-    setAlert,
-    setViewedTab,
-    onDeleteSchedule,
-  );
+  ] = useScheduleContainerData(churchId, setIsNewScheduleOpen, setAlert, setViewedTab);
 
   return (
     <div className={!loaded ? classes.loading : ''}>
@@ -76,10 +70,15 @@ const ScheduleContainer = ({ churchId }) => {
     </div>
   );
 
+  function hi() {
+    console.log('hi');
+  }
+
   function onDeleteSchedule(tab) {
-    console.log(`tabClone, tab`, tabClone, tab);
     const tabClone = openedTabs;
+    console.log(`tabClone, tab`, tabClone, tab);
     tabClone.splice(tab, 1);
+    console.log(`tabClone`, tabClone);
 
     setOpenedTabs(tabClone);
     setViewedTab(tab > 0 ? tab - 1 : 0);

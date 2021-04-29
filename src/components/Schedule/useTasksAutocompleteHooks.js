@@ -51,15 +51,13 @@ const useTasksAutocompleteHooks = (dataId, roleId, dataSet, isScheduleModified) 
     }
   }, [isScheduleModified]);
 
-  const tableCellClass = isScheduleModified
-    ? isCellWarning
-      ? 'warning'
-      : isCellModified
-      ? 'modified'
-      : 'cell'
-    : 'cell';
+  const tableCellClass = () => {
+    if (isScheduleModified)
+      return isCellWarning ? 'warning' : isCellModified ? 'modified' : 'cell';
+    else return 'cell';
+  };
 
-  return [tableCellClass, managedDataSet, initialData];
+  return [tableCellClass(), managedDataSet, initialData];
 
   function createDataSet() {
     const managedDataClone = [...dataSet];

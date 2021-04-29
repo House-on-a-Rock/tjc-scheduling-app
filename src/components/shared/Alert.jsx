@@ -6,9 +6,13 @@ import MuiAlert from '@material-ui/lab/Alert';
 
 // alert.status - 'error', 'info', 'warning', 'success'
 // add more status codes to handle all possibilities? or figure out different method
-export const alertStatus = {
+const alertStatus = {
   200: 'success',
   503: 'error',
+};
+
+export const alertSuccess = (res) => {
+  return { status: alertStatus[res.status], message: res.data };
 };
 
 export const Alert = ({ alert, isOpen, handleClose }) => (
@@ -29,5 +33,3 @@ Alert.propTypes = {
   isOpen: PropTypes.bool,
   handleClose: PropTypes.func,
 };
-
-// export default Alert;

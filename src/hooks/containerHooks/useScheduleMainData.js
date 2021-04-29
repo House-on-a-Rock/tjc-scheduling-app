@@ -1,12 +1,8 @@
 import PropTypes from 'prop-types';
 import { useQuery, useQueryClient, useMutation } from 'react-query';
 import { useQueryConfig } from './shared';
-import {
-  getScheduleAndData,
-  updateScheduleAssignments,
-  destroySchedule,
-} from '../../apis';
-import { alertStatus } from '../../components/shared/Alert';
+import { getScheduleAndData, updateScheduleAssignments } from '../../apis';
+import { alertSuccess } from '../../components/shared/Alert';
 
 const useScheduleMainData = (scheduleId, setIsScheduleModified, setAlert) => {
   const queryClient = useQueryClient();
@@ -25,7 +21,7 @@ const useScheduleMainData = (scheduleId, setIsScheduleModified, setAlert) => {
     onSuccess: (res) => {
       queryClient.invalidateQueries(`schedules_${scheduleId}`);
       setIsScheduleModified(false);
-      setAlert({ status: alertStatus[res.status], message: res.data });
+      setAlert(alertSuccess(res));
     },
     onError: () => {}, // need error handling
   });

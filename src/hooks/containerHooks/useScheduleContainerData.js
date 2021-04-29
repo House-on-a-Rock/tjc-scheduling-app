@@ -1,19 +1,19 @@
 import { useQuery, useMutation, useQueryClient } from 'react-query';
 import { getSchedules, getTeams, postSchedule, destroySchedule } from '../../apis';
 import { useQueryConfig, getChurchMembersData } from './shared';
-import { alertStatus } from '../../components/shared/Alert';
+import { alertSuccess } from '../../components/shared/Alert';
 
-const useScheduleContainerData = (
-  churchId,
-  onSuccessHandler,
-  setAlert,
-  onDeleteSchedule,
-) => {
+const useScheduleContainerData = (churchId, onSuccessHandler, setAlert) => {
   const queryClient = useQueryClient();
   const { isLoading: isTabsLoading, data: tabsData } = useQuery(
     ['tabs'],
     () => getSchedules(churchId),
-    useQueryConfig,
+    {
+      ...useQueryConfig,
+      onSuccess: (res) => {
+        console.log('on fetch tabs success', res);
+      },
+    },
   );
 
   const { isLoading: isUsersLoading, data: usersData } = useQuery(
@@ -33,28 +33,16 @@ const useScheduleContainerData = (
       queryClient.invalidateQueries('tabs');
       // queryClient.invalidateQueries('schedules');
       onSuccessHandler(false);
-      setAlert({ status: alertStatus[res.status], message: res.data });
+      setAlert(alertSuccess(res));
     },
   });
 
-  const deleteScheduleMutation = useMutation(destroySchedule, {
-    onSuccess: () => {},
+  const deleteSchedule = useMutation(destroySchedule, {
+    onSuccess: (res) => {
+      setAlert(alertSuccess(res));
+      queryClient.invalidateQueries('tabs');
+    },
   });
-
-  const deleteSchedule = (scheduleId, title, tab) =>
-    deleteScheduleMutation.mutate(
-      { scheduleId: scheduleId, title: title },
-      {
-        onSuccess: (res) => {
-          console.log('1');
-          setAlert({ status: alertStatus[res.status], message: res.data });
-          console.log('2');
-          onDeleteSchedule(tab);
-          console.log('3');
-          queryClient.invalidateQueries('tabs');
-        },
-      },
-    );
 
   const returnData = {
     loaded: !isTabsLoading && !isUsersLoading && !isTeamsLoading,

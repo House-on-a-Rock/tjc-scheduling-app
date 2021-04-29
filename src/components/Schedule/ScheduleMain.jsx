@@ -65,7 +65,12 @@ const ScheduleMain = ({
     >
       <Toolbar
         handleNewServiceClicked={addService}
-        destroySchedule={() => deleteSchedule(schedule.scheduleId, schedule.title, tab)}
+        destroySchedule={() =>
+          deleteSchedule.mutate({
+            scheduleId: schedule.scheduleId,
+            title: schedule.title,
+          })
+        }
         isScheduleModified={isScheduleModified}
         onSaveScheduleChanges={onSaveScheduleChanges}
         setEditMode={onEditClick}
@@ -142,7 +147,7 @@ ScheduleMain.propTypes = {
   users: PropTypes.array,
   teams: PropTypes.array,
   setAlert: PropTypes.func,
-  deleteSchedule: PropTypes.func,
+  deleteSchedule: PropTypes.object,
   tab: PropTypes.number,
 };
 

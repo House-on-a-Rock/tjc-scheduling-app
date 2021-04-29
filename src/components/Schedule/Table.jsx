@@ -117,8 +117,8 @@ const Table = ({
                                     columnIndex: columnIndex,
                                   }}
                                   roleId={roleId}
-                                  userId={cell.userId ?? 0}
-                                  taskId={cell.taskId ?? 0}
+                                  userId={cell.userId}
+                                  taskId={cell.taskId}
                                   time={time}
                                   teams={teams}
                                   onTimeChange={onTimeChange}

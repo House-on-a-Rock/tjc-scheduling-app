@@ -6,8 +6,8 @@ import { TimeCell, DutyAutocomplete, TasksAutocomplete } from '.';
 const TableCell = ({
   cellIndices,
   roleId,
-  userId,
-  taskId,
+  userId = 0,
+  taskId = 0,
   time,
   teams,
   onTimeChange,
