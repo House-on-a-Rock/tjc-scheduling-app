@@ -53,6 +53,7 @@ const Table = ({
 
         {dataModel.map((service, serviceIndex) => {
           const { day, name, events, serviceId } = service;
+
           return (
             <DragDropContext onDragEnd={onDragEnd} key={`${title}_${serviceIndex}`}>
               <Droppable
@@ -129,6 +130,7 @@ const Table = ({
                                   isScheduleModified={isScheduleModified}
                                   isEditMode={isEditMode}
                                   key={`${title}_${serviceIndex}_${rowIndex}_${columnIndex}`}
+                                  // tabIndex={tabIndex + events.length}
                                 />
                               ))}
                             </TableRow>

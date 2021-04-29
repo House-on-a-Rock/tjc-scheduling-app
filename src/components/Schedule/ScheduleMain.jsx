@@ -32,6 +32,7 @@ const ScheduleMain = ({
   teams,
   setAlert,
   deleteSchedule,
+  tab,
 }) => {
   const classes = useStyles();
   const [isScheduleModified, setIsScheduleModified] = useState(false);
@@ -65,10 +66,11 @@ const ScheduleMain = ({
       <Toolbar
         handleNewServiceClicked={addService}
         destroySchedule={() =>
-          deleteSchedule.mutate({
-            scheduleId: schedule.scheduleId,
-            title: schedule.title,
-          })
+          // deleteSchedule.mutate({
+          //   scheduleId: schedule.scheduleId,
+          //   title: schedule.title,
+          // })
+          deleteSchedule(scheduleId, schedule.title, tab)
         }
         isScheduleModified={isScheduleModified}
         onSaveScheduleChanges={onSaveScheduleChanges}
@@ -146,7 +148,9 @@ ScheduleMain.propTypes = {
   users: PropTypes.array,
   teams: PropTypes.array,
   setAlert: PropTypes.func,
-  deleteSchedule: PropTypes.object,
+  // deleteSchedule: PropTypes.object,
+  deleteSchedule: PropTypes.func,
+  tab: PropTypes.number,
 };
 
 export default ScheduleMain;
