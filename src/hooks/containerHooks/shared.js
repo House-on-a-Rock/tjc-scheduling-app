@@ -10,12 +10,10 @@ export async function getChurchMembersData(churchId) {
   const { data: users } = await getAllUsers(churchId);
   const { data: userRoles } = await getAllUserRoles(churchId);
   const { data: roles } = await getAllRoles(churchId);
-  console.log(users, userRoles, roles);
   const usersWithTeammates = [];
   users.forEach((user) => {
     const teams = [];
     userRoles.forEach((ur) => {
-      console.log('ur');
       if (user.userId === ur.user.id) {
         let teammates = {};
         roles.forEach((role) => {
@@ -23,10 +21,8 @@ export async function getChurchMembersData(churchId) {
         });
         if (teammates.id) teams.push(teammates);
       }
-      console.log('usersWithTeammates', teams);
     });
     usersWithTeammates.push({ ...user, teams });
   });
-  console.log('usersWithTeammates', usersWithTeammates);
   return usersWithTeammates;
 }
