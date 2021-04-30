@@ -137,7 +137,7 @@ router.post('/webLogin', async (req, res, next) => {
         loginAttempts >= 3
           ? {
               id,
-              loginAttempts1: 0,
+              loginAttempts: 0,
               loginTimeout: addMinutes(new Date(), 5),
             }
           : { id, loginAttempts: loginAttempts + 1 };
