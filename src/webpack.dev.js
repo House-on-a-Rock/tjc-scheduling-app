@@ -13,11 +13,12 @@ const config = {
     extensions: ['.js', '.jsx', '.json'],
   },
   output: {
-    path: path.join(__dirname, 'dist'),
-    publicPath: '/',
-    filename: 'bundle.[hash].js',
+    filename: 'bundle.[chunkhash].js',
+    path: path.resolve(__dirname, 'dist/'),
   },
   devServer: {
+    contentBase: 'dist',
+    hot: true,
     port: 8080,
     inline: true,
     historyApiFallback: true,

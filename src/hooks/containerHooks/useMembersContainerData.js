@@ -11,7 +11,7 @@ const useMembersContainerData = (churchId, setState) => {
     useQueryConfig,
   );
 
-  const { mutate: createUser } = useMutation(addUser, {
+  const createUser = useMutation(addUser, {
     onSuccess: () => {
       queryClient.invalidateQueries('users');
       setState('CREATE_USER', 'SUCCESS');
@@ -19,13 +19,13 @@ const useMembersContainerData = (churchId, setState) => {
     // onError: (result) => errorHandling(result, setError),
     // onSettled: () => setIsSuccess(''),
   });
-  const { mutate: deleteUser } = useMutation(destroyUser, {
+  const deleteUser = useMutation(destroyUser, {
     onSuccess: () => {
       queryClient.invalidateQueries('roleData');
       setState('DELETE_USER', 'SUCCESS');
     },
   });
 
-  return [isUsersLoading, users, createUser, deleteUser];
+  return [isUsersLoading, users, createUser.mutate, deleteUser.mutate];
 };
 export default useMembersContainerData;

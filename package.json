@@ -29,8 +29,7 @@
       "node_modules"
     ],
     "watch": [
-      "server",
-      "src"
+      "server"
     ],
     "exec": "npm run server"
   },

@@ -2,19 +2,10 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 
 // material ui
-import {
-  Dialog,
-  DialogContent,
-  DialogTitle,
-  DialogActions,
-  Button,
-  DialogContentText,
-  Typography,
-} from '@material-ui/core';
 import { makeStyles, createStyles } from '@material-ui/core/styles';
 
+import { CustomDialog, FormField } from '../../shared';
 import { EmailForm } from '../../FormControl';
-import FormField from '../../shared/FormField';
 import { buttonTheme } from '../../../shared/styles/theme';
 
 const ACCEPT = 'ACCEPT';
@@ -30,58 +21,42 @@ const NewMemberFormDialog = ({ handleClick, open, title, description }) => {
     message: null,
   });
 
+  function submitMember(event) {
+    event?.preventDefault();
+    handleClick(ACCEPT, { firstName, lastName, email: email.value });
+  }
+
   return (
-    <Dialog
-      onBackdropClick={() => handleClick(CLOSE)}
+    <CustomDialog
       open={open}
-      className={classes.root}
+      title={title}
+      label="New-Member"
+      description={description}
+      handleClose={() => handleClick(CLOSE)}
+      handleSubmit={submitMember}
     >
-      <DialogTitle id="confirm-dialog">{title} </DialogTitle>
-      <DialogContent>
-        <DialogContentText>{description}</DialogContentText>
-        <form noValidate autoComplete="off" className={classes.form}>
-          {/* <ValidatedTextField
-          label="Deadline"
-          input={deadline}
-          handleChange={setDeadline}
-          type="date"
-          /> */}
-          <FormField
-            name="firstname"
-            label="First Name"
-            value={firstName}
-            handleChange={setFirstName}
-            autoFocus
-          />
-          <br />
-          <FormField
-            name="lastname"
-            label="Last Name"
-            value={lastName}
-            handleChange={setLastName}
-          />
-          <br />
-          <EmailForm
-            name="email"
-            label="Email Address"
-            email={email}
-            handleEmail={setEmail}
-          />
-          <br />
-        </form>
-      </DialogContent>
-      <DialogActions>
-        <Button
-          // onClick={() => handleClick(ACCEPT)}
-          className={classes.confirmButton}
-        >
-          Confirm
-        </Button>
-        <Button onClick={() => handleClick(CLOSE)} className={classes.cancelButton}>
-          Cancel
-        </Button>
-      </DialogActions>
-    </Dialog>
+      <FormField
+        name="firstname"
+        label="First Name"
+        value={firstName}
+        handleChange={setFirstName}
+        autoFocus
+      />
+      <FormField
+        name="lastname"
+        label="Last Name"
+        value={lastName}
+        handleChange={setLastName}
+      />
+      <br />
+      <EmailForm
+        name="email"
+        label="Email Address"
+        email={email}
+        handleEmail={setEmail}
+      />
+      <br />
+    </CustomDialog>
   );
 };
 

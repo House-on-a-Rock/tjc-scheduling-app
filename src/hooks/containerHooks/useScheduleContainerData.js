@@ -63,9 +63,6 @@ const useScheduleContainerData = (
     users: isUsersLoading ? null : usersData,
     teams: isTeamsLoading ? null : teamsData.data,
   };
-  React.useEffect(() => {
-    console.log('[isUsersLoading, users]', isUsersLoading, usersData);
-  }, [isUsersLoading]);
 
   return [
     returnData.loaded,

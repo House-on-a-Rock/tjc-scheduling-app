@@ -1,63 +1,67 @@
-import React, { useState } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 
-import {
-  Dialog,
-  DialogContent,
-  DialogTitle,
-  DialogActions,
-  Button,
-} from '@material-ui/core';
+import { makeStyles } from '@material-ui/core/styles';
 
+import { CustomDialog } from '../../shared';
 import { ValidatedTextField } from '../../FormControl';
 import { useValidatedField } from '../../../hooks';
+import { buttonTheme } from '../../../shared/styles/theme';
 
-const RequestAvailabilitiesDialog = ({ state, handleSubmit, title, handleClose }) => {
-  const [deadline, setDeadline, setDeadlineError, resetDeadlineError] = useValidatedField(
+const ACCEPT = 'ACCEPT';
+const CLOSE = 'CLOSE';
+
+const RequestAvailabilitiesDialog = ({ open, title, description, handleClick }) => {
+  const [deadline, setDeadline] = useValidatedField(
     toDateString(daysAhead(1)),
     'Invalid date range',
   );
-  const [start, setStart, setStartError, resetStartError] = useValidatedField(
+  const [start, setStart] = useValidatedField(
     toDateString(daysAhead(2)),
     'Invalid date range',
   );
-  const [end, setEnd, setEndError, resetEndError] = useValidatedField(
+  const [end, setEnd] = useValidatedField(
     toDateString(daysAhead(3)),
     'Invalid date range',
   );
 
+  function submitRequestAvails(event) {
+    event.preventDefault();
+    handleClick('ACCEPT', {
+      start: start.value,
+      end: end.value,
+      deadline: deadline.value,
+    });
+  }
+
   return (
-    <Dialog onBackdropClick={handleClose} open={state}>
-      <DialogTitle id={`request-avails-dialog-${title}`}>{title}</DialogTitle>
-      <DialogContent>
-        <ValidatedTextField
-          label="Deadline"
-          input={deadline}
-          handleChange={setDeadline}
-          type="date"
-        />
-        <ValidatedTextField
-          label="Start Date"
-          input={start}
-          handleChange={setStart}
-          type="date"
-        />
-        <ValidatedTextField
-          label="End Date"
-          input={end}
-          handleChange={setEnd}
-          type="date"
-        />
-      </DialogContent>
-      <DialogActions>
-        <div>
-          <Button onClick={() => handleSubmit(start.value, end.value, deadline.value)}>
-            Confirm
-          </Button>
-          <Button onClick={handleClose}>Cancel</Button>
-        </div>
-      </DialogActions>
-    </Dialog>
+    <CustomDialog
+      open={open}
+      title={title}
+      label="request-avails-dialog"
+      description={description}
+      handleClose={() => handleClick(CLOSE)}
+      handleSubmit={submitRequestAvails}
+    >
+      <ValidatedTextField
+        label="Deadline"
+        input={deadline}
+        handleChange={setDeadline}
+        type="date"
+      />
+      <ValidatedTextField
+        label="Start Date"
+        input={start}
+        handleChange={setStart}
+        type="date"
+      />
+      <ValidatedTextField
+        label="End Date"
+        input={end}
+        handleChange={setEnd}
+        type="date"
+      />
+    </CustomDialog>
   );
 };
 
@@ -73,11 +77,30 @@ function toDateString(date) {
 const daysAhead = (num) =>
   new Date(new Date(new Date().setDate(new Date().getDate() + num)));
 
+const useStyles = makeStyles({
+  confirmButton: {
+    padding: '10px',
+    borderRadius: '5px',
+    border: 'none',
+    margin: '5px',
+    ...buttonTheme.warning,
+  },
+  cancelButton: {
+    padding: '10px',
+    borderRadius: '5px',
+    border: 'none',
+    margin: '5px',
+    '&:hover, &:focus': {
+      ...buttonTheme.filled,
+    },
+  },
+});
+
 RequestAvailabilitiesDialog.propTypes = {
-  state: PropTypes.object,
-  handleSubmit: PropTypes.func,
+  open: PropTypes.bool,
   title: PropTypes.string,
-  handleClose: PropTypes.func,
+  description: PropTypes.string,
+  handleClick: PropTypes.func,
 };
 
 export default RequestAvailabilitiesDialog;
