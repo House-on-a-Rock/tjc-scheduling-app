@@ -7,8 +7,7 @@ import { days } from '../Schedule/utilities';
 import { makeStyles, createStyles } from '@material-ui/core/styles';
 import ReorderIcon from '@material-ui/icons/Reorder';
 
-const DragDropList = ({ listItems, onEnd }) => {
-  // const [list, setList] = React.useState(list);
+const DragDropList = ({ listItems, onEnd, serviceId }) => {
   const classes = useStyles();
   return (
     <DragDropContext onDragEnd={onEnd} key={'DragDropList'}>
@@ -34,10 +33,10 @@ const DragDropList = ({ listItems, onEnd }) => {
                     }}
                     {...dragProvided.dragHandleProps}
                   >
-                    {/* <div {...dragProvided.dragHandleProps}>
+                    <div className={item.serviceId === serviceId ? classes.selected : ''}>
                       <ReorderIcon />
-                    </div> */}
-                    {days[item.day]} {item.name}
+                      {days[item.day]} {item.name}
+                    </div>
                   </li>
                 )}
               </Draggable>
@@ -47,10 +46,6 @@ const DragDropList = ({ listItems, onEnd }) => {
       </Droppable>
     </DragDropContext>
   );
-
-  function onDragEnd() {
-    onEnd();
-  }
 };
 
 // howard mbbe u got this part
@@ -60,12 +55,16 @@ const useStyles = makeStyles(() =>
       display: 'flex',
       flexDirection: 'row',
     },
+    selected: {
+      backgroundColor: '#82a5c4',
+    },
   }),
 );
 
 DragDropList.propTypes = {
   listItems: PropTypes.array,
   onEnd: PropTypes.func,
+  serviceId: PropTypes.number,
 };
 
 export default DragDropList;

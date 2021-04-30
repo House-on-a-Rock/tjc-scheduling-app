@@ -14,6 +14,7 @@ import { stringLengthCheck } from '../../shared/utilities';
 /*
   Allows editing of name, associated day, and order
   Changes are made to datamodel, and saved when all stop edit button is clicked
+  Error checking for duplicate service names on the same day
 */
 
 const daysOfWeek = [
@@ -26,9 +27,10 @@ const daysOfWeek = [
   'Saturday',
 ];
 
-const EditServiceForm = ({ isOpen, onSubmit, onClose, serviceIndex, dataModel }) => {
-  const { name, day } = dataModel[serviceIndex];
+const EditServiceForm = ({ isOpen, onSubmit, onClose, serviceId, dataModel }) => {
   const [dataClone, setDataClone] = React.useState([...dataModel]);
+  const serviceIndex = dataClone.findIndex((service) => service.serviceId === serviceId);
+  const { name, day } = dataClone[serviceIndex];
   const [
     serviceName,
     setServiceName,
@@ -42,7 +44,7 @@ const EditServiceForm = ({ isOpen, onSubmit, onClose, serviceIndex, dataModel })
 
   const classes = useStyles();
 
-  console.log(`dataModel, serviceIndex`, dataModel, serviceIndex);
+  // console.log(`dataModel, serviceIndex`, dataModel, serviceIndex);
 
   return (
     <Dialog open={isOpen} onClose={onClose}>
@@ -58,13 +60,13 @@ const EditServiceForm = ({ isOpen, onSubmit, onClose, serviceIndex, dataModel })
             name="Service Name"
             label="Service Name"
             input={serviceName}
-            handleChange={setServiceName}
+            handleChange={onNameChange}
             autoFocus
           />
           <div className={classes.tooltipContainer}>
             <ValidatedSelect
               input={dayOfWeek}
-              onChange={setDayOfWeek}
+              onChange={onDayChange}
               toolTip={{
                 id: 'Day of Week',
                 text: 'Select the day of the week this schedule is for',
@@ -83,7 +85,7 @@ const EditServiceForm = ({ isOpen, onSubmit, onClose, serviceIndex, dataModel })
             </ValidatedSelect>
           </div>
           <h3>Change the order of the services</h3>
-          <DragDropList listItems={dataClone} onEnd={onDragEnd} />
+          <DragDropList listItems={dataClone} onEnd={onDragEnd} serviceId={serviceId} />
         </form>
 
         <div className={classes.buttonBottomBar}>
@@ -98,6 +100,20 @@ const EditServiceForm = ({ isOpen, onSubmit, onClose, serviceIndex, dataModel })
     </Dialog>
   );
 
+  function onNameChange(input) {
+    const temp = dataClone;
+    temp[serviceIndex].name = input.value;
+    setDataClone(temp);
+    setServiceName(input);
+  }
+
+  function onDayChange(input) {
+    const temp = dataClone;
+    temp[serviceIndex].day = input.value;
+    setDataClone(temp);
+    setDayOfWeek(input);
+  }
+
   function onSubmitForm() {
     resetServiceNameError();
     resetDayWeekError();
@@ -107,10 +123,7 @@ const EditServiceForm = ({ isOpen, onSubmit, onClose, serviceIndex, dataModel })
       serviceName.value.length < 32 &&
       dayOfWeek.value >= 0
     )
-      onSubmit({
-        name: serviceName.value,
-        dayOfWeek: dayOfWeek.value,
-      });
+      onSubmit(dataClone);
     setServiceNameError(stringLengthCheck(serviceName.value));
     setDayWeekError(dayOfWeek.value < 0);
   }
@@ -184,7 +197,7 @@ EditServiceForm.propTypes = {
   isOpen: PropTypes.bool,
   onSubmit: PropTypes.func,
   onClose: PropTypes.func,
-  serviceIndex: PropTypes.number,
+  serviceId: PropTypes.number,
   dataModel: PropTypes.array,
 };
 

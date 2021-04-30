@@ -35,7 +35,7 @@ const Table = ({
   const classes = useStyles();
   const [selectedEvents, setSelectedEvents] = useState([]);
   const [isEditServiceOpen, setIsEditServiceOpen] = useState(false);
-  const [selectedService, setSelectedService] = useState();
+  const [selectedService, setSelectedService] = useState(); // by serviceId
   const { columns: headers, services, title, view } = schedule;
 
   return (
@@ -44,7 +44,7 @@ const Table = ({
         <EditServiceForm
           isOpen={isEditServiceOpen}
           onClose={() => setIsEditServiceOpen(false)}
-          serviceIndex={selectedService}
+          serviceId={selectedService}
           dataModel={dataModel}
           onSubmit={onSubmitEditService}
         />
@@ -65,8 +65,8 @@ const Table = ({
                 {(droppableProvided) => (
                   <TableBody
                     key={`TableBody-${name}`}
-                    title={`${days[day]} ${name}`}
-                    serviceIndex={serviceIndex}
+                    title={`${days[day]} - ${name}`}
+                    serviceId={serviceId}
                     providedRef={droppableProvided.innerRef}
                     {...droppableProvided.droppableProps}
                     isEdit={isEditMode}
@@ -156,13 +156,15 @@ const Table = ({
     </div>
   );
 
-  function onEditService(serviceIndex) {
-    setSelectedService(serviceIndex);
+  function onEditService(serviceId) {
+    setSelectedService(serviceId);
     setIsEditServiceOpen(true);
   }
 
-  function onSubmitEditService() {
+  function onSubmitEditService(dataClone) {
     console.log('service edit submitted');
+    setDataModel(dataClone);
+    setIsEditServiceOpen(false);
   }
 
   function onDragEnd(result) {

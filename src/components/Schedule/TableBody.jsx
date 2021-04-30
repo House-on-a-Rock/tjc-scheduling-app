@@ -9,7 +9,7 @@ import EditIcon from '@material-ui/icons/Edit';
 
 export const TableBody = ({
   title,
-  serviceIndex,
+  serviceId,
   children,
   providedRef,
   isEdit,
@@ -29,7 +29,7 @@ export const TableBody = ({
             {title}
           </div>
           <div className={isEdit ? classes.visibleEdit : classes.invisibleEdit}>
-            <EditIcon onClick={() => onEditService(serviceIndex)} />
+            <EditIcon onClick={() => onEditService(serviceId)} />
             <button onClick={deleteService}>Delete Service</button>
             <button onClick={addEvent}>Add Event</button>
           </div>
@@ -86,7 +86,7 @@ TableBody.propTypes = {
   deleteService: PropTypes.func,
   isEdit: PropTypes.bool,
   onEditService: PropTypes.func,
-  serviceIndex: PropTypes.number,
+  serviceId: PropTypes.number,
 };
 
 export default TableBody;
