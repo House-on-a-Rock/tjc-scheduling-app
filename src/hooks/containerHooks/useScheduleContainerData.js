@@ -1,3 +1,4 @@
+import React from 'react';
 import { useQuery, useMutation, useQueryClient } from 'react-query';
 import { getSchedules, getTeams, postSchedule, destroySchedule } from '../../apis';
 import { useQueryConfig, getChurchMembersData } from './shared';
@@ -36,6 +37,7 @@ const useScheduleContainerData = (
     },
   });
 
+  // [WIP]
   const deleteScheduleMut = useMutation(destroySchedule, {
     onSuccess: (res) => {
       setAlert(alertSuccess(res));
@@ -61,6 +63,9 @@ const useScheduleContainerData = (
     users: isUsersLoading ? null : usersData,
     teams: isTeamsLoading ? null : teamsData.data,
   };
+  React.useEffect(() => {
+    console.log('[isUsersLoading, users]', isUsersLoading, usersData);
+  }, [isUsersLoading]);
 
   return [
     returnData.loaded,
