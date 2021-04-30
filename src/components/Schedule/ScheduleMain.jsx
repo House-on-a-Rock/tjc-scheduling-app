@@ -94,10 +94,8 @@ const ScheduleMain = ({
   }
 
   function addService() {
-    // TODO: bring back create new service form? or another solution is better
     const dataClone = [...dataModel];
-    const target = dataClone.services;
-    target.push(createBlankService(retrieveChangesSeed));
+    dataClone.push(createBlankService(retrieveChangesSeed));
     setDataModel(dataClone);
   }
 

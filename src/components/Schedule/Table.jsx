@@ -16,6 +16,7 @@ import TableRow from '@material-ui/core/TableRow';
 import MuiCell from '@material-ui/core/TableCell';
 import { makeStyles, createStyles, fade, darken } from '@material-ui/core/styles';
 import ReorderIcon from '@material-ui/icons/Reorder';
+import RemoveIcon from '@material-ui/icons/Remove';
 
 // Styles
 import { paletteTheme } from '../../shared/styles/theme';
@@ -38,6 +39,7 @@ const Table = ({
   const [selectedService, setSelectedService] = useState(); // by serviceId
   const { columns: headers, services, title, view } = schedule;
 
+  console.log(`dataModel`, dataModel);
   return (
     <div className={classes.scheduleTable}>
       {isEditServiceOpen && (
@@ -106,7 +108,10 @@ const Table = ({
                                   : 'none',
                               }}
                             >
-                              <MuiCell align="left">
+                              <MuiCell
+                                align="left"
+                                style={{ display: 'flex', flexDirection: 'row' }}
+                              >
                                 <div
                                   {...provided.dragHandleProps}
                                   className={
@@ -117,6 +122,14 @@ const Table = ({
                                 >
                                   <ReorderIcon />
                                 </div>
+                                <RemoveIcon
+                                  onClick={() => removeEvent(serviceIndex, rowIndex)}
+                                  className={
+                                    isEditMode
+                                      ? classes.visibleEdit
+                                      : classes.invisibleEdit
+                                  }
+                                />
                               </MuiCell>
                               {cells.map((cell, columnIndex) => (
                                 <TableCell
@@ -162,7 +175,6 @@ const Table = ({
   }
 
   function onSubmitEditService(dataClone) {
-    console.log('service edit submitted');
     setDataModel(dataClone);
     setIsEditServiceOpen(false);
   }
@@ -188,28 +200,22 @@ const Table = ({
     );
     dataClone = filteredServices;
     setDataModel(dataClone);
-    // retrieveChangesSeed();
   }
 
   function addEvent(serviceIndex) {
     const dataClone = [...dataModel];
     const targetEvents = dataClone[serviceIndex].events;
-    const newEvent = createBlankEvent(dataClone.columns.length - 1, retrieveChangesSeed);
+    const newEvent = createBlankEvent(headers.length - 1, retrieveChangesSeed);
     targetEvents.push(newEvent);
     setDataModel(dataClone);
   }
 
-  function removeEvent() {
+  function removeEvent(serviceIndex, rowIndex) {
     // TODO: make sure it works once contextmenu is fixed
     const dataClone = [...dataModel];
-    let target = dataClone;
-    const mutatedData = target.map((service) => {
-      return {
-        ...service,
-        events: service.events.filter(({ eventId }) => !selectedEvents.includes(eventId)),
-      };
-    });
-    target = mutatedData;
+
+    dataClone[serviceIndex].events.splice(rowIndex, 1);
+
     setDataModel(dataClone);
     retrieveChangesSeed(); // called just to update changesSeed.
   }
