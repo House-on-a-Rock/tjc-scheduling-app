@@ -8,9 +8,10 @@ import { makeStyles, createStyles } from '@material-ui/core/styles';
 import ReorderIcon from '@material-ui/icons/Reorder';
 
 const DragDropList = ({ listItems, onEnd }) => {
+  // const [list, setList] = React.useState(list);
   const classes = useStyles();
   return (
-    <DragDropContext onDragEnd={onDragEnd} key={'DragDropList'}>
+    <DragDropContext onDragEnd={onEnd} key={'DragDropList'}>
       <Droppable droppableId={'DropList'} key={'DropList'} direction="vertical">
         {(droppableProvided) => (
           <ul ref={droppableProvided.innerRef} {...droppableProvided.droppableProps}>
@@ -31,10 +32,11 @@ const DragDropList = ({ listItems, onEnd }) => {
                         ? 'rgba(245,245,245, 0.75)'
                         : 'none',
                     }}
+                    {...dragProvided.dragHandleProps}
                   >
-                    <div {...dragProvided.dragHandleProps}>
+                    {/* <div {...dragProvided.dragHandleProps}>
                       <ReorderIcon />
-                    </div>
+                    </div> */}
                     {days[item.day]} {item.name}
                   </li>
                 )}

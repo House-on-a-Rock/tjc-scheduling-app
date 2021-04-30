@@ -28,6 +28,7 @@ const daysOfWeek = [
 
 const EditServiceForm = ({ isOpen, onSubmit, onClose, serviceIndex, dataModel }) => {
   const { name, day } = dataModel[serviceIndex];
+  const [dataClone, setDataClone] = React.useState([...dataModel]);
   const [
     serviceName,
     setServiceName,
@@ -82,7 +83,7 @@ const EditServiceForm = ({ isOpen, onSubmit, onClose, serviceIndex, dataModel })
             </ValidatedSelect>
           </div>
           <h3>Change the order of the services</h3>
-          <DragDropList listItems={dataModel} onEnd={onDragEnd} />
+          <DragDropList listItems={dataClone} onEnd={onDragEnd} />
         </form>
 
         <div className={classes.buttonBottomBar}>
@@ -114,8 +115,21 @@ const EditServiceForm = ({ isOpen, onSubmit, onClose, serviceIndex, dataModel })
     setDayWeekError(dayOfWeek.value < 0);
   }
 
-  function onDragEnd() {
-    console.log('done dragging are we');
+  function onDragEnd(result) {
+    const {
+      destination: { index: destination },
+      source: { index: source },
+    } = result;
+
+    if (!destination || destination === source) {
+      return;
+    }
+    setDataClone((prev) => {
+      const temp = [...prev];
+      const src = temp.splice(source, 1);
+      temp.splice(destination, 0, src[0]);
+      return temp;
+    });
   }
 };
 
