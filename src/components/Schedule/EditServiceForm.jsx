@@ -6,6 +6,7 @@ import { makeStyles, createStyles } from '@material-ui/core/styles';
 
 import { ValidatedSelect, ValidatedTextField } from '../FormControl';
 import { useValidatedField } from '../../hooks';
+import DragDropList from '../shared/DragDropList';
 
 import { buttonTheme, tooltipContainer } from '../../shared/styles/theme';
 import { stringLengthCheck } from '../../shared/utilities';
@@ -40,23 +41,6 @@ const EditServiceForm = ({ isOpen, onSubmit, onClose, serviceIndex, dataModel })
 
   const classes = useStyles();
 
-  function onSubmitForm() {
-    resetServiceNameError();
-    resetDayWeekError();
-
-    if (
-      serviceName.value.length > 0 &&
-      serviceName.value.length < 32 &&
-      dayOfWeek.value >= 0
-    )
-      onSubmit({
-        name: serviceName.value,
-        dayOfWeek: dayOfWeek.value,
-      });
-    setServiceNameError(stringLengthCheck(serviceName.value));
-    setDayWeekError(dayOfWeek.value < 0);
-  }
-
   console.log(`dataModel, serviceIndex`, dataModel, serviceIndex);
 
   return (
@@ -90,13 +74,15 @@ const EditServiceForm = ({ isOpen, onSubmit, onClose, serviceIndex, dataModel })
               <MenuItem value={-1}>
                 Select which day of the week this schedule is for
               </MenuItem>
-              {daysOfWeek.map((day, index) => (
+              {daysOfWeek.map((d, index) => (
                 <MenuItem key={index.toString()} value={index}>
-                  {day}
+                  {d}
                 </MenuItem>
               ))}
             </ValidatedSelect>
           </div>
+          <h3>Change the order of the services</h3>
+          <DragDropList listItems={dataModel} onEnd={onDragEnd} />
         </form>
 
         <div className={classes.buttonBottomBar}>
@@ -110,6 +96,27 @@ const EditServiceForm = ({ isOpen, onSubmit, onClose, serviceIndex, dataModel })
       </div>
     </Dialog>
   );
+
+  function onSubmitForm() {
+    resetServiceNameError();
+    resetDayWeekError();
+
+    if (
+      serviceName.value.length > 0 &&
+      serviceName.value.length < 32 &&
+      dayOfWeek.value >= 0
+    )
+      onSubmit({
+        name: serviceName.value,
+        dayOfWeek: dayOfWeek.value,
+      });
+    setServiceNameError(stringLengthCheck(serviceName.value));
+    setDayWeekError(dayOfWeek.value < 0);
+  }
+
+  function onDragEnd() {
+    console.log('done dragging are we');
+  }
 };
 
 const useStyles = makeStyles(() =>

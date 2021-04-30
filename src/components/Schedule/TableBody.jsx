@@ -4,7 +4,6 @@ import ReactTooltip from 'react-tooltip';
 import { TableCell, TableRow, TableBody as MuiTableBody } from '@material-ui/core';
 import { makeStyles, createStyles } from '@material-ui/core/styles';
 import EditIcon from '@material-ui/icons/Edit';
-import { days } from './utilities';
 
 // TODO add service-name editing functionality to the edit button here
 
@@ -29,13 +28,11 @@ export const TableBody = ({
           <div data-tip data-for={tooltipId} onClick={() => setOpen(!open)}>
             {title}
           </div>
-          {isEdit && (
-            <div>
-              <EditIcon onClick={() => onEditService(serviceIndex)} />
-              <button onClick={deleteService}>Delete Service</button>
-              <button onClick={addEvent}>Add Event</button>
-            </div>
-          )}
+          <div className={isEdit ? classes.visibleEdit : classes.invisibleEdit}>
+            <EditIcon onClick={() => onEditService(serviceIndex)} />
+            <button onClick={deleteService}>Delete Service</button>
+            <button onClick={addEvent}>Add Event</button>
+          </div>
           <ReactTooltip id={tooltipId}>
             <span>{`Click to ${open ? 'collapse' : 'expand'}`}</span>
           </ReactTooltip>
@@ -67,6 +64,12 @@ const useStyles = makeStyles((theme) =>
       '50%': {
         background: '#add8e65e',
       },
+    },
+    visibleEdit: {
+      display: 'block',
+    },
+    invisibleEdit: {
+      display: 'none',
     },
   }),
 );

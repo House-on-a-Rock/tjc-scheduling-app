@@ -5,10 +5,11 @@ import TransitionsModal from './TransitionsModal';
 import Header from './Header';
 import ConfirmationDialog from './ConfirmationDialog';
 import ContextMenu from './ContextMenu';
+import DragDropList from './DragDropList';
 
 export * from './Alert';
 export {
-  // Alert,
+  DragDropList,
   Copyright,
   LoadingPage,
   TransitionsModal,

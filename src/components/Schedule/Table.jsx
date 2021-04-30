@@ -3,12 +3,10 @@ import PropTypes from 'prop-types';
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
 import { EditServiceForm, TableHeader, TableBody, TableCell } from '.';
 import {
-  // renderOption,
   days,
   teammates,
   createBlankEvent,
   retrieveDroppableServiceId,
-  // shouldDisplayTime,
   rearrangeEvents,
 } from './utilities';
 
@@ -109,11 +107,16 @@ const Table = ({
                               }}
                             >
                               <MuiCell align="left">
-                                {isEditMode && (
-                                  <div {...provided.dragHandleProps}>
-                                    <ReorderIcon />
-                                  </div>
-                                )}
+                                <div
+                                  {...provided.dragHandleProps}
+                                  className={
+                                    isEditMode
+                                      ? classes.visibleEdit
+                                      : classes.invisibleEdit
+                                  }
+                                >
+                                  <ReorderIcon />
+                                </div>
                               </MuiCell>
                               {cells.map((cell, columnIndex) => (
                                 <TableCell
@@ -309,6 +312,12 @@ const useStyles = makeStyles(() =>
         borderBottomWidth: '2px',
         borderBottomColor: darken(normalCellBorderColor, 0.25),
       },
+    },
+    visibleEdit: {
+      display: 'block',
+    },
+    invisibleEdit: {
+      display: 'none',
     },
   }),
 );
