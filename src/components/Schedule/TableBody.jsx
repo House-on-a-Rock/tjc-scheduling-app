@@ -4,67 +4,45 @@ import ReactTooltip from 'react-tooltip';
 import { TableCell, TableRow, TableBody as MuiTableBody } from '@material-ui/core';
 import { makeStyles, createStyles } from '@material-ui/core/styles';
 import EditIcon from '@material-ui/icons/Edit';
+import { days } from './utilities';
 
 // TODO add service-name editing functionality to the edit button here
 
 export const TableBody = ({
   title,
+  serviceIndex,
   children,
   providedRef,
   isEdit,
   addEvent,
   deleteService,
+  onEditService,
 }) => {
   const tooltipId = `${title}_tooltip`;
   const classes = useStyles();
   const [open, setOpen] = React.useState(true);
-  const [expandedBefore, setExpandedBefore] = React.useState(false);
+
   return (
-    <>
-      <MuiTableBody>
-        <TableRow
-          onClick={() => {
-            setOpen(!open);
-            if (!open) {
-              setExpandedBefore(true);
-            }
-          }}
-        >
-          <TableCell className={classes.scheduleTitle}>
-            <div
-              data-tip
-              data-for={tooltipId}
-              onClick={() => {
-                setOpen(!open);
-                if (!open) {
-                  setExpandedBefore(true);
-                }
-              }}
-            >
-              {title}
+    <MuiTableBody ref={providedRef}>
+      <TableRow>
+        <TableCell className={classes.scheduleTitle}>
+          <div data-tip data-for={tooltipId} onClick={() => setOpen(!open)}>
+            {title}
+          </div>
+          {isEdit && (
+            <div>
+              <EditIcon onClick={() => onEditService(serviceIndex)} />
+              <button onClick={deleteService}>Delete Service</button>
+              <button onClick={addEvent}>Add Event</button>
             </div>
-            {isEdit && (
-              <div>
-                <EditIcon />
-                <button onClick={deleteService}>Delete Service</button>
-                <button onClick={addEvent}>Add Event</button>
-              </div>
-            )}
-            <ReactTooltip id={tooltipId}>
-              <span>{`Click to ${open ? 'collapse' : 'expand'}`}</span>
-            </ReactTooltip>
-          </TableCell>
-        </TableRow>
-      </MuiTableBody>
-      <MuiTableBody
-        ref={providedRef}
-        className={`${classes.groupOfRows} ${!open && classes.collapsedGroupOfRows} ${
-          open && expandedBefore && classes.expandedGroupOfRows
-        }`}
-      >
-        {children}
-      </MuiTableBody>
-    </>
+          )}
+          <ReactTooltip id={tooltipId}>
+            <span>{`Click to ${open ? 'collapse' : 'expand'}`}</span>
+          </ReactTooltip>
+        </TableCell>
+      </TableRow>
+      {open && children}
+    </MuiTableBody>
   );
 };
 
@@ -104,6 +82,8 @@ TableBody.propTypes = {
   addEvent: PropTypes.func,
   deleteService: PropTypes.func,
   isEdit: PropTypes.bool,
+  onEditService: PropTypes.func,
+  serviceIndex: PropTypes.number,
 };
 
 export default TableBody;

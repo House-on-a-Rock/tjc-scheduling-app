@@ -1,14 +1,7 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
-import {
-  // TimeCell,
-  // DutyAutocomplete,
-  // TasksAutocomplete,
-  TableHeader,
-  TableBody,
-  TableCell,
-} from '.';
+import { EditServiceForm, TableHeader, TableBody, TableCell } from '.';
 import {
   // renderOption,
   days,
@@ -43,11 +36,21 @@ const Table = ({
 }) => {
   const classes = useStyles();
   const [selectedEvents, setSelectedEvents] = useState([]);
-
+  const [isEditServiceOpen, setIsEditServiceOpen] = useState(false);
+  const [selectedService, setSelectedService] = useState();
   const { columns: headers, services, title, view } = schedule;
 
   return (
     <div className={classes.scheduleTable}>
+      {isEditServiceOpen && (
+        <EditServiceForm
+          isOpen={isEditServiceOpen}
+          onClose={() => setIsEditServiceOpen(false)}
+          serviceIndex={selectedService}
+          dataModel={dataModel}
+          onSubmit={onSubmitEditService}
+        />
+      )}
       <MuiTable className={classes.table}>
         <TableHeader headers={headers} title={title} />
 
@@ -65,11 +68,13 @@ const Table = ({
                   <TableBody
                     key={`TableBody-${name}`}
                     title={`${days[day]} ${name}`}
+                    serviceIndex={serviceIndex}
                     providedRef={droppableProvided.innerRef}
                     {...droppableProvided.droppableProps}
                     isEdit={isEditMode}
                     addEvent={() => addEvent(serviceIndex)}
                     deleteService={() => deleteService(serviceId)}
+                    onEditService={onEditService}
                   >
                     {events.map((event, rowIndex) => {
                       const { roleId, cells, time, eventId } = event;
@@ -130,7 +135,6 @@ const Table = ({
                                   isScheduleModified={isScheduleModified}
                                   isEditMode={isEditMode}
                                   key={`${title}_${serviceIndex}_${rowIndex}_${columnIndex}`}
-                                  // tabIndex={tabIndex + events.length}
                                 />
                               ))}
                             </TableRow>
@@ -148,6 +152,15 @@ const Table = ({
       </MuiTable>
     </div>
   );
+
+  function onEditService(serviceIndex) {
+    setSelectedService(serviceIndex);
+    setIsEditServiceOpen(true);
+  }
+
+  function onSubmitEditService() {
+    console.log('service edit submitted');
+  }
 
   function onDragEnd(result) {
     const {

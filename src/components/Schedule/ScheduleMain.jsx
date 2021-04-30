@@ -36,15 +36,15 @@ const ScheduleMain = ({
 }) => {
   const classes = useStyles();
   const [isScheduleModified, setIsScheduleModified] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [dataModel, setDataModel] = useState();
+
   const [schedule, updateSchedule] = useScheduleMainData(
     scheduleId,
     setIsScheduleModified,
     setAlert,
   );
-  const [isEditMode, setIsEditMode] = useState(false);
-  // const [isNewServiceOpen, setIsNewServiceOpen] = useState(false);
 
-  const [dataModel, setDataModel] = useState();
   const templateChanges = useRef({
     changesSeed: -1,
   });
@@ -65,13 +65,7 @@ const ScheduleMain = ({
     >
       <Toolbar
         handleNewServiceClicked={addService}
-        destroySchedule={() =>
-          // deleteSchedule.mutate({
-          //   scheduleId: schedule.scheduleId,
-          //   title: schedule.title,
-          // })
-          deleteSchedule(scheduleId, schedule.title, tab)
-        }
+        destroySchedule={() => deleteSchedule(scheduleId, schedule.title, tab)}
         isScheduleModified={isScheduleModified}
         onSaveScheduleChanges={onSaveScheduleChanges}
         setEditMode={onEditClick}

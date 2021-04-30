@@ -1,4 +1,4 @@
-import NewServiceForm from './NewServiceForm';
+import EditServiceForm from './EditServiceForm';
 import Table from './Table';
 import TableBody from './TableBody';
 import TableHeader from './TableHeader';
@@ -12,7 +12,7 @@ import ScheduleMain from './ScheduleMain';
 import TableCell from './TableCell';
 
 export {
-  NewServiceForm,
+  EditServiceForm,
   Table,
   TableBody,
   TableHeader,
