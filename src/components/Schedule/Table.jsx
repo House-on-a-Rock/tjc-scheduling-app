@@ -37,9 +37,8 @@ const Table = ({
   const [selectedEvents, setSelectedEvents] = useState([]);
   const [isEditServiceOpen, setIsEditServiceOpen] = useState(false);
   const [selectedService, setSelectedService] = useState(); // by serviceId
-  const { columns: headers, services, title, view } = schedule;
+  const { columns: headers, title } = schedule;
 
-  console.log(`dataModel`, dataModel);
   return (
     <div className={classes.scheduleTable}>
       {isEditServiceOpen && (
@@ -112,15 +111,14 @@ const Table = ({
                                 align="left"
                                 style={{ display: 'flex', flexDirection: 'row' }}
                               >
-                                <div
-                                  {...provided.dragHandleProps}
-                                  className={
-                                    isEditMode
-                                      ? classes.visibleEdit
-                                      : classes.invisibleEdit
-                                  }
-                                >
-                                  <ReorderIcon />
+                                <div {...provided.dragHandleProps}>
+                                  <ReorderIcon
+                                    className={
+                                      isEditMode
+                                        ? classes.visibleEdit
+                                        : classes.invisibleEdit
+                                    }
+                                  />
                                 </div>
                                 <RemoveIcon
                                   onClick={() => removeEvent(serviceIndex, rowIndex)}
@@ -322,10 +320,10 @@ const useStyles = makeStyles(() =>
       },
     },
     visibleEdit: {
-      display: 'block',
+      visibility: 'visible',
     },
     invisibleEdit: {
-      display: 'none',
+      visibility: 'hidden',
     },
   }),
 );

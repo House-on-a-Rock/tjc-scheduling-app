@@ -66,10 +66,10 @@ const useStyles = makeStyles((theme) =>
       },
     },
     visibleEdit: {
-      display: 'block',
+      visibility: 'visible',
     },
     invisibleEdit: {
-      display: 'none',
+      visibility: 'hidden',
     },
   }),
 );

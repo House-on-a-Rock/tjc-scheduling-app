@@ -60,7 +60,7 @@ const ScheduleMain = ({
   return (
     <div
       className={`main_${scheduleId}`}
-      style={{ display: isViewed ? 'block' : 'none' }}
+      style={{ visibility: isViewed ? 'visible' : 'hidden' }}
       ref={outerRef}
     >
       <Toolbar
