@@ -157,24 +157,18 @@ export function formatData(dataModel, services) {
    *    }
    */
   const updated = {};
-  // find deleted services
+
   const objectifiedServices = convert(services, 'serviceId');
   const objectifiedDataModel = convert(dataModel, 'serviceId');
   updated.deletedServices = findDeleted(objectifiedServices, objectifiedDataModel);
   updated.services = objectifiedDataModel;
-  // find deleted events
-  // gather all events into dataModelEvents and serviceEvents
 
   const servicesEvents = extractEvents(services);
   const dataModelEvents = extractEvents(dataModel);
-
-  const convertedDataModelEvents = convert(dataModelEvents, 'eventId');
-  const convertedServEvents = convert(servicesEvents, 'eventId');
-  updated.events = convertedDataModelEvents;
-  console.log(convertedDataModelEvents);
-  updated.deletedEvents = findDeleted(convertedServEvents, convertedDataModelEvents);
-
-  console.log(`updated`, updated);
+  const objectifiedDMEvents = convert(dataModelEvents, 'eventId');
+  const objectifiedOriginalEvents = convert(servicesEvents, 'eventId');
+  updated.events = objectifiedDMEvents;
+  updated.deletedEvents = findDeleted(objectifiedOriginalEvents, objectifiedDMEvents);
 }
 
 export function renderOption(display, isIconVisible) {

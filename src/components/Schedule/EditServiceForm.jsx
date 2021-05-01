@@ -133,7 +133,6 @@ const EditServiceForm = ({ isOpen, onSubmit, onClose, serviceId, dataModel }) =>
       destination: { index: destination },
       source: { index: source },
     } = result;
-
     if (!destination || destination === source) {
       return;
     }

@@ -13,7 +13,7 @@ import Toolbar from './Toolbar';
 // import { ContextMenu, ConfirmationDialog } from '../shared';
 
 import { processUpdate, createBlankService, formatData } from './utilities';
-import { updatedDiff, detailedDiff } from 'deep-object-diff';
+import { updatedDiff } from 'deep-object-diff';
 
 import useScheduleMainData from '../../hooks/containerHooks/useScheduleMainData';
 
@@ -22,7 +22,6 @@ import useScheduleMainData from '../../hooks/containerHooks/useScheduleMainData'
 // newly created schedule has strange set of dates
 // broke selection/hover of rows
 // rework warning dialogs
-// how to incorporate NewServiceForm
 
 const ScheduleMain = ({
   churchId,
@@ -56,7 +55,7 @@ const ScheduleMain = ({
   const outerRef = useRef(null);
 
   if (!dataModel) return <div className={classes.loading}></div>;
-  // console.log(`dataModel`, dataModel);
+  console.log(`dataModel`, dataModel);
 
   return (
     <div
