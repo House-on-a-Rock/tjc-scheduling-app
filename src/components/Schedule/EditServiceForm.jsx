@@ -90,7 +90,7 @@ const EditServiceForm = ({ isOpen, onSubmit, onClose, serviceId, dataModel }) =>
 
         <div className={classes.buttonBottomBar}>
           <Button onClick={onSubmitForm} className={classes.submitButton}>
-            Create new service
+            Save Changes
           </Button>
           <Button onClick={onClose} className={classes.button}>
             Cancel

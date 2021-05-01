@@ -12,8 +12,8 @@ import Toolbar from './Toolbar';
 
 // import { ContextMenu, ConfirmationDialog } from '../shared';
 
-import { processUpdate, createBlankService } from './utilities';
-import { updatedDiff } from 'deep-object-diff';
+import { processUpdate, createBlankService, formatData } from './utilities';
+import { updatedDiff, detailedDiff } from 'deep-object-diff';
 
 import useScheduleMainData from '../../hooks/containerHooks/useScheduleMainData';
 
@@ -56,6 +56,7 @@ const ScheduleMain = ({
   const outerRef = useRef(null);
 
   if (!dataModel) return <div className={classes.loading}></div>;
+  // console.log(`dataModel`, dataModel);
 
   return (
     <div
@@ -88,8 +89,8 @@ const ScheduleMain = ({
   function onSaveScheduleChanges() {
     const diff = updatedDiff(schedule.services, dataModel);
     // need error checking before running diff
-    const updiff = processUpdate(diff, dataModel);
-    updateSchedule.mutate({ updated: updiff });
+    const processedDiff = processUpdate(diff, dataModel);
+    updateSchedule.mutate({ updated: processedDiff });
     // setIsScheduleModified(false);  make this an onsuccess?
   }
 
@@ -98,13 +99,6 @@ const ScheduleMain = ({
     dataClone.push(createBlankService(retrieveChangesSeed));
     setDataModel(dataClone);
   }
-
-  // function insertRow() {}
-
-  // const handleRowSelected = (isSelected, eventId) =>
-  //   isSelected
-  //     ? setSelectedEvents(selectedEvents.filter((id) => id !== eventId))
-  //     : setSelectedEvents([...selectedEvents, eventId]);
 
   function retrieveChangesSeed() {
     return templateChanges.current.changesSeed--;
@@ -120,8 +114,8 @@ const ScheduleMain = ({
   }
 
   function saveTemplateChanges() {
-    // console.log('saving template changes');
-    // process the diffs
+    // const diff = detailedDiff(schedule.services, dataModel);
+    const processedChanges = formatData(dataModel, schedule.services);
   }
 };
 

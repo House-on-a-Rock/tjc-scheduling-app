@@ -203,7 +203,8 @@ const Table = ({
   function addEvent(serviceIndex) {
     const dataClone = [...dataModel];
     const targetEvents = dataClone[serviceIndex].events;
-    const newEvent = createBlankEvent(headers.length - 1, retrieveChangesSeed);
+    const serviceId = dataClone[serviceIndex].serviceId;
+    const newEvent = createBlankEvent(headers.length - 1, retrieveChangesSeed, serviceId);
     targetEvents.push(newEvent);
     setDataModel(dataClone);
   }
