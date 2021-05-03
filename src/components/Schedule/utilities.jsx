@@ -97,7 +97,7 @@ function isObjectEmpty(obj) {
   return Object.keys(obj).length === 0;
 }
 
-// how does this handle newly created tasks?
+// TODO how does this handle newly created tasks?
 export function processUpdate(diff, dataModel) {
   if (isObjectEmpty(diff)) return [];
   const scheduleScope = diff;
@@ -134,7 +134,7 @@ function convert(array, key) {
   );
 }
 function findDeleted(a1, a2) {
-  // a1 is original, a2 should have possible deletions
+  // a1 is original, a2 will be the one with possible deletions
   const deleted = [];
   for (const key in a1) {
     if (!a2[key]) deleted.push(key);
@@ -146,7 +146,7 @@ function extractEvents(eventWrapper) {
   return eventWrapper.reduce((acc, item) => [...acc, ...item.events], []);
 }
 
-export function formatData(dataModel, services) {
+export function formatData(dataModel, previousServices) {
   // - return an object of updated/added/deleted. each will contain an array of things that have been changed accordingly
   /**
    *  updated = {
@@ -158,17 +158,18 @@ export function formatData(dataModel, services) {
    */
   const updated = {};
 
-  const objectifiedServices = convert(services, 'serviceId');
+  const objectifiedServices = convert(previousServices, 'serviceId');
   const objectifiedDataModel = convert(dataModel, 'serviceId');
+  updated.services = dataModel;
   updated.deletedServices = findDeleted(objectifiedServices, objectifiedDataModel);
-  updated.services = objectifiedDataModel;
 
-  const servicesEvents = extractEvents(services);
+  const servicesEvents = extractEvents(previousServices);
   const dataModelEvents = extractEvents(dataModel);
   const objectifiedDMEvents = convert(dataModelEvents, 'eventId');
   const objectifiedOriginalEvents = convert(servicesEvents, 'eventId');
-  updated.events = objectifiedDMEvents;
+  updated.events = dataModelEvents;
   updated.deletedEvents = findDeleted(objectifiedOriginalEvents, objectifiedDMEvents);
+  return updated;
 }
 
 export function renderOption(display, isIconVisible) {
@@ -197,11 +198,12 @@ export function rearrangeEvents(prevModel, sourceService, source, destination) {
   return temp;
 }
 
-export function createBlankService(retrieveChangesSeed) {
+export function createBlankService(retrieveChangesSeed, scheduleId) {
   return {
     name: 'test',
     day: 0,
     events: [],
     serviceId: retrieveChangesSeed(),
+    scheduleId,
   };
 }

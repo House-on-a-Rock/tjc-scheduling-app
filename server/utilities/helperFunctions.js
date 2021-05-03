@@ -1,8 +1,11 @@
-import nodemailer from 'nodemailer';
+/* eslint-disable max-lines */
 import crypto from 'crypto';
-import jwt, { TokenExpiredError, JsonWebTokenError } from 'jsonwebtoken';
 import fs from 'fs';
+
+import jwt, { TokenExpiredError, JsonWebTokenError } from 'jsonwebtoken';
 import { DateTime } from 'luxon';
+import nodemailer from 'nodemailer';
+
 import db from '../index';
 
 const privateKey = fs.readFileSync('tjcschedule.pem');
@@ -262,26 +265,32 @@ export function createColumns(start, end) {
   ];
 }
 
-export async function populateServiceData({ name, day, id }) {
+export async function populateServiceData({ name, day, id }, scheduleId) {
   const events = await db.Event.findAll({
     where: { serviceId: id },
     order: [['order', 'ASC']],
   }); // returns events in ascending order
   const eventData = await Promise.all(
     events.map(async (event) => {
-      const { time, roleId, id: eventId } = event;
+      const { time, roleId, id: eventId, serviceId } = event;
       const role = await retrieveEventRole(roleId);
-      const tasks = await retrieveTaskData(eventId, role);
-      // changes - most of the schedule data will just be the id's, and the front end will use the ids to display the appropriate info
+      const tasks = await retrieveTaskData(eventId);
       return {
         time,
         roleId,
         eventId,
         cells: [{}, {}, ...tasks],
+        serviceId,
       };
     }),
   );
-  return { name, day, events: eventData, serviceId: id };
+  return {
+    name,
+    day,
+    events: eventData,
+    serviceId: id,
+    scheduleId: parseInt(scheduleId),
+  };
 }
 
 function retrieveEventRole(roleId) {
@@ -291,7 +300,7 @@ function retrieveEventRole(roleId) {
   });
 }
 
-async function retrieveTaskData(eventId, role) {
+async function retrieveTaskData(eventId) {
   const tasks = await db.Task.findAll({
     where: { eventId },
     attributes: ['id', 'userId'],
@@ -306,9 +315,10 @@ async function retrieveTaskData(eventId, role) {
   return organizedTasks;
 }
 
+// returns the date of every day (eg. monday or tues) within the range
 export const recurringDaysOfWeek = (start, end, dayOfWeeK) => {
   const weeks = [];
-  let startDayOfWeek = new Date(start).getDay();
+  const startDayOfWeek = new Date(start).getDay();
   let dayModifier = dayOfWeeK - startDayOfWeek;
   if (dayModifier < 0) dayModifier += 7;
   let current = new Date(start);
@@ -318,4 +328,100 @@ export const recurringDaysOfWeek = (start, end, dayOfWeeK) => {
     current = new Date(current.setDate(current.getDate() + 7));
   }
   return weeks;
+};
+
+export const updateEvents = async (events, t) => {
+  await Promise.all(
+    events.map(async (item, index) => {
+      const targetEvent = await db.Event.findOne({
+        where: { id: item.eventId },
+      });
+      if (targetEvent)
+        return targetEvent.update({ ...item, order: index }, { transaction: t });
+      else {
+        const newEvent = await db.Event.create(
+          { ...item, order: index },
+          { transaction: t },
+        );
+        // create corresponding tasks
+        const parentService = await db.Service.findOne({
+          where: {
+            id: item.serviceId,
+          },
+        });
+        const parentSchedule = await db.Schedule.findOne({
+          where: {
+            id: parentService.scheduleId,
+          },
+        });
+        const taskDays = recurringDaysOfWeek(
+          parentSchedule.start,
+          parentSchedule.end,
+          parentService.day,
+        );
+        taskDays.forEach((date) =>
+          db.Task.create(
+            {
+              date,
+              eventId: newEvent.id,
+            },
+            { transaction: t },
+          ),
+        );
+        return newEvent;
+      }
+    }),
+  );
+};
+
+export const updateServices = async (services, t) => {
+  await Promise.all(
+    services.map(async (item, index) => {
+      const targetService = await db.Service.findOne({
+        where: { id: item.serviceId },
+      });
+      if (targetService)
+        return targetService.update({ ...item, order: index }, { transaction: t });
+      else {
+        return db.Service.create({ ...item, order: index }, { transaction: t });
+      }
+    }),
+  );
+};
+
+export const updateTasks = async (tasks, t) => {
+  await Promise.all(
+    tasks.map(async (item) => {
+      const targetTask = await db.Task.findOne({
+        where: { id: item.taskId },
+      });
+      return targetTask.update({ userId: item.userId }, { transaction: t });
+    }),
+  );
+};
+
+export const deleteServices = async (Services, t) => {
+  await Promise.all(
+    Services.map(async (item) => {
+      await db.Service.destroy(
+        {
+          where: { id: item },
+        },
+        { transaction: t },
+      );
+    }),
+  );
+};
+
+export const deleteEvents = async (events, t) => {
+  await Promise.all(
+    events.map(async (item) => {
+      await db.Event.destroy(
+        {
+          where: { id: item },
+        },
+        { transaction: t },
+      );
+    }),
+  );
 };

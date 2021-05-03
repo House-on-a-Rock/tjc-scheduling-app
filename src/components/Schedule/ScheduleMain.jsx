@@ -55,7 +55,7 @@ const ScheduleMain = ({
   const outerRef = useRef(null);
 
   if (!dataModel) return <div className={classes.loading}></div>;
-  console.log(`dataModel`, dataModel);
+  // console.log(`dataModel`, dataModel);
 
   return (
     <div
@@ -87,15 +87,15 @@ const ScheduleMain = ({
 
   function onSaveScheduleChanges() {
     const diff = updatedDiff(schedule.services, dataModel);
-    // need error checking before running diff
+    // need error checking before running diff... or do we
     const processedDiff = processUpdate(diff, dataModel);
-    updateSchedule.mutate({ updated: processedDiff });
+    updateSchedule.mutate({ tasks: processedDiff });
     // setIsScheduleModified(false);  make this an onsuccess?
   }
 
   function addService() {
     const dataClone = [...dataModel];
-    dataClone.push(createBlankService(retrieveChangesSeed));
+    dataClone.push(createBlankService(retrieveChangesSeed, scheduleId));
     setDataModel(dataClone);
   }
 
@@ -115,6 +115,7 @@ const ScheduleMain = ({
   function saveTemplateChanges() {
     // const diff = detailedDiff(schedule.services, dataModel);
     const processedChanges = formatData(dataModel, schedule.services);
+    updateSchedule.mutate({ ...processedChanges });
   }
 };
 
