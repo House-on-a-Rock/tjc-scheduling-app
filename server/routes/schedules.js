@@ -8,8 +8,13 @@ import db from '../index';
 import {
   certify,
   createColumns,
+  deleteEvents,
+  deleteServices,
   populateServiceData,
   recurringDaysOfWeek,
+  updateEvents,
+  updateServices,
+  updateTasks,
 } from '../utilities/helperFunctions';
 
 const router = express.Router();
@@ -41,7 +46,7 @@ router.get('/schedule', certify, async (req, res, next) => {
     });
     const columns = createColumns(schedule.start, schedule.end);
     const servicesData = await Promise.all(
-      services.map(async (service) => populateServiceData(service)),
+      services.map(async (service) => populateServiceData(service, scheduleId)),
     );
 
     const response = {
@@ -108,7 +113,6 @@ router.post('/schedule', certify, async (req, res, next) => {
             time,
             title: eventTitle,
             roleId,
-            displayTime: true, // may be removed later
           });
 
           taskDays.forEach((date) =>
@@ -128,50 +132,29 @@ router.post('/schedule', certify, async (req, res, next) => {
   }
 });
 
-/*  
-  body can have updated, added, removed
-  each will have an array of objects, handle them diffferently based on key[0]
-  {taskId: 123, userId: 123}
-  {eventId: 123, roleId: 123, order: 3, time: '10:15 am'}
-  {serviceId: 1, name: "morning", order: 3, day: 5}
-  {scheduleId: 3, title: "new main", view: "monthly"}
-  should the backend have error checking to ensure the submitted items are valid?? 
-  i think it'll be a lot of extra work, and the front end will be handling that already. 
-  on the other hand, kinda feels risky not having validation 
+/*
+  should the backend have error checking to ensure the submitted items are valid??
+  i think it'll be a lot of extra work, and the front end will be handling that already.
+  on the other hand, kinda feels risky not having validation
 */
+
+const updateRouter = {
+  tasks: updateTasks,
+  services: updateServices,
+  events: updateEvents,
+  deletedServices: deleteServices,
+  deletedEvents: deleteEvents,
+};
+
 router.post('/schedule/update', certify, async (req, res, next) => {
+  const changes = req.body;
   try {
-    const transaction = db.sequelize.transaction(async (t) => {
-      const { updated, added, removed } = req.body;
-
-      if (updated) {
-        await Promise.all(
-          updated.map(async (item) => {
-            const keys = Object.keys(item);
-
-            switch (keys[0]) {
-              case 'taskId':
-                const targetTask = await db.Task.findOne({
-                  where: { id: item.taskId },
-                });
-                return targetTask.update({ userId: item.userId }, { transaction: t });
-              // this need more work on both ends - i'd like to eventually pass the entire event info back in one obj
-              // if there are multiple changes to one event (eg. both time and duty are changed), this only needs to be run once
-              case 'eventId':
-                const targetEvent = await db.Event.findOne({
-                  where: { id: item.eventId },
-                });
-                return targetEvent.update({ roleId: item.roleId }, { transaction: t });
-              case 'serviceId':
-                return;
-              case 'scheduleId':
-                return;
-              default:
-                break;
-            }
-          }),
-        );
-      }
+    const sequelizeTransaction = db.sequelize.transaction(async (transaction) => {
+      await Promise.all(
+        Object.keys(changes).map(async (type) => {
+          return updateRouter[type](changes[type], transaction);
+        }),
+      );
     });
     return res.status(200).send(`Schedule updated successfully!`);
   } catch (err) {
@@ -196,3 +179,25 @@ router.delete('/schedule', certify, async (req, res, next) => {
   }
 });
 export default router;
+
+// Object.keys(changes).map(async (type) => {
+//   switch (type) {
+//     case 'tasks':
+//       await updateTasks(changes[type], transaction);
+//       break;
+//     case 'services':
+//       await updateServices(changes[type], transaction);
+//       break;
+//     case 'events':
+//       await updateEvents(changes[type], transaction);
+//       break;
+//     case 'deletedServices':
+//       await deleteServices(changes[type], transaction);
+//       break;
+//     case 'deletedEvents':
+//       await deleteEvents(changes[type], transaction);
+//       break;
+//     default:
+//       break;
+//   }
+// }),

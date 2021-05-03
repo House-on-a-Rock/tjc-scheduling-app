@@ -12,7 +12,7 @@ import Toolbar from './Toolbar';
 
 // import { ContextMenu, ConfirmationDialog } from '../shared';
 
-import { processUpdate, createBlankService } from './utilities';
+import { processUpdate, createBlankService, formatData } from './utilities';
 import { updatedDiff } from 'deep-object-diff';
 
 import useScheduleMainData from '../../hooks/containerHooks/useScheduleMainData';
@@ -22,12 +22,11 @@ import useScheduleMainData from '../../hooks/containerHooks/useScheduleMainData'
 // newly created schedule has strange set of dates
 // broke selection/hover of rows
 // rework warning dialogs
-// how to incorporate NewServiceForm
 
 const ScheduleMain = ({
   churchId,
   scheduleId,
-  isViewed,
+  isVisible,
   users,
   teams,
   setAlert,
@@ -36,15 +35,15 @@ const ScheduleMain = ({
 }) => {
   const classes = useStyles();
   const [isScheduleModified, setIsScheduleModified] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [dataModel, setDataModel] = useState();
+
   const [schedule, updateSchedule] = useScheduleMainData(
     scheduleId,
     setIsScheduleModified,
     setAlert,
   );
-  const [isEditMode, setIsEditMode] = useState(false);
-  // const [isNewServiceOpen, setIsNewServiceOpen] = useState(false);
 
-  const [dataModel, setDataModel] = useState();
   const templateChanges = useRef({
     changesSeed: -1,
   });
@@ -56,22 +55,17 @@ const ScheduleMain = ({
   const outerRef = useRef(null);
 
   if (!dataModel) return <div className={classes.loading}></div>;
+  // console.log(`dataModel`, dataModel);
 
   return (
     <div
       className={`main_${scheduleId}`}
-      style={{ display: isViewed ? 'block' : 'none' }}
+      style={{ visibility: isVisible ? 'visible' : 'hidden' }}
       ref={outerRef}
     >
       <Toolbar
         handleNewServiceClicked={addService}
-        destroySchedule={() =>
-          // deleteSchedule.mutate({
-          //   scheduleId: schedule.scheduleId,
-          //   title: schedule.title,
-          // })
-          deleteSchedule(scheduleId, schedule.title, tab)
-        }
+        destroySchedule={() => deleteSchedule(scheduleId, schedule.title, tab)}
         isScheduleModified={isScheduleModified}
         onSaveScheduleChanges={onSaveScheduleChanges}
         setEditMode={onEditClick}
@@ -93,26 +87,17 @@ const ScheduleMain = ({
 
   function onSaveScheduleChanges() {
     const diff = updatedDiff(schedule.services, dataModel);
-    // need error checking before running diff
-    const updiff = processUpdate(diff, dataModel);
-    updateSchedule.mutate({ updated: updiff });
+    // need error checking before running diff... or do we
+    const processedDiff = processUpdate(diff, dataModel);
+    updateSchedule.mutate({ tasks: processedDiff });
     // setIsScheduleModified(false);  make this an onsuccess?
   }
 
   function addService() {
-    // TODO: bring back create new service form? or another solution is better
     const dataClone = [...dataModel];
-    const target = dataClone.services;
-    target.push(createBlankService(retrieveChangesSeed));
+    dataClone.push(createBlankService(retrieveChangesSeed, scheduleId));
     setDataModel(dataClone);
   }
-
-  // function insertRow() {}
-
-  // const handleRowSelected = (isSelected, eventId) =>
-  //   isSelected
-  //     ? setSelectedEvents(selectedEvents.filter((id) => id !== eventId))
-  //     : setSelectedEvents([...selectedEvents, eventId]);
 
   function retrieveChangesSeed() {
     return templateChanges.current.changesSeed--;
@@ -128,8 +113,8 @@ const ScheduleMain = ({
   }
 
   function saveTemplateChanges() {
-    // console.log('saving template changes');
-    // process the diffs
+    const processedChanges = formatData(dataModel, schedule.services);
+    updateSchedule.mutate({ ...processedChanges });
   }
 };
 
@@ -144,7 +129,7 @@ const useStyles = makeStyles(() =>
 ScheduleMain.propTypes = {
   churchId: PropTypes.number,
   scheduleId: PropTypes.number,
-  isViewed: PropTypes.bool,
+  isVisible: PropTypes.bool,
   users: PropTypes.array,
   teams: PropTypes.array,
   setAlert: PropTypes.func,

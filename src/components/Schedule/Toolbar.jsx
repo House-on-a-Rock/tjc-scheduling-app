@@ -71,11 +71,12 @@ const Toolbar = ({
     </div>
   );
 };
-
+// would like it to stay showing even when scrolling down
 const useStyles = makeStyles(() =>
   createStyles({
     toolbar: {
       display: 'flex',
+      // position: 'fixed',
     },
   }),
 );

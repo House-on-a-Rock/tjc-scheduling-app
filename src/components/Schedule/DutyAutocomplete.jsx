@@ -35,6 +35,7 @@ const DutyAutocomplete = React.memo(
       onChange(dataContext, newValue);
     }
 
+    // maybe use disabled tag on autocomplete, but will need to override its css so its not super greyed out
     return !isEditMode ? (
       <TableCell>{getRoleOptionLabel(dataId, options)}</TableCell>
     ) : (
@@ -64,6 +65,7 @@ const DutyAutocomplete = React.memo(
           openOnFocus
           forcePopupIcon={false}
           autoHighlight={true}
+          // disabled={!isEditMode}
         />
       </TableCell>
     );

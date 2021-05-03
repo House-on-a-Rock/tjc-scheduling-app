@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from 'react-query';
 import { getSchedules, getTeams, postSchedule, destroySchedule } from '../../apis';
 import { useQueryConfig, getChurchMembersData } from './shared';
-import { alertSuccess } from '../../components/shared/Alert';
+import { sendAlert } from '../../components/shared/Alert';
 
 const useScheduleContainerData = (
   churchId,
@@ -32,13 +32,13 @@ const useScheduleContainerData = (
     onSuccess: (res) => {
       queryClient.invalidateQueries('tabs');
       onSuccessHandler(false);
-      setAlert(alertSuccess(res));
+      setAlert(sendAlert(res));
     },
   });
 
   const deleteScheduleMut = useMutation(destroySchedule, {
     onSuccess: (res) => {
-      setAlert(alertSuccess(res));
+      setAlert(sendAlert(res));
       // queryClient.invalidateQueries('tabs');
       // onDeleteSchedule();
     },
