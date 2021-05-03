@@ -48,7 +48,7 @@ const ScheduleContainer = ({ churchId }) => {
             <ScheduleMain
               churchId={churchId}
               scheduleId={tabs.length > 0 ? tabs[tab].id : null}
-              isViewed={tab === viewedTab}
+              isVisible={tab === viewedTab}
               users={users}
               teams={teams}
               setAlert={setAlert}

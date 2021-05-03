@@ -265,7 +265,8 @@ export function createColumns(start, end) {
   ];
 }
 
-export async function populateServiceData({ name, day, id }, scheduleId) {
+export async function populateServiceData(service, scheduleId) {
+  const { name, day, id } = service;
   const events = await db.Event.findAll({
     where: { serviceId: id },
     order: [['order', 'ASC']],
@@ -273,7 +274,6 @@ export async function populateServiceData({ name, day, id }, scheduleId) {
   const eventData = await Promise.all(
     events.map(async (event) => {
       const { time, roleId, id: eventId, serviceId } = event;
-      const role = await retrieveEventRole(roleId);
       const tasks = await retrieveTaskData(eventId);
       return {
         time,
@@ -293,12 +293,12 @@ export async function populateServiceData({ name, day, id }, scheduleId) {
   };
 }
 
-function retrieveEventRole(roleId) {
-  return db.Role.findOne({
-    where: { id: roleId },
-    attributes: ['id', 'name'],
-  });
-}
+// function retrieveEventRole(roleId) {
+//   return db.Role.findOne({
+//     where: { id: roleId },
+//     attributes: ['id', 'name'],
+//   });
+// }
 
 async function retrieveTaskData(eventId) {
   const tasks = await db.Task.findAll({
@@ -333,29 +333,25 @@ export const recurringDaysOfWeek = (start, end, dayOfWeeK) => {
 export const updateEvents = async (events, t) => {
   await Promise.all(
     events.map(async (item, index) => {
+      const { eventId, time, roleId, serviceId } = item;
       const targetEvent = await db.Event.findOne({
-        where: { id: item.eventId },
+        where: { id: eventId },
       });
+
       if (targetEvent)
-        return targetEvent.update(
-          { time: item.time, roleId: item.roleId, order: index },
-          { transaction: t },
-        );
+        // if event already exists, update to match incoming data
+        return targetEvent.update({ time, roleId, order: index }, { transaction: t });
       else {
+        // else create new event, and corresponding tasks
         const newEvent = await db.Event.create(
           { ...item, order: index },
           { transaction: t },
         );
-        // create corresponding tasks
         const parentService = await db.Service.findOne({
-          where: {
-            id: item.serviceId,
-          },
+          where: { id: serviceId },
         });
         const parentSchedule = await db.Schedule.findOne({
-          where: {
-            id: parentService.scheduleId,
-          },
+          where: { id: parentService.scheduleId },
         });
         const taskDays = recurringDaysOfWeek(
           parentSchedule.start,
@@ -363,13 +359,7 @@ export const updateEvents = async (events, t) => {
           parentService.day,
         );
         taskDays.forEach((date) =>
-          db.Task.create(
-            {
-              date,
-              eventId: newEvent.id,
-            },
-            { transaction: t },
-          ),
+          db.Task.create({ date, eventId: newEvent.id }, { transaction: t }),
         );
         return newEvent;
       }

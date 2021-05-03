@@ -26,7 +26,7 @@ import useScheduleMainData from '../../hooks/containerHooks/useScheduleMainData'
 const ScheduleMain = ({
   churchId,
   scheduleId,
-  isViewed,
+  isVisible,
   users,
   teams,
   setAlert,
@@ -60,7 +60,7 @@ const ScheduleMain = ({
   return (
     <div
       className={`main_${scheduleId}`}
-      style={{ visibility: isViewed ? 'visible' : 'hidden' }}
+      style={{ visibility: isVisible ? 'visible' : 'hidden' }}
       ref={outerRef}
     >
       <Toolbar
@@ -113,7 +113,6 @@ const ScheduleMain = ({
   }
 
   function saveTemplateChanges() {
-    // const diff = detailedDiff(schedule.services, dataModel);
     const processedChanges = formatData(dataModel, schedule.services);
     updateSchedule.mutate({ ...processedChanges });
   }
@@ -130,7 +129,7 @@ const useStyles = makeStyles(() =>
 ScheduleMain.propTypes = {
   churchId: PropTypes.number,
   scheduleId: PropTypes.number,
-  isViewed: PropTypes.bool,
+  isVisible: PropTypes.bool,
   users: PropTypes.array,
   teams: PropTypes.array,
   setAlert: PropTypes.func,

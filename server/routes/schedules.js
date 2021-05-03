@@ -133,35 +133,26 @@ router.post('/schedule', certify, async (req, res, next) => {
 });
 
 /*
-  should the backend have error checking to ensure the submitted items are valid?? 
-  i think it'll be a lot of extra work, and the front end will be handling that already. 
-  on the other hand, kinda feels risky not having validation 
+  should the backend have error checking to ensure the submitted items are valid??
+  i think it'll be a lot of extra work, and the front end will be handling that already.
+  on the other hand, kinda feels risky not having validation
 */
+
+const updateRouter = {
+  tasks: updateTasks,
+  services: updateServices,
+  events: updateEvents,
+  deletedServices: deleteServices,
+  deletedEvents: deleteEvents,
+};
+
 router.post('/schedule/update', certify, async (req, res, next) => {
   const changes = req.body;
   try {
-    const transaction = db.sequelize.transaction(async (t) => {
+    const sequelizeTransaction = db.sequelize.transaction(async (transaction) => {
       await Promise.all(
         Object.keys(changes).map(async (type) => {
-          switch (type) {
-            case 'tasks':
-              await updateTasks(changes[type], t);
-              break;
-            case 'services':
-              await updateServices(changes[type], t);
-              break;
-            case 'events':
-              await updateEvents(changes[type], t);
-              break;
-            case 'deletedServices':
-              await deleteServices(changes[type], t);
-              break;
-            case 'deletedEvents':
-              await deleteEvents(changes[type], t);
-              break;
-            default:
-              break;
-          }
+          return updateRouter[type](changes[type], transaction);
         }),
       );
     });
@@ -188,3 +179,25 @@ router.delete('/schedule', certify, async (req, res, next) => {
   }
 });
 export default router;
+
+// Object.keys(changes).map(async (type) => {
+//   switch (type) {
+//     case 'tasks':
+//       await updateTasks(changes[type], transaction);
+//       break;
+//     case 'services':
+//       await updateServices(changes[type], transaction);
+//       break;
+//     case 'events':
+//       await updateEvents(changes[type], transaction);
+//       break;
+//     case 'deletedServices':
+//       await deleteServices(changes[type], transaction);
+//       break;
+//     case 'deletedEvents':
+//       await deleteEvents(changes[type], transaction);
+//       break;
+//     default:
+//       break;
+//   }
+// }),
