@@ -337,7 +337,10 @@ export const updateEvents = async (events, t) => {
         where: { id: item.eventId },
       });
       if (targetEvent)
-        return targetEvent.update({ ...item, order: index }, { transaction: t });
+        return targetEvent.update(
+          { time: item.time, roleId: item.roleId, order: index },
+          { transaction: t },
+        );
       else {
         const newEvent = await db.Event.create(
           { ...item, order: index },
@@ -381,7 +384,10 @@ export const updateServices = async (services, t) => {
         where: { id: item.serviceId },
       });
       if (targetService)
-        return targetService.update({ ...item, order: index }, { transaction: t });
+        return targetService.update(
+          { name: item.name, day: item.day, order: index },
+          { transaction: t },
+        );
       else {
         return db.Service.create({ ...item, order: index }, { transaction: t });
       }

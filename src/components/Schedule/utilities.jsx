@@ -97,7 +97,6 @@ function isObjectEmpty(obj) {
   return Object.keys(obj).length === 0;
 }
 
-// TODO how does this handle newly created tasks?
 export function processUpdate(diff, dataModel) {
   if (isObjectEmpty(diff)) return [];
   const scheduleScope = diff;
@@ -147,17 +146,13 @@ function extractEvents(eventWrapper) {
 }
 
 export function formatData(dataModel, previousServices) {
-  // - return an object of updated/added/deleted. each will contain an array of things that have been changed accordingly
-  /**
-   *  updated = {
-   *      deletedServices: [ deleted serviceIds ],
-   *      deletedEvents: [ deleted eventIds ],
-   *      services: [ service objects { serviceId, name, order, day }]
-   *      events: [ event objects { eventId, order, time, title, roleId, serviceId }]*
-   *    }
-   */
+  // returns {
+  //     deletedServices: [ deleted serviceIds ],
+  //     deletedEvents: [ deleted eventIds ],
+  //     services: [ service objects { serviceId, name, order, day, scheduleId }]
+  //     events: [ event objects { eventId, order, time, roleId, serviceId }]
+  // }
   const updated = {};
-
   const objectifiedServices = convert(previousServices, 'serviceId');
   const objectifiedDataModel = convert(dataModel, 'serviceId');
   updated.services = dataModel;

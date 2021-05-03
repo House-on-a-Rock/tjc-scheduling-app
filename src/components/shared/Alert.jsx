@@ -5,13 +5,13 @@ import Snackbar from '@material-ui/core/Snackbar';
 import MuiAlert from '@material-ui/lab/Alert';
 
 // alert.status - 'error', 'info', 'warning', 'success'
-// add more status codes to handle all possibilities? or figure out different method
+// TODO create library of possible alert codes from backend
 const alertStatus = {
   200: 'success',
   503: 'error',
 };
 
-export const alertSuccess = (res) => {
+export const sendAlert = (res) => {
   return { status: alertStatus[res.status], message: res.data };
 };
 
