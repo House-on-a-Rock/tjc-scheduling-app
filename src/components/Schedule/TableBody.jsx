@@ -5,7 +5,7 @@ import { TableCell, TableRow, TableBody as MuiTableBody } from '@material-ui/cor
 import { makeStyles, createStyles } from '@material-ui/core/styles';
 import EditIcon from '@material-ui/icons/Edit';
 
-// TODO add service-name editing functionality to the edit button here
+// TODO when collapsing, use css to hide instead of js?
 
 export const TableBody = ({
   title,

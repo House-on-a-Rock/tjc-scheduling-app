@@ -10,18 +10,15 @@ import { createStyles, makeStyles } from '@material-ui/core';
 import Table from './Table';
 import Toolbar from './Toolbar';
 
-// import { ContextMenu, ConfirmationDialog } from '../shared';
-
 import { processUpdate, createBlankService, formatData } from './utilities';
 import { updatedDiff } from 'deep-object-diff';
 
 import useScheduleMainData from '../../hooks/containerHooks/useScheduleMainData';
 
 // TODO
-// contextmenu functions don't work
+// contextmenu b r o k e n, but do we need it?
+// broke selection/hover of rows, do we need it?
 // newly created schedule has strange set of dates
-// broke selection/hover of rows
-// rework warning dialogs
 
 const ScheduleMain = ({
   churchId,

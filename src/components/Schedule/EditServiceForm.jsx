@@ -44,7 +44,7 @@ const EditServiceForm = ({ isOpen, onSubmit, onClose, serviceId, dataModel }) =>
 
   const classes = useStyles();
 
-  // console.log(`dataModel, serviceIndex`, dataModel, serviceIndex);
+  // TODO error handling in this form
 
   return (
     <Dialog open={isOpen} onClose={onClose}>
@@ -133,13 +133,16 @@ const EditServiceForm = ({ isOpen, onSubmit, onClose, serviceId, dataModel }) =>
       destination: { index: destination },
       source: { index: source },
     } = result;
-    if (!destination || destination === source) {
+    console.log(`result`, result);
+    if (!result.destination || result.destination === result.source) {
+      console.log(`destination, source`, destination, source);
       return;
     }
     setDataClone((prev) => {
       const temp = [...prev];
       const src = temp.splice(source, 1);
       temp.splice(destination, 0, src[0]);
+      console.log(`result, prev, temp`, result, prev, temp);
       return temp;
     });
   }

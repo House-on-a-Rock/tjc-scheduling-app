@@ -9,12 +9,6 @@ export * from './auth';
 export * from './schedules';
 export * from './users';
 
-// export * from './services';
-// export * from './tasks';
-// export * from './teams';
-// export * from './templates';
-// export * from './userRoles';
-
 export {
   getTeams,
   getAllRoles,
