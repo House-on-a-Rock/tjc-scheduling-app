@@ -133,16 +133,15 @@ const EditServiceForm = ({ isOpen, onSubmit, onClose, serviceId, dataModel }) =>
       destination: { index: destination },
       source: { index: source },
     } = result;
-    console.log(`result`, result);
+    // idk why but using destination and source here messed it up
     if (!result.destination || result.destination === result.source) {
-      console.log(`destination, source`, destination, source);
       return;
     }
     setDataClone((prev) => {
       const temp = [...prev];
       const src = temp.splice(source, 1);
       temp.splice(destination, 0, src[0]);
-      console.log(`result, prev, temp`, result, prev, temp);
+
       return temp;
     });
   }

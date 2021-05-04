@@ -49,7 +49,6 @@ const TasksAutocomplete = React.memo((props) => {
   return (
     <TableCell className={classes[tableCellClass]}>
       <Autocomplete
-        id="combo-box"
         options={extractTeammateIds(managedDataSet)}
         renderInput={(params) => (
           <TextField
