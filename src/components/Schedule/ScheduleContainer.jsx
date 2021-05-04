@@ -44,19 +44,23 @@ const ScheduleContainer = ({ churchId }) => {
             handleAddClicked={() => setIsNewScheduleOpen(true)}
             tabs={tabs}
           />
-          {openedTabs.map((tab) => (
-            <ScheduleMain
-              churchId={churchId}
-              scheduleId={tabs.length > 0 ? tabs[tab].id : null}
-              isVisible={tab === viewedTab}
-              users={users}
-              teams={teams}
-              setAlert={setAlert}
-              deleteSchedule={deleteSchedule}
-              tab={tab}
-              key={tab.toString()}
-            />
-          ))}
+          {openedTabs.length > 0 ? (
+            openedTabs.map((tab) => (
+              <ScheduleMain
+                churchId={churchId}
+                scheduleId={tabs.length > 0 ? tabs[tab].id : null}
+                isVisible={tab === viewedTab}
+                users={users}
+                teams={teams}
+                setAlert={setAlert}
+                deleteSchedule={deleteSchedule}
+                tab={tab}
+                key={tab.toString()}
+              />
+            ))
+          ) : (
+            <div>Create a new schedule!</div>
+          )}
           {isNewScheduleOpen && (
             <NewScheduleForm
               onClose={() => setIsNewScheduleOpen(false)}
@@ -76,22 +80,16 @@ const ScheduleContainer = ({ churchId }) => {
   );
 
   function onDeleteSchedule(tab) {
-    // pbly need a more elegant solution in the future
-
-    setOpenedTabs([0]);
-    setViewedTab(0);
-    // for future use mbbe
-    // setOpenedTabs((p) => {
-    //   const clone = p;
-    //   console.log(`clone`, clone);
-    //   const i = clone.indexOf(tab);
-    //   const next = i > 1 ? i - 1 : 0;
-    //   console.log(`next`, next);
-    //   clone.splice(i, 1, next);
-    //   console.log(`clone`, clone);
-    //   return clone;
-    // });
-    // setViewedTab((p) => (p > 0 ? p - 1 : 0));
+    const nextTab = tab > 0 ? tab - 1 : 0;
+    setViewedTab(nextTab);
+    setOpenedTabs((t) => {
+      const clone = [...t];
+      const tabIndex = clone.indexOf(tab);
+      const isNextExist = clone.indexOf(nextTab);
+      if (isNextExist >= 0) clone.splice(tabIndex, 1);
+      else clone.splice(tabIndex, 1, nextTab);
+      return clone;
+    });
   }
 
   function onTabClick(value) {

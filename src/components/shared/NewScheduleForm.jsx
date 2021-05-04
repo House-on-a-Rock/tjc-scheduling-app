@@ -74,7 +74,7 @@ export const NewScheduleForm = ({
     setStartError(endDate.value < startDate.value);
     setEndError(endDate.value < startDate.value);
     setTeamError(team.value === 0);
-    setTemplateError(template.value === 0);
+    // setTemplateError(template.value === 0);
   }
 
   return (

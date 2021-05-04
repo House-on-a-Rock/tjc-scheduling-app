@@ -181,6 +181,7 @@ const Table = ({
   function onSubmitEditService(dataClone) {
     setDataModel(dataClone);
     setIsEditServiceOpen(false);
+    // setIsScheduleModified(true);
   }
 
   function onDragEnd(result) {

@@ -29,7 +29,7 @@ const useStyles = makeStyles((theme) =>
 );
 
 Tooltip.propTypes = {
-  id: PropTypes.number,
+  id: PropTypes.string,
   text: PropTypes.string,
 };
 

@@ -105,6 +105,8 @@ const ScheduleMain = ({
       setIsEditMode(true);
     } else {
       saveTemplateChanges();
+      // if they choose to not save changes, reset to this orig schedule
+      // setDataModel(ld.cloneDeep(schedule.services));
       setIsEditMode(false);
     }
   }
