@@ -32,8 +32,11 @@ const useScheduleContainerData = (
     onSuccess: (res) => {
       // immediately sets tabs to updated values, so schedule can switch to newly created tabs
       queryClient.setQueryData('tabs', res.data);
-
       onCreateScheduleSuccess({ data: res.data.message, status: res.status });
+    },
+    onError: (res) => {
+      // TODO error handling for all these queries
+      setAlert(sendAlert(res));
     },
   });
 

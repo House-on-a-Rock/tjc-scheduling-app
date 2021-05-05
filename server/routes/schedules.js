@@ -25,6 +25,7 @@ router.get('/schedules', certify, async (req, res, next) => {
     const schedules = await db.Schedule.findAll({
       where: { churchId: churchId.toString() },
       attributes: ['id', 'title', 'view'],
+      order: [['id', 'ASC']],
     });
     return res.status(200).json(schedules);
   } catch (err) {
@@ -124,8 +125,17 @@ router.post('/schedule', certify, async (req, res, next) => {
         });
       });
     }
+    // fetch tabs for return so it saves an api call
+    const schedules = await db.Schedule.findAll({
+      where: { churchId: churchId.toString() },
+      attributes: ['id', 'title', 'view'],
+      order: [['id', 'ASC']],
+    });
 
-    return res.status(200).send(`Schedule ${newSchedule.title} created successfully`);
+    return res.status(200).json({
+      data: schedules,
+      message: `Schedule ${newSchedule.title} created successfully`,
+    });
   } catch (err) {
     next(err);
     return res.status(503).send({ message: 'Server error, try again later' });
@@ -179,25 +189,3 @@ router.delete('/schedule', certify, async (req, res, next) => {
   }
 });
 export default router;
-
-// Object.keys(changes).map(async (type) => {
-//   switch (type) {
-//     case 'tasks':
-//       await updateTasks(changes[type], transaction);
-//       break;
-//     case 'services':
-//       await updateServices(changes[type], transaction);
-//       break;
-//     case 'events':
-//       await updateEvents(changes[type], transaction);
-//       break;
-//     case 'deletedServices':
-//       await deleteServices(changes[type], transaction);
-//       break;
-//     case 'deletedEvents':
-//       await deleteEvents(changes[type], transaction);
-//       break;
-//     default:
-//       break;
-//   }
-// }),
