@@ -80,15 +80,24 @@ const ScheduleContainer = ({ churchId }) => {
   );
 
   function onDeleteSchedule(tab) {
+    const isFirstTab = tab === 0;
     const nextTab = tab > 0 ? tab - 1 : 0;
+
     setViewedTab(nextTab);
     setOpenedTabs((t) => {
       const clone = [...t];
-      const tabIndex = clone.indexOf(tab);
-      const isNextExist = clone.indexOf(nextTab);
-      if (isNextExist >= 0) clone.splice(tabIndex, 1);
-      else clone.splice(tabIndex, 1, nextTab);
-      return clone;
+      if (!isFirstTab) {
+        const tabIndex = clone.indexOf(tab);
+        const isNextExist = clone.indexOf(nextTab);
+        if (isNextExist >= 0) clone.splice(tabIndex, 1);
+        else clone.splice(tabIndex, 1, nextTab);
+        return clone;
+      } else {
+        if (t.length === 1) return [0];
+        const next = t.map((index) => index - 1);
+        next.splice(0, 1);
+        return next.length > 0 ? next : [0];
+      }
     });
   }
 

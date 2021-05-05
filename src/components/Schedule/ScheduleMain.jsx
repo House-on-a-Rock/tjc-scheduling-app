@@ -51,8 +51,7 @@ const ScheduleMain = ({
 
   const outerRef = useRef(null);
 
-  if (!dataModel) return <div className={classes.loading}></div>;
-  // console.log(`dataModel`, dataModel);
+  if (!dataModel || !schedule) return <div className={classes.loading}></div>;
 
   return (
     <div
