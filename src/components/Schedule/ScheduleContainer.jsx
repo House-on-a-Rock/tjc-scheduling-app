@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import ScheduleMain from './ScheduleMain';
 import ScheduleTabs from './Tabs';
 import NewScheduleForm from '../shared/NewScheduleForm';
-import { Alert } from '../shared/Alert';
+import { Alert, sendAlert } from '../shared/Alert';
 import useScheduleContainerData from '../../hooks/containerHooks/useScheduleContainerData';
 
 import { createStyles, makeStyles } from '@material-ui/core';
@@ -29,9 +29,9 @@ const ScheduleContainer = ({ churchId }) => {
     deleteSchedule,
   ] = useScheduleContainerData(
     churchId,
-    setIsNewScheduleOpen,
     setAlert,
-    onDeleteSchedule,
+    onCreateScheduleSuccess,
+    onDeleteScheduleSuccess,
   );
 
   return (
@@ -79,7 +79,16 @@ const ScheduleContainer = ({ churchId }) => {
     </div>
   );
 
-  function onDeleteSchedule(tab) {
+  function onCreateScheduleSuccess(res) {
+    setIsNewScheduleOpen(false);
+    setAlert(sendAlert(res));
+
+    const newTab = tabs.length;
+    setOpenedTabs((t) => [...t, newTab]);
+    setViewedTab(newTab);
+  }
+
+  function onDeleteScheduleSuccess(tab) {
     const isFirstTab = tab === 0;
     const nextTab = tab > 0 ? tab - 1 : 0;
 
