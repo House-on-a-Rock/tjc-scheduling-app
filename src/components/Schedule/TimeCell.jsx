@@ -20,12 +20,23 @@ const TimeCell = ({
     onChange(value, rowIndex, serviceIndex);
   }
 
+  function convert12Hrs() {
+    const hrs = time.slice(0, 2);
+    const minutes = time.slice(3);
+    if (parseInt(hrs) - 12 > 0) return `${parseInt(hrs) - 12}:${minutes} PM`;
+    return `${time} AM`;
+  }
+
+  const displayTime = convert12Hrs();
+
+  convert12Hrs();
   return !isEditMode ? (
-    <TableCell>{value}</TableCell>
+    <TableCell>{displayTime}</TableCell>
   ) : (
     <TableCell onBlur={onBlurHandler}>
       <TextField
         value={value}
+        type="time"
         onChange={(event) => setValue(event.target.value)}
         inputProps={inputProps}
       />
