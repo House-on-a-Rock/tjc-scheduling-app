@@ -238,13 +238,12 @@ export function weeksRange(startDate, endDate) {
     } else if (currentDate.getDay() === 6) {
       currentObj.end = new Date(currentDate);
       weekArray.push({ ...currentObj });
-    } else if (currentDate === end) {
+    } else if (areDatesEqual(currentDate, end)) {
       currentObj.end = new Date(currentDate);
       weekArray.push({ ...currentObj });
     }
     currentDate.setDate(currentDate.getDate() + 1);
   }
-
   return weekArray;
 }
 
@@ -255,6 +254,14 @@ export function createColumns(weekRange) {
     { Header: 'Duty' },
     ...formatDates(weekRange),
   ];
+}
+
+function areDatesEqual(d1, d2) {
+  return (
+    d1.getFullYear() === d2.getFullYear() &&
+    d1.getMonth() === d2.getMonth() &&
+    d1.getDate() === d2.getDate()
+  );
 }
 
 /*
@@ -306,14 +313,26 @@ async function retrieveTaskData(eventId) {
   return organizedTasks;
 }
 
+// startDayofWeek: 6
+// dayofWeek: 5
+// after
+
 // returns the date of every day (eg. monday or tues) within the range
-export const recurringDaysOfWeek = (start, end, dayOfWeeK) => {
+export const recurringDaysOfWeek = (startDate, endDate, dayOfWeeK) => {
+  const [start, end] = [
+    replaceDashWithSlash(startDate),
+    new Date(replaceDashWithSlash(endDate)),
+  ];
   const weeks = [];
   const startDayOfWeek = new Date(start).getDay();
+  // console.log(`dayOfWeek, startDayOfWeek`, dayOfWeeK, startDayOfWeek);
+
   let dayModifier = dayOfWeeK - startDayOfWeek;
   if (dayModifier < 0) dayModifier += 7;
   let current = new Date(start);
+
   current.setDate(current.getDate() + dayModifier);
+  // console.log(`dayModifier, current`, dayModifier, current);
   while (current <= end) {
     weeks.push(new Date(current));
     current = new Date(current.setDate(current.getDate() + 7));

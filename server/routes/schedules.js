@@ -49,6 +49,7 @@ router.get('/schedule', certify, async (req, res, next) => {
     });
     const start = replaceDashWithSlash(schedule.start);
     const end = replaceDashWithSlash(schedule.end);
+
     const weekRange = weeksRange(start, end);
     const columns = createColumns(weekRange);
     const servicesData = await Promise.all(
@@ -90,8 +91,8 @@ router.post('/schedule', certify, async (req, res, next) => {
     const newSchedule = await db.Schedule.create({
       title,
       view,
-      start: new Date(startDate),
-      end: new Date(endDate),
+      start: new Date(replaceDashWithSlash(startDate)),
+      end: new Date(replaceDashWithSlash(endDate)),
       churchId,
       roleId: team,
     });
@@ -114,12 +115,6 @@ router.post('/schedule', certify, async (req, res, next) => {
           newSchedule.end,
           newService.day,
         );
-        console.log(
-          `newSchedule.start, newSchedule.end`,
-          newSchedule.start,
-          newSchedule.end,
-        );
-        console.log(`taskDays`, taskDays);
 
         events.forEach(async ({ time, title: eventTitle, roleId }, order) => {
           const newEvent = await db.Event.create({
