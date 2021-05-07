@@ -11,7 +11,6 @@ import { makeStyles, createStyles } from '@material-ui/core/styles';
 import { typographyTheme } from '../../shared/styles/theme';
 
 const TableHeader = ({ headers, title }) => {
-  console.log(`headers`, headers);
   const classes = useStyles();
 
   return (

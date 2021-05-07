@@ -225,12 +225,6 @@ function formatDates(weekRange) {
   return r;
 }
 
-// weeks - in backend, use YYYY/MM/DD format, in frontend, converts it to MM/DD/YYYY
-// [{ startDate - end of first week}, ... {start of last week, end of schedule}]
-// eg. range is 5/1/2021 - 6/30/2021
-// [{5/1}, {5/2 - 5/8}, {5/9 - 5/15}, {5/16 - 5/22}, {5/23 - 5/29}, {5/30 - 5/31}]
-// {start: 5/1, end: null}, {start: 5/2, end: 5/8}
-
 export function weeksRange(startDate, endDate) {
   const [start, end] = [new Date(startDate), new Date(endDate)];
   const weekArray = [];
@@ -263,6 +257,12 @@ export function createColumns(weekRange) {
   ];
 }
 
+/*
+  creating / retrieving tasks
+  - the tasksArray.length should be the same for all events inside a service (tasks may still be empty, but should be created)
+  - 
+*/
+
 export async function populateServiceData(service, scheduleId, weekRange) {
   const { name, day, id } = service;
   const events = await db.Event.findAll({
@@ -290,13 +290,6 @@ export async function populateServiceData(service, scheduleId, weekRange) {
     scheduleId: parseInt(scheduleId),
   };
 }
-
-// function retrieveEventRole(roleId) {
-//   return db.Role.findOne({
-//     where: { id: roleId },
-//     attributes: ['id', 'name'],
-//   });
-// }
 
 async function retrieveTaskData(eventId) {
   const tasks = await db.Task.findAll({

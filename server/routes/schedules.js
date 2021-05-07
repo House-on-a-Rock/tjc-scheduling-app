@@ -51,7 +51,6 @@ router.get('/schedule', certify, async (req, res, next) => {
     const end = replaceDashWithSlash(schedule.end);
     const weekRange = weeksRange(start, end);
     const columns = createColumns(weekRange);
-    console.log(`columns`, columns);
     const servicesData = await Promise.all(
       services.map(async (service) =>
         populateServiceData(service, scheduleId, weekRange),
@@ -102,6 +101,7 @@ router.post('/schedule', certify, async (req, res, next) => {
         where: { id: req.body.templateId },
       });
 
+      // loops through each service
       template.data.forEach(async ({ name, day, events }, index) => {
         const newService = await db.Service.create({
           name: name,
@@ -114,6 +114,12 @@ router.post('/schedule', certify, async (req, res, next) => {
           newSchedule.end,
           newService.day,
         );
+        console.log(
+          `newSchedule.start, newSchedule.end`,
+          newSchedule.start,
+          newSchedule.end,
+        );
+        console.log(`taskDays`, taskDays);
 
         events.forEach(async ({ time, title: eventTitle, roleId }, order) => {
           const newEvent = await db.Event.create({
