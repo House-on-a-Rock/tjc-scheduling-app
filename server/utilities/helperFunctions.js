@@ -229,10 +229,7 @@ export function columnizedDates(everyRepeatingDay) {
     const endDate = new Date(date);
     endDate.setDate(startDate.getDate() + 6);
 
-    return {
-      Header: `${zeroPaddingDates(startDate)}-${zeroPaddingDates(endDate)}`,
-      accessor: `${zeroPaddingDates(startDate)}-${zeroPaddingDates(endDate)}`,
-    };
+    return { Header: `${zeroPaddingDates(startDate)} - ${zeroPaddingDates(endDate)}` };
   });
 }
 
@@ -249,18 +246,9 @@ export function determineWeeks(startDate, endDate) {
 
 export function createColumns(start, end) {
   return [
-    {
-      Header: '',
-      accessor: '',
-    },
-    {
-      Header: 'Time',
-      accessor: 'time',
-    },
-    {
-      Header: 'Duty',
-      accessor: 'duty',
-    },
+    { Header: '' },
+    { Header: 'Time' },
+    { Header: 'Duty' },
     ...columnizedDates(determineWeeks(start, end)),
   ];
 }
