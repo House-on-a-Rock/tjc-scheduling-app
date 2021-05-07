@@ -4,7 +4,7 @@ import { Select } from '@material-ui/core';
 import FormControl from '@material-ui/core/FormControl';
 import InputLabel from '@material-ui/core/InputLabel';
 import FormHelperText from '@material-ui/core/FormHelperText';
-import { Tooltip } from '../shared/Tooltip';
+import Tooltip from '../shared/Tooltip';
 
 const ValidatedSelect = ({
   className,

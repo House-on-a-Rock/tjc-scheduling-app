@@ -5,9 +5,9 @@ import { sendAlert } from '../../components/shared/Alert';
 
 const useScheduleContainerData = (
   churchId,
-  onSuccessHandler,
   setAlert,
-  onDeleteSchedule,
+  onCreateScheduleSuccess,
+  onDeleteScheduleSuccess,
 ) => {
   const queryClient = useQueryClient();
   const { isLoading: isTabsLoading, data: tabsData } = useQuery(
@@ -30,18 +30,18 @@ const useScheduleContainerData = (
 
   const createSchedule = useMutation(postSchedule, {
     onSuccess: (res) => {
-      queryClient.invalidateQueries('tabs');
-      onSuccessHandler(false);
+      // immediately sets tabs to updated values, so schedule can switch to newly created tabs
+      queryClient.setQueryData('tabs', res.data);
+      onCreateScheduleSuccess({ data: res.data.message, status: res.status });
+    },
+    onError: (res) => {
+      // TODO error handling for all these queries
       setAlert(sendAlert(res));
     },
   });
 
   const deleteScheduleMut = useMutation(destroySchedule, {
-    onSuccess: (res) => {
-      setAlert(sendAlert(res));
-      // queryClient.invalidateQueries('tabs');
-      // onDeleteSchedule();
-    },
+    onSuccess: (res) => setAlert(sendAlert(res)),
   });
 
   const deleteSchedule = (scheduleId, title, tab) =>
@@ -49,7 +49,7 @@ const useScheduleContainerData = (
       { scheduleId, title },
       {
         onSuccess: () => {
-          onDeleteSchedule(tab);
+          onDeleteScheduleSuccess(tab);
           queryClient.invalidateQueries('tabs');
         },
       },

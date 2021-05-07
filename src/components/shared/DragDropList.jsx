@@ -13,7 +13,11 @@ const DragDropList = ({ listItems, onEnd, serviceId }) => {
     <DragDropContext onDragEnd={onEnd} key={'DragDropList'}>
       <Droppable droppableId={'DropList'} key={'DropList'} direction="vertical">
         {(droppableProvided) => (
-          <ul ref={droppableProvided.innerRef} {...droppableProvided.droppableProps}>
+          <ul
+            ref={droppableProvided.innerRef}
+            {...droppableProvided.droppableProps}
+            className={classes.listContainer}
+          >
             {listItems.map((item, index) => (
               <Draggable
                 draggableId={`draggable_${index}`}
@@ -41,6 +45,7 @@ const DragDropList = ({ listItems, onEnd, serviceId }) => {
                 )}
               </Draggable>
             ))}
+            {droppableProvided.placeholder}
           </ul>
         )}
       </Droppable>
@@ -51,9 +56,13 @@ const DragDropList = ({ listItems, onEnd, serviceId }) => {
 // howard mbbe u got this part
 const useStyles = makeStyles(() =>
   createStyles({
+    listContainer: {
+      height: 150,
+    },
     dragItem: {
       display: 'flex',
       flexDirection: 'row',
+      padding: 5,
     },
     selected: {
       backgroundColor: '#82a5c4',

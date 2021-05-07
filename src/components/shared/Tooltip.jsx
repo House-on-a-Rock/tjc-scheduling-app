@@ -5,7 +5,7 @@ import InfoIcon from '@material-ui/icons/Info';
 import ReactTooltip from 'react-tooltip';
 import { makeStyles, createStyles } from '@material-ui/core';
 
-export const Tooltip = ({ id, text }) => {
+const Tooltip = ({ id, text }) => {
   const classes = useStyles();
   return (
     <div className={classes.tooltip}>
@@ -27,3 +27,10 @@ const useStyles = makeStyles((theme) =>
     },
   }),
 );
+
+Tooltip.propTypes = {
+  id: PropTypes.string,
+  text: PropTypes.string,
+};
+
+export default Tooltip;

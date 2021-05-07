@@ -8,7 +8,7 @@ import { useValidatedField } from '../../hooks';
 
 import { buttonTheme, tooltipContainer } from '../../shared/styles/theme';
 
-import { Tooltip } from './Tooltip';
+import Tooltip from './Tooltip';
 import { stringLengthCheck } from '../../shared/utilities';
 
 // TODO hook up teams with data from DB
@@ -74,7 +74,7 @@ export const NewScheduleForm = ({
     setStartError(endDate.value < startDate.value);
     setEndError(endDate.value < startDate.value);
     setTeamError(team.value === 0);
-    // setTemplateError(template.value === 0)
+    // setTemplateError(template.value === 0);
   }
 
   return (

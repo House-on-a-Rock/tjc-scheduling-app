@@ -107,27 +107,27 @@ const Table = ({
                                   : 'none',
                               }}
                             >
-                              <MuiCell
-                                align="left"
-                                style={{ display: 'flex', flexDirection: 'row' }}
-                              >
-                                <div {...provided.dragHandleProps}>
-                                  <ReorderIcon
+                              <MuiCell align="left">
+                                <div className={classes.iconContainer}>
+                                  <div {...provided.dragHandleProps}>
+                                    <ReorderIcon
+                                      className={
+                                        isEditMode
+                                          ? classes.visibleEdit
+                                          : classes.invisibleEdit
+                                      }
+                                    />
+                                  </div>
+                                  <RemoveIcon
+                                    onClick={() => removeEvent(serviceIndex, rowIndex)}
                                     className={
                                       isEditMode
                                         ? classes.visibleEdit
                                         : classes.invisibleEdit
                                     }
+                                    style={{ color: 'red' }}
                                   />
                                 </div>
-                                <RemoveIcon
-                                  onClick={() => removeEvent(serviceIndex, rowIndex)}
-                                  className={
-                                    isEditMode
-                                      ? classes.visibleEdit
-                                      : classes.invisibleEdit
-                                  }
-                                />
                               </MuiCell>
                               {cells.map((cell, columnIndex) => (
                                 <TableCell
@@ -175,6 +175,7 @@ const Table = ({
   function onSubmitEditService(dataClone) {
     setDataModel(dataClone);
     setIsEditServiceOpen(false);
+    // setIsScheduleModified(true);
   }
 
   function onDragEnd(result) {
@@ -325,6 +326,11 @@ const useStyles = makeStyles(() =>
     },
     invisibleEdit: {
       visibility: 'hidden',
+    },
+    iconContainer: {
+      display: 'flex',
+      flexDirection: 'row',
+      justifyContent: 'space-between',
     },
   }),
 );
