@@ -12,6 +12,7 @@ import {
   deleteServices,
   populateServiceData,
   recurringDaysOfWeek,
+  removeTimezoneFromDate,
   replaceDashWithSlash,
   updateEvents,
   updateServices,
@@ -47,8 +48,8 @@ router.get('/schedule', certify, async (req, res, next) => {
       where: { scheduleId: scheduleId.toString() },
       order: [['order', 'ASC']],
     });
-    const start = replaceDashWithSlash(schedule.start);
-    const end = replaceDashWithSlash(schedule.end);
+    const start = removeTimezoneFromDate(schedule.start);
+    const end = removeTimezoneFromDate(schedule.end);
 
     const weekRange = weeksRange(start, end);
     const columns = createColumns(weekRange);
@@ -91,8 +92,8 @@ router.post('/schedule', certify, async (req, res, next) => {
     const newSchedule = await db.Schedule.create({
       title,
       view,
-      start: new Date(replaceDashWithSlash(startDate)),
-      end: new Date(replaceDashWithSlash(endDate)),
+      start: removeTimezoneFromDate(startDate),
+      end: removeTimezoneFromDate(endDate),
       churchId,
       roleId: team,
     });
@@ -168,6 +169,7 @@ const updateRouter = {
 router.post('/schedule/update', certify, async (req, res, next) => {
   const changes = req.body;
   try {
+    // eslint-disable-next-line no-unused-vars
     const sequelizeTransaction = db.sequelize.transaction(async (transaction) => {
       await Promise.all(
         Object.keys(changes).map(async (type) => {

@@ -226,19 +226,19 @@ function formatDates(weekRange) {
 }
 
 export function weeksRange(startDate, endDate) {
-  const [start, end] = [new Date(startDate), new Date(endDate)];
+  // const [start, end] = [new Date(startDate), new Date(endDate)];
   const weekArray = [];
-  const currentDate = new Date(start);
-  const currentObj = { start: start };
+  const currentDate = new Date(startDate);
+  const currentObj = { start: startDate };
 
   // eslint-disable-next-line no-unmodified-loop-condition
-  while (currentDate <= end) {
+  while (currentDate <= endDate) {
     if (currentDate.getDay() === 0) {
       currentObj.start = new Date(currentDate);
     } else if (currentDate.getDay() === 6) {
       currentObj.end = new Date(currentDate);
       weekArray.push({ ...currentObj });
-    } else if (areDatesEqual(currentDate, end)) {
+    } else if (areDatesEqual(currentDate, endDate)) {
       currentObj.end = new Date(currentDate);
       weekArray.push({ ...currentObj });
     }
@@ -279,7 +279,7 @@ export async function populateServiceData(service, scheduleId, weekRange) {
   const eventData = await Promise.all(
     events.map(async (event) => {
       const { time, roleId, id: eventId, serviceId } = event;
-      const tasks = await retrieveTaskData(eventId);
+      const tasks = await retrieveTaskData(eventId, weekRange[0]);
       return {
         time,
         roleId,
@@ -298,10 +298,12 @@ export async function populateServiceData(service, scheduleId, weekRange) {
   };
 }
 
-async function retrieveTaskData(eventId) {
+// maybe can truncate last item of weeksArray if weeksArray.length > tasks.length?
+
+async function retrieveTaskData(eventId, firstWeek) {
   const tasks = await db.Task.findAll({
     where: { eventId },
-    attributes: ['id', 'userId'],
+    attributes: ['id', 'userId', 'date'],
     order: [['date', 'ASC']],
   });
   const organizedTasks = tasks.map((task) => {
@@ -310,12 +312,19 @@ async function retrieveTaskData(eventId) {
       userId: task.userId,
     };
   });
+  // adds a spacer cell for when a service does not exist on that date
+  if (!containsDate(firstWeek, tasks[0].date))
+    organizedTasks.unshift({ taskId: null, userId: null });
+
   return organizedTasks;
 }
 
-// startDayofWeek: 6
-// dayofWeek: 5
-// after
+function containsDate(range, date) {
+  const startDate = new Date(range.start);
+  const endDate = new Date(range.end);
+  const testDate = removeTimezoneFromDate(date);
+  return testDate - startDate >= 0 && endDate - testDate >= 0;
+}
 
 // returns the date of every day (eg. monday or tues) within the range
 export const recurringDaysOfWeek = (startDate, endDate, dayOfWeeK) => {
@@ -431,6 +440,10 @@ export const deleteEvents = async (events, t) => {
     }),
   );
 };
+
+export function removeTimezoneFromDate(date) {
+  return new Date(replaceDashWithSlash(date));
+}
 
 export function replaceDashWithSlash(str) {
   const regex = /-/gm;
