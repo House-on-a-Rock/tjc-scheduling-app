@@ -45,6 +45,7 @@ const DragDropList = ({ listItems, onEnd, serviceId }) => {
                 )}
               </Draggable>
             ))}
+            {droppableProvided.placeholder}
           </ul>
         )}
       </Droppable>
