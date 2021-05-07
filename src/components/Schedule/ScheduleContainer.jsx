@@ -34,6 +34,8 @@ const ScheduleContainer = ({ churchId }) => {
     onDeleteScheduleSuccess,
   );
 
+  // TODO solution for when theres no schedules/tabs
+
   return (
     <div className={!loaded ? classes.loading : ''}>
       {loaded && (
@@ -100,7 +102,8 @@ const ScheduleContainer = ({ churchId }) => {
         const isNextExist = clone.indexOf(nextTab);
         if (isNextExist >= 0) clone.splice(tabIndex, 1);
         else clone.splice(tabIndex, 1, nextTab);
-        return clone;
+        const clone2 = clone.map((item) => (item > nextTab ? item - 1 : item));
+        return clone2;
       } else {
         if (t.length === 1) return [0];
         const next = t.map((index) => index - 1);

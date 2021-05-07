@@ -130,17 +130,15 @@ const EditServiceForm = ({ isOpen, onSubmit, onClose, serviceId, dataModel }) =>
 
   function onDragEnd(result) {
     const {
-      destination: { index: destination },
-      source: { index: source },
+      destination: { index: destinationIndex },
+      source: { index: sourceIndex },
     } = result;
-    // idk why but using destination and source here messed it up
-    if (!result.destination || result.destination === result.source) {
-      return;
-    }
+    if (destinationIndex === null || destinationIndex === sourceIndex) return;
+
     setDataClone((prev) => {
       const temp = [...prev];
-      const src = temp.splice(source, 1);
-      temp.splice(destination, 0, src[0]);
+      const src = temp.splice(sourceIndex, 1);
+      temp.splice(destinationIndex, 0, src[0]);
 
       return temp;
     });

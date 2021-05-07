@@ -108,13 +108,7 @@ const Table = ({
                               }}
                             >
                               <MuiCell align="left">
-                                <div
-                                  style={{
-                                    display: 'flex',
-                                    flexDirection: 'row',
-                                    justifyContent: 'space-between',
-                                  }}
-                                >
+                                <div className={classes.iconContainer}>
                                   <div {...provided.dragHandleProps}>
                                     <ReorderIcon
                                       className={
@@ -332,6 +326,11 @@ const useStyles = makeStyles(() =>
     },
     invisibleEdit: {
       visibility: 'hidden',
+    },
+    iconContainer: {
+      display: 'flex',
+      flexDirection: 'row',
+      justifyContent: 'space-between',
     },
   }),
 );
