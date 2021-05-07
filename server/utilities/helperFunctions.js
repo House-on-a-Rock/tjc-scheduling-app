@@ -215,45 +215,55 @@ const zeroPaddingDates = (date) => {
   return `${month}/${day}`;
 };
 
-const setStartAndEnd = (arg1, arg2) => {
-  const start = new Date(arg1);
-  start.setDate(start.getDate() - start.getDay()); // sets start to sunday
-  const end = arg2 ? new Date(arg2) : new Date(start);
-  end.setDate(end.getDate() + (6 - end.getDay()));
-  return [start, end];
-};
-
-export function columnizedDates(everyRepeatingDay) {
-  return everyRepeatingDay.map((date) => {
-    const startDate = new Date(date);
-    const endDate = new Date(date);
-    endDate.setDate(startDate.getDate() + 6);
-
-    return { Header: `${zeroPaddingDates(startDate)} - ${zeroPaddingDates(endDate)}` };
+function formatDates(weekRange) {
+  const r = weekRange.map((week) => {
+    const start = zeroPaddingDates(week.start);
+    const end = zeroPaddingDates(week.end);
+    const returnstring = { Header: `${start} - ${end}` };
+    return returnstring;
   });
+  return r;
 }
 
-export function determineWeeks(startDate, endDate) {
-  const [start, end] = setStartAndEnd(startDate, endDate);
-  const weeks = [];
-  let current = new Date(start);
-  while (current <= end) {
-    weeks.push(new Date(current));
-    current = new Date(current.setDate(current.getDate() + 7));
+// weeks - in backend, use YYYY/MM/DD format, in frontend, converts it to MM/DD/YYYY
+// [{ startDate - end of first week}, ... {start of last week, end of schedule}]
+// eg. range is 5/1/2021 - 6/30/2021
+// [{5/1}, {5/2 - 5/8}, {5/9 - 5/15}, {5/16 - 5/22}, {5/23 - 5/29}, {5/30 - 5/31}]
+// {start: 5/1, end: null}, {start: 5/2, end: 5/8}
+
+export function weeksRange(startDate, endDate) {
+  const [start, end] = [new Date(startDate), new Date(endDate)];
+  const weekArray = [];
+  const currentDate = new Date(start);
+  const currentObj = { start: start };
+
+  // eslint-disable-next-line no-unmodified-loop-condition
+  while (currentDate <= end) {
+    if (currentDate.getDay() === 0) {
+      currentObj.start = new Date(currentDate);
+    } else if (currentDate.getDay() === 6) {
+      currentObj.end = new Date(currentDate);
+      weekArray.push({ ...currentObj });
+    } else if (currentDate === end) {
+      currentObj.end = new Date(currentDate);
+      weekArray.push({ ...currentObj });
+    }
+    currentDate.setDate(currentDate.getDate() + 1);
   }
-  return weeks;
+
+  return weekArray;
 }
 
-export function createColumns(start, end) {
+export function createColumns(weekRange) {
   return [
     { Header: '' },
     { Header: 'Time' },
     { Header: 'Duty' },
-    ...columnizedDates(determineWeeks(start, end)),
+    ...formatDates(weekRange),
   ];
 }
 
-export async function populateServiceData(service, scheduleId) {
+export async function populateServiceData(service, scheduleId, weekRange) {
   const { name, day, id } = service;
   const events = await db.Event.findAll({
     where: { serviceId: id },
@@ -409,3 +419,8 @@ export const deleteEvents = async (events, t) => {
     }),
   );
 };
+
+export function replaceDashWithSlash(str) {
+  const regex = /-/gm;
+  return str.replace(regex, '/');
+}

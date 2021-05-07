@@ -12,9 +12,11 @@ import {
   deleteServices,
   populateServiceData,
   recurringDaysOfWeek,
+  replaceDashWithSlash,
   updateEvents,
   updateServices,
   updateTasks,
+  weeksRange,
 } from '../utilities/helperFunctions';
 
 const router = express.Router();
@@ -45,9 +47,15 @@ router.get('/schedule', certify, async (req, res, next) => {
       where: { scheduleId: scheduleId.toString() },
       order: [['order', 'ASC']],
     });
-    const columns = createColumns(schedule.start, schedule.end);
+    const start = replaceDashWithSlash(schedule.start);
+    const end = replaceDashWithSlash(schedule.end);
+    const weekRange = weeksRange(start, end);
+    const columns = createColumns(weekRange);
+    console.log(`columns`, columns);
     const servicesData = await Promise.all(
-      services.map(async (service) => populateServiceData(service, scheduleId)),
+      services.map(async (service) =>
+        populateServiceData(service, scheduleId, weekRange),
+      ),
     );
 
     const response = {

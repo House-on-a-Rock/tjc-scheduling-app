@@ -48,3 +48,9 @@ TableHeader.propTypes = {
 };
 
 export default TableHeader;
+
+/*
+  headers should contain the exact start/end dates of the schedule
+
+  if there is no task on that day, then the task should not exist, and the autocompletes should not show.
+*/
