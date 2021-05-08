@@ -333,14 +333,11 @@ export const recurringDaysOfWeek = (startDate, endDate, dayOfWeeK) => {
   ];
   const weeks = [];
   const startDayOfWeek = new Date(start).getDay();
-  // console.log(`dayOfWeek, startDayOfWeek`, dayOfWeeK, startDayOfWeek);
-
   let dayModifier = dayOfWeeK - startDayOfWeek;
   if (dayModifier < 0) dayModifier += 7;
   let current = new Date(start);
 
   current.setDate(current.getDate() + dayModifier);
-  // console.log(`dayModifier, current`, dayModifier, current);
   while (current <= end) {
     weeks.push(new Date(current));
     current = new Date(current.setDate(current.getDate() + 7));
