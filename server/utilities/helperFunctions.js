@@ -219,14 +219,14 @@ function formatDates(weekRange) {
   const r = weekRange.map((week) => {
     const start = zeroPaddingDates(week.start);
     const end = zeroPaddingDates(week.end);
-    const returnstring = { Header: `${start} - ${end}` };
-    return returnstring;
+
+    const returnstring = start === end ? `${start}` : `${start} - ${end}`;
+    return { Header: returnstring };
   });
   return r;
 }
 
 export function weeksRange(startDate, endDate) {
-  // const [start, end] = [new Date(startDate), new Date(endDate)];
   const weekArray = [];
   const currentDate = new Date(startDate);
   const currentObj = { start: startDate };
@@ -264,12 +264,6 @@ function areDatesEqual(d1, d2) {
   );
 }
 
-/*
-  creating / retrieving tasks
-  - the tasksArray.length should be the same for all events inside a service (tasks may still be empty, but should be created)
-  - 
-*/
-
 export async function populateServiceData(service, scheduleId, weekRange) {
   const { name, day, id } = service;
   const events = await db.Event.findAll({
@@ -279,7 +273,11 @@ export async function populateServiceData(service, scheduleId, weekRange) {
   const eventData = await Promise.all(
     events.map(async (event) => {
       const { time, roleId, id: eventId, serviceId } = event;
-      const tasks = await retrieveTaskData(eventId, weekRange[0]);
+      const tasks = await retrieveTaskData(
+        eventId,
+        weekRange[0],
+        weekRange[weekRange.length - 1],
+      );
       return {
         time,
         roleId,
@@ -300,7 +298,7 @@ export async function populateServiceData(service, scheduleId, weekRange) {
 
 // maybe can truncate last item of weeksArray if weeksArray.length > tasks.length?
 
-async function retrieveTaskData(eventId, firstWeek) {
+async function retrieveTaskData(eventId, firstWeek, lastWeek) {
   const tasks = await db.Task.findAll({
     where: { eventId },
     attributes: ['id', 'userId', 'date'],
@@ -315,7 +313,8 @@ async function retrieveTaskData(eventId, firstWeek) {
   // adds a spacer cell for when a service does not exist on that date
   if (!containsDate(firstWeek, tasks[0].date))
     organizedTasks.unshift({ taskId: null, userId: null });
-
+  if (!containsDate(lastWeek, tasks[tasks.length - 1].date))
+    organizedTasks.push({ taskId: null, userId: null });
   return organizedTasks;
 }
 

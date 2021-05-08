@@ -1,8 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { renderOption } from './utilities';
-import { TimeCell, DutyAutocomplete, TasksAutocomplete } from '.';
-import MuiCell from '@material-ui/core/TableCell';
+import { TimeCell, DutyAutocomplete, TasksAutocomplete, PlaceHolderCell } from '.';
 
 const TableCell = ({
   cellIndices,
@@ -54,7 +53,7 @@ const TableCell = ({
       isScheduleModified={isScheduleModified}
     />
   ) : userId === null && taskId === null ? (
-    <MuiCell></MuiCell>
+    <PlaceHolderCell />
   ) : (
     <TasksAutocomplete
       dataId={userId}
