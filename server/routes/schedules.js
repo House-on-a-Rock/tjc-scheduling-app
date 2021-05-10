@@ -13,7 +13,6 @@ import {
   populateServiceData,
   recurringDaysOfWeek,
   removeTimezoneFromDate,
-  replaceDashWithSlash,
   updateEvents,
   updateServices,
   updateTasks,
