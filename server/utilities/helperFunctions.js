@@ -406,7 +406,10 @@ export const updateTasks = async (tasks, t) => {
       const targetTask = await db.Task.findOne({
         where: { id: item.taskId },
       });
-      return targetTask.update({ userId: item.userId }, { transaction: t });
+      return targetTask.update(
+        { userId: item.userId > 0 ? item.userId : null },
+        { transaction: t },
+      );
     }),
   );
 };
