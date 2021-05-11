@@ -219,12 +219,13 @@ const Table = ({
   }
 
   // onChange Handlers
-  function onTaskChange(dataContext, newAssignee) {
+  function onTaskChange(dataContext, newAssignee, initialId) {
     const { serviceIndex, rowIndex, columnIndex } = dataContext;
     const dataClone = [...dataModel];
     const targetCell = dataClone[serviceIndex].events[rowIndex].cells[columnIndex];
     targetCell.userId = newAssignee;
-    targetCell.status = cellStatus.MODIFIED;
+    targetCell.status =
+      newAssignee === initialId ? cellStatus.synced : cellStatus.MODIFIED;
     setDataModel(dataClone);
     setIsScheduleModified(true);
   }

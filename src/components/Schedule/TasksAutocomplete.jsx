@@ -60,7 +60,7 @@ const TasksAutocomplete = React.memo((props) => {
           renderOption(getUserOptionLabel(option, options), option === initialId)
         }
         value={dataId}
-        onChange={(event, newValue) => onChange(dataContext, newValue)}
+        onChange={(event, newValue) => onChange(dataContext, newValue, initialId)}
         disableClearable
         fullWidth
         clearOnBlur
