@@ -33,7 +33,6 @@ const ScheduleContainer = ({ churchId }) => {
     onDeleteScheduleSuccess,
   );
 
-  console.log(users);
   // TODO solution for when theres no schedules/tabs
 
   return (

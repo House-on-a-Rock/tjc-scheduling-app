@@ -53,8 +53,6 @@ const ScheduleMain = ({
 
   if (!dataModel || !schedule) return <div className={classes.loading}></div>;
 
-  console.log(`dataModel`, dataModel);
-
   return (
     <div
       className={`main_${scheduleId}`}
@@ -133,7 +131,6 @@ ScheduleMain.propTypes = {
   users: PropTypes.array,
   teams: PropTypes.array,
   setAlert: PropTypes.func,
-  // deleteSchedule: PropTypes.object,
   deleteSchedule: PropTypes.func,
   tab: PropTypes.number,
 };

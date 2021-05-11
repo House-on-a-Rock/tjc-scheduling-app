@@ -9,9 +9,7 @@ import TextField from '@material-ui/core/TextField';
 
 import { typographyTheme } from '../../shared/styles/theme';
 
-import useTasksAutocompleteHooks from './useTasksAutocompleteHooks';
-
-import { extractTeammateIds, getUserOptionLabel } from './utilities';
+import { cellStatus, extractTeammateIds, getUserOptionLabel } from './utilities';
 
 /*
   Props explanation
@@ -30,22 +28,18 @@ const TasksAutocomplete = React.memo((props) => {
   const {
     dataId,
     options,
-    roleId,
     status,
     dataContext,
     onChange,
     renderOption,
     isEditMode,
-    isScheduleModified,
   } = props;
   const classes = useStyles();
+  const [initialId, setInitialId] = React.useState(dataId);
 
-  // const [managedDataSet, initialData] = useTasksAutocompleteHooks(
-  //   dataId,
-  //   roleId,
-  //   options,
-  //   isScheduleModified,
-  // );
+  React.useEffect(() => {
+    if (status === cellStatus.SYNCED) setInitialId(dataId);
+  }, [status]);
 
   return (
     <TableCell className={classes[status]}>
@@ -63,7 +57,7 @@ const TasksAutocomplete = React.memo((props) => {
         getOptionLabel={(option) => getUserOptionLabel(option, options)}
         getOptionDisabled={(option) => option === dataId}
         renderOption={(option) =>
-          renderOption(getUserOptionLabel(option, options), false)
+          renderOption(getUserOptionLabel(option, options), option === initialId)
         }
         value={dataId}
         onChange={(event, newValue) => onChange(dataContext, newValue)}
@@ -84,8 +78,8 @@ function arePropsEqual(prevProps, nextProps) {
     prevProps.dataId === nextProps.dataId &&
     prevProps.dataContext.roleId === nextProps.dataContext.roleId &&
     prevProps.isEditMode === nextProps.isEditMode &&
-    prevProps.isScheduleModified === nextProps.isScheduleModified &&
-    prevProps.status === nextProps.status
+    prevProps.status === nextProps.status &&
+    prevProps.options === nextProps.options
   );
 }
 

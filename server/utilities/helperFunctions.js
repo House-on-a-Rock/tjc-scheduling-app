@@ -264,6 +264,12 @@ function areDatesEqual(d1, d2) {
   );
 }
 
+const cellStatus = {
+  SYNCED: 'synced',
+  MODIFIED: 'modified',
+  WARNING: 'warning',
+};
+
 export async function populateServiceData(service, scheduleId, weekRange) {
   const { name, day, id } = service;
   const events = await db.Event.findAll({
@@ -273,10 +279,17 @@ export async function populateServiceData(service, scheduleId, weekRange) {
   const eventData = await Promise.all(
     events.map(async (event) => {
       const { time, roleId, id: eventId, serviceId } = event;
+      const userRoles = await db.UserRole.findAll({
+        where: { roleId: roleId },
+        attributes: ['userId'],
+      });
+      const userIds = userRoles.map((userRole) => userRole.userId);
+      console.log(`roleId, userIds`, roleId, userIds);
       const tasks = await retrieveTaskData(
         eventId,
         weekRange[0],
         weekRange[weekRange.length - 1],
+        userIds,
       );
       return {
         time,
@@ -298,23 +311,28 @@ export async function populateServiceData(service, scheduleId, weekRange) {
 
 // maybe can truncate last item of weeksArray if weeksArray.length > tasks.length?
 
-async function retrieveTaskData(eventId, firstWeek, lastWeek) {
+async function retrieveTaskData(eventId, firstWeek, lastWeek, userIds) {
   const tasks = await db.Task.findAll({
     where: { eventId },
     attributes: ['id', 'userId', 'date'],
     order: [['date', 'ASC']],
   });
   const organizedTasks = tasks.map((task) => {
+    const doesRoleMatch = userIds.indexOf(task.userId);
     return {
       taskId: task.id,
       userId: task.userId,
+      status:
+        doesRoleMatch >= 0 || task.userId === null
+          ? cellStatus.SYNCED
+          : cellStatus.WARNING,
     };
   });
   // adds a spacer cell for when a service does not exist on that date
   if (!containsDate(firstWeek, tasks[0].date))
-    organizedTasks.unshift({ taskId: null, userId: null });
+    organizedTasks.unshift({ taskId: null, userId: null, status: cellStatus.OK });
   if (!containsDate(lastWeek, tasks[tasks.length - 1].date))
-    organizedTasks.push({ taskId: null, userId: null });
+    organizedTasks.push({ taskId: null, userId: null, status: cellStatus.OK });
   return organizedTasks;
 }
 

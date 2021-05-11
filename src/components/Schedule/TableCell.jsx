@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { renderOption } from './utilities';
+import { renderOption, cellStatus } from './utilities';
 import { TimeCell, DutyAutocomplete, TasksAutocomplete, PlaceHolderCell } from '.';
 
 const TableCell = ({
@@ -8,7 +8,7 @@ const TableCell = ({
   roleId,
   userId = 0,
   taskId = 0,
-  status = 'ok',
+  status = cellStatus.SYNCED,
   time,
   teams,
   users,
@@ -33,6 +33,11 @@ const TableCell = ({
     rowIndex,
     columnIndex,
   };
+
+  const augmentedDataSet = React.useMemo(
+    () => augmentDataSet(tasksDataSet, userId, users),
+    [userId, tasksDataSet],
+  );
 
   return cellIndices.columnIndex === 0 ? (
     <TimeCell
@@ -59,15 +64,12 @@ const TableCell = ({
   ) : (
     <TasksAutocomplete
       dataId={userId}
-      roleId={roleId}
-      // options={tasksDataSet}
-      options={augmentDataSet(tasksDataSet, userId, users)}
+      options={augmentedDataSet}
       status={status}
       dataContext={taskDataContext}
       onChange={onTaskChange}
       renderOption={renderOption}
       isEditMode={isEditMode}
-      isScheduleModified={isScheduleModified}
     />
   );
 };
