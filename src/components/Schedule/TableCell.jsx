@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { renderOption } from './utilities';
-import { TimeCell, DutyAutocomplete, TasksAutocomplete } from '.';
+import { TimeCell, DutyAutocomplete, TasksAutocomplete, PlaceHolderCell } from '.';
 
 const TableCell = ({
   cellIndices,
@@ -52,6 +52,8 @@ const TableCell = ({
       isEditMode={isEditMode}
       isScheduleModified={isScheduleModified}
     />
+  ) : userId === null && taskId === null ? (
+    <PlaceHolderCell />
   ) : (
     <TasksAutocomplete
       dataId={userId}

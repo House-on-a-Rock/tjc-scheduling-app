@@ -12,9 +12,11 @@ import {
   deleteServices,
   populateServiceData,
   recurringDaysOfWeek,
+  removeTimezoneFromDate,
   updateEvents,
   updateServices,
   updateTasks,
+  weeksRange,
 } from '../utilities/helperFunctions';
 
 const router = express.Router();
@@ -45,9 +47,15 @@ router.get('/schedule', certify, async (req, res, next) => {
       where: { scheduleId: scheduleId.toString() },
       order: [['order', 'ASC']],
     });
-    const columns = createColumns(schedule.start, schedule.end);
+    const start = removeTimezoneFromDate(schedule.start);
+    const end = removeTimezoneFromDate(schedule.end);
+
+    const weekRange = weeksRange(start, end);
+    const columns = createColumns(weekRange);
     const servicesData = await Promise.all(
-      services.map(async (service) => populateServiceData(service, scheduleId)),
+      services.map(async (service) =>
+        populateServiceData(service, scheduleId, weekRange),
+      ),
     );
 
     const response = {
@@ -83,8 +91,8 @@ router.post('/schedule', certify, async (req, res, next) => {
     const newSchedule = await db.Schedule.create({
       title,
       view,
-      start: new Date(startDate),
-      end: new Date(endDate),
+      start: removeTimezoneFromDate(startDate),
+      end: removeTimezoneFromDate(endDate),
       churchId,
       roleId: team,
     });
@@ -94,6 +102,7 @@ router.post('/schedule', certify, async (req, res, next) => {
         where: { id: req.body.templateId },
       });
 
+      // loops through each service
       template.data.forEach(async ({ name, day, events }, index) => {
         const newService = await db.Service.create({
           name: name,
@@ -159,6 +168,7 @@ const updateRouter = {
 router.post('/schedule/update', certify, async (req, res, next) => {
   const changes = req.body;
   try {
+    // eslint-disable-next-line no-unused-vars
     const sequelizeTransaction = db.sequelize.transaction(async (transaction) => {
       await Promise.all(
         Object.keys(changes).map(async (type) => {

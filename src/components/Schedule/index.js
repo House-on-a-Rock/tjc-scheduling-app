@@ -10,6 +10,7 @@ import TasksAutocomplete from './TasksAutocomplete';
 import ScheduleContainer from './ScheduleContainer';
 import ScheduleMain from './ScheduleMain';
 import TableCell from './TableCell';
+import PlaceHolderCell from './PlaceHolderCell';
 
 export {
   EditServiceForm,
@@ -24,4 +25,5 @@ export {
   ScheduleContainer,
   ScheduleMain,
   TableCell,
+  PlaceHolderCell,
 };

@@ -1,7 +1,7 @@
 const TaskFactory = (sequelize, DataTypes) => {
   const attributes = {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
-    date: { type: DataTypes.DATE },
+    date: { type: DataTypes.DATEONLY },
     status: { type: DataTypes.STRING, defaultValue: 'active' },
   };
 

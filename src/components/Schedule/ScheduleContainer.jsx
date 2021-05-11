@@ -10,8 +10,7 @@ import useScheduleContainerData from '../../hooks/containerHooks/useScheduleCont
 import { createStyles, makeStyles } from '@material-ui/core';
 import { loadingTheme } from '../../shared/styles/theme';
 
-// TODO tab switching doesnt quite work, make sure alert works
-// error checking if there are no schedules, make sure delete schedule works
+// error checking if there are no schedules
 
 const ScheduleContainer = ({ churchId }) => {
   const classes = useStyles();

@@ -3,8 +3,8 @@ const ScheduleFactory = (sequelize, DataTypes) => {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     title: { type: DataTypes.STRING },
     view: { type: DataTypes.STRING },
-    start: { type: DataTypes.DATE },
-    end: { type: DataTypes.DATE },
+    start: { type: DataTypes.DATEONLY },
+    end: { type: DataTypes.DATEONLY },
     roleId: { type: DataTypes.INTEGER },
     churchId: { type: DataTypes.INTEGER },
   };

@@ -215,57 +215,56 @@ const zeroPaddingDates = (date) => {
   return `${month}/${day}`;
 };
 
-const setStartAndEnd = (arg1, arg2) => {
-  const start = new Date(arg1);
-  start.setDate(start.getDate() - start.getDay()); // sets start to sunday
-  const end = arg2 ? new Date(arg2) : new Date(start);
-  end.setDate(end.getDate() + (6 - end.getDay()));
-  return [start, end];
-};
+function formatDates(weekRange) {
+  const r = weekRange.map((week) => {
+    const start = zeroPaddingDates(week.start);
+    const end = zeroPaddingDates(week.end);
 
-export function columnizedDates(everyRepeatingDay) {
-  return everyRepeatingDay.map((date) => {
-    const startDate = new Date(date);
-    const endDate = new Date(date);
-    endDate.setDate(startDate.getDate() + 6);
-
-    return {
-      Header: `${zeroPaddingDates(startDate)}-${zeroPaddingDates(endDate)}`,
-      accessor: `${zeroPaddingDates(startDate)}-${zeroPaddingDates(endDate)}`,
-    };
+    const returnstring = start === end ? `${start}` : `${start} - ${end}`;
+    return { Header: returnstring };
   });
+  return r;
 }
 
-export function determineWeeks(startDate, endDate) {
-  const [start, end] = setStartAndEnd(startDate, endDate);
-  const weeks = [];
-  let current = new Date(start);
-  while (current <= end) {
-    weeks.push(new Date(current));
-    current = new Date(current.setDate(current.getDate() + 7));
+export function weeksRange(startDate, endDate) {
+  const weekArray = [];
+  const currentDate = new Date(startDate);
+  const currentObj = { start: startDate };
+
+  // eslint-disable-next-line no-unmodified-loop-condition
+  while (currentDate <= endDate) {
+    if (currentDate.getDay() === 0) {
+      currentObj.start = new Date(currentDate);
+    } else if (currentDate.getDay() === 6) {
+      currentObj.end = new Date(currentDate);
+      weekArray.push({ ...currentObj });
+    } else if (areDatesEqual(currentDate, endDate)) {
+      currentObj.end = new Date(currentDate);
+      weekArray.push({ ...currentObj });
+    }
+    currentDate.setDate(currentDate.getDate() + 1);
   }
-  return weeks;
+  return weekArray;
 }
 
-export function createColumns(start, end) {
+export function createColumns(weekRange) {
   return [
-    {
-      Header: '',
-      accessor: '',
-    },
-    {
-      Header: 'Time',
-      accessor: 'time',
-    },
-    {
-      Header: 'Duty',
-      accessor: 'duty',
-    },
-    ...columnizedDates(determineWeeks(start, end)),
+    { Header: '' },
+    { Header: 'Time' },
+    { Header: 'Duty' },
+    ...formatDates(weekRange),
   ];
 }
 
-export async function populateServiceData(service, scheduleId) {
+function areDatesEqual(d1, d2) {
+  return (
+    d1.getFullYear() === d2.getFullYear() &&
+    d1.getMonth() === d2.getMonth() &&
+    d1.getDate() === d2.getDate()
+  );
+}
+
+export async function populateServiceData(service, scheduleId, weekRange) {
   const { name, day, id } = service;
   const events = await db.Event.findAll({
     where: { serviceId: id },
@@ -274,7 +273,11 @@ export async function populateServiceData(service, scheduleId) {
   const eventData = await Promise.all(
     events.map(async (event) => {
       const { time, roleId, id: eventId, serviceId } = event;
-      const tasks = await retrieveTaskData(eventId);
+      const tasks = await retrieveTaskData(
+        eventId,
+        weekRange[0],
+        weekRange[weekRange.length - 1],
+      );
       return {
         time,
         roleId,
@@ -293,17 +296,12 @@ export async function populateServiceData(service, scheduleId) {
   };
 }
 
-// function retrieveEventRole(roleId) {
-//   return db.Role.findOne({
-//     where: { id: roleId },
-//     attributes: ['id', 'name'],
-//   });
-// }
+// maybe can truncate last item of weeksArray if weeksArray.length > tasks.length?
 
-async function retrieveTaskData(eventId) {
+async function retrieveTaskData(eventId, firstWeek, lastWeek) {
   const tasks = await db.Task.findAll({
     where: { eventId },
-    attributes: ['id', 'userId'],
+    attributes: ['id', 'userId', 'date'],
     order: [['date', 'ASC']],
   });
   const organizedTasks = tasks.map((task) => {
@@ -312,16 +310,33 @@ async function retrieveTaskData(eventId) {
       userId: task.userId,
     };
   });
+  // adds a spacer cell for when a service does not exist on that date
+  if (!containsDate(firstWeek, tasks[0].date))
+    organizedTasks.unshift({ taskId: null, userId: null });
+  if (!containsDate(lastWeek, tasks[tasks.length - 1].date))
+    organizedTasks.push({ taskId: null, userId: null });
   return organizedTasks;
 }
 
+function containsDate(range, date) {
+  const startDate = new Date(range.start);
+  const endDate = new Date(range.end);
+  const testDate = removeTimezoneFromDate(date);
+  return testDate - startDate >= 0 && endDate - testDate >= 0;
+}
+
 // returns the date of every day (eg. monday or tues) within the range
-export const recurringDaysOfWeek = (start, end, dayOfWeeK) => {
+export const recurringDaysOfWeek = (startDate, endDate, dayOfWeeK) => {
+  const [start, end] = [
+    replaceDashWithSlash(startDate),
+    new Date(replaceDashWithSlash(endDate)),
+  ];
   const weeks = [];
   const startDayOfWeek = new Date(start).getDay();
   let dayModifier = dayOfWeeK - startDayOfWeek;
   if (dayModifier < 0) dayModifier += 7;
   let current = new Date(start);
+
   current.setDate(current.getDate() + dayModifier);
   while (current <= end) {
     weeks.push(new Date(current));
@@ -421,3 +436,12 @@ export const deleteEvents = async (events, t) => {
     }),
   );
 };
+
+export function removeTimezoneFromDate(date) {
+  return new Date(replaceDashWithSlash(date));
+}
+
+export function replaceDashWithSlash(str) {
+  const regex = /-/gm;
+  return str.replace(regex, '/');
+}
