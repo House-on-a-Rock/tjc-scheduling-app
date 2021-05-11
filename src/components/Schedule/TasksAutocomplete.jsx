@@ -76,7 +76,6 @@ const TasksAutocomplete = React.memo((props) => {
 function arePropsEqual(prevProps, nextProps) {
   return (
     prevProps.dataId === nextProps.dataId &&
-    prevProps.dataContext.roleId === nextProps.dataContext.roleId &&
     prevProps.isEditMode === nextProps.isEditMode &&
     prevProps.status === nextProps.status &&
     prevProps.options === nextProps.options

@@ -34,11 +34,6 @@ const TableCell = ({
     columnIndex,
   };
 
-  const augmentedDataSet = React.useMemo(
-    () => augmentDataSet(tasksDataSet, userId, users),
-    [userId, tasksDataSet],
-  );
-
   return cellIndices.columnIndex === 0 ? (
     <TimeCell
       time={time}
@@ -64,7 +59,7 @@ const TableCell = ({
   ) : (
     <TasksAutocomplete
       dataId={userId}
-      options={augmentedDataSet}
+      options={augmentDataSet(tasksDataSet, userId, users)}
       status={status}
       dataContext={taskDataContext}
       onChange={onTaskChange}
@@ -74,6 +69,7 @@ const TableCell = ({
   );
 };
 
+// if userId does not appear in dataSet, add that user to be displayed in options
 function augmentDataSet(dataSet, userId, users) {
   const isDataIdPresent = dataSet.some((user) => user.userId === userId);
 

@@ -284,7 +284,6 @@ export async function populateServiceData(service, scheduleId, weekRange) {
         attributes: ['userId'],
       });
       const userIds = userRoles.map((userRole) => userRole.userId);
-      console.log(`roleId, userIds`, roleId, userIds);
       const tasks = await retrieveTaskData(
         eventId,
         weekRange[0],
@@ -318,10 +317,12 @@ async function retrieveTaskData(eventId, firstWeek, lastWeek, userIds) {
     order: [['date', 'ASC']],
   });
   const organizedTasks = tasks.map((task) => {
+    // checks if userId belongs to list of users with that role.
     const doesRoleMatch = userIds.indexOf(task.userId);
     return {
       taskId: task.id,
       userId: task.userId,
+      // if role does not match, cell will receive 'warning' status and will appear red in frontend
       status:
         doesRoleMatch >= 0 || task.userId === null
           ? cellStatus.SYNCED
@@ -330,9 +331,9 @@ async function retrieveTaskData(eventId, firstWeek, lastWeek, userIds) {
   });
   // adds a spacer cell for when a service does not exist on that date
   if (!containsDate(firstWeek, tasks[0].date))
-    organizedTasks.unshift({ taskId: null, userId: null, status: cellStatus.OK });
+    organizedTasks.unshift({ taskId: null, userId: null });
   if (!containsDate(lastWeek, tasks[tasks.length - 1].date))
-    organizedTasks.push({ taskId: null, userId: null, status: cellStatus.OK });
+    organizedTasks.push({ taskId: null, userId: null });
   return organizedTasks;
 }
 
