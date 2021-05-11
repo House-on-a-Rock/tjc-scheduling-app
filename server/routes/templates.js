@@ -1,5 +1,6 @@
 import express from 'express';
 import Sequelize from 'sequelize';
+
 import db from '../index';
 import { certify } from '../utilities/helperFunctions';
 

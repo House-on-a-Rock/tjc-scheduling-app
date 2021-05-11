@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import ScheduleMain from './ScheduleMain';
 import ScheduleTabs from './Tabs';
 import NewScheduleForm from '../shared/NewScheduleForm';
-import { Alert } from '../shared/Alert';
+import { Alert, sendAlert } from '../shared/Alert';
 import useScheduleContainerData from '../../hooks/containerHooks/useScheduleContainerData';
 
 import { createStyles, makeStyles } from '@material-ui/core';
@@ -29,10 +29,12 @@ const ScheduleContainer = ({ churchId }) => {
     deleteSchedule,
   ] = useScheduleContainerData(
     churchId,
-    setIsNewScheduleOpen,
     setAlert,
-    onDeleteSchedule,
+    onCreateScheduleSuccess,
+    onDeleteScheduleSuccess,
   );
+
+  // TODO solution for when theres no schedules/tabs
 
   return (
     <div className={!loaded ? classes.loading : ''}>
@@ -44,19 +46,23 @@ const ScheduleContainer = ({ churchId }) => {
             handleAddClicked={() => setIsNewScheduleOpen(true)}
             tabs={tabs}
           />
-          {openedTabs.map((tab) => (
-            <ScheduleMain
-              churchId={churchId}
-              scheduleId={tabs.length > 0 ? tabs[tab].id : null}
-              isViewed={tab === viewedTab}
-              users={users}
-              teams={teams}
-              setAlert={setAlert}
-              deleteSchedule={deleteSchedule}
-              tab={tab}
-              key={tab.toString()}
-            />
-          ))}
+          {openedTabs.length > 0 ? (
+            openedTabs.map((tab) => (
+              <ScheduleMain
+                churchId={churchId}
+                scheduleId={tabs.length > 0 ? tabs[tab].id : null}
+                isVisible={tab === viewedTab}
+                users={users}
+                teams={teams}
+                setAlert={setAlert}
+                deleteSchedule={deleteSchedule}
+                tab={tab}
+                key={tab.toString()}
+              />
+            ))
+          ) : (
+            <div>Create a new schedule!</div>
+          )}
           {isNewScheduleOpen && (
             <NewScheduleForm
               onClose={() => setIsNewScheduleOpen(false)}
@@ -75,23 +81,36 @@ const ScheduleContainer = ({ churchId }) => {
     </div>
   );
 
-  function onDeleteSchedule(tab) {
-    // pbly need a more elegant solution in the future
+  function onCreateScheduleSuccess(res) {
+    setIsNewScheduleOpen(false);
+    setAlert(sendAlert(res));
 
-    setOpenedTabs([0]);
-    setViewedTab(0);
-    // for future use mbbe
-    // setOpenedTabs((p) => {
-    //   const clone = p;
-    //   console.log(`clone`, clone);
-    //   const i = clone.indexOf(tab);
-    //   const next = i > 1 ? i - 1 : 0;
-    //   console.log(`next`, next);
-    //   clone.splice(i, 1, next);
-    //   console.log(`clone`, clone);
-    //   return clone;
-    // });
-    // setViewedTab((p) => (p > 0 ? p - 1 : 0));
+    const newTab = tabs.length;
+    setOpenedTabs((t) => [...t, newTab]);
+    setViewedTab(newTab);
+  }
+
+  function onDeleteScheduleSuccess(tab) {
+    const isFirstTab = tab === 0;
+    const nextTab = tab > 0 ? tab - 1 : 0;
+
+    setViewedTab(nextTab);
+    setOpenedTabs((t) => {
+      const clone = [...t];
+      if (!isFirstTab) {
+        const tabIndex = clone.indexOf(tab);
+        const isNextExist = clone.indexOf(nextTab);
+        if (isNextExist >= 0) clone.splice(tabIndex, 1);
+        else clone.splice(tabIndex, 1, nextTab);
+        const clone2 = clone.map((item) => (item > nextTab ? item - 1 : item));
+        return clone2;
+      } else {
+        if (t.length === 1) return [0];
+        const next = t.map((index) => index - 1);
+        next.splice(0, 1);
+        return next.length > 0 ? next : [0];
+      }
+    });
   }
 
   function onTabClick(value) {

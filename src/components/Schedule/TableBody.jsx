@@ -5,66 +5,41 @@ import { TableCell, TableRow, TableBody as MuiTableBody } from '@material-ui/cor
 import { makeStyles, createStyles } from '@material-ui/core/styles';
 import EditIcon from '@material-ui/icons/Edit';
 
-// TODO add service-name editing functionality to the edit button here
+// TODO when collapsing, use css to hide instead of js?
 
 export const TableBody = ({
   title,
+  serviceId,
   children,
   providedRef,
   isEdit,
   addEvent,
   deleteService,
+  onEditService,
 }) => {
   const tooltipId = `${title}_tooltip`;
   const classes = useStyles();
   const [open, setOpen] = React.useState(true);
-  const [expandedBefore, setExpandedBefore] = React.useState(false);
+
   return (
-    <>
-      <MuiTableBody>
-        <TableRow
-          onClick={() => {
-            setOpen(!open);
-            if (!open) {
-              setExpandedBefore(true);
-            }
-          }}
-        >
-          <TableCell className={classes.scheduleTitle}>
-            <div
-              data-tip
-              data-for={tooltipId}
-              onClick={() => {
-                setOpen(!open);
-                if (!open) {
-                  setExpandedBefore(true);
-                }
-              }}
-            >
-              {title}
-            </div>
-            {isEdit && (
-              <div>
-                <EditIcon />
-                <button onClick={deleteService}>Delete Service</button>
-                <button onClick={addEvent}>Add Event</button>
-              </div>
-            )}
-            <ReactTooltip id={tooltipId}>
-              <span>{`Click to ${open ? 'collapse' : 'expand'}`}</span>
-            </ReactTooltip>
-          </TableCell>
-        </TableRow>
-      </MuiTableBody>
-      <MuiTableBody
-        ref={providedRef}
-        className={`${classes.groupOfRows} ${!open && classes.collapsedGroupOfRows} ${
-          open && expandedBefore && classes.expandedGroupOfRows
-        }`}
-      >
-        {children}
-      </MuiTableBody>
-    </>
+    <MuiTableBody ref={providedRef}>
+      <TableRow>
+        <TableCell className={classes.scheduleTitle}>
+          <div data-tip data-for={tooltipId} onClick={() => setOpen(!open)}>
+            {title}
+          </div>
+          <div className={isEdit ? classes.visibleEdit : classes.invisibleEdit}>
+            <EditIcon onClick={() => onEditService(serviceId)} />
+            <button onClick={deleteService}>Delete Service</button>
+            <button onClick={addEvent}>Add Event</button>
+          </div>
+          <ReactTooltip id={tooltipId}>
+            <span>{`Click to ${open ? 'collapse' : 'expand'}`}</span>
+          </ReactTooltip>
+        </TableCell>
+      </TableRow>
+      {open && children}
+    </MuiTableBody>
   );
 };
 
@@ -90,6 +65,12 @@ const useStyles = makeStyles((theme) =>
         background: '#add8e65e',
       },
     },
+    visibleEdit: {
+      visibility: 'visible',
+    },
+    invisibleEdit: {
+      visibility: 'hidden',
+    },
   }),
 );
 
@@ -104,6 +85,8 @@ TableBody.propTypes = {
   addEvent: PropTypes.func,
   deleteService: PropTypes.func,
   isEdit: PropTypes.bool,
+  onEditService: PropTypes.func,
+  serviceId: PropTypes.number,
 };
 
 export default TableBody;

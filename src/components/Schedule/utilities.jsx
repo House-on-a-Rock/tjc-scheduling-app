@@ -56,28 +56,31 @@ export const blankTeammate = (churchId) => {
   };
 };
 
-const createBlankTask = (seedFx) => {
+const createBlankTask = (seedFx, eventId) => {
   return {
     taskId: seedFx(),
     userId: seedFx(),
+    eventId,
   };
 };
 
-const createBlankEventCells = (cellLength, seedFx) => {
+const createBlankEventCells = (cellLength, seedFx, eventId) => {
   const taskCells = [{}, {}]; // data from these cells aren't actually being used, are just placeholders for rendering
   const afterTimeAndDutyColumns = 2;
   for (let i = afterTimeAndDutyColumns; i < cellLength; i++) {
-    taskCells[i] = createBlankTask(seedFx);
+    taskCells[i] = createBlankTask(seedFx, eventId);
   }
   return taskCells;
 };
 
-export const createBlankEvent = (cellLength, seedFx) => {
+export const createBlankEvent = (cellLength, seedFx, serviceId) => {
+  const eventId = seedFx();
   return {
-    cells: [...createBlankEventCells(cellLength, seedFx)],
-    eventId: seedFx(),
+    eventId,
+    cells: [...createBlankEventCells(cellLength, seedFx, eventId)],
     roleId: -1, // placeholder, since it's unknown at time of creation. TODO onsubmit, check that these are assigned and not negative
     time: '',
+    serviceId,
   };
 };
 
@@ -104,9 +107,7 @@ export function processUpdate(diff, dataModel) {
     const serviceScope = scheduleScope[serviceIndex];
     const serviceModel = dataModel[serviceIndex];
 
-    // (eventually) changeable items: day, name
     for (const eventIndex in serviceScope.events) {
-      // items: roleId, time
       const eventScope = serviceScope.events[eventIndex];
       const eventModel = serviceModel.events[eventIndex];
 
@@ -116,7 +117,6 @@ export function processUpdate(diff, dataModel) {
         changes.push({ eventId: eventModel.eventId, roleId: eventScope.roleId });
 
       for (const cellIndex in eventScope.cells) {
-        // items: userId
         const cellScope = eventScope.cells[cellIndex];
         const cellModel = eventModel.cells[cellIndex];
         changes.push({ taskId: cellModel.taskId, userId: cellScope.userId });
@@ -126,62 +126,45 @@ export function processUpdate(diff, dataModel) {
   return changes;
 }
 
-// how are cells tracking the correct dates?
-export function processAdded(diff, tab) {
-  if (isObjectEmpty(diff.added)) return [];
-  const scheduleScope = diff.added[tab];
-  const changes = [];
-
-  for (const serviceIndex in scheduleScope.services) {
-    const serviceScope = scheduleScope.services[serviceIndex];
-
-    for (const eventIndex in serviceScope.events) {
-      const eventScope = serviceScope.events[eventIndex];
-
-      const cells = [];
-      for (const cellIndex in eventScope.cells) {
-        const cellScope = eventScope.cells[cellIndex];
-        if (cellScope.taskId)
-          cells.push({ taskId: cellScope.taskId, userId: cellScope.userId });
-      }
-      changes.push({
-        eventId: eventScope.eventId,
-        roleId: eventScope.roleId,
-        time: eventScope.time,
-        cells,
-      });
-    }
+function convert(array, key) {
+  return array.reduce(
+    (acc, item, index) => ({ ...acc, [item[key]]: { ...item, order: index } }),
+    {},
+  );
+}
+function findDeleted(a1, a2) {
+  // a1 is original, a2 will be the one with possible deletions
+  const deleted = [];
+  for (const key in a1) {
+    if (!a2[key]) deleted.push(key);
   }
-  return changes;
+  return deleted;
 }
 
-// TODO
-export function processRemoved(diff, tab) {
-  if (isObjectEmpty(diff.removed)) return [];
-  const scheduleScope = diff.removed[tab];
-  const changes = [];
+function extractEvents(eventWrapper) {
+  return eventWrapper.reduce((acc, item) => [...acc, ...item.events], []);
+}
 
-  // for (let serviceIndex in scheduleScope.services) {
-  //   const serviceScope = scheduleScope.services[serviceIndex];
-
-  //   for (let eventIndex in serviceScope.events) {
-  //     const eventScope = serviceScope.events[eventIndex];
-
-  //     const cells = [];
-  //     for (let cellIndex in eventScope.cells) {
-  //       const cellScope = eventScope.cells[cellIndex];
-  //       if (cellScope.taskId)
-  //         cells.push({ taskId: cellScope.taskId, userId: cellScope.userId });
-  //     }
-  //     changes.push({
-  //       eventId: eventScope.eventId,
-  //       roleId: eventScope.roleId,
-  //       time: eventScope.time,
-  //       cells,
-  //     });
-  //   }
+export function formatData(dataModel, previousServices) {
+  // returns {
+  //     deletedServices: [ deleted serviceIds ],
+  //     deletedEvents: [ deleted eventIds ],
+  //     services: [ service objects { serviceId, name, order, day, scheduleId }]
+  //     events: [ event objects { eventId, order, time, roleId, serviceId }]
   // }
-  return changes;
+  const updated = {};
+  const objectifiedServices = convert(previousServices, 'serviceId');
+  const objectifiedDataModel = convert(dataModel, 'serviceId');
+  updated.services = dataModel;
+  updated.deletedServices = findDeleted(objectifiedServices, objectifiedDataModel);
+
+  const servicesEvents = extractEvents(previousServices);
+  const dataModelEvents = extractEvents(dataModel);
+  const objectifiedDMEvents = convert(dataModelEvents, 'eventId');
+  const objectifiedOriginalEvents = convert(servicesEvents, 'eventId');
+  updated.events = dataModelEvents;
+  updated.deletedEvents = findDeleted(objectifiedOriginalEvents, objectifiedDMEvents);
+  return updated;
 }
 
 export function renderOption(display, isIconVisible) {
@@ -210,11 +193,12 @@ export function rearrangeEvents(prevModel, sourceService, source, destination) {
   return temp;
 }
 
-export function createBlankService(retrieveChangesSeed) {
+export function createBlankService(retrieveChangesSeed, scheduleId) {
   return {
     name: 'test',
     day: 0,
     events: [],
     serviceId: retrieveChangesSeed(),
+    scheduleId,
   };
 }

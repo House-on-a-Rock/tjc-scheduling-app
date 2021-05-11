@@ -1,21 +1,12 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
+import { EditServiceForm, TableHeader, TableBody, TableCell } from '.';
 import {
-  // TimeCell,
-  // DutyAutocomplete,
-  // TasksAutocomplete,
-  TableHeader,
-  TableBody,
-  TableCell,
-} from '.';
-import {
-  // renderOption,
   days,
   teammates,
   createBlankEvent,
   retrieveDroppableServiceId,
-  // shouldDisplayTime,
   rearrangeEvents,
 } from './utilities';
 
@@ -25,6 +16,7 @@ import TableRow from '@material-ui/core/TableRow';
 import MuiCell from '@material-ui/core/TableCell';
 import { makeStyles, createStyles, fade, darken } from '@material-ui/core/styles';
 import ReorderIcon from '@material-ui/icons/Reorder';
+import RemoveIcon from '@material-ui/icons/Remove';
 
 // Styles
 import { paletteTheme } from '../../shared/styles/theme';
@@ -43,11 +35,21 @@ const Table = ({
 }) => {
   const classes = useStyles();
   const [selectedEvents, setSelectedEvents] = useState([]);
-
-  const { columns: headers, services, title, view } = schedule;
+  const [isEditServiceOpen, setIsEditServiceOpen] = useState(false);
+  const [selectedService, setSelectedService] = useState(); // by serviceId
+  const { columns: headers, title } = schedule;
 
   return (
     <div className={classes.scheduleTable}>
+      {isEditServiceOpen && (
+        <EditServiceForm
+          isOpen={isEditServiceOpen}
+          onClose={() => setIsEditServiceOpen(false)}
+          serviceId={selectedService}
+          dataModel={dataModel}
+          onSubmit={onSubmitEditService}
+        />
+      )}
       <MuiTable className={classes.table}>
         <TableHeader headers={headers} title={title} />
 
@@ -64,12 +66,14 @@ const Table = ({
                 {(droppableProvided) => (
                   <TableBody
                     key={`TableBody-${name}`}
-                    title={`${days[day]} ${name}`}
+                    title={`${days[day]} - ${name}`}
+                    serviceId={serviceId}
                     providedRef={droppableProvided.innerRef}
                     {...droppableProvided.droppableProps}
                     isEdit={isEditMode}
                     addEvent={() => addEvent(serviceIndex)}
                     deleteService={() => deleteService(serviceId)}
+                    onEditService={onEditService}
                   >
                     {events.map((event, rowIndex) => {
                       const { roleId, cells, time, eventId } = event;
@@ -104,11 +108,26 @@ const Table = ({
                               }}
                             >
                               <MuiCell align="left">
-                                {isEditMode && (
+                                <div className={classes.iconContainer}>
                                   <div {...provided.dragHandleProps}>
-                                    <ReorderIcon />
+                                    <ReorderIcon
+                                      className={
+                                        isEditMode
+                                          ? classes.visibleEdit
+                                          : classes.invisibleEdit
+                                      }
+                                    />
                                   </div>
-                                )}
+                                  <RemoveIcon
+                                    onClick={() => removeEvent(serviceIndex, rowIndex)}
+                                    className={
+                                      isEditMode
+                                        ? classes.visibleEdit
+                                        : classes.invisibleEdit
+                                    }
+                                    style={{ color: 'red' }}
+                                  />
+                                </div>
                               </MuiCell>
                               {cells.map((cell, columnIndex) => (
                                 <TableCell
@@ -130,7 +149,6 @@ const Table = ({
                                   isScheduleModified={isScheduleModified}
                                   isEditMode={isEditMode}
                                   key={`${title}_${serviceIndex}_${rowIndex}_${columnIndex}`}
-                                  // tabIndex={tabIndex + events.length}
                                 />
                               ))}
                             </TableRow>
@@ -148,6 +166,17 @@ const Table = ({
       </MuiTable>
     </div>
   );
+
+  function onEditService(serviceId) {
+    setSelectedService(serviceId);
+    setIsEditServiceOpen(true);
+  }
+
+  function onSubmitEditService(dataClone) {
+    setDataModel(dataClone);
+    setIsEditServiceOpen(false);
+    // setIsScheduleModified(true);
+  }
 
   function onDragEnd(result) {
     const {
@@ -170,28 +199,23 @@ const Table = ({
     );
     dataClone = filteredServices;
     setDataModel(dataClone);
-    // retrieveChangesSeed();
   }
 
   function addEvent(serviceIndex) {
     const dataClone = [...dataModel];
     const targetEvents = dataClone[serviceIndex].events;
-    const newEvent = createBlankEvent(dataClone.columns.length - 1, retrieveChangesSeed);
+    const serviceId = dataClone[serviceIndex].serviceId;
+    const newEvent = createBlankEvent(headers.length - 1, retrieveChangesSeed, serviceId);
     targetEvents.push(newEvent);
     setDataModel(dataClone);
   }
 
-  function removeEvent() {
+  function removeEvent(serviceIndex, rowIndex) {
     // TODO: make sure it works once contextmenu is fixed
     const dataClone = [...dataModel];
-    let target = dataClone;
-    const mutatedData = target.map((service) => {
-      return {
-        ...service,
-        events: service.events.filter(({ eventId }) => !selectedEvents.includes(eventId)),
-      };
-    });
-    target = mutatedData;
+
+    dataClone[serviceIndex].events.splice(rowIndex, 1);
+
     setDataModel(dataClone);
     retrieveChangesSeed(); // called just to update changesSeed.
   }
@@ -296,6 +320,17 @@ const useStyles = makeStyles(() =>
         borderBottomWidth: '2px',
         borderBottomColor: darken(normalCellBorderColor, 0.25),
       },
+    },
+    visibleEdit: {
+      visibility: 'visible',
+    },
+    invisibleEdit: {
+      visibility: 'hidden',
+    },
+    iconContainer: {
+      display: 'flex',
+      flexDirection: 'row',
+      justifyContent: 'space-between',
     },
   }),
 );

@@ -46,10 +46,9 @@ const TasksAutocomplete = React.memo((props) => {
     isScheduleModified,
   );
 
-  return !isEditMode ? (
+  return (
     <TableCell className={classes[tableCellClass]}>
       <Autocomplete
-        id="combo-box"
         options={extractTeammateIds(managedDataSet)}
         renderInput={(params) => (
           <TextField
@@ -76,10 +75,9 @@ const TasksAutocomplete = React.memo((props) => {
         openOnFocus
         forcePopupIcon={false}
         autoHighlight={true}
+        disabled={isEditMode}
       />
     </TableCell>
-  ) : (
-    <TableCell>{getUserOptionLabel(dataId, options)}</TableCell>
   );
 }, arePropsEqual);
 
