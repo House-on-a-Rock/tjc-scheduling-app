@@ -15,8 +15,6 @@ fs.readFile('tjcschedule_pub.pem', (err, data) => {
   cert = data;
 });
 
-console.log('cert, privateKey', cert, privateKey);
-
 export function certify(req, res, next) {
   try {
     const { authorization = '' } = req.headers;

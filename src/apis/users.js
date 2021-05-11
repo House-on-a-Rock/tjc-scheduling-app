@@ -20,9 +20,3 @@ export function destroyUser(userId) {
 export function addUser(data) {
   return axios.post(`${secretIp}/api/user`, data);
 }
-
-export function requestAvailabilities(apiData) {
-  // data should include start, end, deadline and churchid
-  const { churchId, ...data } = apiData;
-  return axios.post(`${secretIp}/api/user/${churchId}/request-availabilities`, data);
-}

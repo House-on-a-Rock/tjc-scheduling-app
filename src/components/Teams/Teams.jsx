@@ -29,11 +29,11 @@ const Teams = () => {
   return (
     <div className={classes.root}>
       <Grid container spacing={3}>
-        {/* <DragDropContextWrapper
+        <DragDropContextWrapper
           teams={teams}
           handleTeams={setTeams}
           handleDraggedItem={setDraggedItem}
-        > */}
+        >
           <>
             <Grid item md={3} sm={4} xs={12}>
               {/* <UserBank members={MEMBERS} droppableId="USERBANK" className="userbank" /> */}
@@ -42,7 +42,7 @@ const Teams = () => {
               <TeamList teams={teams} draggedMember={draggedItem} />
             </Grid>
           </>
-        {/* </DragDropContextWrapper> */}
+        </DragDropContextWrapper>
       </Grid>
     </div>
   );
