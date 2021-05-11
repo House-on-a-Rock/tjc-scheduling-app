@@ -31,6 +31,7 @@ const TasksAutocomplete = React.memo((props) => {
     dataId,
     options,
     roleId,
+    status,
     dataContext,
     onChange,
     renderOption,
@@ -39,17 +40,17 @@ const TasksAutocomplete = React.memo((props) => {
   } = props;
   const classes = useStyles();
 
-  const [tableCellClass, managedDataSet, initialData] = useTasksAutocompleteHooks(
-    dataId,
-    roleId,
-    options,
-    isScheduleModified,
-  );
+  // const [managedDataSet, initialData] = useTasksAutocompleteHooks(
+  //   dataId,
+  //   roleId,
+  //   options,
+  //   isScheduleModified,
+  // );
 
   return (
-    <TableCell className={classes[tableCellClass]}>
+    <TableCell className={classes[status]}>
       <Autocomplete
-        options={extractTeammateIds(managedDataSet)}
+        options={extractTeammateIds(options)}
         renderInput={(params) => (
           <TextField
             {...params}
@@ -59,13 +60,10 @@ const TasksAutocomplete = React.memo((props) => {
             }}
           />
         )}
-        getOptionLabel={(option) => getUserOptionLabel(option, managedDataSet)}
+        getOptionLabel={(option) => getUserOptionLabel(option, options)}
         getOptionDisabled={(option) => option === dataId}
         renderOption={(option) =>
-          renderOption(
-            getUserOptionLabel(option, managedDataSet),
-            option === initialData.dataId,
-          )
+          renderOption(getUserOptionLabel(option, options), false)
         }
         value={dataId}
         onChange={(event, newValue) => onChange(dataContext, newValue)}
@@ -86,13 +84,14 @@ function arePropsEqual(prevProps, nextProps) {
     prevProps.dataId === nextProps.dataId &&
     prevProps.dataContext.roleId === nextProps.dataContext.roleId &&
     prevProps.isEditMode === nextProps.isEditMode &&
-    prevProps.isScheduleModified === nextProps.isScheduleModified
+    prevProps.isScheduleModified === nextProps.isScheduleModified &&
+    prevProps.status === nextProps.status
   );
 }
 
 const useStyles = makeStyles(() =>
   createStyles({
-    cell: {
+    synced: {
       color: typographyTheme.common.color,
       textAlign: 'center',
       '&:focus': {
@@ -137,6 +136,7 @@ TasksAutocomplete.propTypes = {
   dataId: PropTypes.number,
   options: PropTypes.array,
   roleId: PropTypes.number,
+  status: PropTypes.string,
   dataContext: PropTypes.object,
   isSaved: PropTypes.bool,
   onChange: PropTypes.func,

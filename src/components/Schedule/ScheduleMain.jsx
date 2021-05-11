@@ -53,6 +53,8 @@ const ScheduleMain = ({
 
   if (!dataModel || !schedule) return <div className={classes.loading}></div>;
 
+  console.log(`dataModel`, dataModel);
+
   return (
     <div
       className={`main_${scheduleId}`}

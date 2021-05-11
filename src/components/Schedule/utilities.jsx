@@ -167,14 +167,16 @@ export function formatData(dataModel, previousServices) {
   return updated;
 }
 
+// Styling for dropdown box for task autocompletes
 export function renderOption(display, isIconVisible) {
   return (
-    // TODO move div styling somewhere else?
     <div
       style={{
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
+        height: 50,
+        // width: 100, would like this to expand so each name is one line, but it seems to be fixed to the width of the cell
       }}
     >
       {display}
@@ -202,3 +204,9 @@ export function createBlankService(retrieveChangesSeed, scheduleId) {
     scheduleId,
   };
 }
+
+export const cellStatus = {
+  SYNCED: 'synced',
+  MODIFIED: 'modified',
+  WARNING: 'warning',
+};
