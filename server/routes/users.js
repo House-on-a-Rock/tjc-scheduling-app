@@ -5,12 +5,7 @@ import nodemailer from 'nodemailer';
 import Sequelize from 'sequelize';
 
 import db from '../index';
-import {
-  certify,
-  createAvailabilitiesToken,
-  sendVerEmail,
-  validateEmail,
-} from '../utilities/helperFunctions';
+import { certify, sendVerEmail, validateEmail } from '../utilities/helperFunctions';
 
 const router = express.Router();
 const { Op } = Sequelize;
@@ -171,77 +166,6 @@ router.patch('/user/expoPushToken/:userId', certify, async (req, res, next) => {
     next(err);
     return res.status(503).send({ message: 'Server error, try again later' });
   }
-});
-
-router.post('/user/:churchId/request-availabilities', certify, async (req, res, next) => {
-  const { start, end, deadline } = req.body;
-  const users = await db.User.findAll({
-    where: { churchId: req.params.churchId, disabled: false },
-  });
-
-  const church = await db.Church.findOne({ where: { id: req.params.churchId } });
-
-  const shaun = await db.User.findOne({
-    where: {
-      churchId: req.params.churchId,
-      disabled: false,
-      firstName: 'Shaun',
-      lastName: 'Tung',
-    },
-  });
-
-  const { shaunEmail, shaunFirstName, shaunLastName, id } = shaun;
-
-  // const instantiateAvails = Promise.all(
-  //   users.map(async (returnedUser) => {
-  //     const user = await db.User.findOne({ where: { id: returnedUser.id } });
-  //     user.update({ hasSubmittedAvails: false });
-  //     return {
-  //       userId: user.id,
-  //       churchId: church.id,
-  //       dateRange: deadline,
-  //       unavailabilities: null,
-  //     };
-  //   }),
-  // );
-
-  // await db.Availability.bulkCreate(instantiateAvails);
-
-  shaun.update({ hasSubmittedAvails: false });
-  const newAvailabilities = await db.Availability.create({
-    userId: shaun.id,
-    churchId: church.id,
-    dateRange: deadline,
-    unavailabilities: null,
-  });
-
-  const token = createAvailabilitiesToken(
-    id,
-    church.id,
-    newAvailabilities.id,
-    new Date(deadline).getTime() - Date.now(),
-  );
-
-  console.log(process.env.VER_EMAIL, process.env.VER_PASS);
-  const transporter = nodemailer.createTransport({
-    service: 'Sendgrid',
-    auth: {
-      user: process.env.VER_EMAIL,
-      pass: process.env.VER_PASS,
-    },
-  });
-  // send confirmation email
-  const mailOptions = {
-    from: 'shaun.tung@gmail.com',
-    to: shaunEmail,
-    subject: `[Sheaves] Submit availabilities`,
-    text: `Hello,\n\n Please submit your availabilities for between dates: ${start} to ${end} with this link: \nhttp://localhost:8081/submit-availabilities/${token}`,
-  };
-
-  const sentEmail = await transporter.sendMail({ ...mailOptions });
-  console.log('sentEmail', sentEmail);
-  console.log('Sending email..');
-  return token;
 });
 
 export default router;

@@ -1,6 +1,5 @@
 import Sequelize from 'sequelize';
 
-import AvailabilitiesFactory from './Availabilities';
 import ChurchFactory from './Church';
 import EventFactory from './Event';
 import NotificationFactory from './Notification';
@@ -32,7 +31,6 @@ const createModels = (database, username, password, config) => {
     User: UserFactory(sequelize, Sequelize),
     UserRole: UserRoleFactory(sequelize, Sequelize),
     Template: TemplateFactory(sequelize, Sequelize),
-    Availability: AvailabilitiesFactory(sequelize, Sequelize),
   };
 
   Object.keys(db).forEach((modelName) => {

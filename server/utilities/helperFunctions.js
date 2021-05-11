@@ -151,23 +151,6 @@ export function createResetToken(userId, expiresInMinutes, secret) {
   return token;
 }
 
-export function createAvailabilitiesToken(userId, churchId, availId, expiresInSeconds) {
-  console.log('Creating availability token');
-  const token = jwt.sign(
-    {
-      iss: process.env.AUDIENCE,
-      sub: `tjc-scheduling|${userId}|${churchId}|${availId}`,
-      exp: expiresInSeconds,
-    },
-    {
-      key: privateKey,
-      passphrase: process.env.PRIVATEKEY_PASS ?? '',
-    },
-    { algorithm: process.env.JWT_ALGORITHM },
-  );
-
-  return token;
-}
 export function validateEmail(email) {
   return /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(email);
 }
