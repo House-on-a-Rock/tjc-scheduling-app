@@ -34,8 +34,8 @@ const TemplateDisplay = ({ template, onAddClick }) => {
           </TableRow>
         </TableHead>
         <TableBody>
-          {data?.map((service) => (
-            <>
+          {data?.map((service, index) => (
+            <React.Fragment key={`${service.name}-${index}`}>
               <TableRow key={`${service.name}_name`}>
                 <TableCell
                   className={classes.tableCell}
@@ -61,7 +61,7 @@ const TemplateDisplay = ({ template, onAddClick }) => {
                   </TableCell>
                 </TableRow>
               ))}
-            </>
+            </React.Fragment>
           ))}
         </TableBody>
       </MaUTable>

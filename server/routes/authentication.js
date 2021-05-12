@@ -1,16 +1,19 @@
-const express = require('express');
-const crypto = require('crypto');
-const { jwt, TokenExpiredError, JsonWebTokenError } = require('jsonwebtoken');
-const {
+import crypto from 'crypto';
+
+import express from 'express';
+import { jwt, TokenExpiredError, JsonWebTokenError } from 'jsonwebtoken';
+
+import db from '../index';
+import {
   addMinutes,
-  createToken,
+  createUserToken,
   createResetToken,
   hashPassword,
   sendGenericEmail,
   sendVerEmail,
   certify,
-} = require('../utilities/helperFunctions');
-const db = require('../index');
+} from '../utilities/helperFunctions';
+
 // to destructure db into { Token, User}, cannot use default exports
 const router = express.Router();
 
@@ -141,7 +144,7 @@ router.post('/webLogin', async (req, res, next) => {
       await user.update(updatedAttempts);
     }
     await user.update({ id, loginAttempts: 0, loginTimeout: null });
-    const token = createToken('reg', id, church.id, 600, isAdmin, roleIds);
+    const token = createUserToken('reg', id, church.id, 600, isAdmin, roleIds);
 
     return res.status(200).json({ redirectUrl: '/', token });
   } catch (err) {
@@ -207,7 +210,7 @@ router.post('/login', async (req, res, next) => {
     }
 
     await user.update({ id, loginAttempts: 0, loginTimeout: null });
-    const token = createToken('reg', id, church.id, 600);
+    const token = createUserToken('reg', id, church.id, 600);
     return res
       .status(status)
       .json({ user_id: id, firstName, lastName, email, access_token: token });

@@ -86,7 +86,7 @@ module.exports = {
     'id-match': 'error',
     'implicit-arrow-linebreak': 'off',
     indent: 'off',
-    'init-declarations': 'error',
+    'init-declarations': 'warn',
     'jsx-quotes': 'error',
     'key-spacing': 'error',
     'keyword-spacing': [
@@ -260,7 +260,7 @@ module.exports = {
     'unicode-bom': ['error', 'never'],
     'vars-on-top': 'error',
     'wrap-iife': 'error',
-    'wrap-regex': 'error',
+    'wrap-regex': 'off',
     'yield-star-spacing': 'error',
     yoda: ['error', 'never'],
     'react/display-name': ['off'],
