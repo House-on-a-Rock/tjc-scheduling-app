@@ -10,10 +10,11 @@ import { createStyles, makeStyles } from '@material-ui/core';
 import Table from './Table';
 import Toolbar from './Toolbar';
 
-import { processUpdate, createBlankService, formatData } from './utilities';
+import { processUpdate, createBlankService, formatData, cellStatus } from './utilities';
 import { updatedDiff } from 'deep-object-diff';
 
 import useScheduleMainData from '../../hooks/containerHooks/useScheduleMainData';
+import CustomDialog from '../shared/CustomDialog';
 
 const ScheduleMain = ({
   churchId,
@@ -28,6 +29,7 @@ const ScheduleMain = ({
   const classes = useStyles();
   const [isScheduleModified, setIsScheduleModified] = useState(false);
   const [isScheduleWarning, setIsScheduleWarning] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const [isEditMode, setIsEditMode] = useState(false);
   const [dataModel, setDataModel] = useState();
@@ -46,6 +48,7 @@ const ScheduleMain = ({
     if (schedule) setDataModel(ld.cloneDeep(schedule.services));
   }, [schedule]);
 
+  // used to track isScheduleModified
   useEffect(() => {
     if (templateChanges.current.changesSeed < -1) setIsScheduleModified(true);
     else if (templateChanges.current.changesSeed === -1) setIsScheduleModified(false);
@@ -79,12 +82,33 @@ const ScheduleMain = ({
         setIsScheduleModified={setIsScheduleModified}
         incrementChangesSeed={incrementChangesSeed}
       />
+      <CustomDialog
+        open={isDialogOpen}
+        title="Improperly assigned cells"
+        warningText="Improperly assigned cells"
+        handleClose={() => setIsDialogOpen(false)}
+      ></CustomDialog>
     </div>
   );
 
+  function isWarningStatus(data) {
+    let isWarning = false;
+    data.forEach((service) => {
+      service.events.forEach((event) => {
+        event.cells.forEach((cell) => {
+          if (cell.status && cell.status === cellStatus.WARNING) isWarning = true;
+        });
+      });
+    });
+    return isWarning;
+  }
+
   function onSaveSchedule() {
+    // check if any cells have status: warning
+    const isWarning = isWarningStatus(dataModel);
+    setIsDialogOpen(isWarning);
+
     const diff = updatedDiff(schedule.services, dataModel);
-    // need error checking before running diff... or do we
     const processedDiff = processUpdate(diff, dataModel);
     updateSchedule.mutate({ tasks: processedDiff });
     resetChangesSeed();
