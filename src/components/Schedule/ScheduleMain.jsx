@@ -32,6 +32,7 @@ const ScheduleMain = ({
 }) => {
   const classes = useStyles();
   const [isScheduleModified, setIsScheduleModified] = useState(false);
+  const [isScheduleWarning, setIsScheduleWarning] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [dataModel, setDataModel] = useState();
 
@@ -49,10 +50,15 @@ const ScheduleMain = ({
     if (schedule) setDataModel(ld.cloneDeep(schedule.services));
   }, [schedule]);
 
+  useEffect(() => {
+    // check if any cells have cellStatus.WARNING or MODIFIED, if there are then set it to modified
+  }, [dataModel]);
+
   const outerRef = useRef(null);
 
   if (!dataModel || !schedule) return <div className={classes.loading}></div>;
 
+  console.log(`dataModel`, dataModel);
   return (
     <div
       className={`main_${scheduleId}`}
@@ -80,6 +86,8 @@ const ScheduleMain = ({
       />
     </div>
   );
+
+  function findModified() {}
 
   function onSaveScheduleChanges() {
     const diff = updatedDiff(schedule.services, dataModel);

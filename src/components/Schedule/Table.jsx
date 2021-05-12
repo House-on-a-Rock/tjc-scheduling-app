@@ -22,6 +22,8 @@ import RemoveIcon from '@material-ui/icons/Remove';
 // Styles
 import { paletteTheme } from '../../shared/styles/theme';
 
+// selected row stuff doesnt work, mbbe not needed
+
 const Table = ({
   schedule,
   isEditMode,
@@ -208,6 +210,7 @@ const Table = ({
     const targetEvents = dataClone[serviceIndex].events;
     const serviceId = dataClone[serviceIndex].serviceId;
     const newEvent = createBlankEvent(headers.length - 1, retrieveChangesSeed, serviceId);
+    console.log(`newEvent`, newEvent);
     targetEvents.push(newEvent);
     setDataModel(dataClone);
   }

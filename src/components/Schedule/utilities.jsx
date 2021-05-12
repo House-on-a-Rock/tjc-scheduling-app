@@ -77,7 +77,8 @@ export const createBlankEvent = (cellLength, seedFx, serviceId) => {
   const eventId = seedFx();
   return {
     eventId,
-    cells: [...createBlankEventCells(cellLength, seedFx, eventId)],
+    // cells: [...createBlankEventCells(cellLength, seedFx, eventId)],
+    cells: [{}, {}],
     roleId: -1, // placeholder, since it's unknown at time of creation. TODO onsubmit, check that these are assigned and not negative
     time: '',
     serviceId,
@@ -126,6 +127,7 @@ export function processUpdate(diff, dataModel) {
   return changes;
 }
 
+// converts array to object with key as its property. This makes it easier to compare the two arrays through property instead of looping through array
 function convert(array, key) {
   return array.reduce(
     (acc, item, index) => ({ ...acc, [item[key]]: { ...item, order: index } }),

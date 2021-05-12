@@ -378,7 +378,7 @@ export const updateEvents = async (events, t) => {
       else {
         // else create new event, and corresponding tasks
         const newEvent = await db.Event.create(
-          { ...item, order: index },
+          { time, roleId, serviceId, order: index },
           { transaction: t },
         );
         const parentService = await db.Service.findOne({
@@ -392,7 +392,7 @@ export const updateEvents = async (events, t) => {
           parentSchedule.end,
           parentService.day,
         );
-        taskDays.forEach((date) =>
+        taskDays.forEach(async (date) =>
           db.Task.create({ date, eventId: newEvent.id }, { transaction: t }),
         );
         return newEvent;
