@@ -34,11 +34,6 @@ const TableCell = ({
     columnIndex,
   };
 
-  // const augmentedDataSet = React.useMemo(
-  //   () => augmentDataSet(tasksDataSet, userId, users),
-  //   [tasksDataSet, userId],
-  // );
-
   return cellIndices.columnIndex === 0 ? (
     <TimeCell
       time={time}
