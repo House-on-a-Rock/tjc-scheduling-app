@@ -32,7 +32,9 @@ const Toolbar = ({
   destroySchedule,
   isScheduleModified,
   onSaveScheduleChanges,
-  setEditMode,
+  isEditMode,
+  enableEditMode,
+  exitEditingClick,
 }) => {
   const classes = useStyles();
   return (
@@ -54,13 +56,23 @@ const Toolbar = ({
       >
         <SaveIcon />
       </TooltipForDisabledButton>
-      <TooltipForDisabledButton
-        title="Edit Template (Changes must be saved before editing)"
-        disabled={isScheduleModified}
-        handleClick={() => setEditMode()}
-      >
-        <EditIcon />
-      </TooltipForDisabledButton>
+      {!isEditMode && (
+        <TooltipForDisabledButton
+          title="Edit Template (Changes must be saved before editing)"
+          disabled={isScheduleModified}
+          handleClick={() => enableEditMode()}
+        >
+          <EditIcon />
+        </TooltipForDisabledButton>
+      )}
+      {isEditMode && (
+        <TooltipForDisabledButton
+          title="Save Template Edits"
+          handleClick={() => exitEditingClick()}
+        >
+          <SaveIcon />
+        </TooltipForDisabledButton>
+      )}
       <TooltipForDisabledButton
         title="Publish changes"
         disabled={!isScheduleModified}
@@ -86,7 +98,9 @@ Toolbar.propTypes = {
   handleNewServiceClicked: PropTypes.func,
   destroySchedule: PropTypes.func,
   onSaveScheduleChanges: PropTypes.func,
-  setEditMode: PropTypes.func,
+  isEditMode: PropTypes.bool,
+  enableEditMode: PropTypes.func,
+  exitEditingClick: PropTypes.func,
 };
 TooltipForDisabledButton.propTypes = {
   title: PropTypes.string,

@@ -33,6 +33,7 @@ const ScheduleMain = ({
   const classes = useStyles();
   const [isScheduleModified, setIsScheduleModified] = useState(false);
   const [isScheduleWarning, setIsScheduleWarning] = useState(false);
+
   const [isEditMode, setIsEditMode] = useState(false);
   const [dataModel, setDataModel] = useState();
 
@@ -52,13 +53,14 @@ const ScheduleMain = ({
 
   useEffect(() => {
     // check if any cells have cellStatus.WARNING or MODIFIED, if there are then set it to modified
-  }, [dataModel]);
+    if (templateChanges.current.changesSeed < -1) setIsScheduleModified(true);
+    else if (templateChanges.current.changesSeed === -1) setIsScheduleModified(false);
+  }, [templateChanges.current.changesSeed]);
 
   const outerRef = useRef(null);
 
   if (!dataModel || !schedule) return <div className={classes.loading}></div>;
 
-  console.log(`dataModel`, dataModel);
   return (
     <div
       className={`main_${scheduleId}`}
@@ -70,7 +72,9 @@ const ScheduleMain = ({
         destroySchedule={() => deleteSchedule(scheduleId, schedule.title, tab)}
         isScheduleModified={isScheduleModified}
         onSaveScheduleChanges={onSaveScheduleChanges}
-        setEditMode={onEditClick}
+        isEditMode={isEditMode}
+        enableEditMode={enableEditMode}
+        exitEditingClick={exitEditingClick}
       />
       <Table
         schedule={schedule}
@@ -82,40 +86,43 @@ const ScheduleMain = ({
         churchId={churchId}
         isScheduleModified={isScheduleModified}
         setIsScheduleModified={setIsScheduleModified}
-        retrieveChangesSeed={retrieveChangesSeed}
+        incrementChangesSeed={incrementChangesSeed}
       />
     </div>
   );
-
-  function findModified() {}
 
   function onSaveScheduleChanges() {
     const diff = updatedDiff(schedule.services, dataModel);
     // need error checking before running diff... or do we
     const processedDiff = processUpdate(diff, dataModel);
     updateSchedule.mutate({ tasks: processedDiff });
-    // setIsScheduleModified(false);  make this an onsuccess?
+    resetChangesSeed();
   }
 
   function addService() {
     const dataClone = [...dataModel];
-    dataClone.push(createBlankService(retrieveChangesSeed, scheduleId));
+    dataClone.push(createBlankService(incrementChangesSeed, scheduleId));
     setDataModel(dataClone);
   }
 
-  function retrieveChangesSeed() {
-    return templateChanges.current.changesSeed--;
+  function incrementChangesSeed(amount = -1) {
+    templateChanges.current.changesSeed += amount;
   }
 
-  function onEditClick() {
-    if (!isEditMode && !isScheduleModified) {
-      setIsEditMode(true);
-    } else {
-      saveTemplateChanges();
-      // if they choose to not save changes, reset to this orig schedule
-      // setDataModel(ld.cloneDeep(schedule.services));
-      setIsEditMode(false);
-    }
+  function resetChangesSeed() {
+    templateChanges.current.changesSeed = -1;
+  }
+
+  function enableEditMode() {
+    if (!isEditMode && !isScheduleModified) setIsEditMode(true);
+  }
+
+  function exitEditingClick() {
+    saveTemplateChanges();
+    // if they choose to not save changes, reset to this orig schedule
+    // setDataModel(ld.cloneDeep(schedule.services));
+    resetChangesSeed();
+    setIsEditMode(false);
   }
 
   function saveTemplateChanges() {

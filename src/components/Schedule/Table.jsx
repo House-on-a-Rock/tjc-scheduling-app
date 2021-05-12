@@ -34,7 +34,7 @@ const Table = ({
   churchId,
   isScheduleModified,
   setIsScheduleModified,
-  retrieveChangesSeed,
+  incrementChangesSeed,
 }) => {
   const classes = useStyles();
   const [selectedEvents, setSelectedEvents] = useState([]);
@@ -209,8 +209,11 @@ const Table = ({
     const dataClone = [...dataModel];
     const targetEvents = dataClone[serviceIndex].events;
     const serviceId = dataClone[serviceIndex].serviceId;
-    const newEvent = createBlankEvent(headers.length - 1, retrieveChangesSeed, serviceId);
-    console.log(`newEvent`, newEvent);
+    const newEvent = createBlankEvent(
+      headers.length - 1,
+      incrementChangesSeed,
+      serviceId,
+    );
     targetEvents.push(newEvent);
     setDataModel(dataClone);
   }
@@ -227,10 +230,15 @@ const Table = ({
     const dataClone = [...dataModel];
     const targetCell = dataClone[serviceIndex].events[rowIndex].cells[columnIndex];
     targetCell.userId = newAssignee;
-    targetCell.status =
-      newAssignee === initialId ? cellStatus.synced : cellStatus.MODIFIED;
+    // checks if an assignment is being undone. if it is, then cellStatus and the changesSeed updates accordingly
+    if (newAssignee === initialId) {
+      targetCell.status = cellStatus.SYNCED;
+      incrementChangesSeed(1);
+    } else {
+      targetCell.status = cellStatus.MODIFIED;
+      incrementChangesSeed();
+    }
     setDataModel(dataClone);
-    setIsScheduleModified(true);
   }
 
   function onAssignedRoleChange(dataContext, newRoleId) {
@@ -350,7 +358,7 @@ Table.propTypes = {
   churchId: PropTypes.number,
   isScheduleModified: PropTypes.bool,
   setIsScheduleModified: PropTypes.func,
-  retrieveChangesSeed: PropTypes.func,
+  incrementChangesSeed: PropTypes.func,
 };
 
 export default Table;

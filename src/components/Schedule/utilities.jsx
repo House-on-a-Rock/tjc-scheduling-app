@@ -56,31 +56,13 @@ export const blankTeammate = (churchId) => {
   };
 };
 
-const createBlankTask = (seedFx, eventId) => {
-  return {
-    taskId: seedFx(),
-    userId: seedFx(),
-    eventId,
-  };
-};
-
-const createBlankEventCells = (cellLength, seedFx, eventId) => {
-  const taskCells = [{}, {}]; // data from these cells aren't actually being used, are just placeholders for rendering
-  const afterTimeAndDutyColumns = 2;
-  for (let i = afterTimeAndDutyColumns; i < cellLength; i++) {
-    taskCells[i] = createBlankTask(seedFx, eventId);
-  }
-  return taskCells;
-};
-
 export const createBlankEvent = (cellLength, seedFx, serviceId) => {
   const eventId = seedFx();
   return {
     eventId,
-    // cells: [...createBlankEventCells(cellLength, seedFx, eventId)],
     cells: [{}, {}],
-    roleId: -1, // placeholder, since it's unknown at time of creation. TODO onsubmit, check that these are assigned and not negative
-    time: '',
+    roleId: 1, // placeholder, since it's unknown at time of creation. TODO onsubmit, check that these are assigned and not negative
+    time: '00:00',
     serviceId,
   };
 };
@@ -197,12 +179,12 @@ export function rearrangeEvents(prevModel, sourceService, source, destination) {
   return temp;
 }
 
-export function createBlankService(retrieveChangesSeed, scheduleId) {
+export function createBlankService(incrementChangesSeed, scheduleId) {
   return {
-    name: 'test',
+    name: 'New Service',
     day: 0,
     events: [],
-    serviceId: retrieveChangesSeed(),
+    serviceId: incrementChangesSeed(),
     scheduleId,
   };
 }
