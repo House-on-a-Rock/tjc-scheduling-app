@@ -1,6 +1,9 @@
-import express, { Request, Response } from 'express';
-import Sequelize from 'sequelize';
 import crypto from 'crypto';
+
+import express, { Request, Response } from 'express';
+import nodemailer from 'nodemailer';
+import Sequelize from 'sequelize';
+
 import db from '../index';
 import { certify, sendVerEmail, validateEmail } from '../utilities/helperFunctions';
 

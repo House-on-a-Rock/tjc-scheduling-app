@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import TextField from '@material-ui/core/TextField';
 
-const EmailForm = ({ name, label, email, handleEmail }) => (
+const EmailForm = ({ name, label, email, handleEmail, ...props }) => (
   <TextField
     variant="outlined"
     margin="normal"
@@ -14,9 +14,9 @@ const EmailForm = ({ name, label, email, handleEmail }) => (
     value={email.value}
     onChange={(event) => handleEmail({ ...email, value: event.target.value })}
     autoComplete="email"
-    autoFocus
     helperText={email.valid ? '' : email.message}
     error={!email.valid}
+    {...props}
   />
 );
 

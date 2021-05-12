@@ -52,14 +52,14 @@ const Header = (props) => {
             </Button>
 
             <div className={classes.routerButtonGroup}>
-              <Button onClick={() => logoutHandler()} className={classes.routerButtons}>
+              <Button onClick={logoutHandler} className={classes.routerButtons}>
                 Log Out
               </Button>
               <Button component={Link} to="/templates" className={classes.routerButtons}>
                 Templates
               </Button>
-              <Button component={Link} to="/members" className={classes.routerButtons}>
-                Workers
+              <Button component={Link} to="/users" className={classes.routerButtons}>
+                Users
               </Button>
               <Button component={Link} to="/teams" className={classes.routerButtons}>
                 Teams

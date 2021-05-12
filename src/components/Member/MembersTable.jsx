@@ -16,7 +16,7 @@ import { cardTheme } from '../../shared/styles/theme';
 const MembersTable = ({
   selectedRowLength,
   members,
-  isSelected,
+  checkSelected,
   handleSelectAll,
   handleSelect,
 }) => {
@@ -51,7 +51,7 @@ const MembersTable = ({
         <TableBody>
           {members.map((row) => {
             const { userId: id, firstName, lastName, email, disabled } = row;
-            const isItemSelected = isSelected(id);
+            const isItemSelected = checkSelected(id);
             return (
               <TableRow
                 hover
@@ -106,7 +106,7 @@ const useStyles = makeStyles(() =>
 MembersTable.propTypes = {
   selectedRowLength: PropTypes.number,
   members: PropTypes.array,
-  isSelected: PropTypes.bool,
+  checkSelected: PropTypes.func,
   handleSelectAll: PropTypes.func,
   handleSelect: PropTypes.func,
 };

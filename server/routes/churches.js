@@ -1,7 +1,7 @@
 import express from 'express';
-import { certify } from '../utilities/helperFunctions';
 
 import db from '../index';
+import { certify } from '../utilities/helperFunctions';
 
 const router = express.Router();
 

@@ -10,7 +10,7 @@ import db from '../index';
 
 const privateKey = fs.readFileSync('tjcschedule.pem');
 let cert;
-fs.readFile('tjcschedule_pub.pem', function read(err, data) {
+fs.readFile('tjcschedule_pub.pem', (err, data) => {
   if (err) throw err;
   cert = data;
 });
@@ -47,7 +47,7 @@ export function sendGenericEmail(username, link) {
       subject: 'Password Reset',
       text: `Hello,\n\n Please reset your password to your account by clicking the link: \n${link}`,
     };
-    transporter.sendMail(mailOptions, function (err) {
+    transporter.sendMail(mailOptions, (err) => {
       if (err) {
         console.log(err);
         return false;
@@ -55,7 +55,7 @@ export function sendGenericEmail(username, link) {
       return true;
     });
   } catch (err) {
-    console.log(err);
+    console.error(err);
   }
 }
 
@@ -101,7 +101,7 @@ export function addMinutes(date, minutes) {
   return new Date(date.getTime() + minutes * 60000);
 }
 
-export function createToken(
+export function createUserToken(
   tokenType,
   userId,
   churchId,
@@ -148,6 +148,7 @@ export function createResetToken(userId, expiresInMinutes, secret) {
 
   return token;
 }
+
 export function validateEmail(email) {
   return /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(email);
 }

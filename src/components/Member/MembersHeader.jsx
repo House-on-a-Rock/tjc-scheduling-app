@@ -17,31 +17,23 @@ const MembersHeader = ({ localChurch, onSearchChange }) => {
   const classes = useStyles();
 
   return (
-    <TableContainer component={Paper} className={classes.root}>
-      <Table className={classes.table} aria-label="members table controls">
-        <TableHead className={classes.header}>
-          <TableRow>
-            <TableCell>
-              <div className={classes.search}>
-                <SearchIcon className={classes.searchIcon} />
-                <InputBase
-                  placeholder="Search…"
-                  classes={{
-                    root: classes.inputRoot,
-                    input: classes.inputInput,
-                  }}
-                  inputProps={{ 'aria-label': 'search' }}
-                  onChange={onSearchChange}
-                />
-              </div>
-            </TableCell>
-            <TableCell className={classes.localChurchName}>
-              {localChurch || 'Local Church Name'}
-            </TableCell>
-          </TableRow>
-        </TableHead>
-      </Table>
-    </TableContainer>
+    <div style={{ display: 'flex', position: 'relative' }}>
+      <div className={classes.search} style={{ width: '20%' }}>
+        <SearchIcon className={classes.searchIcon} style={{ flex: 1 }} />
+        <InputBase
+          placeholder="Search…"
+          classes={{
+            root: classes.inputRoot,
+            input: classes.inputInput,
+          }}
+          inputProps={{ 'aria-label': 'search' }}
+          onChange={onSearchChange}
+        />
+      </div>
+      <div className={classes.localChurchName} style={{ textAlign: 'center' }}>
+        {localChurch || 'Local Church Name'}
+      </div>
+    </div>
   );
 };
 
