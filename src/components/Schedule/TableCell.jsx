@@ -8,7 +8,7 @@ const TableCell = ({
   roleId,
   userId = 0,
   taskId = 0,
-  status = cellStatus.SYNCED,
+  status,
   time,
   teams,
   users,

@@ -15,11 +15,6 @@ import { updatedDiff } from 'deep-object-diff';
 
 import useScheduleMainData from '../../hooks/containerHooks/useScheduleMainData';
 
-// TODO
-// contextmenu b r o k e n, but do we need it?
-// broke selection/hover of rows, do we need it?
-// newly created schedule has strange set of dates
-
 const ScheduleMain = ({
   churchId,
   scheduleId,
@@ -52,12 +47,9 @@ const ScheduleMain = ({
   }, [schedule]);
 
   useEffect(() => {
-    // check if any cells have cellStatus.WARNING or MODIFIED, if there are then set it to modified
     if (templateChanges.current.changesSeed < -1) setIsScheduleModified(true);
     else if (templateChanges.current.changesSeed === -1) setIsScheduleModified(false);
   }, [templateChanges.current.changesSeed]);
-
-  const outerRef = useRef(null);
 
   if (!dataModel || !schedule) return <div className={classes.loading}></div>;
 
@@ -65,13 +57,12 @@ const ScheduleMain = ({
     <div
       className={`main_${scheduleId}`}
       style={{ visibility: isVisible ? 'visible' : 'hidden' }}
-      ref={outerRef}
     >
       <Toolbar
         handleNewServiceClicked={addService}
         destroySchedule={() => deleteSchedule(scheduleId, schedule.title, tab)}
         isScheduleModified={isScheduleModified}
-        onSaveScheduleChanges={onSaveScheduleChanges}
+        onSaveSchedule={onSaveSchedule}
         isEditMode={isEditMode}
         enableEditMode={enableEditMode}
         exitEditingClick={exitEditingClick}
@@ -91,7 +82,7 @@ const ScheduleMain = ({
     </div>
   );
 
-  function onSaveScheduleChanges() {
+  function onSaveSchedule() {
     const diff = updatedDiff(schedule.services, dataModel);
     // need error checking before running diff... or do we
     const processedDiff = processUpdate(diff, dataModel);
@@ -128,6 +119,7 @@ const ScheduleMain = ({
   function saveTemplateChanges() {
     const processedChanges = formatData(dataModel, schedule.services);
     updateSchedule.mutate({ ...processedChanges });
+    resetChangesSeed();
   }
 };
 

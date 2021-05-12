@@ -31,7 +31,7 @@ const Toolbar = ({
   handleNewServiceClicked,
   destroySchedule,
   isScheduleModified,
-  onSaveScheduleChanges,
+  onSaveSchedule,
   isEditMode,
   enableEditMode,
   exitEditingClick,
@@ -52,7 +52,7 @@ const Toolbar = ({
       <TooltipForDisabledButton
         title="Save Changes"
         disabled={!isScheduleModified}
-        handleClick={() => onSaveScheduleChanges()}
+        handleClick={() => onSaveSchedule()}
       >
         <SaveIcon />
       </TooltipForDisabledButton>
@@ -76,7 +76,7 @@ const Toolbar = ({
       <TooltipForDisabledButton
         title="Publish changes"
         disabled={!isScheduleModified}
-        handleClick={() => onSaveScheduleChanges()}
+        // handleClick={() => ()}
       >
         <PublishIcon />
       </TooltipForDisabledButton>
@@ -97,7 +97,7 @@ Toolbar.propTypes = {
   isScheduleModified: PropTypes.bool,
   handleNewServiceClicked: PropTypes.func,
   destroySchedule: PropTypes.func,
-  onSaveScheduleChanges: PropTypes.func,
+  onSaveSchedule: PropTypes.func,
   isEditMode: PropTypes.bool,
   enableEditMode: PropTypes.func,
   exitEditingClick: PropTypes.func,

@@ -33,7 +33,6 @@ const Table = ({
   teams,
   churchId,
   isScheduleModified,
-  setIsScheduleModified,
   incrementChangesSeed,
 }) => {
   const classes = useStyles();
@@ -230,18 +229,21 @@ const Table = ({
   // onChange Handlers
   function onTaskChange(dataContext, newAssignee, initialId) {
     const { serviceIndex, rowIndex, columnIndex } = dataContext;
-    const dataClone = [...dataModel];
-    const targetCell = dataClone[serviceIndex].events[rowIndex].cells[columnIndex];
-    targetCell.userId = newAssignee;
-    // checks if an assignment is being undone. if it is, then cellStatus and the changesSeed updates accordingly
-    if (newAssignee === initialId) {
-      targetCell.status = cellStatus.SYNCED;
-      incrementChangesSeed(1);
-    } else {
-      targetCell.status = cellStatus.MODIFIED;
-      incrementChangesSeed();
-    }
-    setDataModel(dataClone);
+    setDataModel((clone) => {
+      const dataClone = [...clone];
+
+      const targetCell = dataClone[serviceIndex].events[rowIndex].cells[columnIndex];
+      targetCell.userId = newAssignee;
+      // checks if an assignment is being undone. if it is, then cellStatus and the changesSeed updates accordingly
+      if (newAssignee === initialId) {
+        targetCell.status = cellStatus.SYNCED;
+        incrementChangesSeed(1);
+      } else {
+        targetCell.status = cellStatus.MODIFIED;
+        incrementChangesSeed();
+      }
+      return dataClone;
+    });
   }
 
   function onAssignedRoleChange(dataContext, newRoleId) {
@@ -349,7 +351,6 @@ const useStyles = makeStyles(() =>
     },
   }),
 );
-// { columns: headers, services, title, view } = schedule
 
 Table.propTypes = {
   schedule: PropTypes.object,
@@ -360,7 +361,6 @@ Table.propTypes = {
   teams: PropTypes.array,
   churchId: PropTypes.number,
   isScheduleModified: PropTypes.bool,
-  setIsScheduleModified: PropTypes.func,
   incrementChangesSeed: PropTypes.func,
 };
 

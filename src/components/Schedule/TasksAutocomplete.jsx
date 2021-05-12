@@ -79,6 +79,8 @@ function arePropsEqual(prevProps, nextProps) {
     prevProps.isEditMode === nextProps.isEditMode &&
     prevProps.status === nextProps.status &&
     prevProps.options === nextProps.options
+    // &&
+    // prevProps.onChange === nextProps.onChange
   );
 }
 
