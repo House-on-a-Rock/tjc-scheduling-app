@@ -194,3 +194,11 @@ export const cellStatus = {
   MODIFIED: 'modified',
   WARNING: 'warning',
 };
+
+export const arrayEquals = (arr1, arr2) => {
+  if (arr1.length !== arr2.length) return false;
+  for (let i = 0; i < arr1.length; i++) {
+    if (arr1[i].userId !== arr2[i].userId) return false;
+  }
+  return true;
+};

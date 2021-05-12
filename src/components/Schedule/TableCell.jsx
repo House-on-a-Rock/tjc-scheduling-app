@@ -34,10 +34,10 @@ const TableCell = ({
     columnIndex,
   };
 
-  const augmentedDataSet = React.useMemo(
-    () => augmentDataSet(tasksDataSet, userId, users),
-    [tasksDataSet, userId],
-  );
+  // const augmentedDataSet = React.useMemo(
+  //   () => augmentDataSet(tasksDataSet, userId, users),
+  //   [tasksDataSet, userId],
+  // );
 
   return cellIndices.columnIndex === 0 ? (
     <TimeCell
@@ -64,7 +64,7 @@ const TableCell = ({
   ) : (
     <TasksAutocomplete
       dataId={userId}
-      options={augmentedDataSet}
+      options={augmentDataSet(tasksDataSet, userId, users)}
       status={status}
       dataContext={taskDataContext}
       onChange={onTaskChange}

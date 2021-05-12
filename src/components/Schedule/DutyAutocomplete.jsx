@@ -57,7 +57,7 @@ const DutyAutocomplete = React.memo(
           renderOption={(option) =>
             renderOption(getRoleOptionLabel(option, options), option === initialData)
           }
-          value={dataId < 0 ? 1 : dataId}
+          value={dataId}
           onChange={(event, newValue) => onCellModify(newValue !== initialData, newValue)}
           disableClearable
           fullWidth
