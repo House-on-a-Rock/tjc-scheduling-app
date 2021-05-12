@@ -36,7 +36,7 @@ const TableCell = ({
 
   const augmentedDataSet = React.useMemo(
     () => augmentDataSet(tasksDataSet, userId, users),
-    [tasksDataSet],
+    [tasksDataSet, userId],
   );
 
   return cellIndices.columnIndex === 0 ? (
@@ -64,7 +64,6 @@ const TableCell = ({
   ) : (
     <TasksAutocomplete
       dataId={userId}
-      // options={augmentDataSet(tasksDataSet, userId, users)}
       options={augmentedDataSet}
       status={status}
       dataContext={taskDataContext}
@@ -80,8 +79,10 @@ function augmentDataSet(dataSet, userId, users) {
   const isDataIdPresent = dataSet.some((user) => user.userId === userId);
 
   if (!isDataIdPresent && userId) {
+    const clone = [...dataSet];
     const index = users.findIndex((user) => user.userId === userId);
-    dataSet.push(users[index]);
+    clone.push(users[index]);
+    return clone;
   }
   return dataSet;
 }
