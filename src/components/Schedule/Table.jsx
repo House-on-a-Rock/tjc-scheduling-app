@@ -81,7 +81,10 @@ const Table = ({
                     {events.map((event, rowIndex) => {
                       const { roleId, cells, time, eventId } = event;
                       const isSelected = selectedEvents.includes(eventId);
-                      const tasksDataSet = teammates(users, roleId, churchId);
+                      const tasksDataSet = React.useMemo(
+                        () => teammates(users, roleId, churchId),
+                        [roleId],
+                      );
                       const isTimeDisplayed = shouldDisplayTime(
                         time,
                         rowIndex,
