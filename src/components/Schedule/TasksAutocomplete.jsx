@@ -9,9 +9,7 @@ import TextField from '@material-ui/core/TextField';
 
 import { typographyTheme } from '../../shared/styles/theme';
 
-import useTasksAutocompleteHooks from './useTasksAutocompleteHooks';
-
-import { extractTeammateIds, getUserOptionLabel } from './utilities';
+import { cellStatus, extractTeammateIds, getUserOptionLabel } from './utilities';
 
 /*
   Props explanation
@@ -30,26 +28,23 @@ const TasksAutocomplete = React.memo((props) => {
   const {
     dataId,
     options,
-    roleId,
+    status,
     dataContext,
     onChange,
     renderOption,
     isEditMode,
-    isScheduleModified,
   } = props;
   const classes = useStyles();
+  const [initialId, setInitialId] = React.useState(dataId);
 
-  const [tableCellClass, managedDataSet, initialData] = useTasksAutocompleteHooks(
-    dataId,
-    roleId,
-    options,
-    isScheduleModified,
-  );
+  React.useEffect(() => {
+    if (status === cellStatus.SYNCED) setInitialId(dataId);
+  }, [status]);
 
   return (
-    <TableCell className={classes[tableCellClass]}>
+    <TableCell className={classes[status]}>
       <Autocomplete
-        options={extractTeammateIds(managedDataSet)}
+        options={extractTeammateIds(options)}
         renderInput={(params) => (
           <TextField
             {...params}
@@ -59,16 +54,13 @@ const TasksAutocomplete = React.memo((props) => {
             }}
           />
         )}
-        getOptionLabel={(option) => getUserOptionLabel(option, managedDataSet)}
+        getOptionLabel={(option) => getUserOptionLabel(option, options)}
         getOptionDisabled={(option) => option === dataId}
         renderOption={(option) =>
-          renderOption(
-            getUserOptionLabel(option, managedDataSet),
-            option === initialData.dataId,
-          )
+          renderOption(getUserOptionLabel(option, options), option === initialId)
         }
         value={dataId}
-        onChange={(event, newValue) => onChange(dataContext, newValue)}
+        onChange={(event, newValue) => onChange(dataContext, newValue, initialId)}
         disableClearable
         fullWidth
         clearOnBlur
@@ -84,15 +76,15 @@ const TasksAutocomplete = React.memo((props) => {
 function arePropsEqual(prevProps, nextProps) {
   return (
     prevProps.dataId === nextProps.dataId &&
-    prevProps.dataContext.roleId === nextProps.dataContext.roleId &&
     prevProps.isEditMode === nextProps.isEditMode &&
-    prevProps.isScheduleModified === nextProps.isScheduleModified
+    prevProps.status === nextProps.status &&
+    prevProps.options === nextProps.options
   );
 }
 
 const useStyles = makeStyles(() =>
   createStyles({
-    cell: {
+    synced: {
       color: typographyTheme.common.color,
       textAlign: 'center',
       '&:focus': {
@@ -137,6 +129,7 @@ TasksAutocomplete.propTypes = {
   dataId: PropTypes.number,
   options: PropTypes.array,
   roleId: PropTypes.number,
+  status: PropTypes.string,
   dataContext: PropTypes.object,
   isSaved: PropTypes.bool,
   onChange: PropTypes.func,

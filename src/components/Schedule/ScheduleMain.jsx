@@ -131,7 +131,6 @@ ScheduleMain.propTypes = {
   users: PropTypes.array,
   teams: PropTypes.array,
   setAlert: PropTypes.func,
-  // deleteSchedule: PropTypes.object,
   deleteSchedule: PropTypes.func,
   tab: PropTypes.number,
 };

@@ -8,6 +8,7 @@ import {
   createBlankEvent,
   retrieveDroppableServiceId,
   rearrangeEvents,
+  cellStatus,
 } from './utilities';
 
 // Material UI
@@ -139,8 +140,10 @@ const Table = ({
                                   roleId={roleId}
                                   userId={cell.userId}
                                   taskId={cell.taskId}
+                                  status={cell.status}
                                   time={time}
                                   teams={teams}
+                                  users={users}
                                   onTimeChange={onTimeChange}
                                   onAssignedRoleChange={onAssignedRoleChange}
                                   onTaskChange={onTaskChange}
@@ -175,7 +178,6 @@ const Table = ({
   function onSubmitEditService(dataClone) {
     setDataModel(dataClone);
     setIsEditServiceOpen(false);
-    // setIsScheduleModified(true);
   }
 
   function onDragEnd(result) {
@@ -211,20 +213,19 @@ const Table = ({
   }
 
   function removeEvent(serviceIndex, rowIndex) {
-    // TODO: make sure it works once contextmenu is fixed
     const dataClone = [...dataModel];
-
     dataClone[serviceIndex].events.splice(rowIndex, 1);
-
     setDataModel(dataClone);
-    retrieveChangesSeed(); // called just to update changesSeed.
   }
 
   // onChange Handlers
-  function onTaskChange(dataContext, newAssignee) {
+  function onTaskChange(dataContext, newAssignee, initialId) {
     const { serviceIndex, rowIndex, columnIndex } = dataContext;
     const dataClone = [...dataModel];
-    dataClone[serviceIndex].events[rowIndex].cells[columnIndex].userId = newAssignee;
+    const targetCell = dataClone[serviceIndex].events[rowIndex].cells[columnIndex];
+    targetCell.userId = newAssignee;
+    targetCell.status =
+      newAssignee === initialId ? cellStatus.synced : cellStatus.MODIFIED;
     setDataModel(dataClone);
     setIsScheduleModified(true);
   }

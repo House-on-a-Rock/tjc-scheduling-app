@@ -10,7 +10,8 @@ import useScheduleContainerData from '../../hooks/containerHooks/useScheduleCont
 import { createStyles, makeStyles } from '@material-ui/core';
 import { loadingTheme } from '../../shared/styles/theme';
 
-// error checking if there are no schedules
+// TODO error checking if there are no schedules
+// TODO solution for when theres no schedules/tabs
 
 const ScheduleContainer = ({ churchId }) => {
   const classes = useStyles();
@@ -32,8 +33,6 @@ const ScheduleContainer = ({ churchId }) => {
     onCreateScheduleSuccess,
     onDeleteScheduleSuccess,
   );
-
-  // TODO solution for when theres no schedules/tabs
 
   return (
     <div className={!loaded ? classes.loading : ''}>
