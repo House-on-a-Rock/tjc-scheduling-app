@@ -6,8 +6,6 @@ import jwt, { TokenExpiredError, JsonWebTokenError } from 'jsonwebtoken';
 import { DateTime } from 'luxon';
 import nodemailer from 'nodemailer';
 
-import db from '../index';
-
 const privateKey = fs.readFileSync('tjcschedule.pem');
 let cert;
 fs.readFile('tjcschedule_pub.pem', (err, data) => {
@@ -153,6 +151,7 @@ export function validateEmail(email) {
   return /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(email);
 }
 
+// unused
 export function setDate(date, time, timeZone) {
   return DateTime.fromISO(`${date}T${time}`, { zone: timeZone });
 }
@@ -181,29 +180,6 @@ export function makeMyNotificationMessage(notification, type, firstName) {
 export function determineLoginId(auth = '') {
   const decodedToken = jwt.decode(auth, { json: true });
   return parseInt(decodedToken?.sub.split('|')[1], 10);
-}
-
-export function timeToMilliSeconds(time = '') {
-  const [hourMin, period] = time.split(' ');
-  const [hour, min] = hourMin.split(':');
-  const convertedHour = hour === '12' ? 0 : 3600000 * parseInt(hour, 10);
-  const convertedMin = 60000 * parseInt(min, 10);
-  const convertedPeriod = period === 'AM' ? 0 : 43200000;
-
-  return convertedHour + convertedMin + convertedPeriod;
-}
-
-export function isInTime(target, start, end) {
-  const targetTime = timeToMilliSeconds(target);
-  const startTime = timeToMilliSeconds(start);
-  const endTime = timeToMilliSeconds(end);
-  return startTime <= targetTime && targetTime <= endTime;
-}
-
-export function isTimeBefore(comparing, target) {
-  const targetTime = timeToMilliSeconds(target);
-  const comparingTime = timeToMilliSeconds(comparing);
-  return comparingTime < targetTime;
 }
 
 // adds zeroes in front of single digit dates  5/8 --> 05/08
