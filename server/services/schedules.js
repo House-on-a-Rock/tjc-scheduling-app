@@ -1,11 +1,11 @@
 import { daysOfWeek } from '../../shared/constants';
 import db from '../index';
 import {
-  createColumns,
-  populateServiceData,
-  recurringDaysOfWeek,
   removeTimezoneFromDate,
   weeksRange,
+  replaceDashWithSlash,
+  containsDate,
+  formatDates,
 } from '../utilities/helperFunctions';
 
 /*
@@ -20,6 +20,12 @@ const updateRouter = {
   events: updateEvents,
   deletedServices: deleteServices,
   deletedEvents: deleteEvents,
+};
+
+const cellStatus = {
+  SYNCED: 'synced',
+  MODIFIED: 'modified',
+  WARNING: 'warning',
 };
 
 export const retrieveChurchSchedules = async (churchId) =>
@@ -83,6 +89,7 @@ export const createSchedule = async (request) => {
 };
 
 export const updateSchedule = async (changes) => {
+  // eslint-disable-next-line no-unused-vars
   const sequelizeTransaction = db.sequelize.transaction(async (transaction) => {
     await Promise.all(
       Object.keys(changes).map(async (type) => {
@@ -236,4 +243,98 @@ async function deleteEvents(events, t) {
       );
     }),
   );
+}
+
+// returns the date of every day (eg. monday or tues) within the range
+function recurringDaysOfWeek(startDate, endDate, dayOfWeeK) {
+  const [start, end] = [
+    replaceDashWithSlash(startDate),
+    new Date(replaceDashWithSlash(endDate)),
+  ];
+  const weeks = [];
+  const startDayOfWeek = new Date(start).getDay();
+  let dayModifier = dayOfWeeK - startDayOfWeek;
+  if (dayModifier < 0) dayModifier += 7;
+  let current = new Date(start);
+
+  current.setDate(current.getDate() + dayModifier);
+  while (current <= end) {
+    weeks.push(new Date(current));
+    current = new Date(current.setDate(current.getDate() + 7));
+  }
+  return weeks;
+}
+
+async function populateServiceData(service, scheduleId, weekRange) {
+  const { name, day, id } = service;
+  const events = await db.Event.findAll({
+    where: { serviceId: id },
+    order: [['order', 'ASC']],
+  }); // returns events in ascending order
+  const eventData = await Promise.all(
+    events.map(async (event) => {
+      const { time, roleId, id: eventId, serviceId } = event;
+      const userRoles = await db.UserRole.findAll({
+        where: { roleId: roleId },
+        attributes: ['userId'],
+      });
+      const userIds = userRoles.map((userRole) => userRole.userId);
+      const tasks = await retrieveTaskData(
+        eventId,
+        weekRange[0],
+        weekRange[weekRange.length - 1],
+        userIds,
+      );
+      return {
+        time,
+        roleId,
+        eventId,
+        cells: [{}, {}, ...tasks],
+        serviceId,
+      };
+    }),
+  );
+  return {
+    name,
+    day,
+    events: eventData,
+    serviceId: id,
+    scheduleId: parseInt(scheduleId),
+  };
+}
+
+async function retrieveTaskData(eventId, firstWeek, lastWeek, userIds) {
+  const tasks = await db.Task.findAll({
+    where: { eventId },
+    attributes: ['id', 'userId', 'date'],
+    order: [['date', 'ASC']],
+  });
+  const organizedTasks = tasks.map((task) => {
+    // checks if userId belongs to list of users with that role.
+    const doesRoleMatch = userIds.indexOf(task.userId);
+    return {
+      taskId: task.id,
+      userId: task.userId,
+      // if role does not match, cell will receive 'warning' status and will appear red in frontend
+      status:
+        doesRoleMatch >= 0 || task.userId === null
+          ? cellStatus.SYNCED
+          : cellStatus.WARNING,
+    };
+  });
+  // adds a spacer cell for when a service does not exist on that date
+  if (!containsDate(firstWeek, tasks[0].date))
+    organizedTasks.unshift({ taskId: null, userId: null });
+  if (!containsDate(lastWeek, tasks[tasks.length - 1].date))
+    organizedTasks.push({ taskId: null, userId: null });
+  return organizedTasks;
+}
+
+function createColumns(weekRange) {
+  return [
+    { Header: '' },
+    { Header: 'Time' },
+    { Header: 'Duty' },
+    ...formatDates(weekRange),
+  ];
 }
