@@ -74,12 +74,5 @@ Toolbar.propTypes = {
   enableEditMode: PropTypes.func,
   exitEditingClick: PropTypes.func,
 };
-TooltipForDisabledButton.propTypes = {
-  title: PropTypes.string,
-  disabled: PropTypes.bool,
-  handleClick: PropTypes.func,
-  children: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.node), PropTypes.node])
-    .isRequired,
-};
 
 export default Toolbar;

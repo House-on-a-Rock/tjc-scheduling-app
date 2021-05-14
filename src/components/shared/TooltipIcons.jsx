@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import CreateNewFolderIcon from '@material-ui/icons/CreateNewFolder';
 import { IconButton } from '@material-ui/core';
 import DeleteIcon from '@material-ui/icons/Delete';
@@ -62,3 +63,11 @@ export const TooltipDisabledEditIcon = ({ title, disabled, handleClick }) => (
     <EditIcon />
   </TooltipForDisabledButton>
 );
+
+TooltipForDisabledButton.propTypes = {
+  title: PropTypes.string,
+  disabled: PropTypes.bool,
+  handleClick: PropTypes.func,
+  children: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.node), PropTypes.node])
+    .isRequired,
+};
