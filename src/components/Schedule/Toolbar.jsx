@@ -41,15 +41,15 @@ const Toolbar = ({
       )}
       {isEditMode && (
         <>
-          <TooltipDeleteIcon title="Delete schedule" onClick={destroySchedule} />
-          <TooltipCreateNewFolder
-            title="Add a new service"
-            onClick={handleNewServiceClicked}
-          />
           <TooltipDisabledSaveIcon
             title="Save Template Edits"
             handleClick={() => exitEditingClick()}
           />
+          <TooltipCreateNewFolder
+            title="Add a new service"
+            onClick={handleNewServiceClicked}
+          />
+          <TooltipDeleteIcon title="Delete schedule" onClick={destroySchedule} />
         </>
       )}
     </div>

@@ -1,7 +1,6 @@
 // https://codesandbox.io/s/react-material-ui-and-react-beautiful-dnd-forked-bmheb?file=/src/MaterialTable.jsx draggable table
 import React, { useRef, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { Prompt } from 'react-router';
 
 import ld from 'lodash';
 import { loadingTheme } from '../../shared/styles/theme';
@@ -16,8 +15,6 @@ import { updatedDiff } from 'deep-object-diff';
 import useScheduleMainData from '../../hooks/containerHooks/useScheduleMainData';
 import CustomDialog from '../shared/CustomDialog';
 
-// TODO prompt doesnt work...?!?!?!?
-
 const ScheduleMain = ({
   churchId,
   scheduleId,
@@ -29,11 +26,10 @@ const ScheduleMain = ({
   tab,
 }) => {
   const classes = useStyles();
+  const [dataModel, setDataModel] = useState();
   const [isScheduleModified, setIsScheduleModified] = useState(false);
   const [dialogState, setDialogState] = useState({ isOpen: false, state: '' });
-
   const [isEditMode, setIsEditMode] = useState(false);
-  const [dataModel, setDataModel] = useState();
 
   const [schedule, updateSchedule] = useScheduleMainData(
     scheduleId,
@@ -48,6 +44,7 @@ const ScheduleMain = ({
   const CELLWARNING = 'CELLWARNING';
   const LEAVEPAGE = 'LEAVEPAGE';
   const DELETESCHEDULE = 'DELETESCHEDULE';
+  const SAVEEDITS = 'SAVEEDITS';
 
   const DialogConfig = {
     CELLWARNING: {
@@ -56,7 +53,7 @@ const ScheduleMain = ({
         'Tasks marked with a red background are improperly assigned. You may save, but you will be unable to publish this schedule until those tasks are assigned properly',
       description: '',
       handleClose: resetDialog,
-      handleSubmit: () => saveSchedule(),
+      handleSubmit: (event) => dialogSubmitWrapper(event, saveSchedule),
     },
     DELETESCHEDULE: {
       title: 'Delete Schedule',
@@ -64,7 +61,14 @@ const ScheduleMain = ({
         'You are about to delete this schedule, are you sure? This cannot be undone',
       description: '',
       handleClose: resetDialog,
-      handleSubmit: () => saveSchedule(),
+      handleSubmit: (event) =>
+        dialogSubmitWrapper(event, () => deleteSchedule(scheduleId, schedule.title, tab)),
+    },
+    SAVEEDITS: {
+      title: 'Save changes',
+      description: '',
+      handleClose: resetDialog,
+      handleSubmit: () => deleteSchedule(scheduleId, schedule.title, tab),
     },
   };
 
@@ -72,7 +76,6 @@ const ScheduleMain = ({
     if (schedule) setDataModel(ld.cloneDeep(schedule.services));
   }, [schedule]);
 
-  // used to track isScheduleModified
   useEffect(() => {
     setIsScheduleModified(templateChanges.current.changesSeed < -1);
   }, [templateChanges.current.changesSeed]);
@@ -84,10 +87,9 @@ const ScheduleMain = ({
       className={`main_${scheduleId}`}
       style={{ visibility: isVisible ? 'visible' : 'hidden' }}
     >
-      <Prompt when={true} message="You have unsaved changes" />
       <Toolbar
         handleNewServiceClicked={addService}
-        destroySchedule={() => deleteSchedule(scheduleId, schedule.title, tab)}
+        destroySchedule={onDestroySchedule}
         isScheduleModified={isScheduleModified}
         onSaveSchedule={onSaveSchedule}
         isEditMode={isEditMode}
@@ -109,15 +111,21 @@ const ScheduleMain = ({
       {dialogState.isOpen && (
         <CustomDialog
           open={dialogState.isOpen}
-          title={DialogConfig[dialogState.state].title}
-          warningText={DialogConfig[dialogState.state].warningText}
-          description={DialogConfig[dialogState.state].description}
-          handleClose={DialogConfig[dialogState.state].handleClose}
-          handleSubmit={DialogConfig[dialogState.state].handleSubmit}
+          {...DialogConfig[dialogState.state]}
         ></CustomDialog>
       )}
     </div>
   );
+
+  function dialogSubmitWrapper(event, callback) {
+    event.preventDefault();
+    callback();
+    resetDialog();
+  }
+
+  function onDestroySchedule() {
+    setDialogState({ state: DELETESCHEDULE, isOpen: true });
+  }
 
   function resetDialog() {
     setDialogState({ state: '', isOpen: false });
@@ -125,16 +133,14 @@ const ScheduleMain = ({
 
   function isStatusWarning(data) {
     let isWarning = false;
-    data.forEach((service) => {
-      service.events.forEach((event) => {
-        isWarning = event.cells.find(
-          (cell) => cell.status && cell.status === cellStatus.WARNING,
-        );
-      });
-    });
+    isWarning = data.find((service) =>
+      service.events.find((event) =>
+        event.cells.find((cell) => cell.status && cell.status === cellStatus.WARNING),
+      ),
+    );
     // array.find returns undefined if not found
     // eslint-disable-next-line no-undefined
-    return isWarning === undefined;
+    return isWarning !== undefined;
   }
 
   function onSaveSchedule() {
