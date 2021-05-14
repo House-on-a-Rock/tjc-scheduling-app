@@ -379,7 +379,7 @@ export const updateEvents = async (events, t) => {
       else {
         // else create new event, and corresponding tasks
         const newEvent = await db.Event.create(
-          { ...item, order: index },
+          { time, roleId, serviceId, order: index },
           { transaction: t },
         );
         const parentService = await db.Service.findOne({

@@ -31,8 +31,10 @@ const Toolbar = ({
   handleNewServiceClicked,
   destroySchedule,
   isScheduleModified,
-  onSaveScheduleChanges,
-  setEditMode,
+  onSaveSchedule,
+  isEditMode,
+  enableEditMode,
+  exitEditingClick,
 }) => {
   const classes = useStyles();
   return (
@@ -50,21 +52,31 @@ const Toolbar = ({
       <TooltipForDisabledButton
         title="Save Changes"
         disabled={!isScheduleModified}
-        handleClick={() => onSaveScheduleChanges()}
+        handleClick={() => onSaveSchedule()}
       >
         <SaveIcon />
       </TooltipForDisabledButton>
-      <TooltipForDisabledButton
-        title="Edit Template (Changes must be saved before editing)"
-        disabled={isScheduleModified}
-        handleClick={() => setEditMode()}
-      >
-        <EditIcon />
-      </TooltipForDisabledButton>
+      {!isEditMode && (
+        <TooltipForDisabledButton
+          title="Edit Template (Changes must be saved before editing)"
+          disabled={isScheduleModified}
+          handleClick={() => enableEditMode()}
+        >
+          <EditIcon />
+        </TooltipForDisabledButton>
+      )}
+      {isEditMode && (
+        <TooltipForDisabledButton
+          title="Save Template Edits"
+          handleClick={() => exitEditingClick()}
+        >
+          <SaveIcon />
+        </TooltipForDisabledButton>
+      )}
       <TooltipForDisabledButton
         title="Publish changes"
         disabled={!isScheduleModified}
-        handleClick={() => onSaveScheduleChanges()}
+        // handleClick={() => ()}
       >
         <PublishIcon />
       </TooltipForDisabledButton>
@@ -85,8 +97,10 @@ Toolbar.propTypes = {
   isScheduleModified: PropTypes.bool,
   handleNewServiceClicked: PropTypes.func,
   destroySchedule: PropTypes.func,
-  onSaveScheduleChanges: PropTypes.func,
-  setEditMode: PropTypes.func,
+  onSaveSchedule: PropTypes.func,
+  isEditMode: PropTypes.bool,
+  enableEditMode: PropTypes.func,
+  exitEditingClick: PropTypes.func,
 };
 TooltipForDisabledButton.propTypes = {
   title: PropTypes.string,

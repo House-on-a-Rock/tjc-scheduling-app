@@ -22,6 +22,8 @@ import RemoveIcon from '@material-ui/icons/Remove';
 // Styles
 import { paletteTheme } from '../../shared/styles/theme';
 
+// selected row stuff doesnt work, mbbe not needed
+
 const Table = ({
   schedule,
   isEditMode,
@@ -31,8 +33,7 @@ const Table = ({
   teams,
   churchId,
   isScheduleModified,
-  setIsScheduleModified,
-  retrieveChangesSeed,
+  incrementChangesSeed,
 }) => {
   const classes = useStyles();
   const [selectedEvents, setSelectedEvents] = useState([]);
@@ -207,7 +208,11 @@ const Table = ({
     const dataClone = [...dataModel];
     const targetEvents = dataClone[serviceIndex].events;
     const serviceId = dataClone[serviceIndex].serviceId;
-    const newEvent = createBlankEvent(headers.length - 1, retrieveChangesSeed, serviceId);
+    const newEvent = createBlankEvent(
+      headers.length - 1,
+      incrementChangesSeed,
+      serviceId,
+    );
     targetEvents.push(newEvent);
     setDataModel(dataClone);
   }
@@ -221,13 +226,21 @@ const Table = ({
   // onChange Handlers
   function onTaskChange(dataContext, newAssignee, initialId) {
     const { serviceIndex, rowIndex, columnIndex } = dataContext;
-    const dataClone = [...dataModel];
-    const targetCell = dataClone[serviceIndex].events[rowIndex].cells[columnIndex];
-    targetCell.userId = newAssignee;
-    targetCell.status =
-      newAssignee === initialId ? cellStatus.synced : cellStatus.MODIFIED;
-    setDataModel(dataClone);
-    setIsScheduleModified(true);
+    setDataModel((clone) => {
+      const dataClone = [...clone];
+
+      const targetCell = dataClone[serviceIndex].events[rowIndex].cells[columnIndex];
+      targetCell.userId = newAssignee;
+      // checks if an assignment is being undone. if it is, then cellStatus and the changesSeed updates accordingly
+      if (newAssignee === initialId) {
+        targetCell.status = cellStatus.SYNCED;
+        incrementChangesSeed(1);
+      } else {
+        targetCell.status = cellStatus.MODIFIED;
+        incrementChangesSeed();
+      }
+      return dataClone;
+    });
   }
 
   function onAssignedRoleChange(dataContext, newRoleId) {
@@ -335,7 +348,6 @@ const useStyles = makeStyles(() =>
     },
   }),
 );
-// { columns: headers, services, title, view } = schedule
 
 Table.propTypes = {
   schedule: PropTypes.object,
@@ -346,8 +358,7 @@ Table.propTypes = {
   teams: PropTypes.array,
   churchId: PropTypes.number,
   isScheduleModified: PropTypes.bool,
-  setIsScheduleModified: PropTypes.func,
-  retrieveChangesSeed: PropTypes.func,
+  incrementChangesSeed: PropTypes.func,
 };
 
 export default Table;

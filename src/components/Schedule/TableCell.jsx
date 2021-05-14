@@ -74,8 +74,10 @@ function augmentDataSet(dataSet, userId, users) {
   const isDataIdPresent = dataSet.some((user) => user.userId === userId);
 
   if (!isDataIdPresent && userId) {
+    const clone = [...dataSet];
     const index = users.findIndex((user) => user.userId === userId);
-    dataSet.push(users[index]);
+    clone.push(users[index]);
+    return clone;
   }
   return dataSet;
 }

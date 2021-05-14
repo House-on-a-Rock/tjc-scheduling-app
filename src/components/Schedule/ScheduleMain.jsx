@@ -10,15 +10,11 @@ import { createStyles, makeStyles } from '@material-ui/core';
 import Table from './Table';
 import Toolbar from './Toolbar';
 
-import { processUpdate, createBlankService, formatData } from './utilities';
+import { processUpdate, createBlankService, formatData, cellStatus } from './utilities';
 import { updatedDiff } from 'deep-object-diff';
 
 import useScheduleMainData from '../../hooks/containerHooks/useScheduleMainData';
-
-// TODO
-// contextmenu b r o k e n, but do we need it?
-// broke selection/hover of rows, do we need it?
-// newly created schedule has strange set of dates
+import CustomDialog from '../shared/CustomDialog';
 
 const ScheduleMain = ({
   churchId,
@@ -32,6 +28,9 @@ const ScheduleMain = ({
 }) => {
   const classes = useStyles();
   const [isScheduleModified, setIsScheduleModified] = useState(false);
+  const [isScheduleWarning, setIsScheduleWarning] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
   const [isEditMode, setIsEditMode] = useState(false);
   const [dataModel, setDataModel] = useState();
 
@@ -49,7 +48,10 @@ const ScheduleMain = ({
     if (schedule) setDataModel(ld.cloneDeep(schedule.services));
   }, [schedule]);
 
-  const outerRef = useRef(null);
+  // used to track isScheduleModified
+  useEffect(() => {
+    setIsScheduleModified(templateChanges.current.changesSeed < -1);
+  }, [templateChanges.current.changesSeed]);
 
   if (!dataModel || !schedule) return <div className={classes.loading}></div>;
 
@@ -57,14 +59,15 @@ const ScheduleMain = ({
     <div
       className={`main_${scheduleId}`}
       style={{ visibility: isVisible ? 'visible' : 'hidden' }}
-      ref={outerRef}
     >
       <Toolbar
         handleNewServiceClicked={addService}
         destroySchedule={() => deleteSchedule(scheduleId, schedule.title, tab)}
         isScheduleModified={isScheduleModified}
-        onSaveScheduleChanges={onSaveScheduleChanges}
-        setEditMode={onEditClick}
+        onSaveSchedule={onSaveSchedule}
+        isEditMode={isEditMode}
+        enableEditMode={enableEditMode}
+        exitEditingClick={exitEditingClick}
       />
       <Table
         schedule={schedule}
@@ -76,43 +79,72 @@ const ScheduleMain = ({
         churchId={churchId}
         isScheduleModified={isScheduleModified}
         setIsScheduleModified={setIsScheduleModified}
-        retrieveChangesSeed={retrieveChangesSeed}
+        incrementChangesSeed={incrementChangesSeed}
       />
+      <CustomDialog
+        open={isDialogOpen}
+        title="Improperly assigned cells"
+        warningText="Improperly assigned cells"
+        handleClose={() => setIsDialogOpen(false)}
+      ></CustomDialog>
     </div>
   );
 
-  function onSaveScheduleChanges() {
+  function isWarningStatus(data) {
+    let isWarning = false;
+    data.forEach((service) => {
+      service.events.forEach((event) => {
+        isWarning = event.cells.find(
+          (cell) => cell.status && cell.status === cellStatus.WARNING,
+        );
+      });
+    });
+    // array.find returns undefined if not found
+    // eslint-disable-next-line no-undefined
+    return isWarning === undefined;
+  }
+
+  function onSaveSchedule() {
+    // check if any cells have status: warning
+    const isWarning = isWarningStatus(dataModel);
+    setIsDialogOpen(isWarning);
+
     const diff = updatedDiff(schedule.services, dataModel);
-    // need error checking before running diff... or do we
     const processedDiff = processUpdate(diff, dataModel);
     updateSchedule.mutate({ tasks: processedDiff });
-    // setIsScheduleModified(false);  make this an onsuccess?
+    resetChangesSeed();
   }
 
   function addService() {
     const dataClone = [...dataModel];
-    dataClone.push(createBlankService(retrieveChangesSeed, scheduleId));
+    dataClone.push(createBlankService(incrementChangesSeed, scheduleId));
     setDataModel(dataClone);
   }
 
-  function retrieveChangesSeed() {
-    return templateChanges.current.changesSeed--;
+  function incrementChangesSeed(amount = -1) {
+    templateChanges.current.changesSeed += amount;
   }
 
-  function onEditClick() {
-    if (!isEditMode && !isScheduleModified) {
-      setIsEditMode(true);
-    } else {
-      saveTemplateChanges();
-      // if they choose to not save changes, reset to this orig schedule
-      // setDataModel(ld.cloneDeep(schedule.services));
-      setIsEditMode(false);
-    }
+  function resetChangesSeed() {
+    templateChanges.current.changesSeed = -1;
+  }
+
+  function enableEditMode() {
+    if (!isEditMode && !isScheduleModified) setIsEditMode(true);
+  }
+
+  function exitEditingClick() {
+    saveTemplateChanges();
+    // if they choose to not save changes, reset to this orig schedule
+    // setDataModel(ld.cloneDeep(schedule.services));
+    resetChangesSeed();
+    setIsEditMode(false);
   }
 
   function saveTemplateChanges() {
     const processedChanges = formatData(dataModel, schedule.services);
     updateSchedule.mutate({ ...processedChanges });
+    resetChangesSeed();
   }
 };
 

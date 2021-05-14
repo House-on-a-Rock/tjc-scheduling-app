@@ -56,30 +56,13 @@ export const blankTeammate = (churchId) => {
   };
 };
 
-const createBlankTask = (seedFx, eventId) => {
-  return {
-    taskId: seedFx(),
-    userId: seedFx(),
-    eventId,
-  };
-};
-
-const createBlankEventCells = (cellLength, seedFx, eventId) => {
-  const taskCells = [{}, {}]; // data from these cells aren't actually being used, are just placeholders for rendering
-  const afterTimeAndDutyColumns = 2;
-  for (let i = afterTimeAndDutyColumns; i < cellLength; i++) {
-    taskCells[i] = createBlankTask(seedFx, eventId);
-  }
-  return taskCells;
-};
-
 export const createBlankEvent = (cellLength, seedFx, serviceId) => {
   const eventId = seedFx();
   return {
     eventId,
-    cells: [...createBlankEventCells(cellLength, seedFx, eventId)],
-    roleId: -1, // placeholder, since it's unknown at time of creation. TODO onsubmit, check that these are assigned and not negative
-    time: '',
+    cells: [{}, {}],
+    roleId: 1, // placeholder, since it's unknown at time of creation. TODO onsubmit, check that these are assigned and not negative
+    time: '00:00',
     serviceId,
   };
 };
@@ -126,6 +109,7 @@ export function processUpdate(diff, dataModel) {
   return changes;
 }
 
+// converts array to object with key as its property. This makes it easier to compare the two arrays through property instead of looping through array
 function convert(array, key) {
   return array.reduce(
     (acc, item, index) => ({ ...acc, [item[key]]: { ...item, order: index } }),
@@ -195,12 +179,12 @@ export function rearrangeEvents(prevModel, sourceService, source, destination) {
   return temp;
 }
 
-export function createBlankService(retrieveChangesSeed, scheduleId) {
+export function createBlankService(incrementChangesSeed, scheduleId) {
   return {
-    name: 'test',
+    name: 'New Service',
     day: 0,
     events: [],
-    serviceId: retrieveChangesSeed(),
+    serviceId: incrementChangesSeed(),
     scheduleId,
   };
 }
@@ -209,4 +193,12 @@ export const cellStatus = {
   SYNCED: 'synced',
   MODIFIED: 'modified',
   WARNING: 'warning',
+};
+
+export const arrayEquals = (arr1, arr2) => {
+  if (arr1.length !== arr2.length) return false;
+  for (let i = 0; i < arr1.length; i++) {
+    if (arr1[i].userId !== arr2[i].userId) return false;
+  }
+  return true;
 };

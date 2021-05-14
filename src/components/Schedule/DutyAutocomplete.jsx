@@ -24,7 +24,7 @@ import { extractRoleIds, getRoleOptionLabel } from './utilities';
 */
 
 const DutyAutocomplete = React.memo(
-  ({ dataId, options, dataContext, isSaved, onChange, renderOption, isEditMode }) => {
+  ({ dataId, options, dataContext, onChange, renderOption, isEditMode }) => {
     const classes = useStyles();
 
     const [isCellModified, setIsCellModified] = useState(false);
@@ -128,7 +128,6 @@ DutyAutocomplete.propTypes = {
   dataId: PropTypes.number,
   options: PropTypes.array,
   dataContext: PropTypes.object,
-  isSaved: PropTypes.bool,
   onChange: PropTypes.func,
   renderOption: PropTypes.func,
   isEditMode: PropTypes.bool,

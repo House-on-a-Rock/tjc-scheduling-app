@@ -9,7 +9,12 @@ import TextField from '@material-ui/core/TextField';
 
 import { typographyTheme } from '../../shared/styles/theme';
 
-import { cellStatus, extractTeammateIds, getUserOptionLabel } from './utilities';
+import {
+  arrayEquals,
+  cellStatus,
+  extractTeammateIds,
+  getUserOptionLabel,
+} from './utilities';
 
 /*
   Props explanation
@@ -78,7 +83,7 @@ function arePropsEqual(prevProps, nextProps) {
     prevProps.dataId === nextProps.dataId &&
     prevProps.isEditMode === nextProps.isEditMode &&
     prevProps.status === nextProps.status &&
-    prevProps.options === nextProps.options
+    arrayEquals(prevProps.options, nextProps.options)
   );
 }
 
