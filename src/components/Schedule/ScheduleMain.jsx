@@ -50,8 +50,7 @@ const ScheduleMain = ({
 
   // used to track isScheduleModified
   useEffect(() => {
-    if (templateChanges.current.changesSeed < -1) setIsScheduleModified(true);
-    else if (templateChanges.current.changesSeed === -1) setIsScheduleModified(false);
+    setIsScheduleModified(templateChanges.current.changesSeed < -1);
   }, [templateChanges.current.changesSeed]);
 
   if (!dataModel || !schedule) return <div className={classes.loading}></div>;
@@ -95,12 +94,14 @@ const ScheduleMain = ({
     let isWarning = false;
     data.forEach((service) => {
       service.events.forEach((event) => {
-        event.cells.forEach((cell) => {
-          if (cell.status && cell.status === cellStatus.WARNING) isWarning = true;
-        });
+        isWarning = event.cells.find(
+          (cell) => cell.status && cell.status === cellStatus.WARNING,
+        );
       });
     });
-    return isWarning;
+    // array.find returns undefined if not found
+    // eslint-disable-next-line no-undefined
+    return isWarning === undefined;
   }
 
   function onSaveSchedule() {
