@@ -38,7 +38,7 @@ const ScheduleMain = ({
   );
 
   const templateChanges = useRef({
-    changesSeed: -1,
+    changesSeed: 0,
   });
 
   const CELLWARNING = 'CELLWARNING';
@@ -77,7 +77,7 @@ const ScheduleMain = ({
   }, [schedule]);
 
   useEffect(() => {
-    setIsScheduleModified(templateChanges.current.changesSeed < -1);
+    setIsScheduleModified(templateChanges.current.changesSeed > 0);
   }, [templateChanges.current.changesSeed]);
 
   if (!dataModel || !schedule) return <div className={classes.loading}></div>;
@@ -163,26 +163,27 @@ const ScheduleMain = ({
   function addService() {
     const dataClone = [...dataModel];
     dataClone.push(createBlankService(incrementChangesSeed, scheduleId));
+
     setDataModel(dataClone);
   }
 
-  function incrementChangesSeed(amount = -1) {
+  function incrementChangesSeed(amount = 1) {
     templateChanges.current.changesSeed += amount;
+    return templateChanges.current.changesSeed;
   }
 
   function resetChangesSeed() {
-    templateChanges.current.changesSeed = -1;
+    templateChanges.current.changesSeed = 0;
   }
 
   function enableEditMode() {
-    if (!isEditMode && !isScheduleModified) setIsEditMode(true);
+    setIsEditMode(!isEditMode && !isScheduleModified);
   }
 
   function exitEditingClick() {
     saveTemplateChanges();
     // if they choose to not save changes, reset to this orig schedule
     // setDataModel(ld.cloneDeep(schedule.services));
-    resetChangesSeed();
     setIsEditMode(false);
   }
 

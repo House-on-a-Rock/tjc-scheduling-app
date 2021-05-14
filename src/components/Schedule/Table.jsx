@@ -36,7 +36,7 @@ const Table = ({
   incrementChangesSeed,
 }) => {
   const classes = useStyles();
-  const [selectedEvents, setSelectedEvents] = useState([]);
+
   const [isEditServiceOpen, setIsEditServiceOpen] = useState(false);
   const [selectedService, setSelectedService] = useState(); // by serviceId
   const { columns: headers, title } = schedule;
@@ -79,7 +79,7 @@ const Table = ({
                   >
                     {events.map((event, rowIndex) => {
                       const { roleId, cells, time, eventId } = event;
-                      const isSelected = selectedEvents.includes(eventId);
+
                       const tasksDataSet = teammates(users, roleId, churchId);
                       const isTimeDisplayed = shouldDisplayTime(
                         time,
@@ -98,8 +98,6 @@ const Table = ({
                             <TableRow
                               key={`${serviceIndex}-${rowIndex}`}
                               hover
-                              onDoubleClick={() => handleRowSelected(isSelected, eventId)}
-                              selected={isSelected}
                               ref={provided.innerRef}
                               {...provided.draggableProps}
                               style={{
@@ -208,11 +206,7 @@ const Table = ({
     const dataClone = [...dataModel];
     const targetEvents = dataClone[serviceIndex].events;
     const serviceId = dataClone[serviceIndex].serviceId;
-    const newEvent = createBlankEvent(
-      headers.length - 1,
-      incrementChangesSeed,
-      serviceId,
-    );
+    const newEvent = createBlankEvent(incrementChangesSeed, serviceId);
     targetEvents.push(newEvent);
     setDataModel(dataClone);
   }
@@ -234,7 +228,7 @@ const Table = ({
       // checks if an assignment is being undone. if it is, then cellStatus and the changesSeed updates accordingly
       if (newAssignee === initialId) {
         targetCell.status = cellStatus.SYNCED;
-        incrementChangesSeed(1);
+        incrementChangesSeed(-1);
       } else {
         targetCell.status = cellStatus.MODIFIED;
         incrementChangesSeed();
@@ -258,11 +252,6 @@ const Table = ({
     setDataModel(dataClone);
   }
 
-  function handleRowSelected(isSelected, eventId) {
-    return isSelected
-      ? setSelectedEvents(selectedEvents.filter((id) => id !== eventId))
-      : setSelectedEvents([...selectedEvents, eventId]);
-  }
   function shouldDisplayTime(time, rowIndex, serviceIndex) {
     // TODO update time string to standardized UTC string and use dedicated time inputs
     if (rowIndex === 0) return true;

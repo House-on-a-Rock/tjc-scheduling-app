@@ -27,17 +27,20 @@ const Toolbar = ({
         disabled={!isScheduleModified}
         // handleClick={() => ()}
       />
-      <TooltipDisabledSaveIcon
-        title="Save Changes"
-        disabled={!isScheduleModified}
-        handleClick={onSaveSchedule}
-      />
+
       {!isEditMode && (
-        <TooltipDisabledEditIcon
-          title="Edit Template (Changes must be saved before editing)"
-          disabled={isScheduleModified}
-          handleClick={() => enableEditMode()}
-        />
+        <>
+          <TooltipDisabledSaveIcon
+            title="Save Changes"
+            disabled={!isScheduleModified}
+            handleClick={onSaveSchedule}
+          />
+          <TooltipDisabledEditIcon
+            title="Edit Template (Changes must be saved before editing)"
+            disabled={isScheduleModified}
+            handleClick={() => enableEditMode()}
+          />
+        </>
       )}
       {isEditMode && (
         <>
