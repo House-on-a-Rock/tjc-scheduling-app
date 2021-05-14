@@ -66,9 +66,11 @@ const ScheduleMain = ({
     },
     SAVEEDITS: {
       title: 'Save changes',
-      description: '',
+      description: 'Are you sure you would to save these changes?',
+      cancelText: 'Return to editing',
+      confirmText: 'Save and finish editing',
       handleClose: resetDialog,
-      handleSubmit: () => deleteSchedule(scheduleId, schedule.title, tab),
+      handleSubmit: (event) => dialogSubmitWrapper(event, saveTemplateChanges),
     },
   };
 
@@ -94,7 +96,8 @@ const ScheduleMain = ({
         onSaveSchedule={onSaveSchedule}
         isEditMode={isEditMode}
         enableEditMode={enableEditMode}
-        exitEditingClick={exitEditingClick}
+        onSaveEdits={onSaveEdits}
+        onCancelEdits={onCancelEdits}
       />
       <Table
         schedule={schedule}
@@ -180,10 +183,13 @@ const ScheduleMain = ({
     setIsEditMode(!isEditMode && !isScheduleModified);
   }
 
-  function exitEditingClick() {
-    saveTemplateChanges();
-    // if they choose to not save changes, reset to this orig schedule
-    // setDataModel(ld.cloneDeep(schedule.services));
+  function onSaveEdits() {
+    setDialogState({ isOpen: true, state: SAVEEDITS });
+  }
+
+  function onCancelEdits() {
+    setDataModel(ld.cloneDeep(schedule.services));
+    resetChangesSeed();
     setIsEditMode(false);
   }
 
@@ -191,6 +197,7 @@ const ScheduleMain = ({
     const processedChanges = formatData(dataModel, schedule.services);
     updateSchedule({ ...processedChanges });
     resetChangesSeed();
+    setIsEditMode(false);
   }
 };
 

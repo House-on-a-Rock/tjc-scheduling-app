@@ -24,6 +24,8 @@ function CustomDialog({
   description = '',
   handleClose,
   handleSubmit,
+  confirmText = 'Confirm',
+  cancelText = 'Cancel',
 }) {
   const classes = useStyles();
 
@@ -42,10 +44,10 @@ function CustomDialog({
         </DialogContent>
         <DialogActions>
           <Button className={classes.confirmButton} onClick={handleSubmit} type="submit">
-            Confirm
+            {confirmText}
           </Button>
           <Button onClick={handleClose} className={classes.cancelButton}>
-            Cancel
+            {cancelText}
           </Button>
         </DialogActions>
       </form>
@@ -83,6 +85,8 @@ CustomDialog.propTypes = {
   form: PropTypes.bool,
   warningText: PropTypes.string,
   children: PropTypes.node,
+  confirmText: PropTypes.string,
+  cancelText: PropTypes.string,
 };
 
 export default CustomDialog;

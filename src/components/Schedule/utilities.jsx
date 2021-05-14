@@ -57,10 +57,10 @@ export const blankTeammate = (churchId) => {
 };
 
 export const createBlankEvent = (incrementChangesSeed, serviceId) => {
-  const e = -incrementChangesSeed();
-  console.log(`e`, e);
+  const eventId = -incrementChangesSeed();
+
   return {
-    eventId: e,
+    eventId,
     cells: [{}, {}],
     roleId: 1, // placeholder, since it's unknown at time of creation. TODO onsubmit, check that these are assigned and not negative
     time: '00:00',
@@ -140,15 +140,16 @@ export function formatData(dataModel, previousServices) {
   const updated = {};
   const objectifiedServices = convert(previousServices, 'serviceId');
   const objectifiedDataModel = convert(dataModel, 'serviceId');
-  updated.services = dataModel;
-  updated.deletedServices = findDeleted(objectifiedServices, objectifiedDataModel);
 
   const servicesEvents = extractEvents(previousServices);
   const dataModelEvents = extractEvents(dataModel);
   const objectifiedDMEvents = convert(dataModelEvents, 'eventId');
   const objectifiedOriginalEvents = convert(servicesEvents, 'eventId');
-  updated.events = dataModelEvents;
+
+  updated.deletedServices = findDeleted(objectifiedServices, objectifiedDataModel);
   updated.deletedEvents = findDeleted(objectifiedOriginalEvents, objectifiedDMEvents);
+  updated.services = dataModel;
+  updated.events = dataModelEvents;
   return updated;
 }
 

@@ -159,6 +159,7 @@ async function updateEvents(events, t) {
         return targetEvent.update({ time, roleId, order: index }, { transaction: t });
       else {
         // else create new event, and corresponding tasks
+        console.log('creating new event', eventId);
         const newEvent = await db.Event.create(
           { time, roleId, serviceId, order: index },
           { transaction: t },
@@ -187,7 +188,7 @@ async function updateServices(services, t) {
   await Promise.all(
     services.map(async (item, index) => {
       const { name, day, scheduleId, serviceId } = item;
-      if (serviceId) {
+      if (serviceId && serviceId >= 0) {
         const targetService = await db.Service.findOne({
           where: { id: serviceId },
         });

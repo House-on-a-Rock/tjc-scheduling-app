@@ -7,6 +7,7 @@ import SaveIcon from '@material-ui/icons/Save';
 import PublishIcon from '@material-ui/icons/Publish';
 import Tooltip from '@material-ui/core/Tooltip';
 import EditIcon from '@material-ui/icons/Edit';
+import CancelIcon from '@material-ui/icons/Cancel';
 
 const TooltipForDisabledButton = ({ title, disabled, handleClick, children }) => {
   const [open, setOpen] = React.useState(false);
@@ -62,6 +63,12 @@ export const TooltipDisabledEditIcon = ({ title, disabled, handleClick }) => (
   <TooltipForDisabledButton title={title} handleClick={handleClick} disabled={disabled}>
     <EditIcon />
   </TooltipForDisabledButton>
+);
+
+export const TooltipCancelIcon = ({ title, onClick }) => (
+  <TooltipButton title={title} onClick={onClick}>
+    <CancelIcon style={{ color: 'red' }} />
+  </TooltipButton>
 );
 
 TooltipForDisabledButton.propTypes = {
