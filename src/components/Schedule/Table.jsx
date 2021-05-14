@@ -226,13 +226,9 @@ const Table = ({
       const targetCell = dataClone[serviceIndex].events[rowIndex].cells[columnIndex];
       targetCell.userId = newAssignee;
       // checks if an assignment is being undone. if it is, then cellStatus and the changesSeed updates accordingly
-      if (newAssignee === initialId) {
-        targetCell.status = cellStatus.SYNCED;
-        incrementChangesSeed(-1);
-      } else {
-        targetCell.status = cellStatus.MODIFIED;
-        incrementChangesSeed();
-      }
+      if (newAssignee === initialId) targetCell.status = cellStatus.SYNCED;
+      else targetCell.status = cellStatus.MODIFIED;
+
       return dataClone;
     });
   }

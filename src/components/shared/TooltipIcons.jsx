@@ -8,17 +8,12 @@ import PublishIcon from '@material-ui/icons/Publish';
 import Tooltip from '@material-ui/core/Tooltip';
 import EditIcon from '@material-ui/icons/Edit';
 import CancelIcon from '@material-ui/icons/Cancel';
+import RotateLeftIcon from '@material-ui/icons/RotateLeft';
 
 const TooltipForDisabledButton = ({ title, disabled, handleClick, children }) => {
-  const [open, setOpen] = React.useState(false);
   return (
-    <Tooltip title={title} open={open}>
-      <div
-        onMouseOver={() => setOpen(true)}
-        onMouseOut={() => setOpen(false)}
-        onFocus={() => setOpen(true)}
-        onBlur={() => setOpen(false)}
-      >
+    <Tooltip title={title}>
+      <div>
         <IconButton disabled={disabled} onClick={() => handleClick()}>
           {children}
         </IconButton>
@@ -27,22 +22,22 @@ const TooltipForDisabledButton = ({ title, disabled, handleClick, children }) =>
   );
 };
 
-const TooltipButton = ({ title, onClick, children }) => (
+const TooltipButton = ({ title, handleClick, children }) => (
   <Tooltip title={title}>
-    <IconButton onClick={onClick}>{children}</IconButton>
+    <IconButton onClick={handleClick}>{children}</IconButton>
   </Tooltip>
 );
 
 // these pbly aren't necessary but it makes it easier to read... idk
 
-export const TooltipCreateNewFolder = ({ title, onClick }) => (
-  <TooltipButton title={title} onClick={onClick}>
+export const TooltipCreateNewFolder = ({ title, handleClick }) => (
+  <TooltipButton title={title} handleClick={handleClick}>
     <CreateNewFolderIcon />
   </TooltipButton>
 );
 
-export const TooltipDeleteIcon = ({ title, onClick }) => (
-  <TooltipButton title={title} onClick={onClick}>
+export const TooltipDeleteIcon = ({ title, handleClick }) => (
+  <TooltipButton title={title} handleClick={handleClick}>
     <DeleteIcon />
   </TooltipButton>
 );
@@ -65,10 +60,16 @@ export const TooltipDisabledEditIcon = ({ title, disabled, handleClick }) => (
   </TooltipForDisabledButton>
 );
 
-export const TooltipCancelIcon = ({ title, onClick }) => (
-  <TooltipButton title={title} onClick={onClick}>
+export const TooltipCancelIcon = ({ title, handleClick }) => (
+  <TooltipButton title={title} handleClick={handleClick}>
     <CancelIcon style={{ color: 'red' }} />
   </TooltipButton>
+);
+
+export const TooltipDisabledResetIcon = (props) => (
+  <TooltipForDisabledButton {...props}>
+    <RotateLeftIcon />
+  </TooltipForDisabledButton>
 );
 
 TooltipForDisabledButton.propTypes = {

@@ -118,7 +118,7 @@ const constructScheduleByTemplate = async (newSchedule, templateId) => {
     const newService = await db.Service.create({
       name: name,
       day: daysOfWeek.indexOf(day), // TODO convert this to 0-6
-      order: index, // should it be zero based or 1 based? currently, others are 1 based
+      order: index,
       scheduleId: newSchedule.id,
     });
     const taskDays = recurringDaysOfWeek(
@@ -154,12 +154,13 @@ async function updateEvents(events, t) {
         where: { id: eventId },
       });
 
+      // TODO look into sequelize db.findOrCreate()
+
       if (targetEvent)
         // if event already exists, update to match incoming data
         return targetEvent.update({ time, roleId, order: index }, { transaction: t });
       else {
         // else create new event, and corresponding tasks
-        console.log('creating new event', eventId);
         const newEvent = await db.Event.create(
           { time, roleId, serviceId, order: index },
           { transaction: t },

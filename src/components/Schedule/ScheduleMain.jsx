@@ -1,3 +1,4 @@
+/* eslint-disable no-undefined */
 // https://codesandbox.io/s/react-material-ui-and-react-beautiful-dnd-forked-bmheb?file=/src/MaterialTable.jsx draggable table
 import React, { useRef, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
@@ -42,15 +43,15 @@ const ScheduleMain = ({
   });
 
   const CELLWARNING = 'CELLWARNING';
-  const LEAVEPAGE = 'LEAVEPAGE';
   const DELETESCHEDULE = 'DELETESCHEDULE';
   const SAVEEDITS = 'SAVEEDITS';
+  const RESET = 'RESET';
 
   const DialogConfig = {
     CELLWARNING: {
       title: 'There are improperly assigned cells',
       warningText:
-        'Tasks marked with a red background are improperly assigned. You may save, but you will be unable to publish this schedule until those tasks are assigned properly',
+        'Tasks with a red background are improperly assigned. You may save, but you will be unable to publish this schedule until those tasks are assigned properly',
       description: '',
       handleClose: resetDialog,
       handleSubmit: (event) => dialogSubmitWrapper(event, saveSchedule),
@@ -72,6 +73,13 @@ const ScheduleMain = ({
       handleClose: resetDialog,
       handleSubmit: (event) => dialogSubmitWrapper(event, saveTemplateChanges),
     },
+    RESET: {
+      title: 'Discard changes',
+      description:
+        'You are about to discard your current changes, are you sure? This cannot be undone',
+      handleClose: resetDialog,
+      handleSubmit: (event) => dialogSubmitWrapper(event, reset),
+    },
   };
 
   useEffect(() => {
@@ -79,8 +87,16 @@ const ScheduleMain = ({
   }, [schedule]);
 
   useEffect(() => {
-    setIsScheduleModified(templateChanges.current.changesSeed > 0);
-  }, [templateChanges.current.changesSeed]);
+    if (dataModel) {
+      let isModified = false;
+      isModified = dataModel.find((service) =>
+        service.events.find((event) =>
+          event.cells.find((cell) => cell.status && cell.status === cellStatus.MODIFIED),
+        ),
+      );
+      setIsScheduleModified(isModified !== undefined);
+    }
+  }, [dataModel]);
 
   if (!dataModel || !schedule) return <div className={classes.loading}></div>;
 
@@ -98,6 +114,7 @@ const ScheduleMain = ({
         enableEditMode={enableEditMode}
         onSaveEdits={onSaveEdits}
         onCancelEdits={onCancelEdits}
+        onResetClick={onResetClick}
       />
       <Table
         schedule={schedule}
@@ -119,6 +136,15 @@ const ScheduleMain = ({
       )}
     </div>
   );
+
+  function onResetClick() {
+    setDialogState({ isOpen: true, state: RESET });
+  }
+
+  function reset() {
+    setDataModel(ld.cloneDeep(schedule.services));
+    resetChangesSeed();
+  }
 
   function dialogSubmitWrapper(event, callback) {
     event.preventDefault();
@@ -142,7 +168,6 @@ const ScheduleMain = ({
       ),
     );
     // array.find returns undefined if not found
-    // eslint-disable-next-line no-undefined
     return isWarning !== undefined;
   }
 

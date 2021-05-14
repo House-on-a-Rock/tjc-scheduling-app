@@ -9,6 +9,7 @@ import {
   TooltipDisabledPublishIcon,
   TooltipDisabledSaveIcon,
   TooltipCancelIcon,
+  TooltipDisabledResetIcon,
 } from '../shared/TooltipIcons';
 
 const Toolbar = ({
@@ -20,6 +21,7 @@ const Toolbar = ({
   enableEditMode,
   onSaveEdits,
   onCancelEdits,
+  onResetClick,
 }) => {
   const classes = useStyles();
   return (
@@ -40,7 +42,12 @@ const Toolbar = ({
           <TooltipDisabledEditIcon
             title="Edit Template (Changes must be saved before editing)"
             disabled={isScheduleModified}
-            handleClick={() => enableEditMode()}
+            handleClick={enableEditMode}
+          />
+          <TooltipDisabledResetIcon
+            title="Reset and discard changes"
+            disabled={!isScheduleModified}
+            handleClick={onResetClick}
           />
         </>
       )}
@@ -48,17 +55,17 @@ const Toolbar = ({
         <>
           <TooltipCancelIcon
             title="Stop editing schedule template, and discard changes"
-            onClick={onCancelEdits}
+            handleClick={onCancelEdits}
           />
           <TooltipDisabledSaveIcon
             title="Save Template Edits"
-            handleClick={() => onSaveEdits()}
+            handleClick={onSaveEdits}
           />
           <TooltipCreateNewFolder
             title="Add a new service"
-            onClick={handleNewServiceClicked}
+            handleClick={handleNewServiceClicked}
           />
-          <TooltipDeleteIcon title="Delete schedule" onClick={destroySchedule} />
+          <TooltipDeleteIcon title="Delete schedule" handleClick={destroySchedule} />
         </>
       )}
     </div>
@@ -83,6 +90,7 @@ Toolbar.propTypes = {
   enableEditMode: PropTypes.func,
   onSaveEdits: PropTypes.func,
   onCancelEdits: PropTypes.func,
+  onResetClick: PropTypes.func,
 };
 
 export default Toolbar;
