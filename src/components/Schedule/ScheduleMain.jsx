@@ -1,7 +1,7 @@
 // https://codesandbox.io/s/react-material-ui-and-react-beautiful-dnd-forked-bmheb?file=/src/MaterialTable.jsx draggable table
 import React, { useRef, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-// import { Prompt } from 'react-router-dom';
+import { Prompt } from 'react-router';
 
 import ld from 'lodash';
 import { loadingTheme } from '../../shared/styles/theme';
@@ -16,6 +16,8 @@ import { updatedDiff } from 'deep-object-diff';
 import useScheduleMainData from '../../hooks/containerHooks/useScheduleMainData';
 import CustomDialog from '../shared/CustomDialog';
 
+// TODO prompt doesnt work...?!?!?!?
+
 const ScheduleMain = ({
   churchId,
   scheduleId,
@@ -28,8 +30,7 @@ const ScheduleMain = ({
 }) => {
   const classes = useStyles();
   const [isScheduleModified, setIsScheduleModified] = useState(false);
-  const [isScheduleWarning, setIsScheduleWarning] = useState(false);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [dialogState, setDialogState] = useState({ isOpen: false, state: '' });
 
   const [isEditMode, setIsEditMode] = useState(false);
   const [dataModel, setDataModel] = useState();
@@ -43,6 +44,29 @@ const ScheduleMain = ({
   const templateChanges = useRef({
     changesSeed: -1,
   });
+
+  const CELLWARNING = 'CELLWARNING';
+  const LEAVEPAGE = 'LEAVEPAGE';
+  const DELETESCHEDULE = 'DELETESCHEDULE';
+
+  const DialogConfig = {
+    CELLWARNING: {
+      title: 'There are improperly assigned cells',
+      warningText:
+        'Tasks marked with a red background are improperly assigned. You may save, but you will be unable to publish this schedule until those tasks are assigned properly',
+      description: '',
+      handleClose: resetDialog,
+      handleSubmit: () => saveSchedule(),
+    },
+    DELETESCHEDULE: {
+      title: 'Delete Schedule',
+      warningText:
+        'You are about to delete this schedule, are you sure? This cannot be undone',
+      description: '',
+      handleClose: resetDialog,
+      handleSubmit: () => saveSchedule(),
+    },
+  };
 
   useEffect(() => {
     if (schedule) setDataModel(ld.cloneDeep(schedule.services));
@@ -61,6 +85,7 @@ const ScheduleMain = ({
       className={`main_${scheduleId}`}
       style={{ visibility: isVisible ? 'visible' : 'hidden' }}
     >
+      <Prompt when={true} message="You have unsaved changes" />
       <Toolbar
         handleNewServiceClicked={addService}
         destroySchedule={() => deleteSchedule(scheduleId, schedule.title, tab)}
@@ -82,16 +107,24 @@ const ScheduleMain = ({
         setIsScheduleModified={setIsScheduleModified}
         incrementChangesSeed={incrementChangesSeed}
       />
-      <CustomDialog
-        open={isDialogOpen}
-        title="Improperly assigned cells"
-        warningText="Improperly assigned cells"
-        handleClose={() => setIsDialogOpen(false)}
-      ></CustomDialog>
+      {dialogState.isOpen && (
+        <CustomDialog
+          open={dialogState.isOpen}
+          title={DialogConfig[dialogState.state].title}
+          warningText={DialogConfig[dialogState.state].warningText}
+          description={DialogConfig[dialogState.state].description}
+          handleClose={DialogConfig[dialogState.state].handleClose}
+          handleSubmit={DialogConfig[dialogState.state].handleSubmit}
+        ></CustomDialog>
+      )}
     </div>
   );
 
-  function isWarningStatus(data) {
+  function resetDialog() {
+    setDialogState({ state: '', isOpen: false });
+  }
+
+  function isStatusWarning(data) {
     let isWarning = false;
     data.forEach((service) => {
       service.events.forEach((event) => {
@@ -104,13 +137,19 @@ const ScheduleMain = ({
   }
 
   function onSaveSchedule() {
-    // check if any cells have status: warning
-    const isWarning = isWarningStatus(dataModel);
-    setIsDialogOpen(isWarning);
+    // checks if any cells have status: warning
+    const isWarning = isStatusWarning(dataModel);
+    if (isWarning) {
+      setDialogState({ state: CELLWARNING, isOpen: isWarning });
+      return;
+    }
+    saveSchedule();
+  }
 
+  function saveSchedule() {
     const diff = updatedDiff(schedule.services, dataModel);
     const processedDiff = processUpdate(diff, dataModel);
-    updateSchedule.mutate({ tasks: processedDiff });
+    updateSchedule({ tasks: processedDiff });
     resetChangesSeed();
   }
 
@@ -142,7 +181,7 @@ const ScheduleMain = ({
 
   function saveTemplateChanges() {
     const processedChanges = formatData(dataModel, schedule.services);
-    updateSchedule.mutate({ ...processedChanges });
+    updateSchedule({ ...processedChanges });
     resetChangesSeed();
   }
 };
