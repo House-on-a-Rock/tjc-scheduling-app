@@ -56,11 +56,9 @@ export const blankTeammate = (churchId) => {
   };
 };
 
-export const createBlankEvent = (incrementChangesSeed, serviceId) => {
-  const eventId = -incrementChangesSeed();
-
+export const createBlankEvent = (serviceId) => {
   return {
-    eventId,
+    eventId: null,
     cells: [{}, {}],
     roleId: 1, // placeholder, since it's unknown at time of creation. TODO onsubmit, check that these are assigned and not negative
     time: '00:00',
@@ -181,12 +179,12 @@ export function rearrangeEvents(prevModel, sourceService, source, destination) {
   return temp;
 }
 
-export function createBlankService(incrementChangesSeed, scheduleId) {
+export function createBlankService(scheduleId) {
   return {
     name: 'New Service',
     day: 0,
     events: [],
-    serviceId: -incrementChangesSeed(),
+    serviceId: null,
     scheduleId,
   };
 }

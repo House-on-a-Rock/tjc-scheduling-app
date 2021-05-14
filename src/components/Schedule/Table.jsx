@@ -33,7 +33,6 @@ const Table = ({
   teams,
   churchId,
   isScheduleModified,
-  incrementChangesSeed,
 }) => {
   const classes = useStyles();
 
@@ -206,7 +205,7 @@ const Table = ({
     const dataClone = [...dataModel];
     const targetEvents = dataClone[serviceIndex].events;
     const serviceId = dataClone[serviceIndex].serviceId;
-    const newEvent = createBlankEvent(incrementChangesSeed, serviceId);
+    const newEvent = createBlankEvent(serviceId);
     targetEvents.push(newEvent);
     setDataModel(dataClone);
   }
@@ -225,7 +224,7 @@ const Table = ({
 
       const targetCell = dataClone[serviceIndex].events[rowIndex].cells[columnIndex];
       targetCell.userId = newAssignee;
-      // checks if an assignment is being undone. if it is, then cellStatus and the changesSeed updates accordingly
+
       if (newAssignee === initialId) targetCell.status = cellStatus.SYNCED;
       else targetCell.status = cellStatus.MODIFIED;
 
@@ -343,7 +342,6 @@ Table.propTypes = {
   teams: PropTypes.array,
   churchId: PropTypes.number,
   isScheduleModified: PropTypes.bool,
-  incrementChangesSeed: PropTypes.func,
 };
 
 export default Table;

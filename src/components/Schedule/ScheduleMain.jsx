@@ -16,6 +16,8 @@ import { updatedDiff } from 'deep-object-diff';
 import useScheduleMainData from '../../hooks/containerHooks/useScheduleMainData';
 import CustomDialog from '../shared/CustomDialog';
 
+// tbh i think my function names are kinda scuffed, and my dialog text is very scuffed so
+
 const ScheduleMain = ({
   churchId,
   scheduleId,
@@ -37,10 +39,6 @@ const ScheduleMain = ({
     setIsScheduleModified,
     setAlert,
   );
-
-  const templateChanges = useRef({
-    changesSeed: 0,
-  });
 
   const CELLWARNING = 'CELLWARNING';
   const DELETESCHEDULE = 'DELETESCHEDULE';
@@ -126,7 +124,6 @@ const ScheduleMain = ({
         churchId={churchId}
         isScheduleModified={isScheduleModified}
         setIsScheduleModified={setIsScheduleModified}
-        incrementChangesSeed={incrementChangesSeed}
       />
       {dialogState.isOpen && (
         <CustomDialog
@@ -143,7 +140,6 @@ const ScheduleMain = ({
 
   function reset() {
     setDataModel(ld.cloneDeep(schedule.services));
-    resetChangesSeed();
   }
 
   function dialogSubmitWrapper(event, callback) {
@@ -185,23 +181,13 @@ const ScheduleMain = ({
     const diff = updatedDiff(schedule.services, dataModel);
     const processedDiff = processUpdate(diff, dataModel);
     updateSchedule({ tasks: processedDiff });
-    resetChangesSeed();
   }
 
   function addService() {
     const dataClone = [...dataModel];
-    dataClone.push(createBlankService(incrementChangesSeed, scheduleId));
+    dataClone.push(createBlankService(scheduleId));
 
     setDataModel(dataClone);
-  }
-
-  function incrementChangesSeed(amount = 1) {
-    templateChanges.current.changesSeed += amount;
-    return templateChanges.current.changesSeed;
-  }
-
-  function resetChangesSeed() {
-    templateChanges.current.changesSeed = 0;
   }
 
   function enableEditMode() {
@@ -214,14 +200,14 @@ const ScheduleMain = ({
 
   function onCancelEdits() {
     setDataModel(ld.cloneDeep(schedule.services));
-    resetChangesSeed();
+
     setIsEditMode(false);
   }
 
   function saveTemplateChanges() {
     const processedChanges = formatData(dataModel, schedule.services);
     updateSchedule({ ...processedChanges });
-    resetChangesSeed();
+
     setIsEditMode(false);
   }
 };

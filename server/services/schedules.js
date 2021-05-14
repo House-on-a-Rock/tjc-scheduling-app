@@ -150,16 +150,16 @@ async function updateEvents(events, t) {
   await Promise.all(
     events.map(async (item, index) => {
       const { eventId, time, roleId, serviceId } = item;
-      const targetEvent = await db.Event.findOne({
-        where: { id: eventId },
-      });
 
       // TODO look into sequelize db.findOrCreate()
 
-      if (targetEvent)
-        // if event already exists, update to match incoming data
+      if (eventId) {
+        const targetEvent = await db.Event.findOne({
+          where: { id: eventId },
+        });
+
         return targetEvent.update({ time, roleId, order: index }, { transaction: t });
-      else {
+      } else {
         // else create new event, and corresponding tasks
         const newEvent = await db.Event.create(
           { time, roleId, serviceId, order: index },
@@ -189,7 +189,7 @@ async function updateServices(services, t) {
   await Promise.all(
     services.map(async (item, index) => {
       const { name, day, scheduleId, serviceId } = item;
-      if (serviceId && serviceId >= 0) {
+      if (serviceId) {
         const targetService = await db.Service.findOne({
           where: { id: serviceId },
         });
