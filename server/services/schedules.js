@@ -174,7 +174,7 @@ async function updateEvents(events, t) {
           parentSchedule.end,
           parentService.day,
         );
-        taskDays.forEach(async (date) =>
+        taskDays.forEach((date) =>
           db.Task.create({ date, eventId: newEvent.id }, { transaction: t }),
         );
         return newEvent;
