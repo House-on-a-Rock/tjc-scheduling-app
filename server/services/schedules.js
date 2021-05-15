@@ -88,17 +88,6 @@ export const createSchedule = async (request) => {
   return newSchedule;
 };
 
-export const updateSchedule = async (changes) => {
-  // eslint-disable-next-line no-unused-vars
-  const sequelizeTransaction = db.sequelize.transaction(async (transaction) => {
-    await Promise.all(
-      Object.keys(changes).map(async (type) => {
-        return updateRouter[type](changes[type], transaction);
-      }),
-    );
-  });
-};
-
 export const deleteSchedule = async (scheduleId, title) => {
   await db.Schedule.destroy({
     where: {
@@ -143,6 +132,17 @@ const constructScheduleByTemplate = async (newSchedule, templateId) => {
         }),
       );
     });
+  });
+};
+
+export const updateSchedule = async (changes) => {
+  // eslint-disable-next-line no-unused-vars
+  const sequelizeTransaction = db.sequelize.transaction(async (transaction) => {
+    await Promise.all(
+      Object.keys(changes).map(async (type) => {
+        return updateRouter[type](changes[type], transaction);
+      }),
+    );
   });
 };
 
@@ -328,10 +328,10 @@ async function retrieveTaskData(eventId, firstWeek, lastWeek, userIds) {
   });
   // adds a spacer cell for when a service does not exist on that date
 
-  // if (!containsDate(firstWeek, tasks[0].date))
-  //   organizedTasks.unshift({ taskId: null, userId: null });
-  // if (!containsDate(lastWeek, tasks[tasks.length - 1].date))
-  //   organizedTasks.push({ taskId: null, userId: null });
+  if (!containsDate(firstWeek, tasks[0].date))
+    organizedTasks.unshift({ taskId: null, userId: null });
+  if (!containsDate(lastWeek, tasks[tasks.length - 1].date))
+    organizedTasks.push({ taskId: null, userId: null });
   return organizedTasks;
 }
 

@@ -2,6 +2,7 @@
 // https://codesandbox.io/s/react-material-ui-and-react-beautiful-dnd-forked-bmheb?file=/src/MaterialTable.jsx draggable table
 import React, { useRef, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
+import { Prompt } from 'react-router-dom';
 
 import ld from 'lodash';
 import { loadingTheme } from '../../shared/styles/theme';
@@ -103,6 +104,10 @@ const ScheduleMain = ({
       className={`main_${scheduleId}`}
       style={{ visibility: isVisible ? 'visible' : 'hidden' }}
     >
+      <Prompt
+        message="You have unsaved changes, are you sure you want to leave?"
+        when={isScheduleModified}
+      />
       <Toolbar
         handleNewServiceClicked={addService}
         destroySchedule={onDestroySchedule}
