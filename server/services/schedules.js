@@ -136,7 +136,7 @@ const constructScheduleByTemplate = async (newSchedule, templateId) => {
         roleId,
       });
 
-      taskDays.forEach((date) =>
+      taskDays.forEach(async (date) =>
         db.Task.create({
           date,
           eventId: newEvent.id,
@@ -161,6 +161,7 @@ async function updateEvents(events, t) {
         return targetEvent.update({ time, roleId, order: index }, { transaction: t });
       } else {
         // else create new event, and corresponding tasks
+
         const newEvent = await db.Event.create(
           { time, roleId, serviceId, order: index },
           { transaction: t },
@@ -176,10 +177,11 @@ async function updateEvents(events, t) {
           parentSchedule.end,
           parentService.day,
         );
-        taskDays.forEach((date) =>
-          db.Task.create({ date, eventId: newEvent.id }, { transaction: t }),
+        return Promise.all(
+          taskDays.map((date) =>
+            db.Task.create({ date, eventId: newEvent.id }, { transaction: t }),
+          ),
         );
-        return newEvent;
       }
     }),
   );
@@ -247,7 +249,7 @@ async function deleteEvents(events, t) {
   );
 }
 
-// returns the date of every day (eg. monday or tues) within the range
+// returns the date of every day (eg. [5/6/2020, 5/14/2020 ] is every monday or tues) within the range
 function recurringDaysOfWeek(startDate, endDate, dayOfWeeK) {
   const [start, end] = [
     replaceDashWithSlash(startDate),
@@ -325,10 +327,11 @@ async function retrieveTaskData(eventId, firstWeek, lastWeek, userIds) {
     };
   });
   // adds a spacer cell for when a service does not exist on that date
-  if (!containsDate(firstWeek, tasks[0].date))
-    organizedTasks.unshift({ taskId: null, userId: null });
-  if (!containsDate(lastWeek, tasks[tasks.length - 1].date))
-    organizedTasks.push({ taskId: null, userId: null });
+
+  // if (!containsDate(firstWeek, tasks[0].date))
+  //   organizedTasks.unshift({ taskId: null, userId: null });
+  // if (!containsDate(lastWeek, tasks[tasks.length - 1].date))
+  //   organizedTasks.push({ taskId: null, userId: null });
   return organizedTasks;
 }
 

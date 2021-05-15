@@ -66,6 +66,7 @@ router.post('/schedule/update', certify, async (req, res, next) => {
     return res.status(200).send(`Schedule updated successfully!`);
   } catch (err) {
     next(err);
+
     return res.status(503).send({ message: 'Server error, try again later' });
   }
 });
