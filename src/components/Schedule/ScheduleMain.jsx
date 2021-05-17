@@ -99,6 +99,7 @@ const ScheduleMain = ({
 
   if (!dataModel || !schedule) return <div className={classes.loading}></div>;
 
+  console.log(`dataModel`, dataModel);
   return (
     <div
       className={`main_${scheduleId}`}
@@ -210,7 +211,7 @@ const ScheduleMain = ({
   }
 
   function saveTemplateChanges() {
-    const processedChanges = formatData(dataModel, schedule.services);
+    const processedChanges = formatData(dataModel, schedule.services, scheduleId);
     updateSchedule({ ...processedChanges });
 
     setIsEditMode(false);

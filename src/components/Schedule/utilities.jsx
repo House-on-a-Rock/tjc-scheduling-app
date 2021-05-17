@@ -128,17 +128,18 @@ function extractEvents(eventWrapper) {
   return eventWrapper.reduce((acc, item) => [...acc, ...item.events], []);
 }
 
-export function formatData(dataModel, previousServices) {
+export function formatData(dataModel, previousServices, scheduleId) {
   // returns {
   //     deletedServices: [ deleted serviceIds ],
   //     deletedEvents: [ deleted eventIds ],
-  //     services: [ service objects { serviceId, name, order, day, scheduleId }]
-  //     events: [ event objects { eventId, order, time, roleId, serviceId }]
+  //     dataModel: [{services: serviceId, scheduleId, name, day, events: { time, roleId, eventId, serviceId }}]
+  // do i bother removing cells
   // }
   const updated = {};
+
+  // processing data to make it easier to find deleted
   const servicesObject = convertToObject(previousServices, 'serviceId');
   const dataModelObject = convertToObject(dataModel, 'serviceId');
-
   const servicesEvents = extractEvents(previousServices);
   const dataModelEvents = extractEvents(dataModel);
   const objectifiedDMEvents = convertToObject(dataModelEvents, 'eventId');
@@ -146,8 +147,8 @@ export function formatData(dataModel, previousServices) {
 
   updated.deletedServices = findDeleted(servicesObject, dataModelObject);
   updated.deletedEvents = findDeleted(objectifiedOriginalEvents, objectifiedDMEvents);
-  updated.services = dataModel;
-  updated.events = dataModelEvents;
+  updated.dataModel = { dataModel, scheduleId };
+  // updated.events = dataModelEvents;
   return updated;
 }
 

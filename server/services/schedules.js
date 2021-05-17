@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import { daysOfWeek } from '../../shared/constants';
 import db from '../index';
 import {
@@ -16,10 +17,11 @@ import {
 
 const updateRouter = {
   tasks: updateTasks,
-  services: updateServices,
-  events: updateEvents,
+  // services: updateServices,
+  // events: updateEvents,
   deletedServices: deleteServices,
   deletedEvents: deleteEvents,
+  dataModel: updateModel,
 };
 
 const cellStatus = {
@@ -146,64 +148,100 @@ export const updateSchedule = async (changes) => {
   });
 };
 
-async function updateEvents(events, t) {
+async function updateModel(model, t) {
+  // console.log(`model`, model);
   await Promise.all(
-    events.map(async (item, index) => {
-      const { eventId, time, roleId, serviceId } = item;
-
-      // TODO look into sequelize db.findOrCreate()
-
-      if (eventId) {
-        const targetEvent = await db.Event.findOne({
-          where: { id: eventId },
-        });
-
-        return targetEvent.update({ time, roleId, order: index }, { transaction: t });
-      } else {
-        // else create new event, and corresponding tasks
-
-        const newEvent = await db.Event.create(
-          { time, roleId, serviceId, order: index },
-          { transaction: t },
-        );
-        const parentService = await db.Service.findOne({
+    model.dataModel.map(async (service, serviceIndex) => {
+      const { name, day, serviceId } = service;
+      let tempServiceId = null;
+      if (serviceId >= 0 && serviceId !== null) {
+        const targetService = await db.Service.findOne({
           where: { id: serviceId },
         });
-        const parentSchedule = await db.Schedule.findOne({
-          where: { id: parentService.scheduleId },
-        });
-        const taskDays = recurringDaysOfWeek(
-          parentSchedule.start,
-          parentSchedule.end,
-          parentService.day,
+        if (targetService.day !== day) {
+          const parentSchedule = await db.Schedule.findOne({
+            where: { id: targetService.scheduleId },
+          });
+          const taskDays = recurringDaysOfWeek(
+            parentSchedule.start,
+            parentSchedule.end,
+            day,
+          );
+          console.log(`taskDays`, taskDays);
+          await updateTaskDates({ taskDays, serviceId, t });
+        }
+
+        targetService.update(
+          { name: name, day: day, order: serviceIndex },
+          { transaction: t },
         );
-        return Promise.all(
-          taskDays.map((date) =>
-            db.Task.create({ date, eventId: newEvent.id }, { transaction: t }),
-          ),
+      } else {
+        // console.log(`serviceId, scheduleId`, serviceId, scheduleId);
+        const newService = await db.Service.create(
+          { name: name, day: day, scheduleId: model.scheduleId, order: serviceIndex },
+          { transaction: t },
         );
+        tempServiceId = newService.id;
       }
+      await Promise.all(
+        service.events.map(async (event, eventIndex) => {
+          const { eventId, time, roleId } = event;
+          // if eventId is not null, update existing events
+          if (eventId >= 0 && eventId !== null) {
+            const targetEvent = await db.Event.findOne({
+              where: { id: eventId },
+            });
+            return targetEvent.update(
+              { time, roleId, order: eventIndex },
+              { transaction: t },
+            );
+          } else {
+            // create new events
+            const newEvent = await db.Event.create(
+              {
+                time,
+                roleId,
+                serviceId: tempServiceId === null ? serviceId : tempServiceId,
+                order: eventIndex,
+              },
+              { transaction: t },
+            );
+            const parentSchedule = await db.Schedule.findOne({
+              where: { id: model.scheduleId },
+            });
+            const taskDays = recurringDaysOfWeek(
+              parentSchedule.start,
+              parentSchedule.end,
+              day,
+            );
+            return Promise.all(
+              taskDays.map((date) =>
+                db.Task.create({ date, eventId: newEvent.id }, { transaction: t }),
+              ),
+            );
+          }
+        }),
+      );
     }),
   );
 }
 
-async function updateServices(services, t) {
+async function updateTaskDates({ taskDays, serviceId, t }) {
+  const events = await db.Event.findAll({
+    where: { serviceId: serviceId },
+  });
   await Promise.all(
-    services.map(async (item, index) => {
-      const { name, day, scheduleId, serviceId } = item;
-      if (serviceId) {
-        const targetService = await db.Service.findOne({
-          where: { id: serviceId },
-        });
-        return targetService.update(
-          { name: name, day: day, order: index },
-          { transaction: t },
-        );
-      } else {
-        return db.Service.create(
-          { name: name, day: day, scheduleId: scheduleId, order: index },
-          { transaction: t },
-        );
+    events.map(async (event) => {
+      // retrieve all tasks
+      const tasks = await db.Task.findAll({
+        where: { eventId: event.id },
+      });
+      const updatedTasks = await Promise.all(
+        taskDays.map(async (newDate, index) => {
+          await tasks[index].update({ date: newDate }, { transaction: t });
+        }),
+      );
+      if (updatedTasks.length) {
       }
     }),
   );
@@ -327,11 +365,12 @@ async function retrieveTaskData(eventId, firstWeek, lastWeek, userIds) {
     };
   });
   // adds a spacer cell for when a service does not exist on that date
-
-  if (!containsDate(firstWeek, tasks[0].date))
-    organizedTasks.unshift({ taskId: null, userId: null });
-  if (!containsDate(lastWeek, tasks[tasks.length - 1].date))
-    organizedTasks.push({ taskId: null, userId: null });
+  if (tasks.length > 0) {
+    if (!containsDate(firstWeek, tasks[0].date))
+      organizedTasks.unshift({ taskId: null, userId: null });
+    if (!containsDate(lastWeek, tasks[tasks.length - 1].date))
+      organizedTasks.push({ taskId: null, userId: null });
+  }
   return organizedTasks;
 }
 
