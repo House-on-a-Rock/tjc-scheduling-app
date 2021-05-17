@@ -60,9 +60,12 @@ router.get('/tasks/:taskId', certify, async (req, res, next) => {
   }
 });
 
+// unused, most task manipulation for now is done through schedule
+// these most likely will be used later on for the app
 router.post('/tasks', certify, async (req, res, next) => {
   try {
     // req.body could have userId + roleId, or userRoleId
+    // rework the whole timezone thing, we're storing dates as DATEONLY
     const { date, time, userId, churchId, eventId } = req.body;
     const { timezone } = await db.Church.findOne({ where: { id: churchId } });
     const taskDate = setDate(date, time, timezone);
