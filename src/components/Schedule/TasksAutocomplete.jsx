@@ -31,6 +31,7 @@ import {
 
 const TasksAutocomplete = React.memo((props) => {
   const {
+    taskId,
     dataId,
     options,
     status,
@@ -38,6 +39,7 @@ const TasksAutocomplete = React.memo((props) => {
     onChange,
     renderOption,
     isEditMode,
+    date,
   } = props;
   const classes = useStyles();
   const [initialId, setInitialId] = React.useState(dataId);
@@ -83,7 +85,8 @@ function arePropsEqual(prevProps, nextProps) {
     prevProps.dataId === nextProps.dataId &&
     prevProps.isEditMode === nextProps.isEditMode &&
     prevProps.status === nextProps.status &&
-    arrayEquals(prevProps.options, nextProps.options)
+    arrayEquals(prevProps.options, nextProps.options) &&
+    prevProps.date === nextProps.date
   );
 }
 
@@ -131,6 +134,7 @@ const useStyles = makeStyles(() =>
 );
 
 TasksAutocomplete.propTypes = {
+  taskId: PropTypes.number,
   dataId: PropTypes.number,
   options: PropTypes.array,
   roleId: PropTypes.number,
@@ -141,6 +145,7 @@ TasksAutocomplete.propTypes = {
   renderOption: PropTypes.func,
   isEditMode: PropTypes.bool,
   isScheduleModified: PropTypes.bool,
+  date: PropTypes.string,
 };
 
 export default TasksAutocomplete;

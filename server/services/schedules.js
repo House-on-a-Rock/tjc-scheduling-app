@@ -197,6 +197,7 @@ async function updateModel(model, t) {
             );
           } else {
             // create new events
+            console.log('creating new event');
             const newEvent = await db.Event.create(
               {
                 time,
@@ -233,56 +234,58 @@ async function updateTaskDates({ taskDays, serviceId, t }) {
   });
   await Promise.all(
     events.map(async (event) => {
-      // retrieve all tasks
       const tasks = await db.Task.findAll({
         where: { eventId: event.id },
+        order: [['date', 'ASC']],
       });
-      // if the lengths are the same
-      // if taskDays are shorter, then compare if first task is the same week as taskDay. if it is, destroy the last one, else destroy the first one
-      if (tasks.length === taskDays.length) {
-        await Promise.all(
-          tasks.map(async (task, index) =>
-            task.update({ date: taskDays[index] }, { transaction: t }),
-          ),
-        );
-      } else if (tasks.length < taskDays.length) {
-        if (isSameWeek(tasks[0].date, taskDays[0])) {
-          await db.Task.create({
-            date: taskDays[taskDays.length - 1],
-            eventId: event.id,
-          });
+      switch (tasks.length - taskDays.length) {
+        case -1:
+          if (isSameWeek(tasks[0].date, taskDays[0])) {
+            await db.Task.create({
+              date: taskDays[taskDays.length - 1],
+              eventId: event.id,
+            });
+            await Promise.all(
+              tasks.map(async (task, index) =>
+                task.update({ date: taskDays[index] }, { transaction: t }),
+              ),
+            );
+          } else {
+            await db.Task.create({
+              date: taskDays[0],
+              eventId: event.id,
+            });
+            await Promise.all(
+              tasks.map(async (task, index) =>
+                task.update({ date: taskDays[index + 1] }, { transaction: t }),
+              ),
+            );
+          }
+          break;
+        case 1:
+          if (isSameWeek(tasks[0].date, taskDays[0])) {
+            await tasks[tasks.length - 1].destroy();
+            await Promise.all(
+              tasks.map(async (task, index) =>
+                task.update({ date: taskDays[index] }, { transaction: t }),
+              ),
+            );
+          } else {
+            await Promise.all(
+              taskDays.map(async (taskDay, index) => {
+                tasks[index + 1].update({ date: taskDay }, { transaction: t });
+              }),
+            );
+            await tasks[0].destroy();
+          }
+          break;
+        default:
           await Promise.all(
             tasks.map(async (task, index) =>
               task.update({ date: taskDays[index] }, { transaction: t }),
             ),
           );
-        } else {
-          await db.Task.create({
-            date: taskDays[0],
-            eventId: event.id,
-          });
-          await Promise.all(
-            tasks.map(async (task, index) =>
-              task.update({ date: taskDays[index + 1] }, { transaction: t }),
-            ),
-          );
-        }
-      } else if (tasks.length > taskDays.length) {
-        if (isSameWeek(tasks[0].date, taskDays[0])) {
-          await tasks[tasks.length - 1].destroy();
-          await Promise.all(
-            tasks.map(async (task, index) =>
-              task.update({ date: taskDays[index] }, { transaction: t }),
-            ),
-          );
-        } else {
-          await Promise.all(
-            taskDays.map(async (taskDay, index) => {
-              tasks[index + 1].update({ date: taskDay }, { transaction: t });
-            }),
-          );
-          await tasks[0].destroy();
-        }
+          break;
       }
     }),
   );
@@ -398,6 +401,7 @@ async function retrieveTaskData(eventId, firstWeek, lastWeek, userIds) {
     return {
       taskId: task.id,
       userId: task.userId,
+      date: task.date,
       // if role does not match, cell will receive 'warning' status and will appear red in frontend
       status:
         doesRoleMatch >= 0 || task.userId === null
@@ -445,7 +449,7 @@ new task dates: saturdays
 [ { date: '2021/05/01 '}, { date: '2021/05/08 '}, { date: '2021/05/15 '}, { date: '2021/05/22 '}, { date: '2021/05/29 '}, ]
 
 compare lengths of arrays. if they're the same, default behaviour.
-if a1 is longer, then compare the first indices. if they're the same week, remove the last index of a1, if they're different, remove the first index of a1
+if a1 is longer, compare the first indices. if they're the same week, remove the last index of a1, if they're different, remove the first index of a1
 a2 is longer, compare first index. if they're the same week, add a new task to end of a1, if they're not the same week, add task to beginning of a1
 
 */

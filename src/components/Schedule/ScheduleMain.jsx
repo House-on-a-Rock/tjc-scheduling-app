@@ -34,6 +34,7 @@ const ScheduleMain = ({
   const [isScheduleModified, setIsScheduleModified] = useState(false);
   const [dialogState, setDialogState] = useState({ isOpen: false, state: '' });
   const [isEditMode, setIsEditMode] = useState(false);
+  const changesCounter = useRef(0);
 
   const [schedule, updateSchedule] = useScheduleMainData(
     scheduleId,
@@ -99,7 +100,7 @@ const ScheduleMain = ({
 
   if (!dataModel || !schedule) return <div className={classes.loading}></div>;
 
-  console.log(`dataModel`, dataModel);
+  console.log(`changesCounter.current`, changesCounter.current);
   return (
     <div
       className={`main_${scheduleId}`}
@@ -107,7 +108,7 @@ const ScheduleMain = ({
     >
       <Prompt
         message="You have unsaved changes, are you sure you want to leave?"
-        when={isScheduleModified}
+        when={isScheduleModified || isEditMode}
       />
       <Toolbar
         handleNewServiceClicked={addService}
@@ -130,6 +131,7 @@ const ScheduleMain = ({
         churchId={churchId}
         isScheduleModified={isScheduleModified}
         setIsScheduleModified={setIsScheduleModified}
+        incrementChangesCounter={incrementChangesCounter}
       />
       {dialogState.isOpen && (
         <CustomDialog
@@ -139,6 +141,15 @@ const ScheduleMain = ({
       )}
     </div>
   );
+
+  function incrementChangesCounter() {
+    changesCounter.current += 1;
+    return changesCounter.current;
+  }
+
+  function resetChangesCounter() {
+    changesCounter.current = 0;
+  }
 
   function onResetClick() {
     setDialogState({ isOpen: true, state: RESET });
@@ -187,11 +198,12 @@ const ScheduleMain = ({
     const diff = updatedDiff(schedule.services, dataModel);
     const processedDiff = processUpdate(diff, dataModel);
     updateSchedule({ tasks: processedDiff });
+    resetChangesCounter();
   }
 
   function addService() {
     const dataClone = [...dataModel];
-    dataClone.push(createBlankService(scheduleId));
+    dataClone.push(createBlankService(scheduleId, incrementChangesCounter));
 
     setDataModel(dataClone);
   }
