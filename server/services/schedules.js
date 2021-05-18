@@ -17,8 +17,6 @@ import {
 
 const updateRouter = {
   tasks: updateTasks,
-  // services: updateServices,
-  // events: updateEvents,
   deletedServices: deleteServices,
   deletedEvents: deleteEvents,
   dataModel: updateModel,

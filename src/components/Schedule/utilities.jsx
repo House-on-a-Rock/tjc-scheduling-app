@@ -49,7 +49,7 @@ export const blankTeammate = (churchId) => {
     firstName: '',
     lastName: '',
     email: '',
-    church: { name: '' }, // TODO fill in blank name
+    church: { name: '' }, // TODO pass in blank name
     churchId: churchId,
     disabled: false,
     teams: [],
@@ -60,7 +60,7 @@ export const createBlankEvent = (serviceId, incrementChangesCounter) => {
   return {
     eventId: -incrementChangesCounter(),
     cells: [{}, {}],
-    roleId: 1, // placeholder, since it's unknown at time of creation. TODO onsubmit, check that these are assigned and not negative
+    roleId: 1,
     time: '00:00',
     serviceId,
   };
@@ -133,7 +133,6 @@ export function formatData(dataModel, previousServices, scheduleId) {
   //     deletedServices: [ deleted serviceIds ],
   //     deletedEvents: [ deleted eventIds ],
   //     dataModel: [{services: serviceId, scheduleId, name, day, events: { time, roleId, eventId, serviceId }}]
-  // do i bother removing cells
   // }
   const updated = {};
 
@@ -148,7 +147,6 @@ export function formatData(dataModel, previousServices, scheduleId) {
   updated.deletedServices = findDeleted(servicesObject, dataModelObject);
   updated.deletedEvents = findDeleted(objectifiedOriginalEvents, objectifiedDMEvents);
   updated.dataModel = { dataModel, scheduleId };
-  // updated.events = dataModelEvents;
   return updated;
 }
 
