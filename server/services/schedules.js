@@ -149,12 +149,11 @@ export const updateSchedule = async (changes) => {
 };
 
 async function updateModel(model, t) {
-  // console.log(`model`, model);
   await Promise.all(
     model.dataModel.map(async (service, serviceIndex) => {
       const { name, day, serviceId } = service;
       let tempServiceId = null;
-      if (serviceId >= 0 && serviceId !== null) {
+      if (serviceId >= 0) {
         // service exists, update
         const targetService = await db.Service.findOne({
           where: { id: serviceId },
@@ -186,8 +185,8 @@ async function updateModel(model, t) {
       await Promise.all(
         service.events.map(async (event, eventIndex) => {
           const { eventId, time, roleId } = event;
-          // if eventId is not null, update existing events
-          if (eventId >= 0 && eventId !== null) {
+          // if eventId is not negative, update existing events
+          if (eventId >= 0) {
             const targetEvent = await db.Event.findOne({
               where: { id: eventId },
             });
@@ -197,7 +196,6 @@ async function updateModel(model, t) {
             );
           } else {
             // create new events
-            console.log('creating new event');
             const newEvent = await db.Event.create(
               {
                 time,
@@ -437,19 +435,3 @@ function isSameWeek(date1, date2) {
   weekStart.setDate(d1.getDate() - d1.getDay());
   return d2 - weekStart < sevenDaysToMilliseconds && d2 - weekStart >= 0;
 }
-
-/*
-
-a1
-orig task dates: fridays in may
-[ { date: '2021/05/07 '}, { date: '2021/05/14 '}, { date: '2021/05/21 '}, { date: '2021/05/28 '}, ]
-
-a2
-new task dates: saturdays
-[ { date: '2021/05/01 '}, { date: '2021/05/08 '}, { date: '2021/05/15 '}, { date: '2021/05/22 '}, { date: '2021/05/29 '}, ]
-
-compare lengths of arrays. if they're the same, default behaviour.
-if a1 is longer, compare the first indices. if they're the same week, remove the last index of a1, if they're different, remove the first index of a1
-a2 is longer, compare first index. if they're the same week, add a new task to end of a1, if they're not the same week, add task to beginning of a1
-
-*/

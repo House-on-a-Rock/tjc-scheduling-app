@@ -100,7 +100,6 @@ const ScheduleMain = ({
 
   if (!dataModel || !schedule) return <div className={classes.loading}></div>;
 
-  console.log(`changesCounter.current`, changesCounter.current);
   return (
     <div
       className={`main_${scheduleId}`}
