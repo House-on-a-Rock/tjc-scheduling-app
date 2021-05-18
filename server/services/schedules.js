@@ -155,28 +155,28 @@ async function updateModel(model, t) {
       const { name, day, serviceId } = service;
       let tempServiceId = null;
       if (serviceId >= 0 && serviceId !== null) {
+        // service exists, update
         const targetService = await db.Service.findOne({
           where: { id: serviceId },
         });
+        // if service day was changed, update tasks
         if (targetService.day !== day) {
           const parentSchedule = await db.Schedule.findOne({
-            where: { id: targetService.scheduleId },
+            where: { id: service.scheduleId },
           });
           const taskDays = recurringDaysOfWeek(
             parentSchedule.start,
             parentSchedule.end,
             day,
           );
-          console.log(`taskDays`, taskDays);
           await updateTaskDates({ taskDays, serviceId, t });
         }
-
         targetService.update(
           { name: name, day: day, order: serviceIndex },
           { transaction: t },
         );
       } else {
-        // console.log(`serviceId, scheduleId`, serviceId, scheduleId);
+        // service doesn't exist, create
         const newService = await db.Service.create(
           { name: name, day: day, scheduleId: model.scheduleId, order: serviceIndex },
           { transaction: t },
@@ -214,6 +214,7 @@ async function updateModel(model, t) {
               parentSchedule.end,
               day,
             );
+            // create new tasks
             return Promise.all(
               taskDays.map((date) =>
                 db.Task.create({ date, eventId: newEvent.id }, { transaction: t }),
@@ -236,12 +237,52 @@ async function updateTaskDates({ taskDays, serviceId, t }) {
       const tasks = await db.Task.findAll({
         where: { eventId: event.id },
       });
-      const updatedTasks = await Promise.all(
-        taskDays.map(async (newDate, index) => {
-          await tasks[index].update({ date: newDate }, { transaction: t });
-        }),
-      );
-      if (updatedTasks.length) {
+      // if the lengths are the same
+      // if taskDays are shorter, then compare if first task is the same week as taskDay. if it is, destroy the last one, else destroy the first one
+      if (tasks.length === taskDays.length) {
+        await Promise.all(
+          tasks.map(async (task, index) =>
+            task.update({ date: taskDays[index] }, { transaction: t }),
+          ),
+        );
+      } else if (tasks.length < taskDays.length) {
+        if (isSameWeek(tasks[0].date, taskDays[0])) {
+          await db.Task.create({
+            date: taskDays[taskDays.length - 1],
+            eventId: event.id,
+          });
+          await Promise.all(
+            tasks.map(async (task, index) =>
+              task.update({ date: taskDays[index] }, { transaction: t }),
+            ),
+          );
+        } else {
+          await db.Task.create({
+            date: taskDays[0],
+            eventId: event.id,
+          });
+          await Promise.all(
+            tasks.map(async (task, index) =>
+              task.update({ date: taskDays[index + 1] }, { transaction: t }),
+            ),
+          );
+        }
+      } else if (tasks.length > taskDays.length) {
+        if (isSameWeek(tasks[0].date, taskDays[0])) {
+          await tasks[tasks.length - 1].destroy();
+          await Promise.all(
+            tasks.map(async (task, index) =>
+              task.update({ date: taskDays[index] }, { transaction: t }),
+            ),
+          );
+        } else {
+          await Promise.all(
+            taskDays.map(async (taskDay, index) => {
+              tasks[index + 1].update({ date: taskDay }, { transaction: t });
+            }),
+          );
+          await tasks[0].destroy();
+        }
       }
     }),
   );
@@ -382,3 +423,29 @@ function createColumns(weekRange) {
     ...formatDates(weekRange),
   ];
 }
+
+function isSameWeek(date1, date2) {
+  const d1 = new Date(date1);
+  const d2 = new Date(date2);
+  const weekStart = new Date(date1);
+  const sevenDaysToMilliseconds = 7 * 24 * 60 * 60 * 1000;
+
+  weekStart.setDate(d1.getDate() - d1.getDay());
+  return d2 - weekStart < sevenDaysToMilliseconds && d2 - weekStart >= 0;
+}
+
+/*
+
+a1
+orig task dates: fridays in may
+[ { date: '2021/05/07 '}, { date: '2021/05/14 '}, { date: '2021/05/21 '}, { date: '2021/05/28 '}, ]
+
+a2
+new task dates: saturdays
+[ { date: '2021/05/01 '}, { date: '2021/05/08 '}, { date: '2021/05/15 '}, { date: '2021/05/22 '}, { date: '2021/05/29 '}, ]
+
+compare lengths of arrays. if they're the same, default behaviour.
+if a1 is longer, then compare the first indices. if they're the same week, remove the last index of a1, if they're different, remove the first index of a1
+a2 is longer, compare first index. if they're the same week, add a new task to end of a1, if they're not the same week, add task to beginning of a1
+
+*/
