@@ -250,3 +250,13 @@ export function replaceDashWithSlash(str) {
   const regex = /-/gm;
   return str.replace(regex, '/');
 }
+
+export function isSameWeek(date1, date2) {
+  const d1 = new Date(date1);
+  const d2 = new Date(date2);
+  const weekStart = new Date(date1);
+  const sevenDaysToMilliseconds = 7 * 24 * 60 * 60 * 1000;
+
+  weekStart.setDate(d1.getDate() - d1.getDay());
+  return d2 - weekStart < sevenDaysToMilliseconds && d2 - weekStart >= 0;
+}

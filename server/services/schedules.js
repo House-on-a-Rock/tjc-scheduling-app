@@ -7,7 +7,28 @@ import {
   replaceDashWithSlash,
   containsDate,
   formatDates,
+  isSameWeek,
 } from '../utilities/helperFunctions';
+
+import {
+  createNewEvent,
+  createNewSchedule,
+  createNewService,
+  createNewTask,
+  findAllEvents,
+  findAllServices,
+  findAllTasks,
+  findAllUserRole,
+  findOneEvent,
+  findOneRole,
+  findOneSchedule,
+  findOneService,
+  findOneTask,
+  findOneTemplate,
+  findScheduleByTitle,
+  deleteOneService,
+  deleteOneEvent,
+} from './dataAccess';
 
 /*
   should the backend have error checking to ensure the submitted items are valid??
@@ -28,22 +49,10 @@ const cellStatus = {
   WARNING: 'warning',
 };
 
-export const retrieveChurchSchedules = async (churchId) =>
-  db.Schedule.findAll({
-    where: { churchId: churchId.toString() },
-    attributes: ['id', 'title', 'view'],
-    order: [['id', 'ASC']],
-  });
-
 export const retrieveOneSchedule = async (scheduleId) => {
-  const schedule = await db.Schedule.findOne({
-    where: { id: scheduleId.toString() },
-  });
-  const role = await db.Role.findOne({ where: { id: schedule.roleId } });
-  const services = await db.Service.findAll({
-    where: { scheduleId: scheduleId.toString() },
-    order: [['order', 'ASC']],
-  });
+  const schedule = await findOneSchedule(scheduleId);
+  const role = await findOneRole(schedule.roleId);
+  const services = await findAllServices(scheduleId);
   const start = removeTimezoneFromDate(schedule.start);
   const end = removeTimezoneFromDate(schedule.end);
 
@@ -64,49 +73,31 @@ export const retrieveOneSchedule = async (scheduleId) => {
 };
 
 export const doesScheduleExist = async (churchId, title) => {
-  const dbSchedule = await db.Schedule.findOne({
-    where: { churchId, title },
-    attributes: ['churchId', 'title'],
-  });
+  const dbSchedule = await findScheduleByTitle(churchId, title);
   return !!dbSchedule;
 };
 
+// TODO go with either roleId or team in both front and backend...
 export const createSchedule = async (request) => {
-  const { title, view, startDate, endDate, churchId, team, templateId = null } = request;
-
-  const newSchedule = await db.Schedule.create({
-    title,
-    view,
+  const { startDate, endDate, team, templateId = null } = request;
+  const newScheduleProps = {
+    ...request,
     start: removeTimezoneFromDate(startDate),
     end: removeTimezoneFromDate(endDate),
-    churchId,
     roleId: team,
-  });
-
+  };
+  const newSchedule = await createNewSchedule(newScheduleProps);
   if (templateId) await constructScheduleByTemplate(newSchedule, templateId);
-
   return newSchedule;
 };
 
-export const deleteSchedule = async (scheduleId, title) => {
-  await db.Schedule.destroy({
-    where: {
-      id: scheduleId,
-      title,
-    },
-  });
-};
-
 const constructScheduleByTemplate = async (newSchedule, templateId) => {
-  const template = await db.Template.findOne({
-    where: { id: templateId },
-  });
+  const template = await findOneTemplate(templateId);
 
-  // loops through each service
   template.data.forEach(async ({ name, day, events }, index) => {
-    const newService = await db.Service.create({
+    const newService = await createNewService({
       name: name,
-      day: daysOfWeek.indexOf(day), // TODO convert this to 0-6
+      day: daysOfWeek.indexOf(day),
       order: index,
       scheduleId: newSchedule.id,
     });
@@ -116,17 +107,15 @@ const constructScheduleByTemplate = async (newSchedule, templateId) => {
       newService.day,
     );
 
-    events.forEach(async ({ time, title: eventTitle, roleId }, order) => {
-      const newEvent = await db.Event.create({
+    events.forEach(async (event, order) => {
+      const newEvent = await createNewEvent({
+        ...event,
         serviceId: newService.id,
         order,
-        time,
-        title: eventTitle,
-        roleId,
       });
 
       taskDays.forEach(async (date) =>
-        db.Task.create({
+        createNewTask({
           date,
           eventId: newEvent.id,
         }),
@@ -153,14 +142,10 @@ async function updateModel(model, t) {
       let tempServiceId = null;
       if (serviceId >= 0) {
         // service exists, update
-        const targetService = await db.Service.findOne({
-          where: { id: serviceId },
-        });
+        const targetService = await findOneService(serviceId);
         // if service day was changed, update tasks
         if (targetService.day !== day) {
-          const parentSchedule = await db.Schedule.findOne({
-            where: { id: service.scheduleId },
-          });
+          const parentSchedule = await findOneSchedule(service.scheduleId);
           const taskDays = recurringDaysOfWeek(
             parentSchedule.start,
             parentSchedule.end,
@@ -174,7 +159,7 @@ async function updateModel(model, t) {
         );
       } else {
         // service doesn't exist, create
-        const newService = await db.Service.create(
+        const newService = await createNewService(
           { name: name, day: day, scheduleId: model.scheduleId, order: serviceIndex },
           { transaction: t },
         );
@@ -185,16 +170,14 @@ async function updateModel(model, t) {
           const { eventId, time, roleId } = event;
           // if eventId is not negative, update existing events
           if (eventId >= 0) {
-            const targetEvent = await db.Event.findOne({
-              where: { id: eventId },
-            });
+            const targetEvent = await findOneEvent(eventId);
             return targetEvent.update(
               { time, roleId, order: eventIndex },
               { transaction: t },
             );
           } else {
-            // create new events
-            const newEvent = await db.Event.create(
+            // else create new events
+            const newEvent = await createNewEvent(
               {
                 time,
                 roleId,
@@ -203,9 +186,7 @@ async function updateModel(model, t) {
               },
               { transaction: t },
             );
-            const parentSchedule = await db.Schedule.findOne({
-              where: { id: model.scheduleId },
-            });
+            const parentSchedule = await findOneSchedule(model.scheduleId);
             const taskDays = recurringDaysOfWeek(
               parentSchedule.start,
               parentSchedule.end,
@@ -214,7 +195,7 @@ async function updateModel(model, t) {
             // create new tasks
             return Promise.all(
               taskDays.map((date) =>
-                db.Task.create({ date, eventId: newEvent.id }, { transaction: t }),
+                createNewTask({ date, eventId: newEvent.id }, { transaction: t }),
               ),
             );
           }
@@ -225,32 +206,27 @@ async function updateModel(model, t) {
 }
 
 async function updateTaskDates({ taskDays, serviceId, t }) {
-  const events = await db.Event.findAll({
-    where: { serviceId: serviceId },
-  });
+  const events = await findAllEvents(serviceId);
   await Promise.all(
     events.map(async (event) => {
-      const tasks = await db.Task.findAll({
-        where: { eventId: event.id },
-        order: [['date', 'ASC']],
-      });
+      const tasks = await findAllTasks(event.id);
       switch (tasks.length - taskDays.length) {
         case -1:
           if (isSameWeek(tasks[0].date, taskDays[0])) {
-            await db.Task.create({
-              date: taskDays[taskDays.length - 1],
-              eventId: event.id,
-            });
+            await createNewTask(
+              { date: taskDays[taskDays.length - 1], eventId: event.id },
+              { transaction: t },
+            );
             await Promise.all(
               tasks.map(async (task, index) =>
                 task.update({ date: taskDays[index] }, { transaction: t }),
               ),
             );
           } else {
-            await db.Task.create({
-              date: taskDays[0],
-              eventId: event.id,
-            });
+            await createNewTask(
+              { date: taskDays[0], eventId: event.id },
+              { transaction: t },
+            );
             await Promise.all(
               tasks.map(async (task, index) =>
                 task.update({ date: taskDays[index + 1] }, { transaction: t }),
@@ -290,9 +266,7 @@ async function updateTaskDates({ taskDays, serviceId, t }) {
 async function updateTasks(tasks, t) {
   await Promise.all(
     tasks.map(async (item) => {
-      const targetTask = await db.Task.findOne({
-        where: { id: item.taskId },
-      });
+      const targetTask = await findOneTask(item.taskId);
       return targetTask.update(
         { userId: item.userId > 0 ? item.userId : null },
         { transaction: t },
@@ -301,31 +275,19 @@ async function updateTasks(tasks, t) {
   );
 }
 
-async function deleteServices(Services, t) {
-  await Promise.all(
-    Services.map(async (item) => {
-      await db.Service.destroy(
-        {
-          where: { id: item },
-        },
-        { transaction: t },
-      );
-    }),
-  );
+async function deleteServices(services, t) {
+  await Promise.all(services.map(async (serviceId) => deleteOneService(serviceId, t)));
 }
 
 async function deleteEvents(events, t) {
-  await Promise.all(
-    events.map(async (item) => {
-      await db.Event.destroy(
-        {
-          where: { id: item },
-        },
-        { transaction: t },
-      );
-    }),
-  );
+  await Promise.all(events.map(async (eventId) => deleteOneEvent(eventId, t)));
 }
+// idk why these didnt work
+// const deleteServices = async (services, t) =>
+//   Promise.all(services.map(async (serviceId) => deleteOneService(serviceId, t)));
+
+// const deleteEvents = async (events, t) =>
+//   Promise.all(events.map(async (eventId) => deleteOneEvent(eventId, t)));
 
 // returns the date of every day (eg. [5/6/2020, 5/14/2020 ] is every monday or tues) within the range
 function recurringDaysOfWeek(startDate, endDate, dayOfWeeK) {
@@ -349,17 +311,11 @@ function recurringDaysOfWeek(startDate, endDate, dayOfWeeK) {
 
 async function populateServiceData(service, scheduleId, weekRange) {
   const { name, day, id } = service;
-  const events = await db.Event.findAll({
-    where: { serviceId: id },
-    order: [['order', 'ASC']],
-  }); // returns events in ascending order
+  const events = await findAllEvents(id); // returns events in ascending order
   const eventData = await Promise.all(
     events.map(async (event) => {
       const { time, roleId, id: eventId, serviceId } = event;
-      const userRoles = await db.UserRole.findAll({
-        where: { roleId: roleId },
-        attributes: ['userId'],
-      });
+      const userRoles = await findAllUserRole(roleId);
       const userIds = userRoles.map((userRole) => userRole.userId);
       const tasks = await retrieveTaskData(
         eventId,
@@ -386,11 +342,7 @@ async function populateServiceData(service, scheduleId, weekRange) {
 }
 
 async function retrieveTaskData(eventId, firstWeek, lastWeek, userIds) {
-  const tasks = await db.Task.findAll({
-    where: { eventId },
-    attributes: ['id', 'userId', 'date'],
-    order: [['date', 'ASC']],
-  });
+  const tasks = await findAllTasks(eventId);
   const organizedTasks = tasks.map((task) => {
     // checks if userId belongs to list of users with that role.
     const doesRoleMatch = userIds.indexOf(task.userId);
@@ -422,14 +374,4 @@ function createColumns(weekRange) {
     { Header: 'Duty' },
     ...formatDates(weekRange),
   ];
-}
-
-function isSameWeek(date1, date2) {
-  const d1 = new Date(date1);
-  const d2 = new Date(date2);
-  const weekStart = new Date(date1);
-  const sevenDaysToMilliseconds = 7 * 24 * 60 * 60 * 1000;
-
-  weekStart.setDate(d1.getDate() - d1.getDay());
-  return d2 - weekStart < sevenDaysToMilliseconds && d2 - weekStart >= 0;
 }

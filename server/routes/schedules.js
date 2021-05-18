@@ -1,11 +1,10 @@
 /* eslint-disable consistent-return */
 import express from 'express';
 
+import { findAllChurchSchedules, destroySchedule } from '../services/dataAccess';
 import {
   createSchedule,
-  deleteSchedule,
   doesScheduleExist,
-  retrieveChurchSchedules,
   retrieveOneSchedule,
   updateSchedule,
 } from '../services/schedules';
@@ -16,7 +15,7 @@ const router = express.Router();
 router.get('/schedules', certify, async (req, res, next) => {
   try {
     const { churchId } = req.query;
-    const schedules = await retrieveChurchSchedules(churchId);
+    const schedules = await findAllChurchSchedules(churchId);
     return res.status(200).json(schedules);
   } catch (err) {
     next(err);
@@ -46,7 +45,7 @@ router.post('/schedule', certify, async (req, res, next) => {
       return;
     }
     const newSchedule = await createSchedule(req.body);
-    const schedules = await retrieveChurchSchedules(churchId);
+    const schedules = await findAllChurchSchedules(churchId);
 
     return res.status(200).json({
       data: schedules,
@@ -74,7 +73,7 @@ router.post('/schedule/update', certify, async (req, res, next) => {
 router.delete('/schedule', certify, async (req, res, next) => {
   try {
     const { scheduleId, title } = req.body;
-    await deleteSchedule(scheduleId, title);
+    await destroySchedule(scheduleId, title);
     return res.status(200).send(`Schedule ${title} successfully deleted`);
   } catch (err) {
     next(err);
