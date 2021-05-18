@@ -282,12 +282,6 @@ async function deleteServices(services, t) {
 async function deleteEvents(events, t) {
   await Promise.all(events.map(async (eventId) => deleteOneEvent(eventId, t)));
 }
-// idk why these didnt work
-// const deleteServices = async (services, t) =>
-//   Promise.all(services.map(async (serviceId) => deleteOneService(serviceId, t)));
-
-// const deleteEvents = async (events, t) =>
-//   Promise.all(events.map(async (eventId) => deleteOneEvent(eventId, t)));
 
 // returns the date of every day (eg. [5/6/2020, 5/14/2020 ] is every monday or tues) within the range
 function recurringDaysOfWeek(startDate, endDate, dayOfWeeK) {
