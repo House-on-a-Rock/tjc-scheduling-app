@@ -14,8 +14,10 @@ const useScheduleMainData = (scheduleId, setIsScheduleModified, setAlert) => {
 
   const updateSchedule = useMutation(updateScheduleAssignments, {
     onSuccess: (res) => {
-      // setQueryData should work but apparently its a known issue
+      // this pattern doesnt work because db isn't returning updated data idk why
+      // console.log(`res.data`, res.data.data.services[0].events);
       // queryClient.setQueryData(`schedules_${scheduleId}`, res.data);
+
       queryClient.invalidateQueries(`schedules_${scheduleId}`);
       setIsScheduleModified(false);
       setAlert(sendAlert({ status: res.status, message: res.data.message }));

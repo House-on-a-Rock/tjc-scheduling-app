@@ -41,6 +41,7 @@ const updateRouter = {
   deletedServices: deleteServices,
   deletedEvents: deleteEvents,
   dataModel: updateModel,
+  scheduleId: () => {},
 };
 
 const cellStatus = {
@@ -61,7 +62,6 @@ export const retrieveOneSchedule = async (scheduleId) => {
   const servicesData = await Promise.all(
     services.map(async (service) => populateServiceData(service, scheduleId, weekRange)),
   );
-
   return {
     scheduleId,
     columns,
