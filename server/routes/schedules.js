@@ -53,7 +53,7 @@ router.post('/schedule', certify, async (req, res, next) => {
     });
   } catch (err) {
     next(err);
-    return res.status(503).send({ message: 'Server error, try again later' });
+    return res.status(503).json({ message: 'Server error, try again later' });
   }
 });
 

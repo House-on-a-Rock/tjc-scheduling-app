@@ -84,7 +84,8 @@ export const NewScheduleForm = ({
         <form className={classes.formStyle}>
           {error && (
             <div style={{ color: 'red' }}>
-              {`Status code ${error?.response.status}: ${error?.response.statusText}`}
+              {/* {`Status code ${error?.response.status}: ${error?.response.statusText}`} */}
+              {`${error?.response.statusText}`}
             </div>
           )}
           <div className={classes.tooltipContainer}>

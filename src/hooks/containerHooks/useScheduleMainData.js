@@ -23,7 +23,9 @@ const useScheduleMainData = (scheduleId, setIsScheduleModified, setAlert) => {
       setIsScheduleModified(false);
       setAlert(sendAlert(res));
     },
-    onError: () => {}, // need error handling
+    onError: (err) => {
+      // console.log(`err`, err);
+    }, // need error handling
   });
 
   const returnData = {

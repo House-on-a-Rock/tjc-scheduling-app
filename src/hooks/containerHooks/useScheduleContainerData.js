@@ -1,4 +1,3 @@
-import React from 'react';
 import { useQuery, useMutation, useQueryClient } from 'react-query';
 import { getSchedules, getTeams, postSchedule, destroySchedule } from '../../apis';
 import { useQueryConfig, getChurchMembersData } from './shared';
@@ -41,7 +40,6 @@ const useScheduleContainerData = (
     },
   });
 
-  // [WIP]
   const deleteScheduleMut = useMutation(destroySchedule, {
     onSuccess: (res) => setAlert(sendAlert(res)),
   });

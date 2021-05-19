@@ -77,8 +77,7 @@ export const findOneTask = async (taskId) =>
     where: { id: taskId },
   });
 
-// update
-// export const updateService = async (serviceProps) => db.Service.update(serviceProps)
+// update - are generally methods called on the instance
 
 // delete
 export const destroySchedule = async (scheduleId, title) =>

@@ -63,7 +63,7 @@ const ScheduleContainer = ({ churchId }) => {
           )}
           {isNewScheduleOpen && (
             <NewScheduleForm
-              onClose={() => setIsNewScheduleOpen(false)}
+              onClose={onNewScheduleFormClose}
               isOpen={isNewScheduleOpen}
               onSubmit={(newScheduleData) =>
                 createSchedule.mutate({ ...newScheduleData, churchId: churchId })
@@ -78,6 +78,11 @@ const ScheduleContainer = ({ churchId }) => {
       )}
     </div>
   );
+
+  function onNewScheduleFormClose() {
+    setIsNewScheduleOpen(false);
+    createSchedule.reset();
+  }
 
   function onCreateScheduleSuccess(res) {
     setIsNewScheduleOpen(false);
