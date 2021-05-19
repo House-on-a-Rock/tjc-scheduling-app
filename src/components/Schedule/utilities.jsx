@@ -56,10 +56,9 @@ export const blankTeammate = (churchId) => {
   };
 };
 
-export const createBlankEvent = (cellLength, seedFx, serviceId) => {
-  const eventId = seedFx();
+export const createBlankEvent = (serviceId) => {
   return {
-    eventId,
+    eventId: null,
     cells: [{}, {}],
     roleId: 1, // placeholder, since it's unknown at time of creation. TODO onsubmit, check that these are assigned and not negative
     time: '00:00',
@@ -110,7 +109,7 @@ export function processUpdate(diff, dataModel) {
 }
 
 // converts array to object with key as its property. This makes it easier to compare the two arrays through property instead of looping through array
-function convert(array, key) {
+function convertToObject(array, key) {
   return array.reduce(
     (acc, item, index) => ({ ...acc, [item[key]]: { ...item, order: index } }),
     {},
@@ -137,17 +136,18 @@ export function formatData(dataModel, previousServices) {
   //     events: [ event objects { eventId, order, time, roleId, serviceId }]
   // }
   const updated = {};
-  const objectifiedServices = convert(previousServices, 'serviceId');
-  const objectifiedDataModel = convert(dataModel, 'serviceId');
-  updated.services = dataModel;
-  updated.deletedServices = findDeleted(objectifiedServices, objectifiedDataModel);
+  const servicesObject = convertToObject(previousServices, 'serviceId');
+  const dataModelObject = convertToObject(dataModel, 'serviceId');
 
   const servicesEvents = extractEvents(previousServices);
   const dataModelEvents = extractEvents(dataModel);
-  const objectifiedDMEvents = convert(dataModelEvents, 'eventId');
-  const objectifiedOriginalEvents = convert(servicesEvents, 'eventId');
-  updated.events = dataModelEvents;
+  const objectifiedDMEvents = convertToObject(dataModelEvents, 'eventId');
+  const objectifiedOriginalEvents = convertToObject(servicesEvents, 'eventId');
+
+  updated.deletedServices = findDeleted(servicesObject, dataModelObject);
   updated.deletedEvents = findDeleted(objectifiedOriginalEvents, objectifiedDMEvents);
+  updated.services = dataModel;
+  updated.events = dataModelEvents;
   return updated;
 }
 
@@ -179,12 +179,12 @@ export function rearrangeEvents(prevModel, sourceService, source, destination) {
   return temp;
 }
 
-export function createBlankService(incrementChangesSeed, scheduleId) {
+export function createBlankService(scheduleId) {
   return {
     name: 'New Service',
     day: 0,
     events: [],
-    serviceId: incrementChangesSeed(),
+    serviceId: null,
     scheduleId,
   };
 }

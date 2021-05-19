@@ -30,7 +30,7 @@ const useScheduleMainData = (scheduleId, setIsScheduleModified, setAlert) => {
     schedule: isScheduleLoading ? null : schedule.data,
   };
 
-  return [returnData.schedule, updateSchedule];
+  return [returnData.schedule, updateSchedule.mutate];
 };
 
 useScheduleMainData.propTypes = {

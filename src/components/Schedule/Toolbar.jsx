@@ -1,31 +1,16 @@
-import React, { useState } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
-import { IconButton } from '@material-ui/core';
 import { makeStyles, createStyles } from '@material-ui/core/styles';
-import DeleteIcon from '@material-ui/icons/Delete';
-import SaveIcon from '@material-ui/icons/Save';
-import PublishIcon from '@material-ui/icons/Publish';
-import CreateNewFolderIcon from '@material-ui/icons/CreateNewFolder';
-import Tooltip from '@material-ui/core/Tooltip';
-import EditIcon from '@material-ui/icons/Edit';
 
-const TooltipForDisabledButton = ({ title, disabled, handleClick, children }) => {
-  const [open, setOpen] = useState(false);
-  return (
-    <Tooltip title={title} open={open}>
-      <div
-        onMouseOver={() => setOpen(true)}
-        onMouseOut={() => setOpen(false)}
-        onFocus={() => setOpen(true)}
-        onBlur={() => setOpen(false)}
-      >
-        <IconButton disabled={disabled} onClick={() => handleClick()}>
-          {children}
-        </IconButton>
-      </div>
-    </Tooltip>
-  );
-};
+import {
+  TooltipCreateNewFolder,
+  TooltipDeleteIcon,
+  TooltipDisabledEditIcon,
+  TooltipDisabledPublishIcon,
+  TooltipDisabledSaveIcon,
+  TooltipCancelIcon,
+  TooltipDisabledResetIcon,
+} from '../shared/TooltipIcons';
 
 const Toolbar = ({
   handleNewServiceClicked,
@@ -34,52 +19,55 @@ const Toolbar = ({
   onSaveSchedule,
   isEditMode,
   enableEditMode,
-  exitEditingClick,
+  onSaveEdits,
+  onCancelEdits,
+  onResetClick,
 }) => {
   const classes = useStyles();
   return (
     <div className={classes.toolbar}>
-      <Tooltip title="Add A New Service">
-        <IconButton onClick={() => handleNewServiceClicked()}>
-          <CreateNewFolderIcon />
-        </IconButton>
-      </Tooltip>
-      <Tooltip title="Delete schedule">
-        <IconButton onClick={() => destroySchedule()}>
-          <DeleteIcon />
-        </IconButton>
-      </Tooltip>
-      <TooltipForDisabledButton
-        title="Save Changes"
-        disabled={!isScheduleModified}
-        handleClick={() => onSaveSchedule()}
-      >
-        <SaveIcon />
-      </TooltipForDisabledButton>
-      {!isEditMode && (
-        <TooltipForDisabledButton
-          title="Edit Template (Changes must be saved before editing)"
-          disabled={isScheduleModified}
-          handleClick={() => enableEditMode()}
-        >
-          <EditIcon />
-        </TooltipForDisabledButton>
-      )}
-      {isEditMode && (
-        <TooltipForDisabledButton
-          title="Save Template Edits"
-          handleClick={() => exitEditingClick()}
-        >
-          <SaveIcon />
-        </TooltipForDisabledButton>
-      )}
-      <TooltipForDisabledButton
+      <TooltipDisabledPublishIcon
         title="Publish changes"
         disabled={!isScheduleModified}
         // handleClick={() => ()}
-      >
-        <PublishIcon />
-      </TooltipForDisabledButton>
+      />
+
+      {!isEditMode && (
+        <>
+          <TooltipDisabledSaveIcon
+            title="Save Changes"
+            disabled={!isScheduleModified}
+            handleClick={onSaveSchedule}
+          />
+          <TooltipDisabledEditIcon
+            title="Edit Template (Changes must be saved before editing)"
+            disabled={isScheduleModified}
+            handleClick={enableEditMode}
+          />
+          <TooltipDisabledResetIcon
+            title="Reset and discard changes"
+            disabled={!isScheduleModified}
+            handleClick={onResetClick}
+          />
+        </>
+      )}
+      {isEditMode && (
+        <>
+          <TooltipCancelIcon
+            title="Stop editing schedule template, and discard changes"
+            handleClick={onCancelEdits}
+          />
+          <TooltipDisabledSaveIcon
+            title="Save Template Edits"
+            handleClick={onSaveEdits}
+          />
+          <TooltipCreateNewFolder
+            title="Add a new service"
+            handleClick={handleNewServiceClicked}
+          />
+          <TooltipDeleteIcon title="Delete schedule" handleClick={destroySchedule} />
+        </>
+      )}
     </div>
   );
 };
@@ -100,14 +88,9 @@ Toolbar.propTypes = {
   onSaveSchedule: PropTypes.func,
   isEditMode: PropTypes.bool,
   enableEditMode: PropTypes.func,
-  exitEditingClick: PropTypes.func,
-};
-TooltipForDisabledButton.propTypes = {
-  title: PropTypes.string,
-  disabled: PropTypes.bool,
-  handleClick: PropTypes.func,
-  children: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.node), PropTypes.node])
-    .isRequired,
+  onSaveEdits: PropTypes.func,
+  onCancelEdits: PropTypes.func,
+  onResetClick: PropTypes.func,
 };
 
 export default Toolbar;

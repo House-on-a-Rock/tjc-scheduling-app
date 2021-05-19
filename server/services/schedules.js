@@ -88,17 +88,6 @@ export const createSchedule = async (request) => {
   return newSchedule;
 };
 
-export const updateSchedule = async (changes) => {
-  // eslint-disable-next-line no-unused-vars
-  const sequelizeTransaction = db.sequelize.transaction(async (transaction) => {
-    await Promise.all(
-      Object.keys(changes).map(async (type) => {
-        return updateRouter[type](changes[type], transaction);
-      }),
-    );
-  });
-};
-
 export const deleteSchedule = async (scheduleId, title) => {
   await db.Schedule.destroy({
     where: {
@@ -118,7 +107,7 @@ const constructScheduleByTemplate = async (newSchedule, templateId) => {
     const newService = await db.Service.create({
       name: name,
       day: daysOfWeek.indexOf(day), // TODO convert this to 0-6
-      order: index, // should it be zero based or 1 based? currently, others are 1 based
+      order: index,
       scheduleId: newSchedule.id,
     });
     const taskDays = recurringDaysOfWeek(
@@ -136,7 +125,7 @@ const constructScheduleByTemplate = async (newSchedule, templateId) => {
         roleId,
       });
 
-      taskDays.forEach((date) =>
+      taskDays.forEach(async (date) =>
         db.Task.create({
           date,
           eventId: newEvent.id,
@@ -146,19 +135,33 @@ const constructScheduleByTemplate = async (newSchedule, templateId) => {
   });
 };
 
+export const updateSchedule = async (changes) => {
+  // eslint-disable-next-line no-unused-vars
+  const sequelizeTransaction = db.sequelize.transaction(async (transaction) => {
+    await Promise.all(
+      Object.keys(changes).map(async (type) => {
+        return updateRouter[type](changes[type], transaction);
+      }),
+    );
+  });
+};
+
 async function updateEvents(events, t) {
   await Promise.all(
     events.map(async (item, index) => {
       const { eventId, time, roleId, serviceId } = item;
-      const targetEvent = await db.Event.findOne({
-        where: { id: eventId },
-      });
 
-      if (targetEvent)
-        // if event already exists, update to match incoming data
+      // TODO look into sequelize db.findOrCreate()
+
+      if (eventId) {
+        const targetEvent = await db.Event.findOne({
+          where: { id: eventId },
+        });
+
         return targetEvent.update({ time, roleId, order: index }, { transaction: t });
-      else {
+      } else {
         // else create new event, and corresponding tasks
+
         const newEvent = await db.Event.create(
           { time, roleId, serviceId, order: index },
           { transaction: t },
@@ -174,10 +177,11 @@ async function updateEvents(events, t) {
           parentSchedule.end,
           parentService.day,
         );
-        taskDays.forEach((date) =>
-          db.Task.create({ date, eventId: newEvent.id }, { transaction: t }),
+        return Promise.all(
+          taskDays.map((date) =>
+            db.Task.create({ date, eventId: newEvent.id }, { transaction: t }),
+          ),
         );
-        return newEvent;
       }
     }),
   );
@@ -245,7 +249,7 @@ async function deleteEvents(events, t) {
   );
 }
 
-// returns the date of every day (eg. monday or tues) within the range
+// returns the date of every day (eg. [5/6/2020, 5/14/2020 ] is every monday or tues) within the range
 function recurringDaysOfWeek(startDate, endDate, dayOfWeeK) {
   const [start, end] = [
     replaceDashWithSlash(startDate),
@@ -323,6 +327,7 @@ async function retrieveTaskData(eventId, firstWeek, lastWeek, userIds) {
     };
   });
   // adds a spacer cell for when a service does not exist on that date
+
   if (!containsDate(firstWeek, tasks[0].date))
     organizedTasks.unshift({ taskId: null, userId: null });
   if (!containsDate(lastWeek, tasks[tasks.length - 1].date))

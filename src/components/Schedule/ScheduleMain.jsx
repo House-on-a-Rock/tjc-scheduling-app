@@ -1,7 +1,8 @@
+/* eslint-disable no-undefined */
 // https://codesandbox.io/s/react-material-ui-and-react-beautiful-dnd-forked-bmheb?file=/src/MaterialTable.jsx draggable table
 import React, { useRef, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-// import { Prompt } from 'react-router-dom';
+import { Prompt } from 'react-router-dom';
 
 import ld from 'lodash';
 import { loadingTheme } from '../../shared/styles/theme';
@@ -16,6 +17,8 @@ import { updatedDiff } from 'deep-object-diff';
 import useScheduleMainData from '../../hooks/containerHooks/useScheduleMainData';
 import CustomDialog from '../shared/CustomDialog';
 
+// tbh i think my function names are kinda scuffed, and my dialog text is very scuffed so
+
 const ScheduleMain = ({
   churchId,
   scheduleId,
@@ -27,12 +30,10 @@ const ScheduleMain = ({
   tab,
 }) => {
   const classes = useStyles();
-  const [isScheduleModified, setIsScheduleModified] = useState(false);
-  const [isScheduleWarning, setIsScheduleWarning] = useState(false);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-
-  const [isEditMode, setIsEditMode] = useState(false);
   const [dataModel, setDataModel] = useState();
+  const [isScheduleModified, setIsScheduleModified] = useState(false);
+  const [dialogState, setDialogState] = useState({ isOpen: false, state: '' });
+  const [isEditMode, setIsEditMode] = useState(false);
 
   const [schedule, updateSchedule] = useScheduleMainData(
     scheduleId,
@@ -40,18 +41,61 @@ const ScheduleMain = ({
     setAlert,
   );
 
-  const templateChanges = useRef({
-    changesSeed: -1,
-  });
+  const CELLWARNING = 'CELLWARNING';
+  const DELETESCHEDULE = 'DELETESCHEDULE';
+  const SAVEEDITS = 'SAVEEDITS';
+  const RESET = 'RESET';
+
+  const DialogConfig = {
+    CELLWARNING: {
+      title: 'There are improperly assigned cells',
+      warningText:
+        'Tasks with a red background are improperly assigned. You may save, but you will be unable to publish this schedule until those tasks are assigned properly',
+      description: '',
+      handleClose: resetDialog,
+      handleSubmit: (event) => dialogSubmitWrapper(event, saveSchedule),
+    },
+    DELETESCHEDULE: {
+      title: 'Delete Schedule',
+      warningText:
+        'You are about to delete this schedule, are you sure? This cannot be undone',
+      description: '',
+      handleClose: resetDialog,
+      handleSubmit: (event) =>
+        dialogSubmitWrapper(event, () => deleteSchedule(scheduleId, schedule.title, tab)),
+    },
+    SAVEEDITS: {
+      title: 'Save changes',
+      description: 'Are you sure you would to save these changes?',
+      cancelText: 'Return to editing',
+      confirmText: 'Save and finish editing',
+      handleClose: resetDialog,
+      handleSubmit: (event) => dialogSubmitWrapper(event, saveTemplateChanges),
+    },
+    RESET: {
+      title: 'Discard changes',
+      description:
+        'You are about to discard your current changes, are you sure? This cannot be undone',
+      handleClose: resetDialog,
+      handleSubmit: (event) => dialogSubmitWrapper(event, reset),
+    },
+  };
 
   useEffect(() => {
     if (schedule) setDataModel(ld.cloneDeep(schedule.services));
   }, [schedule]);
 
-  // used to track isScheduleModified
   useEffect(() => {
-    setIsScheduleModified(templateChanges.current.changesSeed < -1);
-  }, [templateChanges.current.changesSeed]);
+    if (dataModel) {
+      let isModified = false;
+      isModified = dataModel.find((service) =>
+        service.events.find((event) =>
+          event.cells.find((cell) => cell.status && cell.status === cellStatus.MODIFIED),
+        ),
+      );
+      setIsScheduleModified(isModified !== undefined);
+    }
+  }, [dataModel]);
 
   if (!dataModel || !schedule) return <div className={classes.loading}></div>;
 
@@ -60,14 +104,20 @@ const ScheduleMain = ({
       className={`main_${scheduleId}`}
       style={{ visibility: isVisible ? 'visible' : 'hidden' }}
     >
+      <Prompt
+        message="You have unsaved changes, are you sure you want to leave?"
+        when={isScheduleModified}
+      />
       <Toolbar
         handleNewServiceClicked={addService}
-        destroySchedule={() => deleteSchedule(scheduleId, schedule.title, tab)}
+        destroySchedule={onDestroySchedule}
         isScheduleModified={isScheduleModified}
         onSaveSchedule={onSaveSchedule}
         isEditMode={isEditMode}
         enableEditMode={enableEditMode}
-        exitEditingClick={exitEditingClick}
+        onSaveEdits={onSaveEdits}
+        onCancelEdits={onCancelEdits}
+        onResetClick={onResetClick}
       />
       <Table
         schedule={schedule}
@@ -79,72 +129,91 @@ const ScheduleMain = ({
         churchId={churchId}
         isScheduleModified={isScheduleModified}
         setIsScheduleModified={setIsScheduleModified}
-        incrementChangesSeed={incrementChangesSeed}
       />
-      <CustomDialog
-        open={isDialogOpen}
-        title="Improperly assigned cells"
-        warningText="Improperly assigned cells"
-        handleClose={() => setIsDialogOpen(false)}
-      ></CustomDialog>
+      {dialogState.isOpen && (
+        <CustomDialog
+          open={dialogState.isOpen}
+          {...DialogConfig[dialogState.state]}
+        ></CustomDialog>
+      )}
     </div>
   );
 
-  function isWarningStatus(data) {
+  function onResetClick() {
+    setDialogState({ isOpen: true, state: RESET });
+  }
+
+  function reset() {
+    setDataModel(ld.cloneDeep(schedule.services));
+  }
+
+  function dialogSubmitWrapper(event, callback) {
+    event.preventDefault();
+    callback();
+    resetDialog();
+  }
+
+  function onDestroySchedule() {
+    setDialogState({ state: DELETESCHEDULE, isOpen: true });
+  }
+
+  function resetDialog() {
+    setDialogState({ state: '', isOpen: false });
+  }
+
+  function isStatusWarning(data) {
     let isWarning = false;
-    data.forEach((service) => {
-      service.events.forEach((event) => {
-        isWarning = event.cells.find(
-          (cell) => cell.status && cell.status === cellStatus.WARNING,
-        );
-      });
-    });
+    isWarning = data.find((service) =>
+      service.events.find((event) =>
+        event.cells.find((cell) => cell.status && cell.status === cellStatus.WARNING),
+      ),
+    );
     // array.find returns undefined if not found
-    // eslint-disable-next-line no-undefined
-    return isWarning === undefined;
+    return isWarning !== undefined;
   }
 
   function onSaveSchedule() {
-    // check if any cells have status: warning
-    const isWarning = isWarningStatus(dataModel);
-    setIsDialogOpen(isWarning);
+    // checks if any cells have status: warning
+    const isWarning = isStatusWarning(dataModel);
+    if (isWarning) {
+      setDialogState({ state: CELLWARNING, isOpen: isWarning });
+      return;
+    }
+    saveSchedule();
+  }
 
+  function saveSchedule() {
     const diff = updatedDiff(schedule.services, dataModel);
     const processedDiff = processUpdate(diff, dataModel);
-    updateSchedule.mutate({ tasks: processedDiff });
-    resetChangesSeed();
+    updateSchedule({ tasks: processedDiff });
   }
 
   function addService() {
     const dataClone = [...dataModel];
-    dataClone.push(createBlankService(incrementChangesSeed, scheduleId));
+    dataClone.push(createBlankService(scheduleId));
+
     setDataModel(dataClone);
   }
 
-  function incrementChangesSeed(amount = -1) {
-    templateChanges.current.changesSeed += amount;
-  }
-
-  function resetChangesSeed() {
-    templateChanges.current.changesSeed = -1;
-  }
-
   function enableEditMode() {
-    if (!isEditMode && !isScheduleModified) setIsEditMode(true);
+    setIsEditMode(!isEditMode && !isScheduleModified);
   }
 
-  function exitEditingClick() {
-    saveTemplateChanges();
-    // if they choose to not save changes, reset to this orig schedule
-    // setDataModel(ld.cloneDeep(schedule.services));
-    resetChangesSeed();
+  function onSaveEdits() {
+    setDialogState({ isOpen: true, state: SAVEEDITS });
+  }
+
+  function onCancelEdits() {
+    setDataModel(ld.cloneDeep(schedule.services));
+
     setIsEditMode(false);
   }
 
   function saveTemplateChanges() {
     const processedChanges = formatData(dataModel, schedule.services);
-    updateSchedule.mutate({ ...processedChanges });
-    resetChangesSeed();
+    updateSchedule({ ...processedChanges });
+
+    setIsEditMode(false);
   }
 };
 
