@@ -100,6 +100,7 @@ const ScheduleMain = ({
 
   if (!dataModel || !schedule) return <div className={classes.loading}></div>;
 
+  console.log(`dataModel`, dataModel);
   return (
     <div
       className={`main_${scheduleId}`}
@@ -196,7 +197,7 @@ const ScheduleMain = ({
   function saveSchedule() {
     const diff = updatedDiff(schedule.services, dataModel);
     const processedDiff = processUpdate(diff, dataModel);
-    updateSchedule({ tasks: processedDiff });
+    updateSchedule({ tasks: processedDiff, scheduleId });
     resetChangesCounter();
   }
 
@@ -223,7 +224,7 @@ const ScheduleMain = ({
 
   function saveTemplateChanges() {
     const processedChanges = formatData(dataModel, schedule.services, scheduleId);
-    updateSchedule({ ...processedChanges });
+    updateSchedule({ ...processedChanges, scheduleId });
 
     setIsEditMode(false);
   }

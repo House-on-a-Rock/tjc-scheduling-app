@@ -9,23 +9,20 @@ const useScheduleMainData = (scheduleId, setIsScheduleModified, setAlert) => {
   const { isLoading: isScheduleLoading, data: schedule } = useQuery(
     [`schedules_${scheduleId}`],
     () => getScheduleAndData(scheduleId),
-    {
-      ...useQueryConfig,
-      onSuccess: () => {
-        // console.log('refetching schedule data');
-      },
-    },
+    { ...useQueryConfig },
   );
 
   const updateSchedule = useMutation(updateScheduleAssignments, {
     onSuccess: (res) => {
+      // setQueryData should work but apparently its a known issue
+      // queryClient.setQueryData(`schedules_${scheduleId}`, res.data);
       queryClient.invalidateQueries(`schedules_${scheduleId}`);
       setIsScheduleModified(false);
-      setAlert(sendAlert(res));
+      setAlert(sendAlert({ status: res.status, message: res.data.message }));
     },
     onError: (err) => {
-      // console.log(`err`, err);
-    }, // need error handling
+      setAlert(sendAlert(err.response.data));
+    }, // should anything else happen on error?
   });
 
   const returnData = {

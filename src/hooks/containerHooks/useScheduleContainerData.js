@@ -30,14 +30,15 @@ const useScheduleContainerData = (
 
   const createSchedule = useMutation(postSchedule, {
     onSuccess: (res) => {
+      console.log(`res`, res);
       // immediately sets tabs to updated values, so schedule can switch to newly created tabs
       queryClient.setQueryData('tabs', res.data);
-      onCreateScheduleSuccess({ data: res.data.message, status: res.status });
+      onCreateScheduleSuccess({
+        message: res.data.message,
+        status: res.data.status,
+      });
     },
-    onError: (res) => {
-      // TODO error handling for all these queries
-      setAlert(sendAlert(res));
-    },
+    onError: (res) => console.log(`res.response`, res.response),
   });
 
   const deleteScheduleMut = useMutation(destroySchedule, {
