@@ -139,15 +139,12 @@ const ScheduleContainer = ({ churchId }) => {
   }
 
   function onTabClick(value) {
-    if (value <= tabs.length - 1) {
-      if (value !== viewedTab) {
-        if (isEditMode) {
-          setDialogState({ isOpen: true, state: PROMPTBEFORELEAVING, value });
-        } else {
-          changeTab(value);
-        }
-      }
-    } else setIsNewScheduleOpen(true); // if last tab, open dialog to make new schedule
+    if (value === tabs.length) {
+      setIsEditMode(false);
+      setIsNewScheduleOpen(true);
+    } else if (value !== viewedTab && isEditMode)
+      setDialogState({ isOpen: true, state: PROMPTBEFORELEAVING, value });
+    else changeTab(value);
   }
 
   function changeTab(value) {

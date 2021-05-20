@@ -346,6 +346,7 @@ Table.propTypes = {
   churchId: PropTypes.number,
   isScheduleModified: PropTypes.bool,
   incrementChangesCounter: PropTypes.func,
+  isVisible: PropTypes.bool,
 };
 
 export default Table;
