@@ -33,7 +33,6 @@ const Table = ({
   users,
   teams,
   churchId,
-  isScheduleModified,
   incrementChangesCounter,
 }) => {
   const classes = useStyles();
@@ -150,7 +149,6 @@ const Table = ({
                                   onTaskChange={onTaskChange}
                                   isTimeDisplayed={isTimeDisplayed}
                                   tasksDataSet={tasksDataSet}
-                                  isScheduleModified={isScheduleModified}
                                   isEditMode={isEditMode}
                                   key={`${title}_${serviceIndex}_${rowIndex}_${columnIndex}`}
                                 />
@@ -344,7 +342,6 @@ Table.propTypes = {
   users: PropTypes.array,
   teams: PropTypes.array,
   churchId: PropTypes.number,
-  isScheduleModified: PropTypes.bool,
   incrementChangesCounter: PropTypes.func,
   isVisible: PropTypes.bool,
 };

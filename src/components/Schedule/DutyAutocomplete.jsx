@@ -28,12 +28,19 @@ const DutyAutocomplete = React.memo(
     const classes = useStyles();
 
     const [isCellModified, setIsCellModified] = useState(false);
-    const [initialData] = useState(dataId);
+    const [initialData, setInitialData] = useState(dataId);
 
     function onCellModify(isChanged, newValue) {
       setIsCellModified(isChanged);
       onChange(dataContext, newValue);
     }
+
+    React.useEffect(() => {
+      if (!isEditMode) {
+        setInitialData(dataId);
+        setIsCellModified(false);
+      }
+    }, [isEditMode]);
 
     // maybe use disabled tag on autocomplete, but will need to override its css so its not super greyed out
     return !isEditMode ? (
@@ -77,7 +84,8 @@ function arePropsEqual(prevProps, nextProps) {
   return (
     prevProps.dataId === nextProps.dataId &&
     prevProps.dataContext.roleId === nextProps.dataContext.roleId &&
-    prevProps.isEditMode === nextProps.isEditMode
+    prevProps.isEditMode === nextProps.isEditMode &&
+    prevProps.isScheduleModified === nextProps.isScheduleModified
   );
 }
 

@@ -51,7 +51,7 @@ const ScheduleMain = ({
 
   const DialogConfig = {
     CELLWARNING: {
-      title: 'There are improperly assigned cells',
+      title: 'Improperly assigned cells',
       warningText:
         'Tasks with a red background are improperly assigned. You may save, but you will be unable to publish this schedule until those tasks are assigned properly',
       description: '',
@@ -131,7 +131,6 @@ const ScheduleMain = ({
         users={users}
         teams={teams}
         churchId={churchId}
-        isScheduleModified={isScheduleModified}
         setIsScheduleModified={setIsScheduleModified}
         incrementChangesCounter={incrementChangesCounter}
       />
@@ -249,6 +248,8 @@ ScheduleMain.propTypes = {
   setAlert: PropTypes.func,
   deleteSchedule: PropTypes.func,
   tab: PropTypes.number,
+  isEditMode: PropTypes.bool,
+  setIsEditMode: PropTypes.func,
 };
 
 export default ScheduleMain;
