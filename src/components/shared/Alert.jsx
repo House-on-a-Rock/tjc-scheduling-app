@@ -12,16 +12,16 @@ const alertStatus = {
   503: 'error',
 };
 
-export const sendAlert = ({ message, status }) => {
+export const createAlert = ({ message, status }) => {
   return { status: alertStatus[status], message: message };
 };
 
 export const sendSuccessAlert = (res) => {
-  return sendAlert({ status: res.status, message: res.data.message });
+  return createAlert({ status: res.status, message: res.data.message });
 };
 
 export const sendErrorAlert = (res) => {
-  return sendAlert(res.response.data);
+  return createAlert(res.response.data);
 };
 
 export const Alert = ({ alert, isOpen, handleClose }) => (

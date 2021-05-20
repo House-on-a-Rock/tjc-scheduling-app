@@ -60,6 +60,7 @@ router.post('/schedule/update', certify, async (req, res, next) => {
   try {
     await updateSchedule(changes);
     // this doesnt actually retrieve an updated schedule... will fully implement once i figure it out
+    // im awaiting the update right, idk why im retrieving outdated schedule
     const updatedSchedule = await retrieveOneSchedule(changes.scheduleId);
     return res
       .status(200)

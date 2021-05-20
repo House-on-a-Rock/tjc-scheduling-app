@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import ScheduleMain from './ScheduleMain';
 import ScheduleTabs from './Tabs';
 import NewScheduleForm from '../shared/NewScheduleForm';
-import { Alert, sendAlert } from '../shared/Alert';
+import { Alert, createAlert } from '../shared/Alert';
 import useScheduleContainerData from '../../hooks/containerHooks/useScheduleContainerData';
 
 import { createStyles, makeStyles } from '@material-ui/core';
@@ -20,19 +20,13 @@ const ScheduleContainer = ({ churchId }) => {
   const [isNewScheduleOpen, setIsNewScheduleOpen] = useState(false);
   const [alert, setAlert] = useState(null);
 
-  const [
-    loaded,
-    tabs,
-    users,
-    teams,
-    createSchedule,
-    deleteSchedule,
-  ] = useScheduleContainerData(
-    churchId,
-    setAlert,
-    onCreateScheduleSuccess,
-    onDeleteScheduleSuccess,
-  );
+  const [loaded, tabs, users, teams, createSchedule, deleteSchedule] =
+    useScheduleContainerData(
+      churchId,
+      setAlert,
+      onCreateScheduleSuccess,
+      onDeleteScheduleSuccess,
+    );
 
   return (
     <div className={!loaded ? classes.loading : ''}>
@@ -86,7 +80,7 @@ const ScheduleContainer = ({ churchId }) => {
 
   function onCreateScheduleSuccess(res) {
     setIsNewScheduleOpen(false);
-    setAlert(sendAlert(res));
+    setAlert(createAlert(res));
 
     const newTab = tabs.length;
     setOpenedTabs((t) => [...t, newTab]);

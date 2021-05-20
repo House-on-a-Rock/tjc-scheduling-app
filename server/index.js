@@ -40,6 +40,7 @@ app.use((req, res, next) => {
 });
 
 // error handling endware
+// call next({message, status}) inside catch, and we send the response here
 app.use((err, req, res, next) => {
   console.error(err);
   res.status(err.status || 500).json(err || { message: 'Internal server error.' });
