@@ -28,12 +28,14 @@ const ScheduleMain = ({
   setAlert,
   deleteSchedule,
   tab,
+  isEditMode,
+  setIsEditMode,
 }) => {
   const classes = useStyles();
   const [dataModel, setDataModel] = useState();
   const [isScheduleModified, setIsScheduleModified] = useState(false);
   const [dialogState, setDialogState] = useState({ isOpen: false, state: '' });
-  const [isEditMode, setIsEditMode] = useState(false);
+  // const [isEditMode, setIsEditMode] = useState(false);
   const changesCounter = useRef(0);
 
   const [schedule, updateSchedule] = useScheduleMainData(
@@ -105,10 +107,10 @@ const ScheduleMain = ({
       className={`main_${scheduleId}`}
       style={{ visibility: isVisible ? 'visible' : 'hidden' }}
     >
-      <Prompt
+      {/* <Prompt
         message="You have unsaved changes, are you sure you want to leave?"
         when={isScheduleModified || isEditMode}
-      />
+      /> */}
       <Toolbar
         handleNewServiceClicked={addService}
         destroySchedule={onDestroySchedule}
@@ -123,6 +125,7 @@ const ScheduleMain = ({
       <Table
         schedule={schedule}
         isEditMode={isEditMode}
+        isVisible={isVisible}
         dataModel={dataModel}
         setDataModel={setDataModel}
         users={users}

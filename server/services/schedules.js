@@ -357,6 +357,8 @@ async function retrieveTaskData(eventId, firstWeek, lastWeek, userIds) {
       organizedTasks.unshift({ taskId: null, userId: null });
     if (!containsDate(lastWeek, tasks[tasks.length - 1].date))
       organizedTasks.push({ taskId: null, userId: null });
+  } else {
+    organizedTasks.push({ taskId: null, userId: null });
   }
   return organizedTasks;
 }

@@ -27,6 +27,7 @@ import { paletteTheme } from '../../shared/styles/theme';
 const Table = ({
   schedule,
   isEditMode,
+  isVisible,
   dataModel,
   setDataModel,
   users,
@@ -72,7 +73,7 @@ const Table = ({
                     serviceId={serviceId}
                     providedRef={droppableProvided.innerRef}
                     {...droppableProvided.droppableProps}
-                    isEdit={isEditMode}
+                    isEdit={isEditMode && isVisible}
                     addEvent={() => addEvent(serviceIndex)}
                     deleteService={() => deleteService(serviceId)}
                     onEditService={onEditService}
@@ -112,7 +113,7 @@ const Table = ({
                                   <div {...provided.dragHandleProps}>
                                     <ReorderIcon
                                       className={
-                                        isEditMode
+                                        isEditMode && isVisible
                                           ? classes.visibleEdit
                                           : classes.invisibleEdit
                                       }
@@ -121,7 +122,7 @@ const Table = ({
                                   <RemoveIcon
                                     onClick={() => removeEvent(serviceIndex, rowIndex)}
                                     className={
-                                      isEditMode
+                                      isEditMode && isVisible
                                         ? classes.visibleEdit
                                         : classes.invisibleEdit
                                     }

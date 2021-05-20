@@ -8,7 +8,7 @@ const TableCell = ({
   roleId,
   userId = 0,
   taskId = 0,
-  date = 0,
+  date = '',
   status = cellStatus.SYNCED,
   time,
   teams,
@@ -101,5 +101,6 @@ TableCell.propTypes = {
   tasksDataSet: PropTypes.array,
   isScheduleModified: PropTypes.bool,
   isEditMode: PropTypes.bool,
+  date: PropTypes.string,
 };
 export default TableCell;
