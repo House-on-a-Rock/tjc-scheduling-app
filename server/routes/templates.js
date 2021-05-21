@@ -1,7 +1,6 @@
 import express from 'express';
-// import Sequelize from 'sequelize';
 
-import db from '../index';
+import { createTemplate, findOneTemplate } from '../dataAccess/templates';
 import { retrieveAllTemplates } from '../services/templates';
 import { certify } from '../utilities/helperFunctions';
 
@@ -22,16 +21,15 @@ router.get('/templates', certify, async (req, res, next) => {
 router.post('/templates', certify, async (req, res, next) => {
   try {
     const { churchId, name } = req.body;
-    const isTemplateExist = await db.Template.findOne({
-      where: { churchId: churchId, name: name },
-    });
+    const isTemplateExist = await findOneTemplate({ churchId, name });
+    // these name checks are case-sensitive, should we make them case-insensitive?
     if (isTemplateExist) {
       return next({
         status: 409,
         message: `A template named "${name}" already exists`,
       });
     }
-    await db.Template.create(req.body);
+    await createTemplate(req.body);
     const templates = await retrieveAllTemplates(churchId);
     return res
       .status(200)

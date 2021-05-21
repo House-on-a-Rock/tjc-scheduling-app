@@ -1,7 +1,7 @@
 /* eslint-disable consistent-return */
 import express from 'express';
 
-import { findAllChurchSchedules, destroySchedule } from '../services/dataAccess';
+import { findAllChurchSchedules, destroySchedule } from '../dataAccess/schedules';
 import {
   createSchedule,
   doesScheduleExist,

@@ -140,14 +140,21 @@ const ScheduleMain = ({
       {dialogState.isOpen && (
         <CustomDialog open={dialogState.isOpen} {...DialogConfig[dialogState.state]} />
       )}
-      <NewTemplateForm
-        open={isTemplateFormOpen}
-        handleClick={saveTemplate}
-        handleClose={() => setIsTemplateFormOpen(false)}
-        error={createNewTemplate.error}
-      />
+      {isTemplateFormOpen && (
+        <NewTemplateForm
+          open={isTemplateFormOpen}
+          handleClick={saveTemplate}
+          handleClose={onTemplateFormClose}
+          error={createNewTemplate.error}
+        />
+      )}
     </div>
   );
+
+  function onTemplateFormClose() {
+    setIsTemplateFormOpen(false);
+    createNewTemplate.reset();
+  }
 
   function saveTemplate(templateName) {
     const newTemplate = prepareNewTemplate({ model: dataModel, templateName });

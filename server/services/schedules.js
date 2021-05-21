@@ -1,15 +1,5 @@
 /* eslint-disable max-lines */
 import { daysOfWeek } from '../../shared/constants';
-import db from '../index';
-import {
-  removeTimezoneFromDate,
-  weeksRange,
-  replaceDashWithSlash,
-  containsDate,
-  formatDates,
-  isSameWeek,
-} from '../utilities/helperFunctions';
-
 import {
   createNewEvent,
   createNewSchedule,
@@ -28,7 +18,16 @@ import {
   findScheduleByTitle,
   deleteOneService,
   deleteOneEvent,
-} from './dataAccess';
+} from '../dataAccess/schedules';
+import db from '../index';
+import {
+  removeTimezoneFromDate,
+  weeksRange,
+  replaceDashWithSlash,
+  containsDate,
+  formatDates,
+  isSameWeek,
+} from '../utilities/helperFunctions';
 
 /*
   should the backend have error checking to ensure the submitted items are valid??

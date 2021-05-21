@@ -1,3 +1,5 @@
+/* eslint-disable prettier/prettier */
+
 import React from 'react';
 import PropTypes from 'prop-types';
 import CustomDialog from './CustomDialog';
@@ -6,7 +8,6 @@ import { useValidatedField } from '../../hooks';
 import { stringLengthCheck } from '../../shared/utilities';
 
 const NewTemplateForm = ({ open, handleClose, handleClick, error }) => {
-  // eslint-disable-next-line prettier/prettier
   const [templateName, setTemplateName, setTemplateNameError, resetTemplateNameError] =
     useValidatedField('', 'Please enter a name for this template');
 
@@ -39,6 +40,7 @@ const NewTemplateForm = ({ open, handleClose, handleClick, error }) => {
 
   function onClose() {
     resetTemplateNameError();
+    setTemplateName('');
     handleClose();
   }
 };

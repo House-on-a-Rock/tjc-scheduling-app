@@ -1,12 +1,10 @@
+import { findAllTemplates } from '../dataAccess/templates';
 import db from '../index';
 
 export const retrieveAllTemplates = async (churchId) => {
-  const templates = await db.Template.findAll({
-    where: { churchId: churchId.toString() },
-    attributes: [['id', 'templateId'], 'name', 'data'],
-  });
+  const templates = await findAllTemplates(churchId);
 
-  // inject userRole names into return obj
+  // inject role names
   const completeTemplates = await Promise.all(
     templates.map(async (template) => {
       const { templateId, name, data } = template.dataValues;
@@ -29,4 +27,5 @@ export const retrieveAllTemplates = async (churchId) => {
   return completeTemplates;
 };
 
+// temp so that prettier doesn't yell at me
 export const a = null;
