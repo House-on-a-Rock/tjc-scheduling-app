@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { TableCell, TextField } from '@material-ui/core';
+import { convert12Hrs } from './utilities';
 
 const TimeCell = ({
   time,
@@ -35,13 +36,6 @@ const TimeCell = ({
     </TableCell>
   );
 };
-
-function convert12Hrs(time) {
-  const hrs = time.slice(0, 2);
-  const minutes = time.slice(3);
-  if (parseInt(hrs) - 12 > 0) return `${parseInt(hrs) - 12}:${minutes} PM`;
-  return `${time} AM`;
-}
 
 TimeCell.propTypes = {
   time: PropTypes.string,

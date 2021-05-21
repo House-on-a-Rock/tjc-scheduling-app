@@ -1,77 +1,59 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-// mat ui
-import Tooltip from '@material-ui/core/Tooltip';
-import AddIcon from '@material-ui/icons/Add';
-import EditIcon from '@material-ui/icons/Edit';
-import Card from '@material-ui/core/Card';
+import { makeStyles, createStyles } from '@material-ui/core/styles';
 import MaUTable from '@material-ui/core/Table';
 import TableHead from '@material-ui/core/TableHead';
 import TableBody from '@material-ui/core/TableBody';
 import TableRow from '@material-ui/core/TableRow';
 import TableCell from '@material-ui/core/TableCell';
+import { convert12Hrs, days } from '../Schedule/utilities';
 
-import { makeStyles, createStyles } from '@material-ui/core/styles';
-
-// TODO make pretty
-const TemplateDisplay = ({ template, onAddClick }) => {
+const TemplateDisplay = ({ template }) => {
   const classes = useStyles();
-  const { data, name, templateId } = template;
-
   return (
-    <Card raised className={classes.card} key={templateId.toString()}>
-      <Tooltip title="Edit this template">
-        <EditIcon />
-      </Tooltip>
-      <AddIcon onClick={() => onAddClick(templateId)} />
-      <h3 style={{ margin: 5 }}>{name}</h3>
-      <MaUTable>
-        <TableHead>
-          <TableRow key="head">
-            <TableCell key="time">Time</TableCell>
-            <TableCell key="duty">Duty</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {data?.map((service, index) => (
-            <React.Fragment key={`${service.name}-${index}`}>
-              <TableRow key={`${service.name}_name`}>
+    <MaUTable>
+      <TableHead>
+        <TableRow key="head">
+          <TableCell key="time">Time</TableCell>
+          <TableCell key="duty">Duty</TableCell>
+        </TableRow>
+      </TableHead>
+      <TableBody>
+        {template.map((service, index) => (
+          <React.Fragment key={`${service.name}-${index}`}>
+            <TableRow key={`${service.name}_name`}>
+              <TableCell className={classes.tableCell} key={`${service.name}_name_cell`}>
+                <h4 style={{ margin: 1 }}>
+                  {days[service.day]} {service.name}
+                </h4>
+              </TableCell>
+            </TableRow>
+            {service.events.map((event, eventIndex) => (
+              <TableRow key={`${event}_${eventIndex}`}>
                 <TableCell
+                  key={`${event}_time_${eventIndex}`}
                   className={classes.tableCell}
-                  key={`${service.name}_name_cell`}
+                  style={{ width: '50%' }}
                 >
-                  <h4 style={{ margin: 1 }}>{service.name}</h4>
+                  {convert12Hrs(event.time)}
+                </TableCell>
+                <TableCell
+                  key={`${event}_title_${eventIndex}`}
+                  className={classes.tableCell}
+                >
+                  {event.title}
                 </TableCell>
               </TableRow>
-              {service.events.map((event, eventIndex) => (
-                <TableRow key={`${event}_${eventIndex}`}>
-                  <TableCell
-                    key={`${event}_time_${eventIndex}`}
-                    className={classes.tableCell}
-                    style={{ width: '50%' }}
-                  >
-                    {event.time}
-                  </TableCell>
-                  <TableCell
-                    key={`${event}_title_${eventIndex}`}
-                    className={classes.tableCell}
-                  >
-                    {event.title}
-                  </TableCell>
-                </TableRow>
-              ))}
-            </React.Fragment>
-          ))}
-        </TableBody>
-      </MaUTable>
-    </Card>
+            ))}
+          </React.Fragment>
+        ))}
+      </TableBody>
+    </MaUTable>
   );
 };
-// howard u can work ur magic here hehe
 const useStyles = makeStyles((theme) =>
   createStyles({
-    card: { width: '80%', padding: 10, margin: 5 },
     tableCell: {
       fontSize: 12,
       margin: 0,
@@ -81,8 +63,7 @@ const useStyles = makeStyles((theme) =>
 );
 
 TemplateDisplay.propTypes = {
-  template: PropTypes.object,
-  onAddClick: PropTypes.func,
+  template: PropTypes.array,
 };
 
 export default TemplateDisplay;

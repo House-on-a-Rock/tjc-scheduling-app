@@ -6,8 +6,9 @@ import CustomDialog from './CustomDialog';
 import { ValidatedTextField } from '../FormControl';
 import { useValidatedField } from '../../hooks';
 import { stringLengthCheck } from '../../shared/utilities';
+import TemplateDisplay from '../Template/TemplateDisplay';
 
-const NewTemplateForm = ({ open, handleClose, handleClick, error }) => {
+const NewTemplateForm = ({ open, handleClose, handleClick, error, template }) => {
   const [templateName, setTemplateName, setTemplateNameError, resetTemplateNameError] =
     useValidatedField('', 'Please enter a name for this template');
 
@@ -28,6 +29,7 @@ const NewTemplateForm = ({ open, handleClose, handleClick, error }) => {
         handleChange={setTemplateName}
         autoFocus
       />
+      <TemplateDisplay template={template} />
     </CustomDialog>
   );
 
@@ -50,6 +52,7 @@ NewTemplateForm.propTypes = {
   handleClose: PropTypes.func,
   handleClick: PropTypes.func,
   error: PropTypes.object,
+  template: PropTypes.array,
 };
 
 export default NewTemplateForm;

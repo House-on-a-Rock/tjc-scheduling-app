@@ -48,8 +48,6 @@ const ScheduleContainer = ({ churchId }) => {
     },
   };
 
-  console.log(`templates`, templates);
-
   return (
     <div className={!loaded ? classes.loading : ''}>
       {loaded && (

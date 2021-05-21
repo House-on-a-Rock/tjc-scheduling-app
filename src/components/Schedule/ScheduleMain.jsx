@@ -146,6 +146,7 @@ const ScheduleMain = ({
           handleClick={saveTemplate}
           handleClose={onTemplateFormClose}
           error={createNewTemplate.error}
+          template={prepareNewTemplate(dataModel)}
         />
       )}
     </div>
@@ -157,16 +158,18 @@ const ScheduleMain = ({
   }
 
   function saveTemplate(templateName) {
-    const newTemplate = prepareNewTemplate({ model: dataModel, templateName });
-    createNewTemplate.mutate(newTemplate);
+    const newTemplate = prepareNewTemplate(dataModel);
+    createNewTemplate.mutate({ data: newTemplate, churchId, name: templateName });
   }
 
-  function prepareNewTemplate({ model, templateName }) {
+  function prepareNewTemplate(model) {
     const n = model.map((service) => {
       const { day, events, name } = service;
       const e = events.map((event) => {
-        const { roleId, title, time } = event;
-        return { roleId, title, time };
+        const { roleId, time } = event;
+        const roleName = teams[teams.findIndex((team) => team.id === roleId)].name;
+
+        return { roleId, time, title: roleName };
       });
       return {
         day,
@@ -174,7 +177,7 @@ const ScheduleMain = ({
         name,
       };
     });
-    return { data: n, churchId, name: templateName };
+    return n;
   }
 
   function incrementChangesCounter() {

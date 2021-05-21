@@ -2,11 +2,11 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import useTemplateContainer from '../../hooks/containerHooks/useTemplateContainer';
 import { makeStyles, createStyles } from '@material-ui/core/styles';
-import { buttonTheme } from '../../shared/styles/theme';
 import NewScheduleForm from '../shared/NewScheduleForm';
 
 // components
 import TemplateDisplay from './TemplateDisplay';
+import TemplateCard from './TemplateCard';
 
 export const TemplateContainer = ({ churchId }) => {
   const classes = useStyles();
@@ -22,13 +22,19 @@ export const TemplateContainer = ({ churchId }) => {
   // TODO add confirmation alerts
   return (
     <div className={classes.templateContainer}>
-      {templates.map((template, index) => (
-        <TemplateDisplay
-          template={template}
-          key={index.toString()}
-          onAddClick={onAddClick}
-        />
-      ))}
+      {templates.map((template, index) => {
+        const { name, templateId, data } = template;
+        return (
+          <TemplateCard
+            name={name}
+            templateId={templateId}
+            key={index.toString()}
+            onAddClick={onAddClick}
+          >
+            <TemplateDisplay template={data} />
+          </TemplateCard>
+        );
+      })}
       {isNewScheduleOpen && (
         <NewScheduleForm
           onClose={() => setIsNewScheduleOpen(false)}
@@ -55,19 +61,6 @@ const useStyles = makeStyles((theme) =>
       width: '100%',
       display: 'grid',
       'grid-template-columns': '25% 25% 25% 25%',
-    },
-    button: {
-      position: 'sticky',
-      padding: '10px',
-      borderRadius: '5px',
-      border: 'none',
-      '&:hover, &:focus': {
-        ...buttonTheme.filled.hover,
-      },
-      display: 'flex',
-      '& *': {
-        margin: 'auto',
-      },
     },
   }),
 );
