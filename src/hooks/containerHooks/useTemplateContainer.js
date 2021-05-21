@@ -15,14 +15,13 @@ const useTemplateContainer = (churchId, onSuccessHandler) => {
     onSuccess: () => {
       queryClient.invalidateQueries('tabs');
       queryClient.invalidateQueries('schedules');
-      // navigate to created schedule
+      // TODO navigate to created schedule?
       onSuccessHandler(false);
     },
   });
 
   const destroyTemplate = useMutation(deleteTemplate, {
     onSuccess: (res) => {
-      console.log(`res`, res);
       queryClient.setQueryData('templates', res.data);
     },
   });

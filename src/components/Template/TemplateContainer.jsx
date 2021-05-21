@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import useTemplateContainer from '../../hooks/containerHooks/useTemplateContainer';
 import { makeStyles, createStyles } from '@material-ui/core/styles';
 import NewScheduleForm from '../shared/NewScheduleForm';
+import CustomDialog from '../shared/CustomDialog';
 
 // components
 import TemplateDisplay from './TemplateDisplay';
@@ -12,12 +13,25 @@ export const TemplateContainer = ({ churchId }) => {
   const classes = useStyles();
   const [isNewScheduleOpen, setIsNewScheduleOpen] = useState(false);
   const [selectedTemplateId, setSelectedTemplateId] = useState(0);
+  const [dialogState, setDialogState] = useState({ isOpen: false, state: '' });
   const [isLoading, templates, createSchedule, deleteTemplate] = useTemplateContainer(
     churchId,
     setIsNewScheduleOpen,
   );
 
   if (isLoading) return <div>Loading</div>;
+
+  const DELETETEMPLATE = 'DELETETEMPLATE';
+
+  const DialogConfig = {
+    DELETETEMPLATE: {
+      title: 'Delete template',
+      warningText: 'Are you sure you want to delete this template? This cannot be undone',
+      description: '',
+      handleClose: resetDialog,
+      handleSubmit: (event) => dialogSubmitWrapper(event, onSubmitDelete),
+    },
+  };
 
   // TODO add confirmation alerts
   return (
@@ -54,6 +68,9 @@ export const TemplateContainer = ({ churchId }) => {
             templateId={selectedTemplateId}
           />
         )}
+        {dialogState.isOpen && (
+          <CustomDialog open={dialogState.isOpen} {...DialogConfig[dialogState.state]} />
+        )}
       </div>
     </div>
   );
@@ -64,9 +81,21 @@ export const TemplateContainer = ({ churchId }) => {
   }
 
   function onDeleteClick(templateId) {
-    // delete selected template
-    // dialog to prompt if sure
-    deleteTemplate.mutate({ templateId, churchId });
+    setDialogState({ isOpen: true, state: DELETETEMPLATE, templateId });
+  }
+
+  function onSubmitDelete() {
+    deleteTemplate.mutate({ templateId: dialogState.templateId, churchId });
+  }
+
+  function dialogSubmitWrapper(event, callback) {
+    event.preventDefault();
+    callback();
+    resetDialog();
+  }
+
+  function resetDialog() {
+    setDialogState({ state: '', isOpen: false });
   }
 };
 

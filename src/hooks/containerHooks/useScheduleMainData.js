@@ -46,10 +46,10 @@ const useScheduleMainData = (
   // create template
   const createNewTemplate = useMutation(createTemplate, {
     onSuccess: (res) => {
-      console.log(`res`, res);
       queryClient.setQueryData('templates', res.data);
       setIsTemplateFormOpen(false);
       setAlert(createAlert({ status: res.status, message: res.data.message }));
+      // TODO navigate to templates tab?
     },
     onError: (err) => {
       console.log(`err.response`, err.response);
