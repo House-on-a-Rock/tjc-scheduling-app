@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from 'react-query';
-import { createTemplate, getTemplates, postSchedule } from '../../apis';
+import { deleteTemplate, getTemplates, postSchedule } from '../../apis';
 import { useQueryConfig } from './shared';
 
 const useTemplateContainer = (churchId, onSuccessHandler) => {
@@ -15,7 +15,15 @@ const useTemplateContainer = (churchId, onSuccessHandler) => {
     onSuccess: () => {
       queryClient.invalidateQueries('tabs');
       queryClient.invalidateQueries('schedules');
+      // navigate to created schedule
       onSuccessHandler(false);
+    },
+  });
+
+  const destroyTemplate = useMutation(deleteTemplate, {
+    onSuccess: (res) => {
+      console.log(`res`, res);
+      queryClient.setQueryData('templates', res.data);
     },
   });
 
@@ -23,7 +31,7 @@ const useTemplateContainer = (churchId, onSuccessHandler) => {
     templates: isLoading ? null : templateData.data,
   };
 
-  return [isLoading, returnData.templates, createSchedule];
+  return [isLoading, returnData.templates, createSchedule, destroyTemplate];
 };
 
 export default useTemplateContainer;

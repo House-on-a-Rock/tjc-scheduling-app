@@ -12,7 +12,7 @@ export const TemplateContainer = ({ churchId }) => {
   const classes = useStyles();
   const [isNewScheduleOpen, setIsNewScheduleOpen] = useState(false);
   const [selectedTemplateId, setSelectedTemplateId] = useState(0);
-  const [isLoading, templates, createSchedule] = useTemplateContainer(
+  const [isLoading, templates, createSchedule, deleteTemplate] = useTemplateContainer(
     churchId,
     setIsNewScheduleOpen,
   );
@@ -21,37 +21,52 @@ export const TemplateContainer = ({ churchId }) => {
 
   // TODO add confirmation alerts
   return (
-    <div className={classes.templateContainer}>
-      {templates.map((template, index) => {
-        const { name, templateId, data } = template;
-        return (
-          <TemplateCard
-            name={name}
-            templateId={templateId}
-            key={index.toString()}
-            onAddClick={onAddClick}
-          >
-            <TemplateDisplay template={data} />
-          </TemplateCard>
-        );
-      })}
-      {isNewScheduleOpen && (
-        <NewScheduleForm
-          onClose={() => setIsNewScheduleOpen(false)}
-          isOpen={isNewScheduleOpen}
-          onSubmit={(newScheduleData) =>
-            createSchedule.mutate({ ...newScheduleData, churchId: churchId })
-          }
-          error={createSchedule.error}
-          templateId={selectedTemplateId}
-        />
-      )}
+    <div>
+      <h2>View and manage your templates</h2>
+      <p>You may create new schedules, or delete existing templates.</p>
+      <p>
+        To create a new template, build a schedule from the schedule screen, and save it
+        as a new template
+      </p>
+      <div className={classes.templateContainer}>
+        {templates.map((template, index) => {
+          const { name, templateId, data } = template;
+          return (
+            <TemplateCard
+              name={name}
+              templateId={templateId}
+              key={index.toString()}
+              onAddClick={onAddClick}
+              onDeleteClick={onDeleteClick}
+            >
+              <TemplateDisplay template={data} />
+            </TemplateCard>
+          );
+        })}
+        {isNewScheduleOpen && (
+          <NewScheduleForm
+            onClose={() => setIsNewScheduleOpen(false)}
+            isOpen={isNewScheduleOpen}
+            onSubmit={(newScheduleData) =>
+              createSchedule.mutate({ ...newScheduleData, churchId: churchId })
+            }
+            error={createSchedule.error}
+            templateId={selectedTemplateId}
+          />
+        )}
+      </div>
     </div>
   );
 
   function onAddClick(templateId) {
     setSelectedTemplateId(templateId);
     setIsNewScheduleOpen(true);
+  }
+
+  function onDeleteClick(templateId) {
+    // delete selected template
+    // dialog to prompt if sure
+    deleteTemplate.mutate({ templateId, churchId });
   }
 };
 

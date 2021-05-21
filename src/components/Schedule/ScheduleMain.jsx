@@ -163,7 +163,7 @@ const ScheduleMain = ({
   }
 
   function prepareNewTemplate(model) {
-    const n = model.map((service) => {
+    const newTemplate = model.map((service) => {
       const { day, events, name } = service;
       const e = events.map((event) => {
         const { roleId, time } = event;
@@ -177,7 +177,7 @@ const ScheduleMain = ({
         name,
       };
     });
-    return n;
+    return newTemplate;
   }
 
   function incrementChangesCounter() {

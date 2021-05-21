@@ -19,6 +19,8 @@ function useValidatedField(initialState, message) {
   };
   const resetInputState = () =>
     setInputState({ ...inputState, valid: true, message: '' });
+
+  // this resets valid to true when new input is received after an error appears
   const setInput = (input) => setInputState(createFieldState(input.value));
 
   return [inputState, setInput, setInputStateError, resetInputState];

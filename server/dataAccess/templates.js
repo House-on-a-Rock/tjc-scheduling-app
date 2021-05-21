@@ -12,3 +12,6 @@ export const findOneTemplate = async ({ churchId, name }) =>
   });
 
 export const createTemplate = async (template) => db.Template.create(template);
+
+export const destroyTemplate = async (templateId) =>
+  db.Template.destroy({ where: { id: templateId } });

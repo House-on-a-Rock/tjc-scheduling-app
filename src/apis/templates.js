@@ -10,3 +10,11 @@ export const getTemplates = (churchId) => {
 
 export const createTemplate = (template) =>
   axios.post(`${secretIp}/api/templates/`, template);
+
+export const deleteTemplate = (data) => {
+  const { templateId, churchId } = data;
+  // return axios.delete(`${secretIp}/api/templates/`, data);
+  return axios.delete(
+    `${secretIp}/api/templates?churchId=${churchId}&templateId=${templateId}`,
+  );
+};
