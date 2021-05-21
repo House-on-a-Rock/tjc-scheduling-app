@@ -19,8 +19,9 @@ function useValidatedField(initialState, message) {
   };
   const resetInputState = () =>
     setInputState({ ...inputState, valid: true, message: '' });
+  const setInput = (input) => setInputState(createFieldState(input.value));
 
-  return [inputState, setInputState, setInputStateError, resetInputState];
+  return [inputState, setInput, setInputStateError, resetInputState];
 }
 
 export default useValidatedField;

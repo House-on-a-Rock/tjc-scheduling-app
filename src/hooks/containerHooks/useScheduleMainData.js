@@ -8,7 +8,12 @@ import {
 } from '../../apis';
 import { createAlert } from '../../components/shared/Alert';
 
-const useScheduleMainData = (scheduleId, setIsScheduleModified, setAlert) => {
+const useScheduleMainData = (
+  scheduleId,
+  setIsScheduleModified,
+  setAlert,
+  setIsTemplateFormOpen,
+) => {
   const queryClient = useQueryClient();
   const { isLoading: isScheduleLoading, data: schedule } = useQuery(
     [`schedules_${scheduleId}`],
@@ -42,6 +47,12 @@ const useScheduleMainData = (scheduleId, setIsScheduleModified, setAlert) => {
   const createNewTemplate = useMutation(createTemplate, {
     onSuccess: (res) => {
       console.log(`res`, res);
+      queryClient.setQueryData('templates', res.data);
+      setIsTemplateFormOpen(false);
+      setAlert(createAlert({ status: res.status, message: res.data.message }));
+    },
+    onError: (err) => {
+      console.log(`err.response`, err.response);
     },
   });
 
@@ -49,7 +60,7 @@ const useScheduleMainData = (scheduleId, setIsScheduleModified, setAlert) => {
     schedule: isScheduleLoading ? null : schedule.data,
   };
 
-  return [returnData.schedule, updateSchedule.mutate, createNewTemplate.mutate];
+  return [returnData.schedule, updateSchedule.mutate, createNewTemplate];
 };
 
 useScheduleMainData.propTypes = {

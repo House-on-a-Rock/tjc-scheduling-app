@@ -2,7 +2,7 @@
 // https://codesandbox.io/s/react-material-ui-and-react-beautiful-dnd-forked-bmheb?file=/src/MaterialTable.jsx draggable table
 import React, { useRef, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { Prompt } from 'react-router-dom';
+// import { Prompt } from 'react-router-dom';
 
 import ld from 'lodash';
 import { loadingTheme } from '../../shared/styles/theme';
@@ -16,6 +16,7 @@ import { updatedDiff } from 'deep-object-diff';
 
 import useScheduleMainData from '../../hooks/containerHooks/useScheduleMainData';
 import CustomDialog from '../shared/CustomDialog';
+import NewTemplateForm from '../shared/NewTemplateForm';
 
 // tbh i think my function names are kinda scuffed, and my dialog text is very scuffed so
 
@@ -35,19 +36,20 @@ const ScheduleMain = ({
   const [dataModel, setDataModel] = useState();
   const [isScheduleModified, setIsScheduleModified] = useState(false);
   const [dialogState, setDialogState] = useState({ isOpen: false, state: '' });
+  const [isTemplateFormOpen, setIsTemplateFormOpen] = useState(false);
   const changesCounter = useRef(0);
 
   const [schedule, updateSchedule, createNewTemplate] = useScheduleMainData(
     scheduleId,
     setIsScheduleModified,
     setAlert,
+    setIsTemplateFormOpen,
   );
 
   const CELLWARNING = 'CELLWARNING';
   const DELETESCHEDULE = 'DELETESCHEDULE';
   const SAVEEDITS = 'SAVEEDITS';
   const RESET = 'RESET';
-  const SAVETEMPLATE = 'SAVETEMPLATE';
 
   const DialogConfig = {
     CELLWARNING: {
@@ -81,13 +83,6 @@ const ScheduleMain = ({
         'You are about to discard your current changes, are you sure? This cannot be undone',
       handleClose: resetDialog,
       handleSubmit: (event) => dialogSubmitWrapper(event, reset),
-    },
-    SAVETEMPLATE: {
-      title: 'Save template',
-      description:
-        'Save the current services, events, and times as a template for future use. Task assignments will not be saved. Templates can be managed under the templates tab',
-      handleClose: resetDialog,
-      handleSubmit: (event) => dialogSubmitWrapper(event, saveTemplate),
     },
   };
 
@@ -128,7 +123,7 @@ const ScheduleMain = ({
         onSaveEdits={onSaveEdits}
         onCancelEdits={onCancelEdits}
         onResetClick={onResetClick}
-        onSaveTemplate={onSaveTemplate}
+        onSaveTemplate={() => setIsTemplateFormOpen(true)}
       />
       <Table
         schedule={schedule}
@@ -143,28 +138,24 @@ const ScheduleMain = ({
         incrementChangesCounter={incrementChangesCounter}
       />
       {dialogState.isOpen && (
-        <CustomDialog
-          open={dialogState.isOpen}
-          {...DialogConfig[dialogState.state]}
-        ></CustomDialog>
+        <CustomDialog open={dialogState.isOpen} {...DialogConfig[dialogState.state]} />
       )}
+      <NewTemplateForm
+        open={isTemplateFormOpen}
+        handleClick={saveTemplate}
+        handleClose={() => setIsTemplateFormOpen(false)}
+        error={createNewTemplate.error}
+      />
     </div>
   );
 
-  function onSaveTemplate() {
-    setDialogState({ isOpen: true, state: SAVETEMPLATE });
+  function saveTemplate(templateName) {
+    const newTemplate = prepareNewTemplate({ model: dataModel, templateName });
+    createNewTemplate.mutate(newTemplate);
   }
 
-  function saveTemplate() {
-    // create template
-
-    const newTemplate = prepareNewTemplate(dataModel);
-    console.log(`newTemplate`, newTemplate);
-    createNewTemplate({ name: 'test', data: newTemplate, churchId });
-  }
-
-  function prepareNewTemplate(dm) {
-    const n = dm.map((service) => {
+  function prepareNewTemplate({ model, templateName }) {
+    const n = model.map((service) => {
       const { day, events, name } = service;
       const e = events.map((event) => {
         const { roleId, title, time } = event;
@@ -176,7 +167,7 @@ const ScheduleMain = ({
         name,
       };
     });
-    return n;
+    return { data: n, churchId, name: templateName };
   }
 
   function incrementChangesCounter() {

@@ -19,7 +19,6 @@ export const TemplateContainer = ({ churchId }) => {
 
   if (isLoading) return <div>Loading</div>;
 
-  console.log(`templates`, templates);
   // TODO add confirmation alerts
   return (
     <div className={classes.templateContainer}>

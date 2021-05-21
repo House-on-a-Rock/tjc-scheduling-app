@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from 'react-query';
-import { getTemplates, postSchedule } from '../../apis';
+import { createTemplate, getTemplates, postSchedule } from '../../apis';
 import { useQueryConfig } from './shared';
 
 const useTemplateContainer = (churchId, onSuccessHandler) => {
