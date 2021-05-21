@@ -35,10 +35,9 @@ const ScheduleMain = ({
   const [dataModel, setDataModel] = useState();
   const [isScheduleModified, setIsScheduleModified] = useState(false);
   const [dialogState, setDialogState] = useState({ isOpen: false, state: '' });
-  // const [isEditMode, setIsEditMode] = useState(false);
   const changesCounter = useRef(0);
 
-  const [schedule, updateSchedule] = useScheduleMainData(
+  const [schedule, updateSchedule, createNewTemplate] = useScheduleMainData(
     scheduleId,
     setIsScheduleModified,
     setAlert,
@@ -48,6 +47,7 @@ const ScheduleMain = ({
   const DELETESCHEDULE = 'DELETESCHEDULE';
   const SAVEEDITS = 'SAVEEDITS';
   const RESET = 'RESET';
+  const SAVETEMPLATE = 'SAVETEMPLATE';
 
   const DialogConfig = {
     CELLWARNING: {
@@ -81,6 +81,13 @@ const ScheduleMain = ({
         'You are about to discard your current changes, are you sure? This cannot be undone',
       handleClose: resetDialog,
       handleSubmit: (event) => dialogSubmitWrapper(event, reset),
+    },
+    SAVETEMPLATE: {
+      title: 'Save template',
+      description:
+        'Save the current services, events, and times as a template for future use. Task assignments will not be saved. Templates can be managed under the templates tab',
+      handleClose: resetDialog,
+      handleSubmit: (event) => dialogSubmitWrapper(event, saveTemplate),
     },
   };
 
@@ -121,6 +128,7 @@ const ScheduleMain = ({
         onSaveEdits={onSaveEdits}
         onCancelEdits={onCancelEdits}
         onResetClick={onResetClick}
+        onSaveTemplate={onSaveTemplate}
       />
       <Table
         schedule={schedule}
@@ -142,6 +150,34 @@ const ScheduleMain = ({
       )}
     </div>
   );
+
+  function onSaveTemplate() {
+    setDialogState({ isOpen: true, state: SAVETEMPLATE });
+  }
+
+  function saveTemplate() {
+    // create template
+
+    const newTemplate = prepareNewTemplate(dataModel);
+    console.log(`newTemplate`, newTemplate);
+    createNewTemplate({ name: 'test', data: newTemplate, churchId });
+  }
+
+  function prepareNewTemplate(dm) {
+    const n = dm.map((service) => {
+      const { day, events, name } = service;
+      const e = events.map((event) => {
+        const { roleId, title, time } = event;
+        return { roleId, title, time };
+      });
+      return {
+        day,
+        events: e,
+        name,
+      };
+    });
+    return n;
+  }
 
   function incrementChangesCounter() {
     changesCounter.current += 1;

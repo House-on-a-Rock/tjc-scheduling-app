@@ -1,5 +1,11 @@
 import { useQuery, useMutation, useQueryClient } from 'react-query';
-import { getSchedules, getTeams, postSchedule, destroySchedule } from '../../apis';
+import {
+  getSchedules,
+  getTeams,
+  postSchedule,
+  destroySchedule,
+  getTemplates,
+} from '../../apis';
 import { useQueryConfig, getChurchMembersData } from './shared';
 import { createAlert } from '../../components/shared/Alert';
 
@@ -25,6 +31,12 @@ const useScheduleContainerData = (
   const { isLoading: isTeamsLoading, data: teamsData } = useQuery(
     ['teams'],
     () => getTeams(churchId),
+    useQueryConfig,
+  );
+
+  const { isLoading: isTemplatesLoading, data: templatesData } = useQuery(
+    ['templates'],
+    () => getTemplates(churchId),
     useQueryConfig,
   );
 
@@ -60,6 +72,7 @@ const useScheduleContainerData = (
     tabs: isTabsLoading ? null : tabsData.data,
     users: isUsersLoading ? null : usersData,
     teams: isTeamsLoading ? null : teamsData.data,
+    templates: isTemplatesLoading ? null : templatesData.data,
   };
 
   return [
@@ -67,6 +80,7 @@ const useScheduleContainerData = (
     returnData.tabs,
     returnData.users,
     returnData.teams,
+    returnData.templates,
     createSchedule,
     deleteSchedule,
   ];

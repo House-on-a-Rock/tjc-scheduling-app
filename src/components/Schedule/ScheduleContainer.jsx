@@ -28,7 +28,7 @@ const ScheduleContainer = ({ churchId }) => {
     value: null,
   });
 
-  const [loaded, tabs, users, teams, createSchedule, deleteSchedule] =
+  const [loaded, tabs, users, teams, templates, createSchedule, deleteSchedule] =
     useScheduleContainerData(
       churchId,
       setAlert,
@@ -47,6 +47,8 @@ const ScheduleContainer = ({ churchId }) => {
       handleSubmit: (event) => dialogSubmitWrapper(event, changeTabPromptHandler),
     },
   };
+
+  console.log(`templates`, templates);
 
   return (
     <div className={!loaded ? classes.loading : ''}>

@@ -10,6 +10,7 @@ import {
   TooltipDisabledSaveIcon,
   TooltipCancelIcon,
   TooltipDisabledResetIcon,
+  TooltipDisabledSaveTemplateIcon,
 } from '../shared/TooltipIcons';
 
 const Toolbar = ({
@@ -22,6 +23,7 @@ const Toolbar = ({
   onSaveEdits,
   onCancelEdits,
   onResetClick,
+  onSaveTemplate,
 }) => {
   const classes = useStyles();
   return (
@@ -30,6 +32,11 @@ const Toolbar = ({
         title="Publish changes"
         disabled={!isScheduleModified}
         // handleClick={() => ()}
+      />
+      <TooltipDisabledSaveTemplateIcon
+        title="Save schedule as template"
+        handleClick={onSaveTemplate}
+        disabled={isEditMode}
       />
 
       {!isEditMode && (
@@ -91,6 +98,7 @@ Toolbar.propTypes = {
   onSaveEdits: PropTypes.func,
   onCancelEdits: PropTypes.func,
   onResetClick: PropTypes.func,
+  onSaveTemplate: PropTypes.func,
 };
 
 export default Toolbar;

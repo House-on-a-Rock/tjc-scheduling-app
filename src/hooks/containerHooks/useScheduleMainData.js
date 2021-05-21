@@ -1,7 +1,11 @@
 import PropTypes from 'prop-types';
 import { useQuery, useQueryClient, useMutation } from 'react-query';
 import { useQueryConfig } from './shared';
-import { getScheduleAndData, updateScheduleAssignments } from '../../apis';
+import {
+  getScheduleAndData,
+  updateScheduleAssignments,
+  createTemplate,
+} from '../../apis';
 import { createAlert } from '../../components/shared/Alert';
 
 const useScheduleMainData = (scheduleId, setIsScheduleModified, setAlert) => {
@@ -34,11 +38,18 @@ const useScheduleMainData = (scheduleId, setIsScheduleModified, setAlert) => {
     // OR we leave this undone and hope we never run into it lol
   });
 
+  // create template
+  const createNewTemplate = useMutation(createTemplate, {
+    onSuccess: (res) => {
+      console.log(`res`, res);
+    },
+  });
+
   const returnData = {
     schedule: isScheduleLoading ? null : schedule.data,
   };
 
-  return [returnData.schedule, updateSchedule.mutate];
+  return [returnData.schedule, updateSchedule.mutate, createNewTemplate.mutate];
 };
 
 useScheduleMainData.propTypes = {
