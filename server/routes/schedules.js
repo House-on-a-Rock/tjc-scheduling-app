@@ -66,7 +66,7 @@ router.post('/schedule/update', certify, async (req, res, next) => {
       .status(200)
       .json({ message: `Schedule updated successfully!`, data: updatedSchedule });
   } catch (err) {
-    return next({ status: 409, message: 'error updating schedule' });
+    return next({ status: 409, message: 'Error updating schedule' });
   }
 });
 

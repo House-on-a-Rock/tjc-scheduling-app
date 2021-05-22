@@ -7,13 +7,13 @@ import {
   getTemplates,
 } from '../../apis';
 import { useQueryConfig, getChurchMembersData } from './shared';
-import { createAlert } from '../../components/shared/Alert';
 
 const useScheduleContainerData = (
   churchId,
   setAlert,
   onCreateScheduleSuccess,
   onDeleteScheduleSuccess,
+  setIsEditMode,
 ) => {
   const queryClient = useQueryClient();
   const { isLoading: isTabsLoading, data: tabsData } = useQuery(
@@ -42,18 +42,17 @@ const useScheduleContainerData = (
 
   const createSchedule = useMutation(postSchedule, {
     onSuccess: (res) => {
-      // immediately sets tabs to updated values, so schedule can switch to newly created tabs
       queryClient.setQueryData('tabs', res.data);
-      onCreateScheduleSuccess({
-        message: res.data.message,
-        status: res.data.status,
-      });
+      onCreateScheduleSuccess(res);
     },
-    // onError: (res) => console.log(`res.response`, res.response),
+    // if the error is the title already exists, the form handles it. other errors tho?
+    // onError: (res) => {
+    //   console.log(`res.response`, res.response);
+    // },
   });
 
   const deleteScheduleMut = useMutation(destroySchedule, {
-    onSuccess: (res) => setAlert(createAlert(res)),
+    onSuccess: (res) => setAlert(res),
   });
 
   const deleteSchedule = (scheduleId, title, tab) =>
@@ -63,6 +62,7 @@ const useScheduleContainerData = (
         onSuccess: (res) => {
           onDeleteScheduleSuccess(tab);
           queryClient.setQueryData('tabs', res.data);
+          setIsEditMode(false);
         },
       },
     );

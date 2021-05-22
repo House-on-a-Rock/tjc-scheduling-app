@@ -5,7 +5,6 @@ import PropTypes from 'prop-types';
 import ScheduleMain from './ScheduleMain';
 import ScheduleTabs from './Tabs';
 import NewScheduleForm from '../shared/NewScheduleForm';
-import { Alert, createAlert } from '../shared/Alert';
 import useScheduleContainerData from '../../hooks/containerHooks/useScheduleContainerData';
 import CustomDialog from '../shared/CustomDialog';
 
@@ -15,12 +14,11 @@ import { loadingTheme } from '../../shared/styles/theme';
 // TODO error checking if there are no schedules
 // TODO solution for when theres no schedules/tabs
 
-const ScheduleContainer = ({ churchId }) => {
+const ScheduleContainer = ({ churchId, setAlert }) => {
   const classes = useStyles();
   const [viewedTab, setViewedTab] = useState(0);
   const [openedTabs, setOpenedTabs] = useState([0]);
   const [isNewScheduleOpen, setIsNewScheduleOpen] = useState(false);
-  const [alert, setAlert] = useState(null);
   const [isEditMode, setIsEditMode] = useState(false);
   const [dialogState, setDialogState] = useState({
     isOpen: false,
@@ -34,6 +32,7 @@ const ScheduleContainer = ({ churchId }) => {
       setAlert,
       onCreateScheduleSuccess,
       onDeleteScheduleSuccess,
+      setIsEditMode,
     );
 
   const PROMPTBEFORELEAVING = 'PROMPTBEFORELEAVING';
@@ -87,9 +86,9 @@ const ScheduleContainer = ({ churchId }) => {
               error={createSchedule.error}
             />
           )}
-          {alert && (
+          {/* {alert && (
             <Alert alert={alert} isOpen={!!alert} handleClose={() => setAlert(null)} />
-          )}
+          )} */}
           {dialogState.isOpen && (
             <CustomDialog
               open={dialogState.isOpen}
@@ -108,7 +107,7 @@ const ScheduleContainer = ({ churchId }) => {
 
   function onCreateScheduleSuccess(res) {
     setIsNewScheduleOpen(false);
-    setAlert(createAlert(res));
+    setAlert(res);
 
     const newTab = tabs.length;
     setOpenedTabs((t) => [...t, newTab]);
@@ -180,6 +179,7 @@ const useStyles = makeStyles(() =>
 
 ScheduleContainer.propTypes = {
   churchId: PropTypes.number,
+  setAlert: PropTypes.func,
 };
 
 export default ScheduleContainer;
