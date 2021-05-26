@@ -43,6 +43,7 @@ router.post('/schedule', certify, async (req, res, next) => {
 
     const newSchedule = await createSchedule(req.body);
     const schedules = await findAllChurchSchedules(churchId);
+    console.log(`schedules`, schedules);
 
     return res.status(200).json({
       data: schedules,

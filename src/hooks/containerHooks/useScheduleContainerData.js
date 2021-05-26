@@ -42,6 +42,7 @@ const useScheduleContainerData = (
 
   const createSchedule = useMutation(postSchedule, {
     onSuccess: (res) => {
+      console.log(`res`, res);
       queryClient.setQueryData('tabs', res.data);
       onCreateScheduleSuccess(res);
     },
@@ -60,6 +61,7 @@ const useScheduleContainerData = (
       { scheduleId, title, churchId },
       {
         onSuccess: (res) => {
+          console.log(`res`, res);
           onDeleteScheduleSuccess(tab);
           queryClient.setQueryData('tabs', res.data);
           setIsEditMode(false);

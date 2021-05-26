@@ -47,6 +47,8 @@ const ScheduleContainer = ({ churchId, setAlert }) => {
     },
   };
 
+  console.log(`tabs`, tabs);
+
   return (
     <div className={!loaded ? classes.loading : ''}>
       {loaded && (
@@ -83,6 +85,7 @@ const ScheduleContainer = ({ churchId, setAlert }) => {
               onSubmit={(newScheduleData) =>
                 createSchedule.mutate({ ...newScheduleData, churchId: churchId })
               }
+              templates={templates}
               error={createSchedule.error}
             />
           )}

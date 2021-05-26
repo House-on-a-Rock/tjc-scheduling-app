@@ -95,8 +95,8 @@ const constructScheduleByTemplate = async (newSchedule, templateId) => {
 
   template.data.forEach(async ({ name, day, events }, index) => {
     const newService = await createNewService({
-      name: name,
-      day: daysOfWeek.indexOf(day),
+      name,
+      day,
       order: index,
       scheduleId: newSchedule.id,
     });

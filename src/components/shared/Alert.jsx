@@ -14,7 +14,7 @@ const alertStatus = {
 
 const Alert = ({ alert, isOpen, handleClose }) => {
   // no res.response for success, no res.data for error
-
+  // i'm just yeeting the response into this, makes it easier to just call setAlert(res) from every useMutation. Also, only have to change this one function if our response object changes
   const processedAlert = { message: '', status: '' };
   if (alert.data) {
     // is a success alert
