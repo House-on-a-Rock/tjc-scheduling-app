@@ -34,6 +34,7 @@ const ScheduleMain = ({
   const [isScheduleModified, setIsScheduleModified] = useState(false);
   const [dialogState, setDialogState] = useState({ isOpen: false, state: '' });
   const [isEditMode, setIsEditMode] = useState(false);
+  const changesCounter = useRef(0);
 
   const [schedule, updateSchedule] = useScheduleMainData(
     scheduleId,
@@ -106,7 +107,7 @@ const ScheduleMain = ({
     >
       <Prompt
         message="You have unsaved changes, are you sure you want to leave?"
-        when={isScheduleModified}
+        when={isScheduleModified || isEditMode}
       />
       <Toolbar
         handleNewServiceClicked={addService}
@@ -129,6 +130,7 @@ const ScheduleMain = ({
         churchId={churchId}
         isScheduleModified={isScheduleModified}
         setIsScheduleModified={setIsScheduleModified}
+        incrementChangesCounter={incrementChangesCounter}
       />
       {dialogState.isOpen && (
         <CustomDialog
@@ -138,6 +140,15 @@ const ScheduleMain = ({
       )}
     </div>
   );
+
+  function incrementChangesCounter() {
+    changesCounter.current += 1;
+    return changesCounter.current;
+  }
+
+  function resetChangesCounter() {
+    changesCounter.current = 0;
+  }
 
   function onResetClick() {
     setDialogState({ isOpen: true, state: RESET });
@@ -186,11 +197,12 @@ const ScheduleMain = ({
     const diff = updatedDiff(schedule.services, dataModel);
     const processedDiff = processUpdate(diff, dataModel);
     updateSchedule({ tasks: processedDiff });
+    resetChangesCounter();
   }
 
   function addService() {
     const dataClone = [...dataModel];
-    dataClone.push(createBlankService(scheduleId));
+    dataClone.push(createBlankService(scheduleId, incrementChangesCounter));
 
     setDataModel(dataClone);
   }
@@ -210,7 +222,7 @@ const ScheduleMain = ({
   }
 
   function saveTemplateChanges() {
-    const processedChanges = formatData(dataModel, schedule.services);
+    const processedChanges = formatData(dataModel, schedule.services, scheduleId);
     updateSchedule({ ...processedChanges });
 
     setIsEditMode(false);

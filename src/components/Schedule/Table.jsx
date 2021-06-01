@@ -33,6 +33,7 @@ const Table = ({
   teams,
   churchId,
   isScheduleModified,
+  incrementChangesCounter,
 }) => {
   const classes = useStyles();
 
@@ -139,6 +140,7 @@ const Table = ({
                                   userId={cell.userId}
                                   taskId={cell.taskId}
                                   status={cell.status}
+                                  date={cell.date}
                                   time={time}
                                   teams={teams}
                                   users={users}
@@ -205,7 +207,7 @@ const Table = ({
     const dataClone = [...dataModel];
     const targetEvents = dataClone[serviceIndex].events;
     const serviceId = dataClone[serviceIndex].serviceId;
-    const newEvent = createBlankEvent(serviceId);
+    const newEvent = createBlankEvent(serviceId, incrementChangesCounter);
     targetEvents.push(newEvent);
     setDataModel(dataClone);
   }
@@ -342,6 +344,7 @@ Table.propTypes = {
   teams: PropTypes.array,
   churchId: PropTypes.number,
   isScheduleModified: PropTypes.bool,
+  incrementChangesCounter: PropTypes.func,
 };
 
 export default Table;
