@@ -8,11 +8,20 @@ import MuiAlert from '@material-ui/lab/Alert';
 // TODO create library of possible alert codes from backend
 const alertStatus = {
   200: 'success',
+  409: 'error',
   503: 'error',
 };
 
-export const sendAlert = (res) => {
-  return { status: alertStatus[res.status], message: res.data };
+export const createAlert = ({ message, status }) => {
+  return { status: alertStatus[status], message: message };
+};
+
+export const sendSuccessAlert = (res) => {
+  return createAlert({ status: res.status, message: res.data.message });
+};
+
+export const sendErrorAlert = (res) => {
+  return createAlert(res.response.data);
 };
 
 export const Alert = ({ alert, isOpen, handleClose }) => (

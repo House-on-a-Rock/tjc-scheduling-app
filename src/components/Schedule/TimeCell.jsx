@@ -23,7 +23,7 @@ const TimeCell = ({
   const displayTime = convert12Hrs(time);
 
   return !isEditMode ? (
-    <TableCell>{displayTime}</TableCell>
+    <TableCell {...inputProps}>{displayTime}</TableCell>
   ) : (
     <TableCell onBlur={onBlurHandler}>
       <TextField

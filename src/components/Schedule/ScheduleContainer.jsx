@@ -1,11 +1,13 @@
+/* eslint-disable prettier/prettier */
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 
 import ScheduleMain from './ScheduleMain';
 import ScheduleTabs from './Tabs';
 import NewScheduleForm from '../shared/NewScheduleForm';
-import { Alert, sendAlert } from '../shared/Alert';
+import { Alert, createAlert } from '../shared/Alert';
 import useScheduleContainerData from '../../hooks/containerHooks/useScheduleContainerData';
+import CustomDialog from '../shared/CustomDialog';
 
 import { createStyles, makeStyles } from '@material-ui/core';
 import { loadingTheme } from '../../shared/styles/theme';
@@ -19,20 +21,32 @@ const ScheduleContainer = ({ churchId }) => {
   const [openedTabs, setOpenedTabs] = useState([0]);
   const [isNewScheduleOpen, setIsNewScheduleOpen] = useState(false);
   const [alert, setAlert] = useState(null);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [dialogState, setDialogState] = useState({
+    isOpen: false,
+    state: '',
+    value: null,
+  });
 
-  const [
-    loaded,
-    tabs,
-    users,
-    teams,
-    createSchedule,
-    deleteSchedule,
-  ] = useScheduleContainerData(
-    churchId,
-    setAlert,
-    onCreateScheduleSuccess,
-    onDeleteScheduleSuccess,
-  );
+  const [loaded, tabs, users, teams, createSchedule, deleteSchedule] =
+    useScheduleContainerData(
+      churchId,
+      setAlert,
+      onCreateScheduleSuccess,
+      onDeleteScheduleSuccess,
+    );
+
+  const PROMPTBEFORELEAVING = 'PROMPTBEFORELEAVING';
+  const DialogConfig = {
+    PROMPTBEFORELEAVING: {
+      title: 'Still editing',
+      warningText:
+        'You are still editing this schedule, are you sure you would like to leave? Changes will not be saved',
+      description: '',
+      handleClose: resetDialog,
+      handleSubmit: (event) => dialogSubmitWrapper(event, changeTabPromptHandler),
+    },
+  };
 
   return (
     <div className={!loaded ? classes.loading : ''}>
@@ -56,6 +70,8 @@ const ScheduleContainer = ({ churchId }) => {
                 deleteSchedule={deleteSchedule}
                 tab={tab}
                 key={tab.toString()}
+                isEditMode={isEditMode}
+                setIsEditMode={setIsEditMode}
               />
             ))
           ) : (
@@ -63,7 +79,7 @@ const ScheduleContainer = ({ churchId }) => {
           )}
           {isNewScheduleOpen && (
             <NewScheduleForm
-              onClose={() => setIsNewScheduleOpen(false)}
+              onClose={onNewScheduleFormClose}
               isOpen={isNewScheduleOpen}
               onSubmit={(newScheduleData) =>
                 createSchedule.mutate({ ...newScheduleData, churchId: churchId })
@@ -74,14 +90,25 @@ const ScheduleContainer = ({ churchId }) => {
           {alert && (
             <Alert alert={alert} isOpen={!!alert} handleClose={() => setAlert(null)} />
           )}
+          {dialogState.isOpen && (
+            <CustomDialog
+              open={dialogState.isOpen}
+              {...DialogConfig[dialogState.state]}
+            ></CustomDialog>
+          )}
         </div>
       )}
     </div>
   );
 
+  function onNewScheduleFormClose() {
+    setIsNewScheduleOpen(false);
+    createSchedule.reset();
+  }
+
   function onCreateScheduleSuccess(res) {
     setIsNewScheduleOpen(false);
-    setAlert(sendAlert(res));
+    setAlert(createAlert(res));
 
     const newTab = tabs.length;
     setOpenedTabs((t) => [...t, newTab]);
@@ -112,11 +139,34 @@ const ScheduleContainer = ({ churchId }) => {
   }
 
   function onTabClick(value) {
-    if (value <= tabs.length - 1) {
-      const isOpened = openedTabs.indexOf(value);
-      if (isOpened < 0) setOpenedTabs([...openedTabs, value]); // adds unopened tabs to array. need way to handle lots of tabs
-      setViewedTab(value);
-    } else setIsNewScheduleOpen(true); // if last tab, open dialog to make new schedule
+    if (value === tabs.length) {
+      setIsEditMode(false);
+      setIsNewScheduleOpen(true);
+    } else if (value !== viewedTab && isEditMode)
+      setDialogState({ isOpen: true, state: PROMPTBEFORELEAVING, value });
+    else changeTab(value);
+  }
+
+  function changeTab(value) {
+    const isOpened = openedTabs.indexOf(value);
+    if (isOpened < 0) setOpenedTabs([...openedTabs, value]); // adds unopened tabs to array. need way to handle lots of tabs
+    setViewedTab(value);
+  }
+
+  function changeTabPromptHandler() {
+    setIsEditMode(false);
+    resetDialog();
+    changeTab(dialogState.value);
+  }
+
+  function resetDialog() {
+    setDialogState({ state: '', isOpen: false });
+  }
+
+  function dialogSubmitWrapper(event, callback) {
+    event.preventDefault();
+    callback();
+    resetDialog();
   }
 };
 

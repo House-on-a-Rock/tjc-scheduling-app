@@ -1,7 +1,9 @@
-import express from 'express';
+import path from 'path';
+
 import bodyParser from 'body-parser';
 import cors from 'cors';
-import path from 'path';
+import express from 'express';
+
 import db from './db';
 
 const port = process.env.PORT || 8081;
@@ -38,11 +40,11 @@ app.use((req, res, next) => {
 });
 
 // error handling endware
-// app.use((err, req, res) => {
-//   console.error(err);
-//   console.error(err.stack);
-//   res.status(err.status || 500).send(err.message || 'Internal server error.');
-// });
+// call next({message, status}) inside catch, and we send the response here
+app.use((err, req, res, next) => {
+  console.error(err);
+  res.status(err.status || 500).json(err || { message: 'Internal server error.' });
+});
 
 const syncDb = () =>
   db.sequelize.sync().then(() => {

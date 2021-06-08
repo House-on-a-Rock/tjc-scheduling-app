@@ -83,9 +83,7 @@ export const NewScheduleForm = ({
         <h2>Create a New Schedule</h2>
         <form className={classes.formStyle}>
           {error && (
-            <div style={{ color: 'red' }}>
-              {`Status code ${error?.response.status}: ${error?.response.statusText}`}
-            </div>
+            <div style={{ color: 'red' }}>{`${error?.response.data.message}`}</div>
           )}
           <div className={classes.tooltipContainer}>
             <ValidatedTextField

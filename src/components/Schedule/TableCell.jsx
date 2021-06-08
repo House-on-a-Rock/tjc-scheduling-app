@@ -8,7 +8,7 @@ const TableCell = ({
   roleId,
   userId = 0,
   taskId = 0,
-  date = 0,
+  date = '',
   status = cellStatus.SYNCED,
   time,
   teams,
@@ -18,7 +18,6 @@ const TableCell = ({
   onTaskChange,
   isTimeDisplayed,
   tasksDataSet,
-  isScheduleModified,
   isEditMode,
 }) => {
   const { serviceIndex, rowIndex, columnIndex } = cellIndices;
@@ -43,7 +42,6 @@ const TableCell = ({
       rowIndex={cellIndices.rowIndex}
       serviceIndex={cellIndices.serviceIndex}
       isEditMode={isEditMode}
-      isScheduleModified={isScheduleModified}
     />
   ) : cellIndices.columnIndex === 1 ? (
     <DutyAutocomplete
@@ -53,7 +51,6 @@ const TableCell = ({
       onChange={onAssignedRoleChange}
       renderOption={renderOption}
       isEditMode={isEditMode}
-      isScheduleModified={isScheduleModified}
     />
   ) : userId === null && taskId === null ? (
     <PlaceHolderCell />
@@ -99,7 +96,7 @@ TableCell.propTypes = {
   onTaskChange: PropTypes.func,
   isTimeDisplayed: PropTypes.bool,
   tasksDataSet: PropTypes.array,
-  isScheduleModified: PropTypes.bool,
   isEditMode: PropTypes.bool,
+  date: PropTypes.string,
 };
 export default TableCell;

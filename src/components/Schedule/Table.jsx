@@ -27,12 +27,12 @@ import { paletteTheme } from '../../shared/styles/theme';
 const Table = ({
   schedule,
   isEditMode,
+  isVisible,
   dataModel,
   setDataModel,
   users,
   teams,
   churchId,
-  isScheduleModified,
   incrementChangesCounter,
 }) => {
   const classes = useStyles();
@@ -72,7 +72,7 @@ const Table = ({
                     serviceId={serviceId}
                     providedRef={droppableProvided.innerRef}
                     {...droppableProvided.droppableProps}
-                    isEdit={isEditMode}
+                    isEdit={isEditMode && isVisible}
                     addEvent={() => addEvent(serviceIndex)}
                     deleteService={() => deleteService(serviceId)}
                     onEditService={onEditService}
@@ -112,7 +112,7 @@ const Table = ({
                                   <div {...provided.dragHandleProps}>
                                     <ReorderIcon
                                       className={
-                                        isEditMode
+                                        isEditMode && isVisible
                                           ? classes.visibleEdit
                                           : classes.invisibleEdit
                                       }
@@ -121,7 +121,7 @@ const Table = ({
                                   <RemoveIcon
                                     onClick={() => removeEvent(serviceIndex, rowIndex)}
                                     className={
-                                      isEditMode
+                                      isEditMode && isVisible
                                         ? classes.visibleEdit
                                         : classes.invisibleEdit
                                     }
@@ -149,7 +149,6 @@ const Table = ({
                                   onTaskChange={onTaskChange}
                                   isTimeDisplayed={isTimeDisplayed}
                                   tasksDataSet={tasksDataSet}
-                                  isScheduleModified={isScheduleModified}
                                   isEditMode={isEditMode}
                                   key={`${title}_${serviceIndex}_${rowIndex}_${columnIndex}`}
                                 />
@@ -343,8 +342,8 @@ Table.propTypes = {
   users: PropTypes.array,
   teams: PropTypes.array,
   churchId: PropTypes.number,
-  isScheduleModified: PropTypes.bool,
   incrementChangesCounter: PropTypes.func,
+  isVisible: PropTypes.bool,
 };
 
 export default Table;

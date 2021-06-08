@@ -144,7 +144,6 @@ TasksAutocomplete.propTypes = {
   onChange: PropTypes.func,
   renderOption: PropTypes.func,
   isEditMode: PropTypes.bool,
-  isScheduleModified: PropTypes.bool,
   date: PropTypes.string,
 };
 

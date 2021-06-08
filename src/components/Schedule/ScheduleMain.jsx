@@ -28,12 +28,14 @@ const ScheduleMain = ({
   setAlert,
   deleteSchedule,
   tab,
+  isEditMode,
+  setIsEditMode,
 }) => {
   const classes = useStyles();
   const [dataModel, setDataModel] = useState();
   const [isScheduleModified, setIsScheduleModified] = useState(false);
   const [dialogState, setDialogState] = useState({ isOpen: false, state: '' });
-  const [isEditMode, setIsEditMode] = useState(false);
+  // const [isEditMode, setIsEditMode] = useState(false);
   const changesCounter = useRef(0);
 
   const [schedule, updateSchedule] = useScheduleMainData(
@@ -49,7 +51,7 @@ const ScheduleMain = ({
 
   const DialogConfig = {
     CELLWARNING: {
-      title: 'There are improperly assigned cells',
+      title: 'Improperly assigned cells',
       warningText:
         'Tasks with a red background are improperly assigned. You may save, but you will be unable to publish this schedule until those tasks are assigned properly',
       description: '',
@@ -105,10 +107,10 @@ const ScheduleMain = ({
       className={`main_${scheduleId}`}
       style={{ visibility: isVisible ? 'visible' : 'hidden' }}
     >
-      <Prompt
+      {/* <Prompt
         message="You have unsaved changes, are you sure you want to leave?"
         when={isScheduleModified || isEditMode}
-      />
+      /> */}
       <Toolbar
         handleNewServiceClicked={addService}
         destroySchedule={onDestroySchedule}
@@ -123,12 +125,12 @@ const ScheduleMain = ({
       <Table
         schedule={schedule}
         isEditMode={isEditMode}
+        isVisible={isVisible}
         dataModel={dataModel}
         setDataModel={setDataModel}
         users={users}
         teams={teams}
         churchId={churchId}
-        isScheduleModified={isScheduleModified}
         setIsScheduleModified={setIsScheduleModified}
         incrementChangesCounter={incrementChangesCounter}
       />
@@ -196,7 +198,7 @@ const ScheduleMain = ({
   function saveSchedule() {
     const diff = updatedDiff(schedule.services, dataModel);
     const processedDiff = processUpdate(diff, dataModel);
-    updateSchedule({ tasks: processedDiff });
+    updateSchedule({ tasks: processedDiff, scheduleId });
     resetChangesCounter();
   }
 
@@ -223,7 +225,7 @@ const ScheduleMain = ({
 
   function saveTemplateChanges() {
     const processedChanges = formatData(dataModel, schedule.services, scheduleId);
-    updateSchedule({ ...processedChanges });
+    updateSchedule({ ...processedChanges, scheduleId });
 
     setIsEditMode(false);
   }
@@ -246,6 +248,8 @@ ScheduleMain.propTypes = {
   setAlert: PropTypes.func,
   deleteSchedule: PropTypes.func,
   tab: PropTypes.number,
+  isEditMode: PropTypes.bool,
+  setIsEditMode: PropTypes.func,
 };
 
 export default ScheduleMain;
