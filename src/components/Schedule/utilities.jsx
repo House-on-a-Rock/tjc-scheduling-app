@@ -49,18 +49,18 @@ export const blankTeammate = (churchId) => {
     firstName: '',
     lastName: '',
     email: '',
-    church: { name: '' }, // TODO fill in blank name
+    church: { name: '' }, // TODO pass in blank name
     churchId: churchId,
     disabled: false,
     teams: [],
   };
 };
 
-export const createBlankEvent = (serviceId) => {
+export const createBlankEvent = (serviceId, incrementChangesCounter) => {
   return {
-    eventId: null,
+    eventId: -incrementChangesCounter(),
     cells: [{}, {}],
-    roleId: 1, // placeholder, since it's unknown at time of creation. TODO onsubmit, check that these are assigned and not negative
+    roleId: 1,
     time: '00:00',
     serviceId,
   };
@@ -128,17 +128,17 @@ function extractEvents(eventWrapper) {
   return eventWrapper.reduce((acc, item) => [...acc, ...item.events], []);
 }
 
-export function formatData(dataModel, previousServices) {
+export function formatData(dataModel, previousServices, scheduleId) {
   // returns {
   //     deletedServices: [ deleted serviceIds ],
   //     deletedEvents: [ deleted eventIds ],
-  //     services: [ service objects { serviceId, name, order, day, scheduleId }]
-  //     events: [ event objects { eventId, order, time, roleId, serviceId }]
+  //     dataModel: [{services: serviceId, scheduleId, name, day, events: { time, roleId, eventId, serviceId }}]
   // }
   const updated = {};
+
+  // processing data to make it easier to find deleted
   const servicesObject = convertToObject(previousServices, 'serviceId');
   const dataModelObject = convertToObject(dataModel, 'serviceId');
-
   const servicesEvents = extractEvents(previousServices);
   const dataModelEvents = extractEvents(dataModel);
   const objectifiedDMEvents = convertToObject(dataModelEvents, 'eventId');
@@ -146,8 +146,7 @@ export function formatData(dataModel, previousServices) {
 
   updated.deletedServices = findDeleted(servicesObject, dataModelObject);
   updated.deletedEvents = findDeleted(objectifiedOriginalEvents, objectifiedDMEvents);
-  updated.services = dataModel;
-  updated.events = dataModelEvents;
+  updated.dataModel = { dataModel, scheduleId };
   return updated;
 }
 
@@ -179,12 +178,12 @@ export function rearrangeEvents(prevModel, sourceService, source, destination) {
   return temp;
 }
 
-export function createBlankService(scheduleId) {
+export function createBlankService(scheduleId, incrementChangesCounter) {
   return {
     name: 'New Service',
     day: 0,
     events: [],
-    serviceId: null,
+    serviceId: -incrementChangesCounter(),
     scheduleId,
   };
 }

@@ -8,6 +8,7 @@ const TableCell = ({
   roleId,
   userId = 0,
   taskId = 0,
+  date = 0,
   status = cellStatus.SYNCED,
   time,
   teams,
@@ -58,6 +59,7 @@ const TableCell = ({
     <PlaceHolderCell />
   ) : (
     <TasksAutocomplete
+      taskId={taskId}
       dataId={userId}
       options={augmentDataSet(tasksDataSet, userId, users)}
       status={status}
@@ -65,6 +67,7 @@ const TableCell = ({
       onChange={onTaskChange}
       renderOption={renderOption}
       isEditMode={isEditMode}
+      date={date}
     />
   );
 };

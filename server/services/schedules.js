@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import { daysOfWeek } from '../../shared/constants';
 import db from '../index';
 import {
@@ -16,10 +17,9 @@ import {
 
 const updateRouter = {
   tasks: updateTasks,
-  services: updateServices,
-  events: updateEvents,
   deletedServices: deleteServices,
   deletedEvents: deleteEvents,
+  dataModel: updateModel,
 };
 
 const cellStatus = {
@@ -146,64 +146,142 @@ export const updateSchedule = async (changes) => {
   });
 };
 
-async function updateEvents(events, t) {
+async function updateModel(model, t) {
   await Promise.all(
-    events.map(async (item, index) => {
-      const { eventId, time, roleId, serviceId } = item;
-
-      // TODO look into sequelize db.findOrCreate()
-
-      if (eventId) {
-        const targetEvent = await db.Event.findOne({
-          where: { id: eventId },
-        });
-
-        return targetEvent.update({ time, roleId, order: index }, { transaction: t });
-      } else {
-        // else create new event, and corresponding tasks
-
-        const newEvent = await db.Event.create(
-          { time, roleId, serviceId, order: index },
-          { transaction: t },
-        );
-        const parentService = await db.Service.findOne({
+    model.dataModel.map(async (service, serviceIndex) => {
+      const { name, day, serviceId } = service;
+      let tempServiceId = null;
+      if (serviceId >= 0) {
+        // service exists, update
+        const targetService = await db.Service.findOne({
           where: { id: serviceId },
         });
-        const parentSchedule = await db.Schedule.findOne({
-          where: { id: parentService.scheduleId },
-        });
-        const taskDays = recurringDaysOfWeek(
-          parentSchedule.start,
-          parentSchedule.end,
-          parentService.day,
+        // if service day was changed, update tasks
+        if (targetService.day !== day) {
+          const parentSchedule = await db.Schedule.findOne({
+            where: { id: service.scheduleId },
+          });
+          const taskDays = recurringDaysOfWeek(
+            parentSchedule.start,
+            parentSchedule.end,
+            day,
+          );
+          await updateTaskDates({ taskDays, serviceId, t });
+        }
+        targetService.update(
+          { name: name, day: day, order: serviceIndex },
+          { transaction: t },
         );
-        return Promise.all(
-          taskDays.map((date) =>
-            db.Task.create({ date, eventId: newEvent.id }, { transaction: t }),
-          ),
+      } else {
+        // service doesn't exist, create
+        const newService = await db.Service.create(
+          { name: name, day: day, scheduleId: model.scheduleId, order: serviceIndex },
+          { transaction: t },
         );
+        tempServiceId = newService.id;
       }
+      await Promise.all(
+        service.events.map(async (event, eventIndex) => {
+          const { eventId, time, roleId } = event;
+          // if eventId is not negative, update existing events
+          if (eventId >= 0) {
+            const targetEvent = await db.Event.findOne({
+              where: { id: eventId },
+            });
+            return targetEvent.update(
+              { time, roleId, order: eventIndex },
+              { transaction: t },
+            );
+          } else {
+            // create new events
+            const newEvent = await db.Event.create(
+              {
+                time,
+                roleId,
+                serviceId: tempServiceId === null ? serviceId : tempServiceId,
+                order: eventIndex,
+              },
+              { transaction: t },
+            );
+            const parentSchedule = await db.Schedule.findOne({
+              where: { id: model.scheduleId },
+            });
+            const taskDays = recurringDaysOfWeek(
+              parentSchedule.start,
+              parentSchedule.end,
+              day,
+            );
+            // create new tasks
+            return Promise.all(
+              taskDays.map((date) =>
+                db.Task.create({ date, eventId: newEvent.id }, { transaction: t }),
+              ),
+            );
+          }
+        }),
+      );
     }),
   );
 }
 
-async function updateServices(services, t) {
+async function updateTaskDates({ taskDays, serviceId, t }) {
+  const events = await db.Event.findAll({
+    where: { serviceId: serviceId },
+  });
   await Promise.all(
-    services.map(async (item, index) => {
-      const { name, day, scheduleId, serviceId } = item;
-      if (serviceId) {
-        const targetService = await db.Service.findOne({
-          where: { id: serviceId },
-        });
-        return targetService.update(
-          { name: name, day: day, order: index },
-          { transaction: t },
-        );
-      } else {
-        return db.Service.create(
-          { name: name, day: day, scheduleId: scheduleId, order: index },
-          { transaction: t },
-        );
+    events.map(async (event) => {
+      const tasks = await db.Task.findAll({
+        where: { eventId: event.id },
+        order: [['date', 'ASC']],
+      });
+      switch (tasks.length - taskDays.length) {
+        case -1:
+          if (isSameWeek(tasks[0].date, taskDays[0])) {
+            await db.Task.create({
+              date: taskDays[taskDays.length - 1],
+              eventId: event.id,
+            });
+            await Promise.all(
+              tasks.map(async (task, index) =>
+                task.update({ date: taskDays[index] }, { transaction: t }),
+              ),
+            );
+          } else {
+            await db.Task.create({
+              date: taskDays[0],
+              eventId: event.id,
+            });
+            await Promise.all(
+              tasks.map(async (task, index) =>
+                task.update({ date: taskDays[index + 1] }, { transaction: t }),
+              ),
+            );
+          }
+          break;
+        case 1:
+          if (isSameWeek(tasks[0].date, taskDays[0])) {
+            await tasks[tasks.length - 1].destroy();
+            await Promise.all(
+              tasks.map(async (task, index) =>
+                task.update({ date: taskDays[index] }, { transaction: t }),
+              ),
+            );
+          } else {
+            await Promise.all(
+              taskDays.map(async (taskDay, index) => {
+                tasks[index + 1].update({ date: taskDay }, { transaction: t });
+              }),
+            );
+            await tasks[0].destroy();
+          }
+          break;
+        default:
+          await Promise.all(
+            tasks.map(async (task, index) =>
+              task.update({ date: taskDays[index] }, { transaction: t }),
+            ),
+          );
+          break;
       }
     }),
   );
@@ -319,6 +397,7 @@ async function retrieveTaskData(eventId, firstWeek, lastWeek, userIds) {
     return {
       taskId: task.id,
       userId: task.userId,
+      date: task.date,
       // if role does not match, cell will receive 'warning' status and will appear red in frontend
       status:
         doesRoleMatch >= 0 || task.userId === null
@@ -327,11 +406,12 @@ async function retrieveTaskData(eventId, firstWeek, lastWeek, userIds) {
     };
   });
   // adds a spacer cell for when a service does not exist on that date
-
-  if (!containsDate(firstWeek, tasks[0].date))
-    organizedTasks.unshift({ taskId: null, userId: null });
-  if (!containsDate(lastWeek, tasks[tasks.length - 1].date))
-    organizedTasks.push({ taskId: null, userId: null });
+  if (tasks.length > 0) {
+    if (!containsDate(firstWeek, tasks[0].date))
+      organizedTasks.unshift({ taskId: null, userId: null });
+    if (!containsDate(lastWeek, tasks[tasks.length - 1].date))
+      organizedTasks.push({ taskId: null, userId: null });
+  }
   return organizedTasks;
 }
 
@@ -342,4 +422,14 @@ function createColumns(weekRange) {
     { Header: 'Duty' },
     ...formatDates(weekRange),
   ];
+}
+
+function isSameWeek(date1, date2) {
+  const d1 = new Date(date1);
+  const d2 = new Date(date2);
+  const weekStart = new Date(date1);
+  const sevenDaysToMilliseconds = 7 * 24 * 60 * 60 * 1000;
+
+  weekStart.setDate(d1.getDate() - d1.getDay());
+  return d2 - weekStart < sevenDaysToMilliseconds && d2 - weekStart >= 0;
 }
