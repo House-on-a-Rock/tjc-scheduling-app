@@ -1,4 +1,5 @@
 import crypto from 'crypto';
+
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -24,6 +25,7 @@ const UserFactory = (sequelize, DataTypes) => {
       type: DataTypes.BOOLEAN,
       defaultValue: false,
     },
+    gender: { type: DataTypes.STRING(255) },
     loginAttempts: {
       type: DataTypes.INTEGER,
       allowNull: false,
@@ -51,30 +53,29 @@ const UserFactory = (sequelize, DataTypes) => {
 
   const User = sequelize.define('User', attributes);
 
-  User.generateSalt = function () {
-    return crypto.randomBytes(16).toString('base64');
-  };
+  User.generateSalt = () => crypto.randomBytes(16).toString('base64');
 
-  User.encryptPassword = function (plainText, salt) {
+  User.encryptPassword = (plainText, salt) => {
     const hash = process.env.SECRET_HASH ? process.env.SECRET_HASH : '';
     return crypto.createHash(hash).update(plainText).update(salt).digest('hex');
   };
 
   const createSaltyPassword = (user) => {
+    const newUser = { ...user };
     if (user.changed('password')) {
       const verySalty = User.generateSalt();
-      user.salt = verySalty;
-      user.password = User.encryptPassword(user.password, verySalty);
+      newUser.salt = verySalty;
+      newUser.password = User.encryptPassword(user.password, verySalty);
     }
+    return newUser;
   };
 
   User.beforeBulkCreate((users) => users.map((user) => createSaltyPassword(user)));
   User.beforeCreate(createSaltyPassword);
   User.beforeUpdate(createSaltyPassword);
 
-  User.associate = (models) => {
+  User.associate = (models) =>
     User.belongsTo(models.Church, { as: 'church', foreignKey: 'churchId' });
-  };
 
   return User;
 };

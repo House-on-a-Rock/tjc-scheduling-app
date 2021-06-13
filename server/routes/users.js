@@ -1,7 +1,6 @@
 import crypto from 'crypto';
 
-import express, { Request, Response } from 'express';
-import nodemailer from 'nodemailer';
+import express from 'express';
 import Sequelize from 'sequelize';
 
 import db from '../index';

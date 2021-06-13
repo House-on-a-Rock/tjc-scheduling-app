@@ -8,7 +8,7 @@ dotenv.config();
 const env = process.env.NODE_ENV ?? 'development';
 
 const config = configJson[env];
-config.logging = false;
+config.logging = true;
 
 const db = createModels(config.database, config.username, config.password, config);
 

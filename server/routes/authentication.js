@@ -1,25 +1,22 @@
+/* eslint-disable max-lines */
 import crypto from 'crypto';
 
 import express from 'express';
-import { jwt, TokenExpiredError, JsonWebTokenError } from 'jsonwebtoken';
+import jwt, { TokenExpiredError, JsonWebTokenError } from 'jsonwebtoken';
 
 import db from '../index';
 import {
   addMinutes,
   createUserToken,
-  createResetToken,
+  createJWTToken,
   hashPassword,
-  sendGenericEmail,
+  sendEmail,
   sendVerEmail,
   certify,
 } from '../utilities/helperFunctions';
 
 // to destructure db into { Token, User}, cannot use default exports
 const router = express.Router();
-
-// router.get('/', function (req, res, next) {
-//   res.render('index', { title: 'Express' });
-// });
 
 router.get('/confirmation', async (req, res, next) => {
   try {
@@ -289,12 +286,15 @@ router.post('/sendResetEmail', async (req, res, next) => {
     const { isVerified, id, password } = user;
 
     if (user && isVerified) {
-      const token = createResetToken(id, 15, password);
+      const token = createJWTToken({ userId: id, expirationInMin: 15, secret: password });
       const [tokenHeader, tokenPayload, tokenSignature] = token.split('.');
-      sendGenericEmail(
+      const link = `${process.env.DEV_SERVER_API_URL}/auth/checkResetToken?header=${tokenHeader}&payload=${tokenPayload}&signature=${tokenSignature}`;
+      sendEmail({
         email,
-        `http://localhost:8080/api/authentication/checkResetToken?header=${tokenHeader}&payload=${tokenPayload}&signature=${tokenSignature}`,
-      );
+        link,
+        subject: 'Reset Your Password',
+        text: `Hello,\n\n Please reset your password to your account by clicking the link: \n${link}`,
+      });
       return res.status(201).send({ message: 'Recovery token created' });
     }
     return res.status(404).send({ message: 'User is not found' });
@@ -316,22 +316,43 @@ router.get('/checkResetToken', async (req, res, next) => {
       attributes: ['id', 'email', 'password', 'isVerified'],
     });
     jwt.verify(`${header}.${payload}.${signature}`, password);
-    // res.status(200).send({ message: 'token valid' }); // replace with res.redirect
 
-    // These commented out lines is what you need. I just dunno how the jwt works, but this is how it should work.
-    // (jwt === verified) ?
     return res.redirect(
-      `http://localhost:8080/auth/resetPassword?token=${header}.${payload}.${signature}`,
+      `${process.env.DEV_SERVER_API_URL}/auth/resetPassword?token=${header}.${payload}.${signature}`,
     );
-    // : res.redirect(`http://localhost:8081/auth/expiredAccess?message='TokenExpired'`)
-    // also if you could change the way that "Token Expired" string is sent, I think you have to
-    // const querystring = require('querystring');
-    // const message = querystring.stringify({message:"TokenExpired", status:401})
-    // : res.redirect(`http://localhost:8081/auth/expiredAccess?message=${message}`)
   } catch (err) {
     if (err instanceof TokenExpiredError)
       return res.redirect(
-        `http://localhost:8081/auth/expiredAccess?message=TokenExpired&status=401`,
+        `${process.env.DEV_SERVER_API_URL}/auth/expiredAccess?message=TokenExpired&status=401`,
+      );
+
+    if (err instanceof JsonWebTokenError)
+      return res.status(400).send({ message: 'No token found' });
+    next(err);
+    return res.status(503).send({ message: 'Server error, try again later' });
+  }
+});
+
+router.get('/checkAvailabilityToken', async (req, res, next) => {
+  const { header, payload, signature } = req.query;
+  try {
+    const decodedToken = jwt.decode(`${header}.${payload}.${signature}`, {
+      json: true,
+    });
+    const requestId = decodedToken?.sub.split('|')[1];
+
+    const { password } = await db.User.findOne({
+      where: { id: parseInt(requestId, 10) },
+      attributes: ['id', 'email', 'password', 'isVerified'],
+    });
+
+    jwt.verify(`${header}.${payload}.${signature}`, password);
+
+    return res.redirect(`${process.env.DEV_REACT_APP_URL}/home`);
+  } catch (err) {
+    if (err instanceof TokenExpiredError)
+      return res.redirect(
+        `${process.env.DEV_SERVER_API_URL}/auth/expiredAccess?message=TokenExpired&status=401`,
       );
 
     if (err instanceof JsonWebTokenError)

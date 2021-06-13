@@ -2,6 +2,7 @@
 import crypto from 'crypto';
 import fs from 'fs';
 
+import sgMail from '@sendgrid/mail';
 import jwt, { TokenExpiredError, JsonWebTokenError } from 'jsonwebtoken';
 import { DateTime } from 'luxon';
 import nodemailer from 'nodemailer';
@@ -28,41 +29,24 @@ export function certify(req, res, next) {
   }
 }
 
-export function sendGenericEmail(username, link) {
+export async function sendEmail({ email, text = '', subject = '' }) {
   try {
-    console.log('Sending email..');
-    const transporter = nodemailer.createTransport({
-      service: 'Sendgrid',
-      auth: {
-        user: process.env.VER_EMAIL,
-        pass: process.env.VER_PASS,
-      },
-    });
-    // send confirmation email
-    const mailOptions = {
-      from: 'alraneus@gmail.com',
-      to: username,
-      subject: 'Password Reset',
-      text: `Hello,\n\n Please reset your password to your account by clicking the link: \n${link}`,
+    sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+    const msg = {
+      from: process.env.PERSONAL_EMAIL,
+      to: email,
+      subject,
+      text,
     };
-    transporter.sendMail(mailOptions, (err) => {
-      if (err) {
-        console.log(err);
-        return false;
-      }
-      return true;
-    });
-  } catch (err) {
-    console.error(err);
+
+    const mailResponse = await sgMail.send(msg);
+    return mailResponse;
+  } catch (error) {
+    return error;
   }
 }
 
-export function sendVerEmail(
-  username,
-  { hostname }, // https://github.com/getsentry/raven-node/issues/96
-  token,
-  api,
-) {
+export function sendVerEmail(username, { hostname }, token, api) {
   try {
     console.log('Sending email..');
     const message =
@@ -79,7 +63,7 @@ export function sendVerEmail(
     });
     // send confirmation email
     const mailOptions = {
-      from: 'shaun.tung@gmail.com',
+      from: process.env.PERSONAL_EMAIL,
       to: username,
       subject: 'Account Verification Token',
       text: `Hello,\n\n Please verify your account by clicking the link: \nhttp://${hostname}/api/authentication/${api}?token=${token}`,
@@ -133,13 +117,13 @@ export function createUserToken(
 
   return token;
 }
-export function createResetToken(userId, expiresInMinutes, secret) {
-  console.log('Creating reset token');
+export function createJWTToken({ userId, expirationInMin, secret }) {
+  // console.log('Creating JWT token');
   const token = jwt.sign(
     {
       iss: process.env.AUDIENCE,
       sub: `tjc-scheduling|${userId}`,
-      exp: Math.floor(Date.now() / 1000) + expiresInMinutes * 60,
+      exp: Math.floor(Date.now() / 1000) + expirationInMin * 60,
     },
     secret,
   );

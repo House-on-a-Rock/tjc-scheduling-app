@@ -19,6 +19,7 @@ app.get('/', (req, res, next) => {
 });
 
 app.use('/api/auth', require('./routes/authentication').default);
+app.use('/api', require('./routes/availabilities').default);
 app.use('/api', require('./routes/churches').default);
 app.use('/api', require('./routes/users').default);
 app.use('/api', require('./routes/tasks').default);

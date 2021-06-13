@@ -15,6 +15,9 @@ const TokenFactory = (sequelize, DataTypes) => {
       type: DataTypes.DATE,
       defaultValue: Date.now(),
     },
+    type: {
+      type: DataTypes.STRING,
+    },
   };
 
   const Token = sequelize.define('Token', attributes);

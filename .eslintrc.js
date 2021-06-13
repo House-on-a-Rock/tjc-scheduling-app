@@ -138,6 +138,7 @@ module.exports = {
     'no-implicit-globals': 'error',
     'no-implied-eval': 'error',
     'no-inline-comments': 'off',
+    'no-inner-declarations': 'off',
     'no-invalid-this': 'error',
     'no-iterator': 'error',
     'no-label-var': 'error',

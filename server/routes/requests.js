@@ -1,8 +1,9 @@
-import express from 'express';
 import axios from 'axios';
+import express from 'express';
 import jwt from 'jsonwebtoken';
-import { certify, determineLoginId } from '../utilities/helperFunctions';
+
 import db from '../index';
+import { certify, determineLoginId } from '../utilities/helperFunctions';
 
 const router = express.Router();
 
@@ -151,13 +152,11 @@ router.patch('/requests/accept/:requestId', certify, async (req, res, next) => {
     const [message, status] = determineMessageStatus(request, accepted, approved);
 
     if (status === 202) {
-      type === 'requestAll'
-        ? await request.update({
-            requestId,
-            accepted: true,
-            requesteeUserId: acceptingUserId,
-          })
-        : await request.update({ requestId, accepted: true });
+      await request.update({
+        requestId,
+        accepted: true,
+        requesteeUserId: type === 'requestAll' ? acceptingUserId : null,
+      });
       postNotification(requestId, userId, 'accepted', message, authorization);
     }
 

@@ -1,5 +1,6 @@
 import Sequelize from 'sequelize';
 
+import AvailabilityFactory from './Availability';
 import ChurchFactory from './Church';
 import EventFactory from './Event';
 import NotificationFactory from './Notification';
@@ -11,6 +12,7 @@ import TaskFactory from './Task';
 import TemplateFactory from './Template';
 import TokenFactory from './Token';
 import UserFactory from './User';
+import UserAvailabilityFactory from './User_Availability';
 import UserRoleFactory from './User_Role';
 
 const createModels = (database, username, password, config) => {
@@ -19,6 +21,7 @@ const createModels = (database, username, password, config) => {
   const db = {
     sequelize,
     Sequelize,
+    Availability: AvailabilityFactory(sequelize, Sequelize),
     Church: ChurchFactory(sequelize, Sequelize),
     Event: EventFactory(sequelize, Sequelize),
     Notification: NotificationFactory(sequelize, Sequelize),
@@ -29,6 +32,7 @@ const createModels = (database, username, password, config) => {
     Service: ServiceFactory(sequelize, Sequelize),
     Token: TokenFactory(sequelize, Sequelize),
     User: UserFactory(sequelize, Sequelize),
+    UserAvailability: UserAvailabilityFactory(sequelize, Sequelize),
     UserRole: UserRoleFactory(sequelize, Sequelize),
     Template: TemplateFactory(sequelize, Sequelize),
   };
