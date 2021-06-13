@@ -318,12 +318,12 @@ router.get('/checkResetToken', async (req, res, next) => {
     jwt.verify(`${header}.${payload}.${signature}`, password);
 
     return res.redirect(
-      `${process.env.DEV_SERVER_API_URL}/auth/resetPassword?token=${header}.${payload}.${signature}`,
+      `${process.env.DEV_SERVER_API_URL}/auth/reset-password?token=${header}.${payload}.${signature}`,
     );
   } catch (err) {
     if (err instanceof TokenExpiredError)
       return res.redirect(
-        `${process.env.DEV_SERVER_API_URL}/auth/expiredAccess?message=TokenExpired&status=401`,
+        `${process.env.DEV_SERVER_API_URL}/auth/expired-access?message=TokenExpired&status=401`,
       );
 
     if (err instanceof JsonWebTokenError)
@@ -348,11 +348,13 @@ router.get('/checkAvailabilityToken', async (req, res, next) => {
 
     jwt.verify(`${header}.${payload}.${signature}`, password);
 
-    return res.redirect(`${process.env.DEV_REACT_APP_URL}/home`);
+    return res.redirect(
+      `${process.env.DEV_REACT_APP_URL}/submit-availabilities/${header}.${payload}.${signature}`,
+    );
   } catch (err) {
     if (err instanceof TokenExpiredError)
       return res.redirect(
-        `${process.env.DEV_SERVER_API_URL}/auth/expiredAccess?message=TokenExpired&status=401`,
+        `${process.env.DEV_SERVER_API_URL}/auth/expired-access?message=TokenExpired&status=401`,
       );
 
     if (err instanceof JsonWebTokenError)
@@ -362,7 +364,7 @@ router.get('/checkAvailabilityToken', async (req, res, next) => {
   }
 });
 
-router.post('/resetPassword', certify, async (req, res, next) => {
+router.post('/reset-password', certify, async (req, res, next) => {
   try {
     const { authorization = '' } = req.headers;
     const { password: newPassword, email: queryEmail } = req.body;

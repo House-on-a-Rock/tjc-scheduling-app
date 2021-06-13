@@ -15,6 +15,7 @@ const config = {
   output: {
     filename: 'bundle.[chunkhash].js',
     path: path.resolve(__dirname, 'dist/'),
+    publicPath: '/',
   },
   devServer: {
     contentBase: 'dist',

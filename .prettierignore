@@ -2,6 +2,7 @@
 ## file extensions
 *.*
 !*.css
+!*.jsx
 !*.js
 !*.json
 !*.sass

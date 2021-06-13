@@ -1,11 +1,12 @@
 import React from 'react';
-import { useQuery } from '../../shared/utilities';
+// import { useQuery } from '../../shared/utilities';
 
 const ErrorPage = () => {
-  const query = useQuery();
+  // const query = useQuery();
   return (
     <>
-      You on a wrong page son {query.get('status')}: {query.get('message')}
+      {/* You on a wrong page son {query.get('status')}: {query.get('message')} */}Error
+      page
     </>
   );
 };

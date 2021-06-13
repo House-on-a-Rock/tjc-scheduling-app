@@ -17,12 +17,9 @@ export default function IApp() {
           <Route path="/auth">
             <Auth />
           </Route>
-          <PrivateRoute redirection="/auth/login" condition="token" path="/">
+          <PrivateRoute path="/" redirection="/auth/login" condition="token">
             <Main />
           </PrivateRoute>
-          <Route path="/submit-availabilities/:tokenId">
-            {/* <TBD /> */}
-          </Route>
         </Switch>
       </Router>
     </AuthProvider>

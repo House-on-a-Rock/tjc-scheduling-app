@@ -11,13 +11,13 @@ import Container from '@material-ui/core/Container';
 // Custom
 import TransitionsModal from '../shared/TransitionsModal';
 import { PasswordStrengthMeter, PasswordForm } from '../FormControl';
-import { useQuery } from '../../shared/utilities/helperFunctions';
+// import { useQuery } from '../../shared/utilities/helperFunctions';
 import { sendNewPassword } from '../../apis';
 
 const ResetPassword = () => {
   const classes = useStyles();
-  const query = useQuery();
-  const token = query.get('token') ?? '';
+  // const query = useQuery();
+  // const token = query.get('token') ?? '';
 
   const [password, setPassword] = useState({
     value: '',
@@ -115,7 +115,7 @@ const ResetPassword = () => {
         valid: true,
         message: '',
       });
-      const { status, statusText } = await sendNewPassword(token, newPasswordValue);
+      const { status, statusText } = await sendNewPassword('', newPasswordValue);
       if (status < 300) setLoading('LOADED');
     }
   }

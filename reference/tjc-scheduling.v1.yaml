@@ -1223,7 +1223,7 @@ paths:
       responses:
         '200':
           description: OK
-  /authentication/resetPassword:
+  /authentication/reset-password:
     post:
       summary: Reset password
       tags: []
@@ -1254,7 +1254,7 @@ paths:
                 example-1:
                   value:
                     message: User does not exist or is not verified'
-      operationId: post-authentication-resetPassword
+      operationId: post-authentication-reset-password
       description: Endpoint that resets user password
       requestBody:
         content:

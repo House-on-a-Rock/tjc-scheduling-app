@@ -22,7 +22,7 @@ export function authenticateLogin(email, password) {
 
 export function sendNewPassword(token, newPassword) {
   return axios.post(
-    `${secretIp}/api/auth/resetPassword`,
+    `${secretIp}/api/auth/reset-password`,
     { email: 'shaun.tung@gmail.com', password: newPassword },
     { headers: { authorization: token } },
   );

@@ -163,7 +163,7 @@ const Login = () => {
 
       <Grid container>
         <Grid item xs>
-          <RouterLink to="/auth/forgotPassword">Forgot password</RouterLink>
+          <RouterLink to="/auth/forgot-password">Forgot password</RouterLink>
         </Grid>
       </Grid>
 
