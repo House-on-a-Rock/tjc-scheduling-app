@@ -117,12 +117,15 @@ export function createUserToken(
 
   return token;
 }
-export function createJWTToken({ userId, expirationInMin, secret }) {
-  // console.log('Creating JWT token');
+export function createJWTToken({ userId, expirationInMin, secret, extra = [] }) {
+  const consolidatedData = () => {
+    const extraData = extra.length > 0 ? `|${extra.join('|')}` : '';
+    return `tjc-scheduling|${userId}${extraData}`;
+  };
   const token = jwt.sign(
     {
       iss: process.env.AUDIENCE,
-      sub: `tjc-scheduling|${userId}`,
+      sub: consolidatedData(),
       exp: Math.floor(Date.now() / 1000) + expirationInMin * 60,
     },
     secret,

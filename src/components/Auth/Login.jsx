@@ -65,8 +65,7 @@ const Login = () => {
     setEmail({ ...email, valid: true, message: '' });
     setPassword({ ...password, valid: true, message: '' });
     if (isValidEmail(email.value) && password.value.length) {
-      const res = await authenticateLogin(email.value, password.value);
-      const { data, status, statusText } = res;
+      const { data } = await authenticateLogin(email.value, password.value);
       const { token } = data;
       if (token) {
         axios.defaults.headers.common.authorization = token;

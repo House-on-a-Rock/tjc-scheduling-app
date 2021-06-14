@@ -333,24 +333,34 @@ router.get('/checkResetToken', async (req, res, next) => {
   }
 });
 
-router.get('/checkAvailabilityToken', async (req, res, next) => {
-  const { header, payload, signature } = req.query;
+router.post('/verify-availability', async (req, res, next) => {
   try {
-    const decodedToken = jwt.decode(`${header}.${payload}.${signature}`, {
-      json: true,
+    const { token: requestToken } = req.body;
+    // get password from token
+    const token = `${requestToken.header}.${requestToken.payload}.${requestToken.signature}`;
+    const decodedToken = jwt.decode(token, { json: true });
+    if (!decodedToken) return res.status(401).send("You can't sit here!");
+
+    const [_, userId, availabilityId] = decodedToken.sub.split('|');
+    const userAvailailability = await db.UserAvailability.findOne({
+      where: { userId, availabilityId },
     });
-    const requestId = decodedToken?.sub.split('|')[1];
 
-    const { password } = await db.User.findOne({
-      where: { id: parseInt(requestId, 10) },
-      attributes: ['id', 'email', 'password', 'isVerified'],
+    const user = await db.User.findOne({
+      where: { id: userId },
+      attributes: ['id', 'firstName', 'lastName', 'password', 'isVerified'],
     });
+    jwt.verify(token, user.password);
+    if (!userAvailailability) return res.status(404);
 
-    jwt.verify(`${header}.${payload}.${signature}`, password);
+    const safeUserData = {
+      id: user.id,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      availabilityId,
+    };
 
-    return res.redirect(
-      `${process.env.DEV_REACT_APP_URL}/submit-availabilities/${header}.${payload}.${signature}`,
-    );
+    return res.status(201).json(safeUserData);
   } catch (err) {
     if (err instanceof TokenExpiredError)
       return res.redirect(

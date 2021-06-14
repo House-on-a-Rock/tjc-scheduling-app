@@ -27,3 +27,7 @@ export function sendNewPassword(token, newPassword) {
     { headers: { authorization: token } },
   );
 }
+
+export function verifyUserAvailabilities(token) {
+  return axios.post(`${secretIp}/api/auth/verify-availability`, { token });
+}

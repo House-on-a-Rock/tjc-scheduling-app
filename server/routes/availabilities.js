@@ -26,6 +26,11 @@ function calculateTimeFromNow({ type, date }) {
   return difference / modifier[type];
 }
 
+// router.get('/availability', async (req, res, next) => {
+//   const { token } = req.query;
+//   console.log(token);
+// });
+
 router.post('/availabilities', async (req, res, next) => {
   const { deadline, start, end, churchId } = req.body;
 
@@ -76,9 +81,10 @@ router.post('/availabilities', async (req, res, next) => {
             userId,
             expirationInMin: calculateTimeFromNow({ type: MINUTE, date: deadline }),
             secret: password,
+            extra: [newAvailabilityRequest.id.toString()],
           });
           const [tokenHeader, tokenPayload, tokenSignature] = token.split('.');
-          const link = `${process.env.DEV_SERVER_API_URL}/auth/checkAvailabilityToken?header=${tokenHeader}&payload=${tokenPayload}&signature=${tokenSignature}`;
+          const link = `${process.env.DEV_REACT_APP_URL}/submit-availabilities?header=${tokenHeader}&payload=${tokenPayload}&signature=${tokenSignature}`;
           const mailResponse = sendEmail({
             email: process.env.PERSONAL_EMAIL,
             text: `Hallelujah ${title[gender]} ${firstName} ${lastName},\n\n Please send your availabilities between the dates ${start} to ${end} by clicking the link: \n${link}\n\n Please submit by ${deadline}`,

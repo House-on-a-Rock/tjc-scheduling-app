@@ -1,12 +1,7 @@
+import { Container } from '@material-ui/core';
 import React from 'react';
 import { Redirect, Route, Switch, useRouteMatch } from 'react-router-dom';
-import {
-  ErrorPage,
-  Login,
-  ResetPassword,
-  AuthEmail,
-  SubmitAvailabilities,
-} from '../components/Auth';
+import { ErrorPage, Login, ResetPassword, AuthEmail } from '../components/Auth';
 
 const Auth = () => {
   const { path } = useRouteMatch();
@@ -31,9 +26,6 @@ const Auth = () => {
       </Route>
       <Route path={`${path}/reset-password`}>
         <ResetPassword />
-      </Route>
-      <Route path={`${path}/submit-availabilities/:token`}>
-        <SubmitAvailabilities />
       </Route>
       <Route path={`${path}/`}>
         <Redirect to={`${path}/login`} />

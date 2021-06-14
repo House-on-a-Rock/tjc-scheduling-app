@@ -230,7 +230,7 @@ module.exports = {
     'prefer-spread': 'error',
     'prefer-template': 'error',
     'quote-props': 'off',
-    quotes: ['error', 'single', { allowTemplateLiterals: true }],
+    quotes: ['error', 'single', { allowTemplateLiterals: true, avoidEscape: true }],
     radix: 'off',
     'require-atomic-updates': 'error',
     'require-await': 'off',

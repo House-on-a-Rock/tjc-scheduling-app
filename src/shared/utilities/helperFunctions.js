@@ -7,7 +7,7 @@ export function errorDataExtractor(error) {
   };
 }
 
-// export const useQuery = () => new URLSearchParams(useLocation().search);
+export const getURLParams = () => new URLSearchParams(useLocation().search);
 
 export const getLocalStorageItem = (key) => {
   const storedContent = JSON.parse(localStorage.getItem(key));

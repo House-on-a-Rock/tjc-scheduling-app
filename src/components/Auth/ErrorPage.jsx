@@ -1,14 +1,17 @@
 import React from 'react';
-// import { useQuery } from '../../shared/utilities';
+import PropTypes from 'prop-types';
 
-const ErrorPage = () => {
-  // const query = useQuery();
+const ErrorPage = ({ type }) => {
   return (
     <>
-      {/* You on a wrong page son {query.get('status')}: {query.get('message')} */}Error
-      page
+      Error page
+      {type === 'expired' && 'Token Expired'}
     </>
   );
+};
+
+ErrorPage.propTypes = {
+  type: PropTypes.string,
 };
 
 export default ErrorPage;
