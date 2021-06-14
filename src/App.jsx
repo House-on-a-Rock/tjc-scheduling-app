@@ -5,16 +5,16 @@ import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import Auth from './routes/auth';
 import Main from './routes/main';
 import SubmitAvailabilities from './routes/SubmitAvailabilities';
-import { PrivateRoute, AuthProvider } from './components/Auth';
+import { PrivateRoute, AuthProvider, ErrorPage } from './components/Auth';
 
 import './assets/fonts.css';
 import './assets/global.css';
-// import { ErrorPage } from './components/shared';
+import history from './shared/services/history';
 
 export default function IApp() {
   return (
     <AuthProvider>
-      <Router>
+      <Router history={history}>
         <Switch>
           <Route path="/auth">
             <Auth />
@@ -22,9 +22,9 @@ export default function IApp() {
           <Route path="/submit-availabilities">
             <SubmitAvailabilities />
           </Route>
-          {/* <Route path="/error">
+          <Route path="/error">
             <ErrorPage />
-          </Route> */}
+          </Route>
           <PrivateRoute path="/" redirection="/auth/login" condition="token">
             <Main />
           </PrivateRoute>

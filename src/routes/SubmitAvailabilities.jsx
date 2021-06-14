@@ -1,15 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { Switch, Route, useParams, useRouteMatch, useLocation } from 'react-router-dom';
+import { Switch } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
 // Material UI
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
+import { PrivateRoute } from '../components/Auth';
 import { verifyUserAvailabilities } from '../apis';
 import { getURLParams } from '../shared/utilities/helperFunctions';
+import { setLocalStorageState, removeLocalStorageState } from '../shared/utilities';
 
 const SubmitAvailabilities = () => {
   const urlParams = getURLParams();
+  const [checkingToken, setCheckingToken] = useState(true);
   useEffect(async () => {
     const token = {
       header: urlParams.get('header'),
@@ -17,13 +20,19 @@ const SubmitAvailabilities = () => {
       signature: urlParams.get('signature'),
     };
     async function verifyToken() {
+      setCheckingToken(true);
       try {
         const response = await verifyUserAvailabilities({ ...token });
-        console.log({ response });
+        setLocalStorageState(
+          'access_token',
+          `${token.header}.${token.payload}.${token.signature}`,
+        );
+        setCheckingToken(false);
         return response;
       } catch (err) {
         console.log(err);
-        return err;
+        removeLocalStorageState('access_token');
+        return setCheckingToken(false);
       }
     }
     verifyToken();
@@ -31,12 +40,16 @@ const SubmitAvailabilities = () => {
 
   return (
     <Switch>
-      <Route></Route>
+      {!checkingToken && (
+        <PrivateRoute path="/" redirection="/error" condition="token">
+          Submit Availabilities
+        </PrivateRoute>
+      )}
     </Switch>
   );
 };
 
-const useStyles = makeStyles((theme) => ({}));
+// const useStyles = makeStyles((theme) => ({}));
 
 // SubmitAvailabilities.propTypes = {
 //   data: PropTypes.object,

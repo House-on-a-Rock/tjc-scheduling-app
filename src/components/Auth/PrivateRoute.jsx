@@ -11,7 +11,13 @@ const validateUser = (condition, token) => {
   return token && !!userId;
 };
 
-export const PrivateRoute = ({ children, redirection, condition, ...rest }) => {
+export const PrivateRoute = ({
+  children,
+  redirection,
+  condition,
+  // requireLogin = false,
+  ...rest
+}) => {
   const auth = useContext(AuthContext);
   const token = useToken();
   const isValidToken = validateUser(condition, token);

@@ -353,6 +353,9 @@ router.post('/verify-availability', async (req, res, next) => {
     jwt.verify(token, user.password);
     if (!userAvailailability) return res.status(404);
 
+    if (userAvailailability.unavailabilities)
+      return res.status(409).send('You already have availabilities filled out');
+
     const safeUserData = {
       id: user.id,
       firstName: user.firstName,
