@@ -47,8 +47,6 @@ const ScheduleContainer = ({ churchId, setAlert }) => {
     },
   };
 
-  console.log(`tabs`, tabs);
-
   return (
     <div className={!loaded ? classes.loading : ''}>
       {loaded && (
@@ -89,9 +87,6 @@ const ScheduleContainer = ({ churchId, setAlert }) => {
               error={createSchedule.error}
             />
           )}
-          {/* {alert && (
-            <Alert alert={alert} isOpen={!!alert} handleClose={() => setAlert(null)} />
-          )} */}
           {dialogState.isOpen && (
             <CustomDialog
               open={dialogState.isOpen}
@@ -108,10 +103,8 @@ const ScheduleContainer = ({ churchId, setAlert }) => {
     createSchedule.reset();
   }
 
-  function onCreateScheduleSuccess(res) {
+  function onCreateScheduleSuccess() {
     setIsNewScheduleOpen(false);
-    setAlert(res);
-
     const newTab = tabs.length;
     setOpenedTabs((t) => [...t, newTab]);
     setViewedTab(newTab);

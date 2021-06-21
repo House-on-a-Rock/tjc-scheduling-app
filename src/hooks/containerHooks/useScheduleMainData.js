@@ -45,6 +45,7 @@ const useScheduleMainData = (
   // create template
   const createNewTemplate = useMutation(createTemplate, {
     onSuccess: (res) => {
+      console.log('created new template', res);
       queryClient.setQueryData('templates', res.data);
       setIsTemplateFormOpen(false);
       setAlert(res);

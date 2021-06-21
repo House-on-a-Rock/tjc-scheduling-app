@@ -42,9 +42,9 @@ const useScheduleContainerData = (
 
   const createSchedule = useMutation(postSchedule, {
     onSuccess: (res) => {
-      console.log(`res`, res);
+      setAlert(res);
       queryClient.setQueryData('tabs', res.data);
-      onCreateScheduleSuccess(res);
+      onCreateScheduleSuccess();
     },
     // if the error is the title already exists, the form handles it. other errors tho?
     // onError: (res) => {
@@ -61,7 +61,6 @@ const useScheduleContainerData = (
       { scheduleId, title, churchId },
       {
         onSuccess: (res) => {
-          console.log(`res`, res);
           onDeleteScheduleSuccess(tab);
           queryClient.setQueryData('tabs', res.data);
           setIsEditMode(false);
@@ -70,7 +69,7 @@ const useScheduleContainerData = (
     );
 
   const returnData = {
-    loaded: !isTabsLoading && !isUsersLoading && !isTeamsLoading,
+    loaded: !isTabsLoading && !isUsersLoading && !isTeamsLoading && !isTemplatesLoading,
     tabs: isTabsLoading ? null : tabsData.data,
     users: isUsersLoading ? null : usersData,
     teams: isTeamsLoading ? null : teamsData.data,
