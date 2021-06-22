@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient } from 'react-query';
 import { deleteTemplate, getTemplates, postSchedule } from '../../apis';
 import { useQueryConfig } from './shared';
 
-const useTemplateContainer = (churchId, onSuccessHandler) => {
+const useTemplateContainer = (churchId, setIsNewScheduleOpen, setAlert, history) => {
   const queryClient = useQueryClient();
 
   const { isLoading, data: templateData } = useQuery(
@@ -12,11 +12,11 @@ const useTemplateContainer = (churchId, onSuccessHandler) => {
   );
 
   const createSchedule = useMutation(postSchedule, {
-    onSuccess: () => {
-      queryClient.invalidateQueries('tabs');
-      queryClient.invalidateQueries('schedules');
-      // TODO navigate to created schedule?
-      onSuccessHandler(false);
+    onSuccess: (res) => {
+      queryClient.setQueryData('tabs', res.data);
+      setIsNewScheduleOpen(false);
+      setAlert(res);
+      history.push(`/home?tab=${res.data.data.length - 1}`);
     },
   });
 

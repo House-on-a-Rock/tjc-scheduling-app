@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 
 import ScheduleMain from './ScheduleMain';
@@ -11,11 +11,15 @@ import CustomDialog from '../shared/CustomDialog';
 import { createStyles, makeStyles } from '@material-ui/core';
 import { loadingTheme } from '../../shared/styles/theme';
 
+import useQuery from '../../hooks/useQuery';
+
 // TODO error checking if there are no schedules
 // TODO solution for when theres no schedules/tabs
 
 const ScheduleContainer = ({ churchId, setAlert }) => {
   const classes = useStyles();
+  const query = useQuery();
+  const queryTab = parseInt(query.get('tab'));
   const [viewedTab, setViewedTab] = useState(0);
   const [openedTabs, setOpenedTabs] = useState([0]);
   const [isNewScheduleOpen, setIsNewScheduleOpen] = useState(false);
@@ -46,6 +50,13 @@ const ScheduleContainer = ({ churchId, setAlert }) => {
       handleSubmit: (event) => dialogSubmitWrapper(event, changeTabPromptHandler),
     },
   };
+
+  useEffect(() => {
+    if (queryTab) {
+      setOpenedTabs((t) => [...t, queryTab]);
+      setViewedTab(queryTab);
+    }
+  }, [queryTab]);
 
   return (
     <div className={!loaded ? classes.loading : ''}>
