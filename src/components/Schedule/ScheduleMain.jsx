@@ -2,7 +2,7 @@
 // https://codesandbox.io/s/react-material-ui-and-react-beautiful-dnd-forked-bmheb?file=/src/MaterialTable.jsx draggable table
 import React, { useRef, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { Prompt } from 'react-router-dom';
+// import { Prompt } from 'react-router-dom';
 
 import ld from 'lodash';
 import { loadingTheme } from '../../shared/styles/theme';
@@ -16,6 +16,7 @@ import { updatedDiff } from 'deep-object-diff';
 
 import useScheduleMainData from '../../hooks/containerHooks/useScheduleMainData';
 import CustomDialog from '../shared/CustomDialog';
+import NewTemplateForm from '../shared/NewTemplateForm';
 
 // tbh i think my function names are kinda scuffed, and my dialog text is very scuffed so
 
@@ -35,13 +36,14 @@ const ScheduleMain = ({
   const [dataModel, setDataModel] = useState();
   const [isScheduleModified, setIsScheduleModified] = useState(false);
   const [dialogState, setDialogState] = useState({ isOpen: false, state: '' });
-  // const [isEditMode, setIsEditMode] = useState(false);
+  const [isTemplateFormOpen, setIsTemplateFormOpen] = useState(false);
   const changesCounter = useRef(0);
 
-  const [schedule, updateSchedule] = useScheduleMainData(
+  const [schedule, updateSchedule, createNewTemplate] = useScheduleMainData(
     scheduleId,
     setIsScheduleModified,
     setAlert,
+    setIsTemplateFormOpen,
   );
 
   const CELLWARNING = 'CELLWARNING';
@@ -121,6 +123,7 @@ const ScheduleMain = ({
         onSaveEdits={onSaveEdits}
         onCancelEdits={onCancelEdits}
         onResetClick={onResetClick}
+        onSaveTemplate={() => setIsTemplateFormOpen(true)}
       />
       <Table
         schedule={schedule}
@@ -135,13 +138,47 @@ const ScheduleMain = ({
         incrementChangesCounter={incrementChangesCounter}
       />
       {dialogState.isOpen && (
-        <CustomDialog
-          open={dialogState.isOpen}
-          {...DialogConfig[dialogState.state]}
-        ></CustomDialog>
+        <CustomDialog open={dialogState.isOpen} {...DialogConfig[dialogState.state]} />
+      )}
+      {isTemplateFormOpen && (
+        <NewTemplateForm
+          open={isTemplateFormOpen}
+          handleClick={saveTemplate}
+          handleClose={onTemplateFormClose}
+          error={createNewTemplate.error}
+          template={prepareNewTemplate(dataModel)}
+        />
       )}
     </div>
   );
+
+  function onTemplateFormClose() {
+    setIsTemplateFormOpen(false);
+    createNewTemplate.reset();
+  }
+
+  function saveTemplate(templateName) {
+    const newTemplate = prepareNewTemplate(dataModel);
+    createNewTemplate.mutate({ data: newTemplate, churchId, name: templateName });
+  }
+
+  function prepareNewTemplate(model) {
+    const newTemplate = model.map((service) => {
+      const { day, events, name } = service;
+      const e = events.map((event) => {
+        const { roleId, time } = event;
+        const roleName = teams[teams.findIndex((team) => team.id === roleId)].name;
+
+        return { roleId, time, title: roleName };
+      });
+      return {
+        day,
+        events: e,
+        name,
+      };
+    });
+    return newTemplate;
+  }
 
   function incrementChangesCounter() {
     changesCounter.current += 1;

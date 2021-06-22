@@ -9,7 +9,9 @@ import Tooltip from '@material-ui/core/Tooltip';
 import EditIcon from '@material-ui/icons/Edit';
 import CancelIcon from '@material-ui/icons/Cancel';
 import RotateLeftIcon from '@material-ui/icons/RotateLeft';
+import SatelliteIcon from '@material-ui/icons/Satellite';
 
+// these 2 can pbly be merged, didn't notice until i cleaned up the disabled one
 const TooltipForDisabledButton = ({ title, disabled, handleClick, children }) => {
   return (
     <Tooltip title={title}>
@@ -21,7 +23,6 @@ const TooltipForDisabledButton = ({ title, disabled, handleClick, children }) =>
     </Tooltip>
   );
 };
-
 const TooltipButton = ({ title, handleClick, children }) => (
   <Tooltip title={title}>
     <IconButton onClick={handleClick}>{children}</IconButton>
@@ -30,38 +31,38 @@ const TooltipButton = ({ title, handleClick, children }) => (
 
 // these pbly aren't necessary but it makes it easier to read... idk
 
-export const TooltipCreateNewFolder = ({ title, handleClick }) => (
-  <TooltipButton title={title} handleClick={handleClick}>
+export const TooltipCreateNewFolder = (props) => (
+  <TooltipButton {...props}>
     <CreateNewFolderIcon />
   </TooltipButton>
 );
 
-export const TooltipDeleteIcon = ({ title, handleClick }) => (
-  <TooltipButton title={title} handleClick={handleClick}>
+export const TooltipDeleteIcon = (props) => (
+  <TooltipButton {...props}>
     <DeleteIcon />
   </TooltipButton>
 );
 
-export const TooltipDisabledSaveIcon = ({ title, disabled, handleClick }) => (
-  <TooltipForDisabledButton title={title} handleClick={handleClick} disabled={disabled}>
+export const TooltipDisabledSaveIcon = (props) => (
+  <TooltipForDisabledButton {...props}>
     <SaveIcon />
   </TooltipForDisabledButton>
 );
 
-export const TooltipDisabledPublishIcon = ({ title, disabled, handleClick }) => (
-  <TooltipForDisabledButton title={title} handleClick={handleClick} disabled={disabled}>
+export const TooltipDisabledPublishIcon = (props) => (
+  <TooltipForDisabledButton {...props}>
     <PublishIcon />
   </TooltipForDisabledButton>
 );
 
-export const TooltipDisabledEditIcon = ({ title, disabled, handleClick }) => (
-  <TooltipForDisabledButton title={title} handleClick={handleClick} disabled={disabled}>
+export const TooltipDisabledEditIcon = (props) => (
+  <TooltipForDisabledButton {...props}>
     <EditIcon />
   </TooltipForDisabledButton>
 );
 
-export const TooltipCancelIcon = ({ title, handleClick }) => (
-  <TooltipButton title={title} handleClick={handleClick}>
+export const TooltipCancelIcon = (props) => (
+  <TooltipButton {...props}>
     <CancelIcon style={{ color: 'red' }} />
   </TooltipButton>
 );
@@ -69,6 +70,12 @@ export const TooltipCancelIcon = ({ title, handleClick }) => (
 export const TooltipDisabledResetIcon = (props) => (
   <TooltipForDisabledButton {...props}>
     <RotateLeftIcon />
+  </TooltipForDisabledButton>
+);
+
+export const TooltipDisabledSaveTemplateIcon = (props) => (
+  <TooltipForDisabledButton {...props}>
+    <SatelliteIcon />
   </TooltipForDisabledButton>
 );
 

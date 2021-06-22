@@ -1,7 +1,7 @@
 /* eslint-disable consistent-return */
 import express from 'express';
 
-import { findAllChurchSchedules, destroySchedule } from '../services/dataAccess';
+import { findAllChurchSchedules, destroySchedule } from '../dataAccess/schedules';
 import {
   createSchedule,
   doesScheduleExist,
@@ -43,7 +43,6 @@ router.post('/schedule', certify, async (req, res, next) => {
 
     const newSchedule = await createSchedule(req.body);
     const schedules = await findAllChurchSchedules(churchId);
-
     return res.status(200).json({
       data: schedules,
       message: `Schedule ${newSchedule.title} created successfully`,
@@ -62,11 +61,12 @@ router.post('/schedule/update', certify, async (req, res, next) => {
     // this doesnt actually retrieve an updated schedule... will fully implement once i figure it out
     // im awaiting the update right, idk why im retrieving outdated schedule
     const updatedSchedule = await retrieveOneSchedule(changes.scheduleId);
+    // console.log(`updatedeSchedule`, updatedSchedule.services[0]);
     return res
       .status(200)
       .json({ message: `Schedule updated successfully!`, data: updatedSchedule });
   } catch (err) {
-    return next({ status: 409, message: 'error updating schedule' });
+    return next({ status: 409, message: 'Error updating schedule' });
   }
 });
 

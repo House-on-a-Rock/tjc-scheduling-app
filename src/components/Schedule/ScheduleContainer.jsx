@@ -1,26 +1,28 @@
 /* eslint-disable prettier/prettier */
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 
 import ScheduleMain from './ScheduleMain';
 import ScheduleTabs from './Tabs';
 import NewScheduleForm from '../shared/NewScheduleForm';
-import { Alert, createAlert } from '../shared/Alert';
 import useScheduleContainerData from '../../hooks/containerHooks/useScheduleContainerData';
 import CustomDialog from '../shared/CustomDialog';
 
 import { createStyles, makeStyles } from '@material-ui/core';
 import { loadingTheme } from '../../shared/styles/theme';
 
+import useQuery from '../../hooks/useQuery';
+
 // TODO error checking if there are no schedules
 // TODO solution for when theres no schedules/tabs
 
-const ScheduleContainer = ({ churchId }) => {
+const ScheduleContainer = ({ churchId, setAlert }) => {
   const classes = useStyles();
+  const query = useQuery();
+  const queryTab = parseInt(query.get('tab'));
   const [viewedTab, setViewedTab] = useState(0);
   const [openedTabs, setOpenedTabs] = useState([0]);
   const [isNewScheduleOpen, setIsNewScheduleOpen] = useState(false);
-  const [alert, setAlert] = useState(null);
   const [isEditMode, setIsEditMode] = useState(false);
   const [dialogState, setDialogState] = useState({
     isOpen: false,
@@ -28,12 +30,13 @@ const ScheduleContainer = ({ churchId }) => {
     value: null,
   });
 
-  const [loaded, tabs, users, teams, createSchedule, deleteSchedule] =
+  const [loaded, tabs, users, teams, templates, createSchedule, deleteSchedule] =
     useScheduleContainerData(
       churchId,
       setAlert,
       onCreateScheduleSuccess,
       onDeleteScheduleSuccess,
+      setIsEditMode,
     );
 
   const PROMPTBEFORELEAVING = 'PROMPTBEFORELEAVING';
@@ -47,6 +50,13 @@ const ScheduleContainer = ({ churchId }) => {
       handleSubmit: (event) => dialogSubmitWrapper(event, changeTabPromptHandler),
     },
   };
+
+  useEffect(() => {
+    if (queryTab) {
+      setOpenedTabs((t) => [...t, queryTab]);
+      setViewedTab(queryTab);
+    }
+  }, [queryTab]);
 
   return (
     <div className={!loaded ? classes.loading : ''}>
@@ -84,11 +94,9 @@ const ScheduleContainer = ({ churchId }) => {
               onSubmit={(newScheduleData) =>
                 createSchedule.mutate({ ...newScheduleData, churchId: churchId })
               }
+              templates={templates}
               error={createSchedule.error}
             />
-          )}
-          {alert && (
-            <Alert alert={alert} isOpen={!!alert} handleClose={() => setAlert(null)} />
           )}
           {dialogState.isOpen && (
             <CustomDialog
@@ -106,10 +114,8 @@ const ScheduleContainer = ({ churchId }) => {
     createSchedule.reset();
   }
 
-  function onCreateScheduleSuccess(res) {
+  function onCreateScheduleSuccess() {
     setIsNewScheduleOpen(false);
-    setAlert(createAlert(res));
-
     const newTab = tabs.length;
     setOpenedTabs((t) => [...t, newTab]);
     setViewedTab(newTab);
@@ -180,6 +186,7 @@ const useStyles = makeStyles(() =>
 
 ScheduleContainer.propTypes = {
   churchId: PropTypes.number,
+  setAlert: PropTypes.func,
 };
 
 export default ScheduleContainer;

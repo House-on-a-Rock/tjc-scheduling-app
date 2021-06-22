@@ -201,3 +201,10 @@ export const arrayEquals = (arr1, arr2) => {
   }
   return true;
 };
+
+export function convert12Hrs(time) {
+  const hrs = time.slice(0, 2);
+  const minutes = time.slice(3);
+  if (parseInt(hrs) - 12 > 0) return `${parseInt(hrs) - 12}:${minutes} PM`;
+  return `${time} AM`;
+}
