@@ -5,15 +5,13 @@ import { makeStyles, createStyles } from '@material-ui/core/styles';
 import NewScheduleForm from '../shared/NewScheduleForm';
 import CustomDialog from '../shared/CustomDialog';
 
-import { useHistory } from 'react-router-dom';
-
 // components
 import TemplateDisplay from './TemplateDisplay';
 import TemplateCard from './TemplateCard';
 
 export const TemplateContainer = ({ churchId, setAlert }) => {
   const classes = useStyles();
-  const history = useHistory();
+
   const [isNewScheduleOpen, setIsNewScheduleOpen] = useState(false);
   const [selectedTemplateId, setSelectedTemplateId] = useState(0);
   const [dialogState, setDialogState] = useState({ isOpen: false, state: '' });
@@ -21,7 +19,6 @@ export const TemplateContainer = ({ churchId, setAlert }) => {
     churchId,
     setIsNewScheduleOpen,
     setAlert,
-    history,
   );
 
   if (isLoading) return <div>Loading</div>;

@@ -7,6 +7,8 @@ import {
   createTemplate,
 } from '../../apis';
 
+import { useHistory } from 'react-router-dom';
+
 const useScheduleMainData = (
   scheduleId,
   setIsScheduleModified,
@@ -14,6 +16,7 @@ const useScheduleMainData = (
   setIsTemplateFormOpen,
 ) => {
   const queryClient = useQueryClient();
+  const history = useHistory();
   const { isLoading: isScheduleLoading, data: schedule } = useQuery(
     [`schedules_${scheduleId}`],
     () => getScheduleAndData(scheduleId),
@@ -25,11 +28,9 @@ const useScheduleMainData = (
       // this pattern doesnt work because db isn't returning updated data idk why
       // but it would cut down on a network call and a rerender sooo TODO figure out whyyy
       // other useMutations work with this pattern, will try to use it for all useMutations
-      // queryClient.setQueryData(response.data)
 
       // console.log(`res.data`, res.data.data.services[0].events);
-      // queryClient.setQueryData(`schedules_${scheduleId}`, res.data);
-
+      // queryClient.setQueryData(`schedules_${scheduleId}`, { ...res.data });
       queryClient.invalidateQueries(`schedules_${scheduleId}`);
       setIsScheduleModified(false);
       setAlert(res);
@@ -45,11 +46,10 @@ const useScheduleMainData = (
   // create template
   const createNewTemplate = useMutation(createTemplate, {
     onSuccess: (res) => {
-      console.log('created new template', res);
       queryClient.setQueryData('templates', res.data);
       setIsTemplateFormOpen(false);
       setAlert(res);
-      // TODO navigate to templates tab?
+      history.push(`/templates`);
     },
     onError: (err) => {
       console.log(`err.response`, err.response);
