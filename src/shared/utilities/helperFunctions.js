@@ -24,7 +24,8 @@ export const setLocalStorageState = (key, newState) =>
 export const removeLocalStorageState = (type) => localStorage.removeItem(`${type}_state`);
 
 export function isValidEmail(emailValue) {
-  const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/; // I changed this, this needs to be tested
+  const re =
+    /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/; // I changed this, this needs to be tested
   return re.test(String(emailValue).toLowerCase());
 }
 
@@ -34,3 +35,19 @@ export function toDateString(date) {
 }
 
 export const stringLengthCheck = (title) => title.length === 0 || title.length >= 32;
+
+export function zeroPaddedDateString(date) {
+  // need to pad months/dates with 0s if single digit
+  let month = (date.getMonth() + 1).toString();
+  let day = date.getDate().toString();
+  month = month.length > 1 ? month : `0${month}`;
+  day = day.length > 1 ? day : `0${day}`;
+  return `${date.getFullYear()}-${month}-${day}`;
+}
+
+export function incrementDate(date) {
+  const s = date.replace(/-/g, '/');
+  const d = new Date(s);
+  d.setDate(d.getDate() + 1);
+  return d;
+}

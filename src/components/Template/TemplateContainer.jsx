@@ -4,6 +4,7 @@ import useTemplateContainer from '../../hooks/containerHooks/useTemplateContaine
 import { makeStyles, createStyles } from '@material-ui/core/styles';
 import NewScheduleForm from '../shared/NewScheduleForm';
 import CustomDialog from '../shared/CustomDialog';
+import SchedulePreview from './SchedulePreview';
 
 // components
 import TemplateDisplay from './TemplateDisplay';

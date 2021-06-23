@@ -337,13 +337,13 @@ const useStyles = makeStyles(() =>
 Table.propTypes = {
   schedule: PropTypes.object,
   isEditMode: PropTypes.bool,
+  isVisible: PropTypes.bool,
   dataModel: PropTypes.array,
   setDataModel: PropTypes.func,
   users: PropTypes.array,
   teams: PropTypes.array,
   churchId: PropTypes.number,
   incrementChangesCounter: PropTypes.func,
-  isVisible: PropTypes.bool,
 };
 
 export default Table;

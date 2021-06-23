@@ -5,11 +5,16 @@ import { makeStyles, createStyles } from '@material-ui/core/styles';
 
 import { ValidatedTextField, ValidatedSelect } from '../FormControl';
 import { useValidatedField } from '../../hooks';
+import Table from '../Schedule/Table';
 
 import { buttonTheme, tooltipContainer } from '../../shared/styles/theme';
 
 import Tooltip from './Tooltip';
-import { stringLengthCheck } from '../../shared/utilities';
+import {
+  stringLengthCheck,
+  zeroPaddedDateString,
+  incrementDate,
+} from '../../shared/utilities';
 
 // TODO hook up teams with data from DB
 
@@ -29,11 +34,11 @@ export const NewScheduleForm = ({
     'Must have a title that is less than 32 characters',
   );
   const [startDate, setStartDate, setStartError, resetStartError] = useValidatedField(
-    toDateString(new Date()),
+    zeroPaddedDateString(new Date()),
     'Invalid date range',
   );
   const [endDate, setEndDate, setEndError, resetEndError] = useValidatedField(
-    toDateString(new Date(tomorrow)),
+    zeroPaddedDateString(new Date(tomorrow)),
     'Invalid date range',
   );
   const [team, setTeam, setTeamError, resetTeamError] = useValidatedField(
@@ -45,37 +50,17 @@ export const NewScheduleForm = ({
     '',
   );
 
-  // TODO pass in roles/teams
-
-  function onSubmitForm() {
-    resetTitleError();
-    resetStartError();
-    resetEndError();
-    resetTeamError();
-    resetTemplateError();
-
-    if (
-      title.value.length > 0 &&
-      title.value.length < 32 &&
-      endDate.value > startDate.value &&
-      team.value > 0
-      // template can be zero
-    )
-      onSubmit({
-        title: title.value,
-        startDate: startDate.value,
-        endDate: endDate.value,
-        view: 'weekly',
-        team: team.value,
-        templateId: template.value,
-      });
-
-    setTitleError(stringLengthCheck(title.value));
-    setStartError(endDate.value < startDate.value);
-    setEndError(endDate.value < startDate.value);
-    setTeamError(team.value === 0);
-    // setTemplateError(template.value === 0);
-  }
+  const defaultTableProps = {
+    schedule: {},
+    isEditMode: true,
+    isVisible: true,
+    dataModel: [],
+    setDataModel: () => {},
+    users: [],
+    teams: [],
+    churchId: 0,
+    incrementChangesCounter: () => {},
+  };
 
   return (
     <Dialog open={isOpen} onClose={onClose}>
@@ -103,7 +88,7 @@ export const NewScheduleForm = ({
               className={classes.datePicker}
               label="Start Date"
               input={startDate}
-              handleChange={setStartDate}
+              handleChange={setStartDateHandler}
               type="date"
               InputLabelProps={{
                 shrink: true,
@@ -146,23 +131,15 @@ export const NewScheduleForm = ({
               toolTip={{ id: 'template', text: 'Assign a template to this schedule' }}
             >
               <MenuItem value={0}>Pick a template</MenuItem>
-              {templates
-                ? templates.map(({ templateId: id, name }) => (
-                    <MenuItem key={id} value={id}>
-                      {name}
-                    </MenuItem>
-                  ))
-                : [
-                    <MenuItem value={1} key="1">
-                      Weekly Services
-                    </MenuItem>,
-                    <MenuItem value={2} key="2">
-                      RE
-                    </MenuItem>,
-                  ]}
+              {templates.map(({ templateId: id, name }) => (
+                <MenuItem key={id} value={id}>
+                  {name}
+                </MenuItem>
+              ))}
             </ValidatedSelect>
           </div>
         </form>
+        {template.value > 0 && <Table />}
         <div className={classes.buttonBottomBar}>
           <Button
             onClick={onSubmitForm}
@@ -178,17 +155,48 @@ export const NewScheduleForm = ({
       </div>
     </Dialog>
   );
-};
 
-// needed to format date so that the date picker can display it properly
-function toDateString(date) {
-  // need to pad months/dates with 0s if single digit
-  let month = (date.getMonth() + 1).toString();
-  let day = date.getDate().toString();
-  month = month.length > 1 ? month : `0${month}`;
-  day = day.length > 1 ? day : `0${day}`;
-  return `${date.getFullYear()}-${month}-${day}`;
-}
+  function setStartDateHandler(input) {
+    setStartDate(input);
+    const incrementedDate = incrementDate(input.value);
+    setEndDate({
+      value: zeroPaddedDateString(incrementedDate),
+      message: '',
+      valid: true,
+    });
+  }
+
+  // TODO pass in teams
+  function onSubmitForm() {
+    resetTitleError();
+    resetStartError();
+    resetEndError();
+    resetTeamError();
+    resetTemplateError();
+
+    if (
+      title.value.length > 0 &&
+      title.value.length < 32 &&
+      endDate.value > startDate.value &&
+      team.value > 0
+      // template can be zero
+    )
+      onSubmit({
+        title: title.value,
+        startDate: startDate.value,
+        endDate: endDate.value,
+        view: 'weekly',
+        team: team.value,
+        templateId: template.value,
+      });
+
+    setTitleError(stringLengthCheck(title.value));
+    setStartError(endDate.value < startDate.value);
+    setEndError(endDate.value < startDate.value);
+    setTeamError(team.value === 0);
+    // setTemplateError(template.value === 0);
+  }
+};
 
 const useStyles = makeStyles(() =>
   createStyles({
