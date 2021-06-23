@@ -34,6 +34,7 @@ const Table = ({
   teams,
   churchId,
   incrementChangesCounter,
+  isPreview = false,
 }) => {
   const classes = useStyles();
 
@@ -41,6 +42,7 @@ const Table = ({
   const [selectedService, setSelectedService] = useState(); // by serviceId
   const { columns: headers, title } = schedule;
 
+  console.log(`dataModel`, dataModel);
   return (
     <div className={classes.scheduleTable}>
       {isEditServiceOpen && (
@@ -55,116 +57,118 @@ const Table = ({
       <MuiTable className={classes.table}>
         <TableHeader headers={headers} title={title} />
 
-        {dataModel.map((service, serviceIndex) => {
-          const { day, name, events, serviceId } = service;
+        {dataModel &&
+          dataModel.map((service, serviceIndex) => {
+            const { day, name, events, serviceId } = service;
 
-          return (
-            <DragDropContext onDragEnd={onDragEnd} key={`${title}_${serviceIndex}`}>
-              <Droppable
-                droppableId={`DroppableTable-${serviceIndex}`}
-                key={`Droppable_${serviceId}`}
-                direction="vertical"
-              >
-                {(droppableProvided) => (
-                  <TableBody
-                    key={`TableBody-${name}`}
-                    title={`${days[day]} - ${name}`}
-                    serviceId={serviceId}
-                    providedRef={droppableProvided.innerRef}
-                    {...droppableProvided.droppableProps}
-                    isEdit={isEditMode && isVisible}
-                    addEvent={() => addEvent(serviceIndex)}
-                    deleteService={() => deleteService(serviceId)}
-                    onEditService={onEditService}
-                  >
-                    {events.map((event, rowIndex) => {
-                      const { roleId, cells, time, eventId } = event;
+            return (
+              <DragDropContext onDragEnd={onDragEnd} key={`${title}_${serviceIndex}`}>
+                <Droppable
+                  droppableId={`DroppableTable-${serviceIndex}`}
+                  key={`Droppable_${serviceId}`}
+                  direction="vertical"
+                >
+                  {(droppableProvided) => (
+                    <TableBody
+                      key={`TableBody-${name}`}
+                      title={`${days[day]} - ${name}`}
+                      serviceId={serviceId}
+                      providedRef={droppableProvided.innerRef}
+                      {...droppableProvided.droppableProps}
+                      isEdit={isEditMode && isVisible}
+                      addEvent={() => addEvent(serviceIndex)}
+                      deleteService={() => deleteService(serviceId)}
+                      onEditService={onEditService}
+                    >
+                      {events.map((event, rowIndex) => {
+                        const { roleId, cells, time, eventId } = event;
 
-                      const tasksDataSet = teammates(users, roleId, churchId);
-                      const isTimeDisplayed = shouldDisplayTime(
-                        time,
-                        rowIndex,
-                        serviceIndex,
-                      );
+                        const tasksDataSet = teammates(users, roleId, churchId);
+                        const isTimeDisplayed = shouldDisplayTime(
+                          time,
+                          rowIndex,
+                          serviceIndex,
+                        );
 
-                      return (
-                        <Draggable
-                          draggableId={`DragRow_${eventId}`}
-                          index={rowIndex}
-                          key={`DragRow_${eventId}`}
-                          isDragDisabled={!isEditMode}
-                        >
-                          {(provided, snapshot) => (
-                            <TableRow
-                              key={`${serviceIndex}-${rowIndex}`}
-                              hover
-                              ref={provided.innerRef}
-                              {...provided.draggableProps}
-                              style={{
-                                ...provided.draggableProps.style,
-                                background: snapshot.isDragging
-                                  ? 'rgba(245,245,245, 0.75)'
-                                  : 'none',
-                              }}
-                            >
-                              <MuiCell align="left">
-                                <div className={classes.iconContainer}>
-                                  <div {...provided.dragHandleProps}>
-                                    <ReorderIcon
+                        return (
+                          <Draggable
+                            draggableId={`DragRow_${eventId || rowIndex}`}
+                            index={rowIndex}
+                            key={`DragRow_${eventId || rowIndex}`}
+                            isDragDisabled={!isEditMode}
+                          >
+                            {(provided, snapshot) => (
+                              <TableRow
+                                key={`${serviceIndex}-${rowIndex}`}
+                                hover
+                                ref={provided.innerRef}
+                                {...provided.draggableProps}
+                                style={{
+                                  ...provided.draggableProps.style,
+                                  background: snapshot.isDragging
+                                    ? 'rgba(245,245,245, 0.75)'
+                                    : 'none',
+                                }}
+                              >
+                                <MuiCell align="left">
+                                  <div className={classes.iconContainer}>
+                                    <div {...provided.dragHandleProps}>
+                                      <ReorderIcon
+                                        className={
+                                          isEditMode && isVisible
+                                            ? classes.visibleEdit
+                                            : classes.invisibleEdit
+                                        }
+                                      />
+                                    </div>
+                                    <RemoveIcon
+                                      onClick={() => removeEvent(serviceIndex, rowIndex)}
                                       className={
                                         isEditMode && isVisible
                                           ? classes.visibleEdit
                                           : classes.invisibleEdit
                                       }
+                                      style={{ color: 'red' }}
                                     />
                                   </div>
-                                  <RemoveIcon
-                                    onClick={() => removeEvent(serviceIndex, rowIndex)}
-                                    className={
-                                      isEditMode && isVisible
-                                        ? classes.visibleEdit
-                                        : classes.invisibleEdit
-                                    }
-                                    style={{ color: 'red' }}
-                                  />
-                                </div>
-                              </MuiCell>
-                              {cells.map((cell, columnIndex) => (
-                                <TableCell
-                                  cellIndices={{
-                                    serviceIndex: serviceIndex,
-                                    rowIndex: rowIndex,
-                                    columnIndex: columnIndex,
-                                  }}
-                                  roleId={roleId}
-                                  userId={cell.userId}
-                                  taskId={cell.taskId}
-                                  status={cell.status}
-                                  date={cell.date}
-                                  time={time}
-                                  teams={teams}
-                                  users={users}
-                                  onTimeChange={onTimeChange}
-                                  onAssignedRoleChange={onAssignedRoleChange}
-                                  onTaskChange={onTaskChange}
-                                  isTimeDisplayed={isTimeDisplayed}
-                                  tasksDataSet={tasksDataSet}
-                                  isEditMode={isEditMode}
-                                  key={`${title}_${serviceIndex}_${rowIndex}_${columnIndex}`}
-                                />
-                              ))}
-                            </TableRow>
-                          )}
-                        </Draggable>
-                      );
-                    })}
-                    {droppableProvided.placeholder}
-                  </TableBody>
-                )}
-              </Droppable>
-            </DragDropContext>
-          );
-        })}
+                                </MuiCell>
+                                {cells &&
+                                  cells.map((cell, columnIndex) => (
+                                    <TableCell
+                                      cellIndices={{
+                                        serviceIndex: serviceIndex,
+                                        rowIndex: rowIndex,
+                                        columnIndex: columnIndex,
+                                      }}
+                                      roleId={roleId}
+                                      userId={cell.userId}
+                                      taskId={cell.taskId}
+                                      status={cell.status}
+                                      date={cell.date}
+                                      time={time}
+                                      teams={teams}
+                                      users={users}
+                                      onTimeChange={onTimeChange}
+                                      onAssignedRoleChange={onAssignedRoleChange}
+                                      onTaskChange={onTaskChange}
+                                      isTimeDisplayed={isTimeDisplayed}
+                                      tasksDataSet={tasksDataSet}
+                                      isEditMode={isEditMode}
+                                      key={`${title}_${serviceIndex}_${rowIndex}_${columnIndex}`}
+                                    />
+                                  ))}
+                              </TableRow>
+                            )}
+                          </Draggable>
+                        );
+                      })}
+                      {droppableProvided.placeholder}
+                    </TableBody>
+                  )}
+                </Droppable>
+              </DragDropContext>
+            );
+          })}
       </MuiTable>
     </div>
   );
@@ -324,7 +328,7 @@ const useStyles = makeStyles(() =>
       visibility: 'visible',
     },
     invisibleEdit: {
-      visibility: 'hidden',
+      visibility: 'collapse',
     },
     iconContainer: {
       display: 'flex',
