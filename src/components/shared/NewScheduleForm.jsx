@@ -6,6 +6,7 @@ import { makeStyles, createStyles } from '@material-ui/core/styles';
 import { ValidatedTextField, ValidatedSelect } from '../FormControl';
 import { useValidatedField } from '../../hooks';
 import Table from '../Schedule/Table';
+import SchedulePreview from '../Template/SchedulePreview';
 
 import { buttonTheme, tooltipContainer } from '../../shared/styles/theme';
 
@@ -54,28 +55,17 @@ export const NewScheduleForm = ({
   );
   const [previewProps, setPreviewProps] = useState(defaultTableProps());
 
-  console.log(`previewProps`, previewProps);
-
   useEffect(() => {
-    setPreviewProps((p) => {
-      const selectedTemplate =
-        template.value > 0 ? templates.find((t) => t.templateId === template.value) : 0;
-
-      return {
-        ...p,
-        schedule: { columns: tableHeaders(), title: selectedTemplate.name ?? '' },
-        dataModel: selectedTemplate.data,
-      };
-    });
+    setPreviewProps((p) => updatePreviewProps(p));
   }, [startDate, endDate, template]);
 
   const Preview = () =>
-    template.value > 0 && (
+    previewProps.dataModel ? (
       <div className={classes.preview}>
         Schedule Preview
-        <Table {...previewProps} interactable={false} />
+        <SchedulePreview {...previewProps} />
       </div>
-    );
+    ) : null;
 
   return (
     <Dialog open={isOpen} onClose={onClose} maxWidth="lg">
@@ -173,6 +163,31 @@ export const NewScheduleForm = ({
     </Dialog>
   );
 
+  function updatePreviewProps(prevTemplate) {
+    const selectedTemplate =
+      template.value > 0 ? templates.find((t) => t.templateId === template.value) : 0;
+    const populatedTemplate = populateTemplateCells(selectedTemplate);
+    return {
+      ...prevTemplate,
+      schedule: { columns: tableHeaders(), title: selectedTemplate.name ?? '' },
+      dataModel: populatedTemplate ? populatedTemplate.data : null,
+    };
+  }
+
+  function populateTemplateCells(selectedTemplate) {
+    if (!selectedTemplate.data) return selectedTemplate.data;
+    const data = selectedTemplate.data.map((service) => {
+      const updatedEvents = service.events.map((event) => {
+        return {
+          ...event,
+          cells: new Array(previewProps.schedule.columns.length - 1).fill({}),
+        };
+      });
+      return { ...service, events: updatedEvents };
+    });
+    return { ...selectedTemplate, data };
+  }
+
   function setStartDateHandler(input) {
     setStartDate(input);
     const incrementedDate = incrementDate(input.value);
@@ -192,14 +207,14 @@ export const NewScheduleForm = ({
   function defaultTableProps() {
     return {
       schedule: { columns: tableHeaders(), title: '' },
-      isEditMode: false,
-      isVisible: true,
+      // isEditMode: false,
+      // isVisible: true,
       dataModel: [],
-      setDataModel: () => {},
-      users: [],
-      teams: [],
-      churchId: 0,
-      incrementChangesCounter: () => {},
+      // setDataModel: () => {},
+      // users: [],
+      teams,
+      // churchId: 0,
+      // incrementChangesCounter: () => {},
     };
   }
 

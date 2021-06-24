@@ -34,7 +34,6 @@ const Table = ({
   teams,
   churchId,
   incrementChangesCounter,
-  isPreview = false,
 }) => {
   const classes = useStyles();
 
@@ -42,7 +41,6 @@ const Table = ({
   const [selectedService, setSelectedService] = useState(); // by serviceId
   const { columns: headers, title } = schedule;
 
-  console.log(`dataModel`, dataModel);
   return (
     <div className={classes.scheduleTable}>
       {isEditServiceOpen && (
@@ -304,7 +302,7 @@ const useStyles = makeStyles(() =>
         '&:after': {
           // use a pseudo-element to cover right-side gap when scrolling
           content: '""',
-          background: fade(paletteTheme.common.lightBlue, 0.15),
+          // background: fade(paletteTheme.common.lightBlue, 0.15),
           position: 'absolute',
           width: '5px',
           top: '-1px',
