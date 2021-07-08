@@ -1,6 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { BrowserRouter as Router, Route, Switch, Redirect } from 'react-router-dom';
 import { ThemeProvider } from '@material-ui/core';
+import { ReactQueryDevtools } from 'react-query/devtools';
 
 import { Teams } from '../components/Teams';
 import { ScheduleContainer } from '../components/Schedule';

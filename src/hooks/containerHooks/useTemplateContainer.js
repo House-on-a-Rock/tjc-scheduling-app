@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from 'react-query';
-import { deleteTemplate, getTemplates, postSchedule } from '../../apis';
+import { deleteTemplate, getTemplates, postSchedule, getTeams } from '../../apis';
 import { useQueryConfig } from './shared';
 import { useHistory } from 'react-router-dom';
 
@@ -7,9 +7,15 @@ const useTemplateContainer = (churchId, setIsNewScheduleOpen, setAlert) => {
   const queryClient = useQueryClient();
   const history = useHistory();
 
-  const { isLoading, data: templateData } = useQuery(
+  const { isLoading: isTemplatesLoading, data: templateData } = useQuery(
     ['templates'],
     () => getTemplates(churchId),
+    useQueryConfig,
+  );
+
+  const { isLoading: isTeamsLoading, data: teamsData } = useQuery(
+    ['teams'],
+    () => getTeams(churchId),
     useQueryConfig,
   );
 
@@ -29,10 +35,18 @@ const useTemplateContainer = (churchId, setIsNewScheduleOpen, setAlert) => {
   });
 
   const returnData = {
-    templates: isLoading ? null : templateData.data,
+    loaded: !isTemplatesLoading && !isTeamsLoading,
+    templates: isTemplatesLoading ? null : templateData.data,
+    teams: isTeamsLoading ? null : teamsData.data,
   };
 
-  return [isLoading, returnData.templates, createSchedule, destroyTemplate];
+  return [
+    returnData.loaded,
+    returnData.templates,
+    returnData.teams,
+    createSchedule,
+    destroyTemplate,
+  ];
 };
 
 export default useTemplateContainer;

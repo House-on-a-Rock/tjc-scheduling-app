@@ -4,6 +4,7 @@ import useTemplateContainer from '../../hooks/containerHooks/useTemplateContaine
 import { makeStyles, createStyles } from '@material-ui/core/styles';
 import NewScheduleForm from '../shared/NewScheduleForm';
 import CustomDialog from '../shared/CustomDialog';
+import SchedulePreview from './SchedulePreview';
 
 // components
 import TemplateDisplay from './TemplateDisplay';
@@ -15,13 +16,13 @@ export const TemplateContainer = ({ churchId, setAlert }) => {
   const [isNewScheduleOpen, setIsNewScheduleOpen] = useState(false);
   const [selectedTemplateId, setSelectedTemplateId] = useState(0);
   const [dialogState, setDialogState] = useState({ isOpen: false, state: '' });
-  const [isLoading, templates, createSchedule, deleteTemplate] = useTemplateContainer(
+  const [loaded, templates, teams, createSchedule, deleteTemplate] = useTemplateContainer(
     churchId,
     setIsNewScheduleOpen,
     setAlert,
   );
 
-  if (isLoading) return <div>Loading</div>;
+  if (!loaded) return <div>Loading</div>;
 
   const DELETETEMPLATE = 'DELETETEMPLATE';
 
@@ -67,7 +68,9 @@ export const TemplateContainer = ({ churchId, setAlert }) => {
               createSchedule.mutate({ ...newScheduleData, churchId: churchId })
             }
             error={createSchedule.error}
+            teams={teams}
             templateId={selectedTemplateId}
+            templates={templates}
           />
         )}
         {dialogState.isOpen && (

@@ -107,12 +107,8 @@ const ScheduleMain = ({
   return (
     <div
       className={`main_${scheduleId}`}
-      style={{ visibility: isVisible ? 'visible' : 'hidden' }}
+      style={{ display: isVisible ? 'block' : 'none' }}
     >
-      {/* <Prompt
-        message="You have unsaved changes, are you sure you want to leave?"
-        when={isScheduleModified || isEditMode}
-      /> */}
       <Toolbar
         handleNewServiceClicked={addService}
         destroySchedule={onDestroySchedule}

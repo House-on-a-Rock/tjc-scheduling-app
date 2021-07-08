@@ -95,6 +95,7 @@ const ScheduleContainer = ({ churchId, setAlert }) => {
                 createSchedule.mutate({ ...newScheduleData, churchId: churchId })
               }
               templates={templates}
+              teams={teams}
               error={createSchedule.error}
             />
           )}
