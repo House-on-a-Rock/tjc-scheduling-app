@@ -20,7 +20,12 @@ const config: ConfigInterface = {
     username: process.env.DB_USER ?? '',
     password: process.env.DB_PASS ?? '',
     host: process.env.DB_HOST ?? '',
-    dialect: 'postgres',
+    dialectOptions: {
+      ssl: {
+        require: true,
+        rejectUnauthorized: false, // <<<<<<< YOU NEED THIS
+      },
+    },
   },
   production: {
     database: process.env.DB_NAME ?? '',
@@ -28,7 +33,12 @@ const config: ConfigInterface = {
     password: process.env.DB_PASS ?? '',
     host: process.env.DB_HOST ?? '',
     dialect: 'postgres',
-    ssl: true,
+    dialectOptions: {
+      ssl: {
+        require: true,
+        rejectUnauthorized: false, // <<<<<<< YOU NEED THIS
+      },
+    },
   },
 };
 
