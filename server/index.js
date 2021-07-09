@@ -13,8 +13,13 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors());
 
+//prod to use static files in dist folder
+app.use(express.static(path.join(__dirname, '../dist')));
+
+//prod to serve static files in dist folder
 app.get('/', (req, res, next) => {
   res.send('Hello Ted');
+  res.sendFile(path.join(__dirname, '..', 'dist/index.html'));
   next();
 });
 

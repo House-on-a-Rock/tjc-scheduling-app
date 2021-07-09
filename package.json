@@ -1,7 +1,7 @@
 {
   "name": "tjc-scheduling-app",
   "scripts": {
-    "server": "babel-node ./server/index.js",
+    "start": "babel-node ./server/index.js",
     "server-watch": "nodemon --exec babel-node ./server/index.js",
     "prettier:base": "prettier",
     "prettier:check": "npm run prettier:base -- --list-different \"**/*\"",
@@ -9,7 +9,7 @@
     "set-mac-env": "chmod +x scripts/set_mac_env.sh && scripts/set_mac_env.sh",
     "set-win-env": "powershell.exe -exec bypass -File D:/Code Projects/tjc-scheduling-app/scripts/set_win_env.ps1",
     "test": "mocha -r tests/*.js --reporter spec --exit",
-    "build": "babel -d ./build ./server/index.js -s"
+    "build": "cd src && npm run build"
   },
   "husky": {
     "hooks": {
