@@ -24,14 +24,15 @@ const Toolbar = ({
   onCancelEdits,
   onResetClick,
   onSaveTemplate,
+  onPublishSchedule,
 }) => {
   const classes = useStyles();
   return (
     <div className={classes.toolbar}>
       <TooltipDisabledPublishIcon
         title="Publish changes"
-        disabled={!isScheduleModified}
-        // handleClick={() => ()}
+        disabled={isScheduleModified}
+        handleClick={onPublishSchedule}
       />
       <TooltipDisabledSaveTemplateIcon
         title="Save schedule as template"
@@ -97,6 +98,7 @@ Toolbar.propTypes = {
   onCancelEdits: PropTypes.func,
   onResetClick: PropTypes.func,
   onSaveTemplate: PropTypes.func,
+  onPublishSchedule: PropTypes.func,
 };
 
 export default Toolbar;

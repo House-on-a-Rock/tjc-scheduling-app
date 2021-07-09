@@ -120,6 +120,7 @@ const ScheduleMain = ({
         onCancelEdits={onCancelEdits}
         onResetClick={onResetClick}
         onSaveTemplate={() => setIsTemplateFormOpen(true)}
+        onPublishSchedule={onPublishSchedule}
       />
       <Table
         schedule={schedule}
@@ -147,6 +148,10 @@ const ScheduleMain = ({
       )}
     </div>
   );
+
+  function onPublishSchedule () {
+    console.log('publishing')
+  }
 
   function onTemplateFormClose() {
     setIsTemplateFormOpen(false);
