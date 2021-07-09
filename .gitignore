@@ -15,7 +15,6 @@ data.json
 
 
 # secrets
-secrets/
 *.env
 *.pem
 node_modules
