@@ -1,6 +1,7 @@
 {
   "name": "tjc-scheduling-app",
   "scripts": {
+    "heroku-prebuild": "cd src && npm i",
     "start": "babel-node ./server/index.js",
     "server-watch": "nodemon --exec babel-node ./server/index.js",
     "prettier:base": "prettier",
