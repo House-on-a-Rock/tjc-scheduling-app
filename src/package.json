@@ -56,6 +56,10 @@
     "webpack-cli": "^3.3.12",
     "webpack-dev-server": "^3.11.2"
   },
+  "browser": {
+    "crypto": false,
+    "stream": false
+  },
   "browserslist": [
     "since 2017-06"
   ]

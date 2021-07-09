@@ -17,6 +17,7 @@ import { updatedDiff } from 'deep-object-diff';
 import useScheduleMainData from '../../hooks/containerHooks/useScheduleMainData';
 import CustomDialog from '../shared/CustomDialog';
 import NewTemplateForm from '../shared/NewTemplateForm';
+import PdfRenderer from './PdfRenderer';
 
 // tbh i think my function names are kinda scuffed, and my dialog text is very scuffed so
 
@@ -37,6 +38,7 @@ const ScheduleMain = ({
   const [isScheduleModified, setIsScheduleModified] = useState(false);
   const [dialogState, setDialogState] = useState({ isOpen: false, state: '' });
   const [isTemplateFormOpen, setIsTemplateFormOpen] = useState(false);
+  const [isPdfOpen, setIsPdfOpen] = useState(false);
   const changesCounter = useRef(0);
 
   const [schedule, updateSchedule, createNewTemplate] = useScheduleMainData(
@@ -146,11 +148,13 @@ const ScheduleMain = ({
           template={prepareNewTemplate(dataModel)}
         />
       )}
+      {isPdfOpen && <PdfRenderer dataModel={dataModel} />}
     </div>
   );
 
-  function onPublishSchedule () {
-    console.log('publishing')
+  function onPublishSchedule() {
+    console.log('publishing');
+    setIsPdfOpen(true);
   }
 
   function onTemplateFormClose() {
