@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState, memo, useEffect } from 'react';
 import PropTypes from 'prop-types';
 
 // mat ui
@@ -23,7 +23,7 @@ import { extractRoleIds, getRoleOptionLabel } from './utilities';
   isSaved;   if initialData should update to the latest dataId
 */
 
-const DutyAutocomplete = React.memo(
+const DutyAutocomplete = memo(
   ({ dataId, options, dataContext, onChange, renderOption, isEditMode }) => {
     const classes = useStyles();
 
@@ -35,7 +35,7 @@ const DutyAutocomplete = React.memo(
       onChange(dataContext, newValue);
     }
 
-    React.useEffect(() => {
+    useEffect(() => {
       if (!isEditMode) {
         setInitialData(dataId);
         setIsCellModified(false);

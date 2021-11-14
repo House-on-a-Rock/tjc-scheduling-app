@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import zxcvbn from 'zxcvbn';
 
 // Material UI

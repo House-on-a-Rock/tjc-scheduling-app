@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import { useContext, cloneElement } from 'react';
 import { Link } from 'react-router-dom';
 
 import useScrollTrigger from '@material-ui/core/useScrollTrigger';
@@ -111,7 +111,7 @@ function ElevationScroll(props) {
     threshold: 0,
   });
 
-  return React.cloneElement(children, {
+  return cloneElement(children, {
     elevation: trigger ? 4 : 0,
   });
 }

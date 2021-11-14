@@ -1,17 +1,17 @@
-import React, { useContext, useState } from 'react';
+import { useContext, useState } from 'react';
 import { BrowserRouter as Router, Route, Switch, Redirect } from 'react-router-dom';
 import { ThemeProvider } from '@material-ui/core';
 import { ReactQueryDevtools } from 'react-query/devtools';
 
-import { Teams } from '../components/Teams';
-import { ScheduleContainer } from '../components/Schedule';
-import { MembersContainer } from '../components/Member';
-import { TemplateContainer } from '../components/Template';
-import { Header } from '../components/shared';
+import { Teams } from '../features/Teams';
+import { ScheduleContainer } from '../features/Schedule';
+import { MembersContainer } from '../features/Member';
+import { TemplateContainer } from '../features/Template';
+import { Header } from '../features/shared';
 import theme from '../shared/styles/theme';
 import { extractTokenInfo, useToken } from '../shared/utilities';
 import AuthContext from '../shared/services/AuthContext';
-import Alert from '../components/shared/Alert';
+import Alert from '../features/shared/Alert';
 
 const Main = () => {
   const auth = useContext(AuthContext);

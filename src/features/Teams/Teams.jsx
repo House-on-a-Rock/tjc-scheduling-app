@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { DragDropContext, DropResult } from 'react-beautiful-dnd';
 import { makeStyles } from '@material-ui/core/styles';

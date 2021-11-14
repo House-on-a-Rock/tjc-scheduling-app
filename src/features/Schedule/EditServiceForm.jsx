@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import PropTypes from 'prop-types';
 
 import { MenuItem, Button, Dialog } from '@material-ui/core/';
@@ -27,7 +28,7 @@ const daysOfWeek = [
 ];
 
 const EditServiceForm = ({ isOpen, onSubmit, onClose, serviceId, dataModel }) => {
-  const [dataClone, setDataClone] = React.useState([...dataModel]);
+  const [dataClone, setDataClone] = useState([...dataModel]);
   const serviceIndex = dataClone.findIndex((service) => service.serviceId === serviceId);
   const { name, day } = dataClone[serviceIndex];
   const [serviceName, setServiceName, setServiceNameError, resetServiceNameError] =

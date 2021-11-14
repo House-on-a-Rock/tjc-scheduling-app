@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import PropTypes from 'prop-types';
 import ReactTooltip from 'react-tooltip';
 import { TableCell, TableRow, TableBody as MuiTableBody } from '@material-ui/core';
@@ -18,7 +19,7 @@ export const TableBody = ({
 }) => {
   const tooltipId = `${title}_tooltip`;
   const classes = useStyles();
-  const [open, setOpen] = React.useState(true);
+  const [open, setOpen] = useState(true);
 
   return (
     <MuiTableBody ref={providedRef}>

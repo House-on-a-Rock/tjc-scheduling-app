@@ -1,5 +1,6 @@
 import PropTypes from 'prop-types';
 
+import { useState, memo, useEffect } from 'react';
 // mat ui
 import TableCell from '@material-ui/core/TableCell';
 import Autocomplete from '@material-ui/lab/Autocomplete';
@@ -28,7 +29,7 @@ import {
 
 */
 
-const TasksAutocomplete = React.memo((props) => {
+const TasksAutocomplete = memo((props) => {
   const {
     taskId,
     dataId,
@@ -41,9 +42,9 @@ const TasksAutocomplete = React.memo((props) => {
     date,
   } = props;
   const classes = useStyles();
-  const [initialId, setInitialId] = React.useState(dataId);
+  const [initialId, setInitialId] = useState(dataId);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (status === cellStatus.SYNCED) setInitialId(dataId);
   }, [status]);
 

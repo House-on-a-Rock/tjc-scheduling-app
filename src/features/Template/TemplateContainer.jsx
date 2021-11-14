@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import PropTypes from 'prop-types';
 import useTemplateContainer from '../../hooks/containerHooks/useTemplateContainer';
 import { makeStyles, createStyles } from '@material-ui/core/styles';

@@ -1,6 +1,6 @@
 /* eslint-disable no-undefined */
 // https://codesandbox.io/s/react-material-ui-and-react-beautiful-dnd-forked-bmheb?file=/src/MaterialTable.jsx draggable table
-import React, { useRef, useState, useEffect } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 // import { Prompt } from 'react-router-dom';
 
