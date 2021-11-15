@@ -1,4 +1,3 @@
-// import Alert from './Alert';
 import Copyright from './Copyright';
 import LoadingPage from './LoadingPage';
 import TransitionsModal from './TransitionsModal';
@@ -9,7 +8,6 @@ import ToolbarButton from './ToolbarButton';
 import CustomDialog from './CustomDialog';
 import DragDropList from './DragDropList';
 
-export * from './Alert';
 export {
   DragDropList,
   Copyright,

@@ -3,15 +3,15 @@ import { BrowserRouter as Router, Route, Switch, Redirect } from 'react-router-d
 import { ThemeProvider } from '@material-ui/core';
 import { ReactQueryDevtools } from 'react-query/devtools';
 
-import { Teams } from '../features/Teams';
-import { ScheduleContainer } from '../features/Schedule';
-import { MembersContainer } from '../features/Member';
-import { TemplateContainer } from '../features/Template';
-import { Header } from '../features/shared';
+// import { Teams } from 'features/Teams';
+// import { ScheduleContainer } from 'features/Schedule';
+// import { MembersContainer } from 'features/Member';
+// import { TemplateContainer } from 'features/Template';
+// import { Header } from 'features/shared';
 import theme from '../shared/styles/theme';
 import { extractTokenInfo, useToken } from '../shared/utilities';
 import AuthContext from '../shared/services/AuthContext';
-import Alert from '../features/shared/Alert';
+import Alert from '@components/Alert/index';
 
 const Main = () => {
   const auth = useContext(AuthContext);
@@ -25,12 +25,14 @@ const Main = () => {
     <>
       <Router>
         <ThemeProvider theme={theme}>
-          <Header />
-          {alert && (
+          {/* <Header /> */}
+          {/* {alert && (
             <Alert alert={alert} isOpen={!!alert} handleClose={() => setAlert(null)} />
-          )}
+          )} */}
+          <Alert />
+
           <Switch>
-            <Route path="/home">
+            {/* <Route path="/home">
               <ScheduleContainer churchId={churchId} setAlert={setAlert} />
             </Route>
             <Route path="/teams">
@@ -41,7 +43,7 @@ const Main = () => {
             </Route>
             <Route path="/users">
               <MembersContainer churchId={churchId} setAlert={setAlert} />
-            </Route>
+            </Route> */}
             <Route path="/">
               <Redirect to="/home" />
             </Route>

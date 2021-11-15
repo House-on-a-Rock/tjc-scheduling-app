@@ -3,7 +3,7 @@
     "browser": true,
     "es2021": true
   },
-  "extends": "react/jsx-runtime",
+  // "extends": "react/jsx-runtime",
   "parserOptions": {
     "ecmaFeatures": {
       "jsx": true
@@ -258,7 +258,9 @@
     "react/display-name": ["off"],
     "import/no-named-as-default": ["off"],
     "import/order": ["off"],
-    "import/no-cycle": ["off"]
+    "import/no-cycle": ["off"],
+    "react/jsx-uses-react": "off",
+    "react/react-in-jsx-scope": "off"
   },
   "settings": {
     "import/resolver": {

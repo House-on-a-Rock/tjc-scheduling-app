@@ -44,4 +44,4 @@ Alert.propTypes = {
   handleClose: PropTypes.func,
 };
 
-export default Alert;
+export default { Alert };
