@@ -1,11 +1,11 @@
-import { Navigate, Route, Routes } from 'react-router-dom';
-import { Login } from '@features/auth';
+import { Login, Register } from 'features/auth';
+import { Route, Routes } from 'react-router-dom';
 
-export const Auth = () => {
+export const AuthRoutes = () => {
   return (
     <Routes>
-      <Route path={'login'} element={<Login />} />
-      <Route path={'/'} element={<Navigate to={`/login`} />} />
+      <Route path="register" element={<Register />} />
+      <Route path="login" element={<Login />} />
     </Routes>
   );
 };

@@ -1,12 +1,12 @@
-import { lazy } from 'react';
+import { lazyImport } from 'lib/lazyImport';
 
-const { AuthRoutes } = lazy(() => import('@routes/auth'));
+const { AuthRoutes } = lazyImport(() => import('./auth'), 'AuthRoutes');
 
 export const publicRoutes = [
-  // {
-  //   path: '/auth/*',
-  //   element: <AuthRoutes />,
-  // },
+  {
+    path: '/auth/*',
+    element: <AuthRoutes />,
+  },
   // {
   //   path: '/temp/*',
   //   element: <TempRoutes />,

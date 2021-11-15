@@ -1,6 +1,6 @@
 import { AppRoutes } from 'routes';
 import { AppProvider } from 'providers';
-import { ReactHelmet } from 'components/elements';
+import { ReactHelmet } from 'components/helmet';
 
 function App() {
   return (
