@@ -1,12 +1,21 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { useRoutes } from 'react-router-dom';
 
-export const AppRouter = () => {
-  return (
-    <Router>
-      <Routes>
-        <Route path="/auth" element={<div>Authentication Page</div>}></Route>
-        <Route path="/" element={<div>Landing Page</div>}></Route>
-      </Routes>
-    </Router>
-  );
+// import { Landing } from '@/features/misc';
+// import { useAuth } from '@/lib/auth';
+
+// import { protectedRoutes } from './protected';
+import { publicRoutes } from './public';
+
+export const AppRoutes = () => {
+  // const auth = useAuth();
+
+  // const commonRoutes = [{ path: '/', element: <Landing /> }];
+  // const routes = auth.user ? protectedRoutes : publicRoutes;
+  const routes = publicRoutes;
+  const element = useRoutes([
+    ...routes,
+    // ...commonRoutes
+  ]);
+
+  return <>{element}</>;
 };

@@ -1,5 +1,5 @@
 const path = require(`path`);
-const alias = require(`./config/aliases`);
+const alias = require(`./src/config/aliases`);
 
 const SRC = `./src`;
 const aliases = alias(SRC);
