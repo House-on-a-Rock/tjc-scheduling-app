@@ -3,7 +3,7 @@ import * as Yup from 'yup';
 
 // Material UI
 import { makeStyles } from '@material-ui/core/styles';
-import { CssBaseline, Grid, Typography, Container } from '@material-ui/core';
+import { Grid, Typography } from '@material-ui/core';
 
 import { Password, Textfield } from 'components/textfield';
 import { Form } from 'components/form';
@@ -25,16 +25,15 @@ export const Login = () => {
   }
 
   return (
-    <Container component="main" maxWidth="xs" className={classes.root}>
-      <CssBaseline />
-      <div className={classes.paper}>
+    <div className={classes.root}>
+      <div className={classes.box}>
         <Typography component="h1" variant="h5">
           Welcome to Dutiful
         </Typography>
         <Typography component="h1" variant="h5">
           Login
         </Typography>
-        <Form schema={validationSchema} onSubmit={onSubmit}>
+        <Form schema={validationSchema} onSubmit={onSubmit} className={classes.form}>
           {({ register, formState }) => (
             <>
               <Textfield
@@ -78,30 +77,21 @@ export const Login = () => {
           <RouterLink to="/auth/forgotPassword">Forgot password</RouterLink>
         </Grid>
       </Grid>
-    </Container>
+    </div>
   );
 };
 
 const useStyles = makeStyles((theme) => ({
-  root: {
-    [theme.breakpoints.down('xs')]: {
-      position: 'absolute',
-      bottom: 0,
-    },
-  },
-  paper: {
+  root: { marginTop: '50%' },
+  box: {
     marginTop: '20%',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
   },
-  avatar: {
-    margin: theme.spacing(1),
-    backgroundColor: theme.palette.secondary.main,
-  },
   form: {
     width: '100%',
-    marginTop: theme.spacing(1),
+    marginTop: theme.spacing(2),
   },
   submit: {
     margin: theme.spacing(3, 0, 2),
