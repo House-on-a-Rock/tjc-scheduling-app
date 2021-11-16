@@ -1,31 +1,21 @@
-import { Route, Routes } from 'react-router-dom';
-import { Login, Register } from 'features/auth';
-import { AuthLayout } from 'components/layout';
+import { Route, Routes, Navigate } from 'react-router-dom';
+import { ErrorPage, ForgotPassword, Login } from 'features/auth';
 
 export const AuthRoutes = () => {
   return (
-    <AuthLayout>
-      <Routes>
-        <Route path="register" element={<Register />} />
-        <Route path="login" element={<Login />} />
-      </Routes>
-    </AuthLayout>
+    <Routes>
+      {/* <Route path="register" element={<Register />} /> */}
+      <Route path="login" element={<Login />} />
+      <Route path="forgotPassword" element={<ForgotPassword />} />
+      <Route path={'expiredAccess'} element={<ErrorPage />} />
+      <Route path="*" element={<Navigate to="login" />} />
+    </Routes>
   );
 };
 
 // const example = () => {
 //   return (
 //     <>
-//       <Route path={`${path}/forgotPassword`}>
-//         <AuthEmail
-//           data={{
-//             history: true,
-//             title: 'Forgot Password',
-//             description:
-//               'Lost your password? Please enter your email address. You will receive a link to create a new password via email.',
-//             button: 'Reset Password',
-//           }}
-//         />
 //       </Route>
 //       <Route path={`${path}/expiredAccess`}>
 //         <ErrorPage />

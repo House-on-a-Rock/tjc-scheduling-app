@@ -12,8 +12,7 @@ export function extractTokenInfo(jwt, target) {
       const extractedAccess = access.split('|');
       return extractedAccess;
     case 'exp':
-      const extractedExp = exp;
-      return [extractedExp];
+      return exp;
     default:
       return null;
   }

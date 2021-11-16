@@ -2,7 +2,7 @@ import axios from 'axios';
 export const secretIp = 'http://localhost:8081';
 
 export function recoverEmail(email) {
-  return axios.post(`${secretIp}/api/auth/sendResetEmail`, { email });
+  return axios.post(`${secretIp}/api/auth/sendResetEmail`, email);
 }
 
 export function checkResetToken(token) {

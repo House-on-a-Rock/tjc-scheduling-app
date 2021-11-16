@@ -6,24 +6,29 @@ import { authenticate } from 'apis/auth';
 
 import { extractTokenInfo } from 'utils/extractTokenInfo';
 
-async function handleUserResponse({ data }) {
-  const { token } = data;
+function checkTokenExpiration(token) {
+  const expiration = extractTokenInfo(token, 'exp');
+  return expiration > Date.now() / 1000;
+}
+
+async function handleUserResponse(token) {
   const user = extractTokenInfo(token, 'user');
   tokenStorage.setToken(token);
   return user;
 }
 
 async function loadUser() {
-  if (tokenStorage.getToken()) {
-    // const data = await getUser();
-    // return data;
+  const token = tokenStorage.getToken();
+  if (token) {
+    const isValidToken = checkTokenExpiration(token);
+    return isValidToken && (await handleUserResponse(token));
   }
   return null;
 }
 
 async function loginFn(credentials) {
   const response = await authenticate(credentials);
-  const user = await handleUserResponse(response);
+  const user = await handleUserResponse(response.data.token);
   return user;
 }
 
@@ -42,11 +47,7 @@ const authConfig = {
   registerFn,
   logoutFn,
   LoaderComponent() {
-    return (
-      <div className="w-screen h-screen flex justify-center items-center">
-        <Spinner size="xl" />
-      </div>
-    );
+    return <Spinner size="xl" />;
   },
 };
 

@@ -269,12 +269,14 @@ router.post('/confirmPassword', async (req, res, next) => {
 // });
 
 router.post('/sendResetEmail', async (req, res, next) => {
+  // TODO Error: Invalid login: 535 Authentication failed: Basic authentication is not allowed with 2FA enabled
   try {
     const { email } = req.body;
     const user = await db.User.findOne({
       where: { email },
       attributes: ['id', 'password', 'isVerified'],
     });
+    if (!user) return res.status(404).send({ message: 'User is not found' });
     const { isVerified, id, password } = user;
 
     if (user && isVerified) {
@@ -285,8 +287,10 @@ router.post('/sendResetEmail', async (req, res, next) => {
         `http://localhost:8080/api/authentication/checkResetToken?header=${tokenHeader}&payload=${tokenPayload}&signature=${tokenSignature}`,
       );
       return res.status(201).send({ message: 'Recovery token created' });
-    }
-    return res.status(404).send({ message: 'User is not found' });
+    } else
+      return res
+        .status(404)
+        .send({ message: 'User has not been verified. Please verify your email.' });
   } catch (err) {
     next(err);
     return res.status(503).send({ message: 'Server error, try again later' });

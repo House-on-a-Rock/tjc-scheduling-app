@@ -1,19 +1,27 @@
 import { useEffect, useState } from 'react';
-import { Link as RouterLink, useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import * as Yup from 'yup';
 import _ from 'lodash';
+import clsx from 'clsx';
 
-// Material UI
 import { makeStyles } from '@material-ui/core/styles';
-import { Checkbox, FormControlLabel, Grid, Typography } from '@material-ui/core';
+import {
+  Avatar,
+  Checkbox,
+  Container,
+  FormControlLabel,
+  Grid,
+  Typography,
+} from '@material-ui/core';
+import { LockOutlined } from '@material-ui/icons';
+import { deepPurple } from '@material-ui/core/colors';
 
 import { Password, Textfield } from 'components/textfield';
 import { Form } from 'components/form';
 import { Button } from 'components/button';
+import { StatusAlert } from 'components/alert/StatusAlert';
 import { useAuth } from 'lib/auth';
 import { loginCredStorage } from 'utils/storage';
-import { StatusAlert } from 'components/alert/StatusAlert';
-import clsx from 'clsx';
 
 // TODO make error's disappearance not affect the page layout
 
@@ -49,18 +57,18 @@ export const Login = () => {
   }, [defaultValues]);
 
   return (
-    <div className={classes.root}>
+    <Container className={classes.root} component="main" maxWidth="xs">
       <div className={classes.box}>
+        <Avatar className={classes.avatar}>
+          <LockOutlined />
+        </Avatar>
+        <Typography component="h1" variant="h4">
+          Dutiful Login
+        </Typography>
         <div className={clsx(classes.error, _.isEmpty(error) && classes.hidden)}>
           <StatusAlert error={error} />
         </div>
 
-        <Typography component="h1" variant="h5">
-          Welcome to Dutiful
-        </Typography>
-        <Typography component="h1" variant="h5">
-          Login
-        </Typography>
         <Form
           className={classes.form}
           schema={validationSchema}
@@ -71,10 +79,10 @@ export const Login = () => {
             return (
               <>
                 <Textfield
+                  className={classes.textfield}
                   required
                   name="email"
                   label="Email"
-                  margin="dense"
                   error={!!formState?.errors.email}
                   {...register('email')}
                 />
@@ -82,10 +90,10 @@ export const Login = () => {
                   {formState?.errors.email?.message}
                 </Typography>
                 <Password
+                  className={classes.textfield}
                   required
                   name="password"
                   label="Password"
-                  margin="dense"
                   error={!!formState?.errors.password}
                   {...register('password')}
                 />
@@ -115,11 +123,11 @@ export const Login = () => {
         </Form>
         <Grid container>
           <Grid item xs>
-            <RouterLink to="/auth/forgotPassword">Forgot password</RouterLink>
+            <Link to="/auth/forgotPassword">Forgot password</Link>
           </Grid>
         </Grid>
       </div>
-    </div>
+    </Container>
   );
 };
 
@@ -128,21 +136,22 @@ const useStyles = makeStyles((theme) => ({
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'center',
+    alignItems: 'center',
+    minHeight: '100vh',
   },
   box: {
-    marginTop: -theme.spacing(10),
+    marginTop: -theme.spacing(30),
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
   },
   error: {
+    marginTop: theme.spacing(2),
     width: '100%',
-    marginBottom: theme.spacing(3),
     height: '20%',
   },
   form: {
     width: '100%',
-    marginTop: theme.spacing(2),
   },
   submit: {
     margin: theme.spacing(3, 0, 2),
@@ -150,72 +159,12 @@ const useStyles = makeStyles((theme) => ({
   hidden: {
     visibility: 'hidden',
   },
+  avatar: {
+    backgroundColor: deepPurple[500],
+  },
+  textfield: {
+    marginTop: theme.spacing(3),
+  },
 }));
 
 export default Login;
-
-// async function handleLogin(event) {
-//   event?.preventDefault();
-//   setEmail({ ...email, valid: true, message: '' });
-//   setPassword({ ...password, valid: true, message: '' });
-//   if (isValidEmail(email.value) && password.value.length) {
-//     const res = await authenticateLogin(email.value, password.value);
-//     const { data, status, statusText } = res;
-//     const { token } = data;
-//     if (token) {
-//       axios.defaults.headers.common.authorization = token;
-//       setLocalStorageState('access_token', token);
-//       history.push('/');
-//       loginHandler();
-//     }
-//   } else {
-//     if (password.value.length === 0)
-//       setPassword({
-//         ...password,
-//         valid: false,
-//         message: 'Please enter a password',
-//       });
-//     if (!isValidEmail(email.value)) {
-//       setEmail({
-//         ...email,
-//         valid: false,
-//         message: 'Enter a valid email address.',
-//       });
-//     }
-//     if (email.value.length === 0)
-//       setEmail({
-//         ...email,
-//         valid: false,
-//         message: 'Please enter an email address.',
-//       });
-//   }
-// }
-
-// const rememberedEmailState = {
-//   value: getLocalStorageItem('rmmbrshvs')?.email,
-//   valid: true,
-//   message: '',
-// };
-// const rememberedPasswordState = {
-//   value: getLocalStorageItem('rmmbrshvs')?.password,
-//   valid: true,
-//   message: '',
-//   visible: false,
-// };
-
-// const [remembered, setRemembered] = useState(!!getLocalStorageItem('rmmbrshvs'));
-// const [email, setEmail] = useState(
-//   rememberedEmailState.value
-//     ? rememberedEmailState
-//     : { value: '', valid: true, message: null },
-// );
-// const [password, setPassword] = useState(
-//   rememberedPasswordState.value
-//     ? rememberedPasswordState
-//     : {
-//         value: '',
-//         valid: true,
-//         visible: false,
-//         message: null,
-//       },
-// );

@@ -41,7 +41,7 @@ export function sendGenericEmail(username, link) {
     // send confirmation email
     const mailOptions = {
       from: 'alraneus@gmail.com',
-      to: username,
+      to: 'shaun.tung@gmail.com',
       subject: 'Password Reset',
       text: `Hello,\n\n Please reset your password to your account by clicking the link: \n${link}`,
     };

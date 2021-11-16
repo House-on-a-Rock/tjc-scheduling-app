@@ -21,7 +21,6 @@ export const Password = forwardRef(
         label="Password"
         type={visible ? 'text' : 'password'}
         fullWidth
-        margin="dense"
         InputProps={{
           endAdornment: (
             <VisiblePasswordAdornment visible={visible} handleVisible={handleVisible} />
