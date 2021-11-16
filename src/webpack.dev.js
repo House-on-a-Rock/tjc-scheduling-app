@@ -11,13 +11,6 @@ const config = {
   entry: './index.jsx',
   resolve: {
     extensions: ['.js', '.jsx', '.json'],
-    alias: {
-      components: path.resolve(__dirname, 'components/'),
-      features: path.resolve(__dirname, 'features/'),
-      hooks: path.resolve(__dirname, 'hooks/'),
-      routes: path.resolve(__dirname, 'routes/'),
-      apis: path.resolve(__dirname, 'apis/'),
-    },
   },
   output: {
     filename: 'bundle.[chunkhash].js',

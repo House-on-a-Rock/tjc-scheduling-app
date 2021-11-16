@@ -1,5 +1,6 @@
+import React from 'react';
 import { Redirect, Route, Switch, useRouteMatch } from 'react-router-dom';
-import { ErrorPage, Login, ResetPassword, AuthEmail } from '../features/Auth';
+import { ErrorPage, Login, ResetPassword, AuthEmail } from '../components/Auth';
 
 const Auth = () => {
   const { path } = useRouteMatch();
