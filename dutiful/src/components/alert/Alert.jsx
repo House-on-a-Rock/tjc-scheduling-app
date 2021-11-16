@@ -1,5 +1,3 @@
-// import { Alert as MuiAlert, AlertTitle } from '@material-ui/lab';
-import { Typography } from '@material-ui/core';
 import MuiAlert from '@material-ui/lab/Alert';
 import MuiAlertTitle from '@material-ui/lab/AlertTitle';
 

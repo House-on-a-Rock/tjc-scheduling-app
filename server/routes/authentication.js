@@ -80,11 +80,10 @@ router.post('/resendConfirm', async (req, res, next) => {
   }
 });
 
-router.post('/webLogin', async (req, res, next) => {
+router.post('/login', async (req, res, next) => {
   try {
-    const { email: loginEmail, password: loginPassword } = req.body;
     const user = await db.User.findOne({
-      where: { email: loginEmail },
+      where: { email: req.body.email },
       include: [
         {
           model: db.Church,
@@ -93,37 +92,27 @@ router.post('/webLogin', async (req, res, next) => {
         },
       ],
     });
-    const {
-      password,
-      salt,
-      loginTimeout,
-      loginAttempts,
-      id,
-      isVerified,
-      isAdmin,
-      church,
-    } = user;
 
     const userRoles = await db.UserRole.findAll({
-      where: { userId: id },
+      where: { userId: user.Id },
     });
     const roleIds = userRoles
       .filter((userRole) => userRole.teamLead)
       .map((userRole) => userRole.roleId);
 
-    const hashedLoginPassword = hashPassword(loginPassword, salt);
+    const hashedLoginPassword = hashPassword(req.body.password, user.salt);
     const determineMessageStatus = () => {
       const currentTime = new Date();
       switch (true) {
         case !user:
           return ['Invalid Username or Password', 401];
-        case loginTimeout && loginTimeout.getTime() < currentTime.getTime():
+        case user.loginTimeout?.getTime() < currentTime.getTime():
           return ['Too many login attempts', 400];
-        case hashedLoginPassword !== password:
+        case hashedLoginPassword !== user.password:
           return ['Invalid Username or Password', 401];
-        case !isVerified:
+        case !user.isVerified:
           return ['Please verify your email', 403];
-        case roleIds.length || !isAdmin:
+        case roleIds.length || !user.isAdmin:
           return ['You are not permitted to access this site', 404];
         default:
           return ['success', 200];
@@ -132,93 +121,93 @@ router.post('/webLogin', async (req, res, next) => {
     const [message, status] = determineMessageStatus();
 
     if (status > 299) return res.status(status).send({ message });
-    if (hashedLoginPassword !== password) {
+    if (hashedLoginPassword !== user.password) {
       const updatedAttempts =
-        loginAttempts >= 3
+        user.loginAttempts >= 3
           ? {
-              id,
+              id: user.id,
               loginAttempts: 0,
               loginTimeout: addMinutes(new Date(), 5),
             }
-          : { id, loginAttempts: loginAttempts + 1 };
+          : { id: user.id, loginAttempts: user.loginAttempts + 1 };
       await user.update(updatedAttempts);
     }
-    await user.update({ id, loginAttempts: 0, loginTimeout: null });
-    const token = createUserToken('reg', id, church.id, 600, isAdmin, roleIds);
+    await user.update({ id: user.id, loginAttempts: 0, loginTimeout: null });
+    const token = createUserToken({ user, expirationMin: 600, roleIds });
 
-    return res.status(200).json({ redirectUrl: '/', token });
+    return res.status(200).json({ token });
   } catch (err) {
     next(err);
     return res.status(503).send({ message: 'Server error, try again later' });
   }
 });
 
-router.post('/login', async (req, res, next) => {
-  try {
-    const { email: loginEmail, password: loginPassword } = req.body;
-    const user = await db.User.findOne({
-      where: { email: loginEmail },
-      include: [
-        {
-          model: db.Church,
-          as: 'church',
-          attributes: ['id'],
-        },
-      ],
-    });
-    const {
-      password,
-      salt,
-      loginTimeout,
-      loginAttempts,
-      id,
-      isVerified,
-      firstName,
-      lastName,
-      email,
-      church,
-    } = user;
-    const hashedLoginPassword = hashPassword(loginPassword, salt);
-    const determineMessageStatus = () => {
-      const currentTime = new Date();
-      switch (true) {
-        case !user:
-          return ['Invalid Username or Password', 401];
-        case loginTimeout && loginTimeout.getTime() < currentTime.getTime():
-          return ['Too many login attempts', 400];
-        case hashedLoginPassword !== password:
-          return ['Invalid Username or Password', 401];
-        case !isVerified:
-          return ['Please verify your email', 403];
-        default:
-          return ['success', 200];
-      }
-    };
-    const [message, status] = determineMessageStatus();
+// router.post('/login', async (req, res, next) => {
+//   try {
+//     const { email: loginEmail, password: loginPassword } = req.body;
+//     const user = await db.User.findOne({
+//       where: { email: loginEmail },
+//       include: [
+//         {
+//           model: db.Church,
+//           as: 'church',
+//           attributes: ['id'],
+//         },
+//       ],
+//     });
+//     const {
+//       password,
+//       salt,
+//       loginTimeout,
+//       loginAttempts,
+//       id,
+//       isVerified,
+//       firstName,
+//       lastName,
+//       email,
+//       church,
+//     } = user;
+//     const hashedLoginPassword = hashPassword(loginPassword, salt);
+//     const determineMessageStatus = () => {
+//       const currentTime = new Date();
+//       switch (true) {
+//         case !user:
+//           return ['Invalid Username or Password', 401];
+//         case loginTimeout && loginTimeout.getTime() < currentTime.getTime():
+//           return ['Too many login attempts', 400];
+//         case hashedLoginPassword !== password:
+//           return ['Invalid Username or Password', 401];
+//         case !isVerified:
+//           return ['Please verify your email', 403];
+//         default:
+//           return ['success', 200];
+//       }
+//     };
+//     const [message, status] = determineMessageStatus();
 
-    if (status > 299) return res.status(status).send({ message });
-    if (hashedLoginPassword !== password) {
-      const updatedAttempts =
-        loginAttempts >= 3
-          ? {
-              id,
-              loginAttempts: 0,
-              loginTimeout: addMinutes(new Date(), 5),
-            }
-          : { id, loginAttempts: loginAttempts + 1 };
-      await user.update(updatedAttempts);
-    }
+//     if (status > 299) return res.status(status).send({ message });
+//     if (hashedLoginPassword !== password) {
+//       const updatedAttempts =
+//         loginAttempts >= 3
+//           ? {
+//               id,
+//               loginAttempts: 0,
+//               loginTimeout: addMinutes(new Date(), 5),
+//             }
+//           : { id, loginAttempts: loginAttempts + 1 };
+//       await user.update(updatedAttempts);
+//     }
 
-    await user.update({ id, loginAttempts: 0, loginTimeout: null });
-    const token = createUserToken('reg', id, church.id, 600);
-    return res
-      .status(status)
-      .json({ user_id: id, firstName, lastName, email, access_token: token });
-  } catch (err) {
-    next(err);
-    return res.status(503).send({ message: 'Server error, try again later' });
-  }
-});
+//     await user.update({ id, loginAttempts: 0, loginTimeout: null });
+//     const token = createUserToken('reg', id, church.id, 600);
+//     return res
+//       .status(status)
+//       .json({ user_id: id, firstName, lastName, email, access_token: token });
+//   } catch (err) {
+//     next(err);
+//     return res.status(503).send({ message: 'Server error, try again later' });
+//   }
+// });
 
 router.post('/confirmPassword', async (req, res, next) => {
   try {

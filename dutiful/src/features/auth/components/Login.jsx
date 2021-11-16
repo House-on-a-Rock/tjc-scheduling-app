@@ -29,21 +29,24 @@ export const Login = () => {
   const [remember, setRemember] = useState(false);
   const [error, setError] = useState({});
 
-  async function onSubmit(data) {
+  async function onSubmit(creds) {
     try {
-      const response = await login(data);
-      if (remember) loginCredStorage.setCredentials(data);
+      await login(creds);
+      if (remember) loginCredStorage.setCredentials(creds);
       else loginCredStorage.clearCredentials();
-      setError({});
+      navigate('/');
     } catch (error) {
-      console.log(error.response);
+      console.error(error.response);
       setError(error.response);
     }
   }
 
   const defaultValues = loginCredStorage.getCredentials();
 
-  useEffect(() => defaultValues && setRemember(true), []);
+  useEffect(() => {
+    if (defaultValues) setRemember(true);
+    return;
+  }, [defaultValues]);
 
   return (
     <div className={classes.root}>
@@ -72,7 +75,7 @@ export const Login = () => {
                   name="email"
                   label="Email"
                   margin="dense"
-                  error={formState?.errors.email}
+                  error={!!formState?.errors.email}
                   {...register('email')}
                 />
                 <Typography variant="inherit" color="textSecondary">
@@ -83,7 +86,7 @@ export const Login = () => {
                   name="password"
                   label="Password"
                   margin="dense"
-                  error={formState?.errors.password}
+                  error={!!formState?.errors.password}
                   {...register('password')}
                 />
                 <Typography variant="inherit" color="textSecondary">

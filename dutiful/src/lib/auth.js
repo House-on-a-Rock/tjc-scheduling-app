@@ -1,17 +1,15 @@
 import { initReactQueryAuth } from 'react-query-auth';
-
 import { Spinner } from '@components/loading';
-// import {
-//   loginWithEmailAndPassword,
-//   getUser,
-//   registerWithEmailAndPassword,
-// } from '@features/auth';
-import { tokenStorage } from 'utils/storage';
-import { authenticateLogin } from 'apis/auth';
 
-async function handleUserResponse(data) {
-  const { jwt, user } = data;
-  tokenStorage.setToken(jwt);
+import { tokenStorage } from 'utils/storage';
+import { authenticate } from 'apis/auth';
+
+import { extractTokenInfo } from 'utils/extractTokenInfo';
+
+async function handleUserResponse({ data }) {
+  const { token } = data;
+  const user = extractTokenInfo(token, 'user');
+  tokenStorage.setToken(token);
   return user;
 }
 
@@ -23,16 +21,13 @@ async function loadUser() {
   return null;
 }
 
-async function loginFn(data) {
-  // const response = await loginWithEmailAndPassword(data);
-  // const user = await handleUserResponse(response);
-  const response = await authenticateLogin(data);
-  // return user;
+async function loginFn(credentials) {
+  const response = await authenticate(credentials);
+  const user = await handleUserResponse(response);
+  return user;
 }
 
-async function registerFn(data) {
-  // const response = await registerWithEmailAndPassword(data);
-  // const user = await handleUserResponse(response);
+async function registerFn() {
   return {};
 }
 
