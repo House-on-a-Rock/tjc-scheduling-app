@@ -5,33 +5,32 @@ import { Visibility, VisibilityOff } from '@material-ui/icons';
 import { Textfield } from '.';
 import { forwardRef, useState } from 'react';
 
-export const Password = forwardRef(
-  ({ value, onChange, helperText = '', ...props }, ref) => {
-    const [visible, setVisible] = useState(false);
+export const Password = forwardRef(({ ...props }, ref) => {
+  const [visible, setVisible] = useState(false);
 
-    function handleVisible() {
-      setVisible(!visible);
-    }
+  function handleVisible() {
+    setVisible(!visible);
+  }
+  // console.log
 
-    return (
-      <Textfield
-        required
-        id="password"
-        name="password"
-        label="Password"
-        type={visible ? 'text' : 'password'}
-        fullWidth
-        InputProps={{
-          endAdornment: (
-            <VisiblePasswordAdornment visible={visible} handleVisible={handleVisible} />
-          ),
-        }}
-        ref={ref}
-        {...props}
-      />
-    );
-  },
-);
+  return (
+    <Textfield
+      required
+      id="password"
+      name="password"
+      label="Password"
+      type={visible ? 'text' : 'password'}
+      fullWidth
+      InputProps={{
+        endAdornment: (
+          <VisiblePasswordAdornment visible={visible} handleVisible={handleVisible} />
+        ),
+      }}
+      ref={ref}
+      {...props}
+    />
+  );
+});
 
 const VisiblePasswordAdornment = ({ visible, handleVisible }) => (
   <InputAdornment position="end">

@@ -90,16 +90,11 @@ const useStyles = makeStyles((theme) => ({
     alignItems: 'center',
     minHeight: '100vh',
   },
-
   paper: {
     marginTop: -theme.spacing(30),
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-  },
-  avatar: {
-    margin: theme.spacing(1),
-    backgroundColor: theme.palette.secondary.main,
   },
   error: {
     marginTop: theme.spacing(2),
@@ -110,11 +105,10 @@ const useStyles = makeStyles((theme) => ({
     width: '100%',
     marginTop: theme.spacing(3),
   },
-  submit: {
-    margin: theme.spacing(3, 0, 2),
+  textfield: {
+    margin: `${theme.spacing(1.5)}px 0`,
   },
   buttonRow: {
-    marginTop: theme.spacing(3),
     display: 'flex',
     justifyContent: 'space-between',
   },

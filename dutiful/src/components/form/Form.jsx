@@ -4,11 +4,11 @@ import clsx from 'clsx';
 import { yupResolver } from '@hookform/resolvers/yup';
 
 export const Form = ({
+  id,
   onSubmit,
   children,
   className,
   options,
-  id,
   schema,
   defaultValues = {},
 }) => {

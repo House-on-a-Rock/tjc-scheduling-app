@@ -163,7 +163,7 @@ const useStyles = makeStyles((theme) => ({
     backgroundColor: deepPurple[500],
   },
   textfield: {
-    marginTop: theme.spacing(3),
+    margin: `${theme.spacing(1.5)}px 0`,
   },
 }));
 
