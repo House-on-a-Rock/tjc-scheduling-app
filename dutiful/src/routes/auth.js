@@ -1,12 +1,15 @@
+import { Container } from '@material-ui/core';
 import { Login, Register } from 'features/auth';
 import { Route, Routes } from 'react-router-dom';
 
 export const AuthRoutes = () => {
   return (
-    <Routes>
-      <Route path="register" element={<Register />} />
-      <Route path="login" element={<Login />} />
-    </Routes>
+    <Container style={{ height: '100vh', marginTop: '20%' }}>
+      <Routes>
+        <Route path="register" element={<Register />} />
+        <Route path="login" element={<Login />} />
+      </Routes>
+    </Container>
   );
 };
 

@@ -6,7 +6,7 @@ import { ReactQueryDevtools } from 'react-query/devtools';
 import { BrowserRouter as Router } from 'react-router-dom';
 // import { AuthProvider } from '@lib/auth';
 import { queryClient } from 'lib/react-query';
-import { Spinner } from 'components/elements';
+import { Spinner } from 'components/loading';
 
 const ErrorFallback = () => {
   return (
