@@ -1,6 +1,6 @@
 const storagePrefix = 'dutiful_';
 
-const storage = {
+export const tokenStorage = {
   getToken: () => {
     return JSON.parse(window.localStorage.getItem(`${storagePrefix}token`));
   },
@@ -12,4 +12,14 @@ const storage = {
   },
 };
 
-export default storage;
+export const loginCredStorage = {
+  getCredentials: () => {
+    return JSON.parse(window.localStorage.getItem(`${storagePrefix}credentials`));
+  },
+  setCredentials: (cred) => {
+    window.localStorage.setItem(`${storagePrefix}credentials`, JSON.stringify(cred));
+  },
+  clearCredentials: () => {
+    window.localStorage.removeItem(`${storagePrefix}credentials`);
+  },
+};

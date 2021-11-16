@@ -1,41 +1,43 @@
 import { initReactQueryAuth } from 'react-query-auth';
 
 import { Spinner } from '@components/loading';
-import {
-  loginWithEmailAndPassword,
-  getUser,
-  registerWithEmailAndPassword,
-} from '@features/auth';
-import storage from '@utils/storage';
+// import {
+//   loginWithEmailAndPassword,
+//   getUser,
+//   registerWithEmailAndPassword,
+// } from '@features/auth';
+import { tokenStorage } from 'utils/storage';
+import { authenticateLogin } from 'apis/auth';
 
 async function handleUserResponse(data) {
   const { jwt, user } = data;
-  storage.setToken(jwt);
+  tokenStorage.setToken(jwt);
   return user;
 }
 
 async function loadUser() {
-  if (storage.getToken()) {
-    const data = await getUser();
-    return data;
+  if (tokenStorage.getToken()) {
+    // const data = await getUser();
+    // return data;
   }
   return null;
 }
 
 async function loginFn(data) {
-  const response = await loginWithEmailAndPassword(data);
-  const user = await handleUserResponse(response);
-  return user;
+  // const response = await loginWithEmailAndPassword(data);
+  // const user = await handleUserResponse(response);
+  const response = await authenticateLogin(data);
+  // return user;
 }
 
 async function registerFn(data) {
-  const response = await registerWithEmailAndPassword(data);
-  const user = await handleUserResponse(response);
-  return user;
+  // const response = await registerWithEmailAndPassword(data);
+  // const user = await handleUserResponse(response);
+  return {};
 }
 
 async function logoutFn() {
-  storage.clearToken();
+  tokenStorage.clearToken();
   window.location.assign(window.location.origin);
 }
 
