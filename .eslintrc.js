@@ -5,6 +5,7 @@ module.exports = {
   env: {
     browser: true,
     es2021: true,
+    node: true,
   },
   extends: [
     'plugin:react/recommended',
@@ -16,9 +17,13 @@ module.exports = {
     'airbnb-base',
   ],
   parserOptions: {
+    ecmaFeatures: {
+      jsx: true,
+    },
     ecmaVersion: 12,
     sourceType: 'module',
   },
+  plugins: ['react'],
   rules: {
     'accessor-pairs': 'error',
     'array-bracket-newline': 'error',
