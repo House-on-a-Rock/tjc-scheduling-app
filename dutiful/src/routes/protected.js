@@ -2,7 +2,6 @@ import { Suspense } from 'react';
 import { Navigate, Outlet } from 'react-router';
 import { MainLayout } from 'components/layout';
 import { Spinner } from 'components/loading';
-
 import { lazyImport } from 'utils/lazyImport';
 
 const { Templates } = lazyImport(() => import('features/templates'), 'Templates');

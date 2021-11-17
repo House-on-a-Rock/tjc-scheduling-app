@@ -12,7 +12,8 @@
       "@providers": ["providers]"],
       "@assets": ["assets"],
       "@routes": ["routes"],
-      "@lib": ["lib"]
+      "@lib": ["lib"],
+      "@themes": ["themes"]
     }
   }
 }

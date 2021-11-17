@@ -9,9 +9,9 @@ import MenuIcon from '@material-ui/icons/Menu';
 import AccountCircle from '@material-ui/icons/AccountCircle';
 import MailIcon from '@material-ui/icons/Mail';
 import NotificationsIcon from '@material-ui/icons/Notifications';
-
 import { makeStyles } from '@material-ui/core/styles';
-// import { buttonTheme } from '../../shared/styles/theme';
+
+// TODO reimport all button themes
 
 export const Header = ({ handleDrawer }) => {
   const classes = useStyles();
@@ -65,7 +65,6 @@ const useStyles = makeStyles((theme) => ({
   },
   burger: {
     width: theme.spacing(7) + 1,
-    // backgroundColor: 'yellow',
     marginRight: theme.spacing(1),
   },
 }));
