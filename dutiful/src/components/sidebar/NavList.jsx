@@ -2,7 +2,14 @@ import { useEffect, useState } from 'react';
 import clsx from 'clsx';
 
 import { makeStyles } from '@material-ui/core/styles';
-import { Collapse, List, ListItem, ListItemIcon, ListItemText } from '@material-ui/core';
+import {
+  Collapse,
+  Divider,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+} from '@material-ui/core';
 import { ExpandMore, ExpandLess } from '@material-ui/icons/';
 
 export const NavList = ({ options, nested = false, handleRoute, path = '', open }) => {
@@ -25,10 +32,26 @@ export const NavList = ({ options, nested = false, handleRoute, path = '', open 
 
   return (
     <List>
-      {options.map((option) => {
+      {options.map((option, idx) => {
+        if (option.type === 'title')
+          return (
+            <>
+              <ListItem key={`${option.title} ${idx}`} className={classes.titleListItem}>
+                <ListItemIcon className={clsx(classes.listIcon, classes.titleIcon)}>
+                  {option.icon}
+                </ListItemIcon>
+                <ListItemText
+                  primary={option.title}
+                  classes={{ primary: classes.title }}
+                />
+                {option.children && (open ? <ExpandLess /> : <ExpandMore />)}
+              </ListItem>
+              <Divider />
+            </>
+          );
         return (
           <NavListItem
-            key={option.label}
+            key={`${option.label} ${idx}`}
             className={clsx(nested && classes.nested)}
             option={option}
             onSelect={handleSelect(option.url)}
@@ -47,12 +70,12 @@ const NavListItem = ({ className, option, onSelect, selected, path, isDrawerOpen
   const [open, setOpen] = useState(false);
 
   function handleSelect() {
-    if (option.children) setOpen(!open);
+    if (isDrawerOpen && option.children) setOpen(!open);
     onSelect();
   }
-
+  // TODO change open logic to depend on child
   useEffect(() => {
-    setOpen(isDrawerOpen && selected);
+    setOpen(isDrawerOpen && selected && !!path);
   }, [isDrawerOpen, selected]);
 
   return (
@@ -92,10 +115,9 @@ const NavListItem = ({ className, option, onSelect, selected, path, isDrawerOpen
 const useStyles = makeStyles((theme) => ({
   listIcon: {
     marginLeft: theme.spacing(1),
-    color: 'white',
+    color: theme.palette.secondary.main,
   },
   text: {
-    color: 'white',
     fontWeight: 700,
   },
   nested: {
@@ -103,13 +125,22 @@ const useStyles = makeStyles((theme) => ({
   },
   selected: {
     '&$selected': {
-      backgroundColor: 'white',
+      backgroundColor: theme.palette.grey[300],
       '&:hover': {
-        backgroundColor: 'white',
+        backgroundColor: theme.palette.grey[300],
       },
     },
   },
   selectedItem: {
-    color: theme.palette.secondary.main,
+    color: theme.palette.primary.light,
+  },
+  titleListItem: {
+    margin: `${theme.spacing(2)}px 0`,
+  },
+  title: {
+    fontSize: theme.spacing(3),
+  },
+  titleIcon: {
+    color: theme.palette.primary.main,
   },
 }));

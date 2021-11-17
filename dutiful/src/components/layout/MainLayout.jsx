@@ -7,12 +7,18 @@ import {
   Group,
   RecentActors,
   GroupWork,
+  Home,
 } from '@material-ui/icons';
 
 import { Header, ToolbarPlaceholder } from 'components/header';
 import { NavSidebar } from 'components/sidebar';
 
 const navigationOptions = [
+  {
+    title: 'Unhidden',
+    icon: <Home />,
+    type: 'title',
+  },
   {
     title: 'Scheduling Tool',
     url: '/schedule',

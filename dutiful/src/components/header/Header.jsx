@@ -29,8 +29,8 @@ export const Header = ({ handleDrawer }) => {
               <MenuIcon />
             </IconButton>
           </div>
-          <Typography variant="h5" noWrap>
-            TJC Scheduling Platform
+          <Typography variant="h5" noWrap style={{ fontWeight: 600 }}>
+            DUTIFUL SOFTWARE
           </Typography>
         </div>
         <div className={classes.badges}>

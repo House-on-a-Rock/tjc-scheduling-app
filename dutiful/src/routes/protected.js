@@ -3,6 +3,7 @@ import { Navigate, Outlet } from 'react-router';
 import { MainLayout } from 'components/layout';
 import { Spinner } from 'components/loading';
 import { lazyImport } from 'utils/lazyImport';
+import { Card, Typography } from '@material-ui/core';
 
 const { Templates } = lazyImport(() => import('features/templates'), 'Templates');
 const { Scheduler } = lazyImport(() => import('features/scheduler'), 'Scheduler');
@@ -19,11 +20,19 @@ const App = () => {
   );
 };
 
-const UserManagement = () => {
+const UsersApp = () => {
+  return <Outlet />;
+};
+
+const UsersManagement = () => {
   return (
-    <div>
-      User Management
-      <Outlet />
+    <div style={{ display: 'flex' }}>
+      <Card>
+        <Typography>Users</Typography>
+      </Card>
+      <Card>
+        <Typography>Teams</Typography>
+      </Card>
     </div>
   );
 };
@@ -36,11 +45,11 @@ export const protectedRoutes = [
       { path: 'schedule', element: <Scheduler /> },
       {
         path: 'manage',
-        element: <UserManagement />,
+        element: <UsersApp />,
         children: [
+          { path: '*', element: <UsersManagement /> },
           { path: 'users', element: <Users /> },
           { path: 'teams', element: <Teams /> },
-          { path: '*', element: <Navigate to="users" /> },
         ],
       },
       { path: 'templates', element: <Templates /> },

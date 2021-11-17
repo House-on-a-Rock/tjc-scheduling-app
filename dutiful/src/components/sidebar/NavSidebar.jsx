@@ -38,6 +38,7 @@ export const NavSidebar = ({ open, options }) => {
       }}
     >
       <ToolbarPlaceholder />
+
       {path && (
         <NavList options={options} handleRoute={handleRoute} path={path} open={open} />
       )}
@@ -57,7 +58,7 @@ const useStyles = makeStyles((theme) => ({
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.enteringScreen,
     }),
-    background: theme.palette.secondary.main,
+    background: theme.palette.grey[200],
   },
   drawerClose: {
     transition: theme.transitions.create('width', {
@@ -69,6 +70,6 @@ const useStyles = makeStyles((theme) => ({
     [theme.breakpoints.up('sm')]: {
       width: theme.spacing(9) + 1,
     },
-    background: theme.palette.secondary.main,
+    background: theme.palette.grey[200],
   },
 }));
