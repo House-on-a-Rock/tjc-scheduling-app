@@ -3,12 +3,14 @@ import { Navigate, Outlet } from 'react-router';
 import { MainLayout } from 'components/layout';
 import { Spinner } from 'components/loading';
 import { lazyImport } from 'utils/lazyImport';
-import { Card, Typography } from '@material-ui/core';
 
 const { Templates } = lazyImport(() => import('features/templates'), 'Templates');
 const { Scheduler } = lazyImport(() => import('features/scheduler'), 'Scheduler');
 const { Teams } = lazyImport(() => import('features/teams'), 'Teams');
 const { Users } = lazyImport(() => import('features/users'), 'Users');
+const { Dashboard } = lazyImport(() => import('features/dashboard'), 'Dashboard');
+
+// TODO /manage/* doesn't renavigate to manage/
 
 const App = () => {
   return (
@@ -20,21 +22,8 @@ const App = () => {
   );
 };
 
-const UsersApp = () => {
-  return <Outlet />;
-};
-
 const UsersManagement = () => {
-  return (
-    <div style={{ display: 'flex' }}>
-      <Card>
-        <Typography>Users</Typography>
-      </Card>
-      <Card>
-        <Typography>Teams</Typography>
-      </Card>
-    </div>
-  );
+  return <Outlet />;
 };
 
 export const protectedRoutes = [
@@ -45,9 +34,9 @@ export const protectedRoutes = [
       { path: 'schedule', element: <Scheduler /> },
       {
         path: 'manage',
-        element: <UsersApp />,
+        element: <UsersManagement />,
         children: [
-          { path: '*', element: <UsersManagement /> },
+          { path: '*', element: <Dashboard /> },
           { path: 'users', element: <Users /> },
           { path: 'teams', element: <Teams /> },
         ],

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { CssBaseline } from '@material-ui/core';
+import { Container, CssBaseline, Typography } from '@material-ui/core';
 import {
   EventNote,
   Assignment,
@@ -8,6 +8,7 @@ import {
   RecentActors,
   GroupWork,
   Home,
+  LockOpen,
 } from '@material-ui/icons';
 
 import { Header, ToolbarPlaceholder } from 'components/header';
@@ -43,6 +44,13 @@ const navigationOptions = [
         url: '/teams',
         icon: <GroupWork />,
       },
+      {
+        title: 'Permissions',
+        label: 'permission',
+        url: '/manage',
+        icon: <LockOpen />,
+        disabled: true,
+      },
     ],
   },
   {
@@ -64,11 +72,15 @@ export const MainLayout = ({ children }) => {
   return (
     <div className={classes.root}>
       <CssBaseline />
-      <Header handleDrawer={handleDrawer} />
+      <Header handleDrawer={handleDrawer}>
+        <Typography variant="h5" noWrap style={{ fontWeight: 600 }}>
+          DUTIFUL SOFTWARE
+        </Typography>
+      </Header>
       <NavSidebar open={open} options={navigationOptions} />
       <main className={classes.content}>
         <ToolbarPlaceholder />
-        {children}
+        <Container maxWidth="lg">{children}</Container>
       </main>
     </div>
   );

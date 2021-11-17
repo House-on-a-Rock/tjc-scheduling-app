@@ -3,7 +3,7 @@ import React from 'react';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import IconButton from '@material-ui/core/IconButton';
-import Typography from '@material-ui/core/Typography';
+
 import Badge from '@material-ui/core/Badge';
 import MenuIcon from '@material-ui/icons/Menu';
 import AccountCircle from '@material-ui/icons/AccountCircle';
@@ -13,7 +13,7 @@ import { makeStyles } from '@material-ui/core/styles';
 
 // TODO reimport all button themes
 
-export const Header = ({ handleDrawer }) => {
+export const Header = ({ handleDrawer, children }) => {
   const classes = useStyles();
   return (
     <AppBar position="fixed" className={classes.appBar}>
@@ -29,9 +29,7 @@ export const Header = ({ handleDrawer }) => {
               <MenuIcon />
             </IconButton>
           </div>
-          <Typography variant="h5" noWrap style={{ fontWeight: 600 }}>
-            DUTIFUL SOFTWARE
-          </Typography>
+          {children}
         </div>
         <div className={classes.badges}>
           <IconButton aria-label="show 4 new mails" color="inherit">
