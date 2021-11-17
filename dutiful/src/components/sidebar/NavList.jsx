@@ -5,7 +5,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import { Collapse, List, ListItem, ListItemIcon, ListItemText } from '@material-ui/core';
 import { ExpandMore, ExpandLess } from '@material-ui/icons/';
 
-export const NavList = ({ options, nested = false, handleRoute, path = '' }) => {
+export const NavList = ({ options, nested = false, handleRoute, path = '', open }) => {
   const classes = useStyles();
   const [selected, setSelected] = useState('');
 
@@ -21,7 +21,7 @@ export const NavList = ({ options, nested = false, handleRoute, path = '' }) => 
     const selectedOption = options.find((option) => path.includes(option.url));
     if (selectedOption) setSelected(selectedOption.url);
     if (nested && selectedOption) handleRoute(selectedOption.url);
-  }, []);
+  }, [path, options, nested]);
 
   return (
     <List>
@@ -34,6 +34,7 @@ export const NavList = ({ options, nested = false, handleRoute, path = '' }) => 
             onSelect={handleSelect(option.url)}
             selected={selected.includes(option.label)}
             path={path}
+            isDrawerOpen={open}
           />
         );
       })}
@@ -41,7 +42,7 @@ export const NavList = ({ options, nested = false, handleRoute, path = '' }) => 
   );
 };
 
-const NavListItem = ({ className, option, onSelect, selected, path }) => {
+const NavListItem = ({ className, option, onSelect, selected, path, isDrawerOpen }) => {
   const classes = useStyles();
   const [open, setOpen] = useState(false);
 
@@ -50,7 +51,9 @@ const NavListItem = ({ className, option, onSelect, selected, path }) => {
     onSelect();
   }
 
-  useEffect(() => setOpen(selected), [selected]);
+  useEffect(() => {
+    setOpen(isDrawerOpen && selected);
+  }, [isDrawerOpen, selected]);
 
   return (
     <>
@@ -59,7 +62,7 @@ const NavListItem = ({ className, option, onSelect, selected, path }) => {
         className={className}
         classes={{ selected: classes.selected }}
         selected={selected}
-        onClick={handleSelect}
+        onClick={() => handleSelect()}
       >
         <ListItemIcon
           className={clsx(classes.listIcon, selected && classes.selectedItem)}
@@ -77,7 +80,7 @@ const NavListItem = ({ className, option, onSelect, selected, path }) => {
           <NavList
             options={option.children}
             nested
-            handleRoute={onSelect}
+            handleRoute={(event) => onSelect(event)}
             path={path.replace(option.url, '')}
           />
         </Collapse>

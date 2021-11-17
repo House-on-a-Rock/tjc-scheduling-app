@@ -17,20 +17,22 @@ export const Header = ({ handleDrawer }) => {
   const classes = useStyles();
   return (
     <AppBar position="fixed" className={classes.appBar}>
-      <Toolbar>
-        <div className={classes.burger}>
-          <IconButton
-            color="inherit"
-            aria-label="open drawer"
-            onClick={handleDrawer}
-            edge="start"
-          >
-            <MenuIcon />
-          </IconButton>
+      <Toolbar className={classes.root}>
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <div className={classes.burger}>
+            <IconButton
+              color="inherit"
+              aria-label="open drawer"
+              onClick={handleDrawer}
+              edge="start"
+            >
+              <MenuIcon />
+            </IconButton>
+          </div>
+          <Typography variant="h5" noWrap>
+            TJC Scheduling Platform
+          </Typography>
         </div>
-        <Typography variant="h6" noWrap>
-          TJC Scheduling Platform
-        </Typography>
         <div className={classes.badges}>
           <IconButton aria-label="show 4 new mails" color="inherit">
             <Badge badgeContent={4} color="secondary">
@@ -59,6 +61,7 @@ export const Header = ({ handleDrawer }) => {
 const useStyles = makeStyles((theme) => ({
   root: {
     display: 'flex',
+    justifyContent: 'space-between',
   },
   appBar: {
     zIndex: theme.zIndex.drawer + 1,

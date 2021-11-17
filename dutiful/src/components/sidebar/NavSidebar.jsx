@@ -12,7 +12,6 @@ export const NavSidebar = ({ open, options }) => {
   const classes = useStyles();
   const location = useLocation();
   const navigate = useNavigate();
-
   const [path, setPath] = useState('');
 
   function handleRoute(route) {
@@ -39,7 +38,9 @@ export const NavSidebar = ({ open, options }) => {
       }}
     >
       <ToolbarPlaceholder />
-      {path && <NavList options={options} handleRoute={handleRoute} path={path} />}
+      {path && (
+        <NavList options={options} handleRoute={handleRoute} path={path} open={open} />
+      )}
     </Drawer>
   );
 };
