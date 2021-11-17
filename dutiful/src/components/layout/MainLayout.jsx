@@ -1,31 +1,47 @@
 import { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { CssBaseline } from '@material-ui/core';
-import { EventNote, Assignment, Group } from '@material-ui/icons';
+import {
+  EventNote,
+  Assignment,
+  Group,
+  RecentActors,
+  GroupWork,
+} from '@material-ui/icons';
 
 import { Header, ToolbarPlaceholder } from 'components/header';
 import { NavSidebar } from 'components/sidebar';
 
 const navigationOptions = [
   {
-    label: 'Scheduling Tool',
+    title: 'Scheduling Tool',
     url: '/schedule',
     icon: <EventNote />,
+    label: 'schedule',
   },
   {
-    label: 'Teams',
+    title: 'User Management',
+    label: 'teams',
     url: '/teams',
-    icon: <Group />,
+    icon: <RecentActors />,
     children: [
       {
-        label: 'Users',
+        title: 'Teams',
+        label: 'teams',
+        url: '/teams',
+        icon: <GroupWork />,
+      },
+      {
+        title: 'Users',
+        label: 'users',
         url: '/users',
         icon: <Group />,
       },
     ],
   },
   {
-    label: 'Templates',
+    title: 'Templates',
+    label: 'templates',
     url: '/templates',
     icon: <Assignment />,
   },
@@ -33,7 +49,7 @@ const navigationOptions = [
 
 export const MainLayout = ({ children }) => {
   const classes = useStyles();
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(true);
 
   const handleDrawer = () => {
     setOpen(!open);

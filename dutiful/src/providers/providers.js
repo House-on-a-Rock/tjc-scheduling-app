@@ -7,6 +7,8 @@ import { BrowserRouter as Router } from 'react-router-dom';
 import { AuthProvider } from 'lib/auth';
 import { queryClient } from 'lib/react-query';
 import { Spinner } from 'components/loading';
+import { ThemeProvider } from '@material-ui/styles';
+import { theme } from 'themes';
 
 const ErrorFallback = () => {
   return (
@@ -27,7 +29,9 @@ export const AppProvider = ({ children }) => {
           <QueryClientProvider client={queryClient}>
             {process.env.NODE_ENV !== 'test' && <ReactQueryDevtools />}
             <AuthProvider>
-              <Router>{children}</Router>
+              <ThemeProvider theme={theme}>
+                <Router>{children}</Router>
+              </ThemeProvider>
             </AuthProvider>
           </QueryClientProvider>
         </HelmetProvider>
