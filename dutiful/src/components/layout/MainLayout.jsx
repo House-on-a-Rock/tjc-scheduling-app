@@ -21,21 +21,21 @@ const navigationOptions = [
   },
   {
     title: 'User Management',
-    label: 'teams',
-    url: '/teams',
+    label: 'manage',
+    url: '/manage',
     icon: <RecentActors />,
     children: [
-      {
-        title: 'Teams',
-        label: 'teams',
-        url: '/teams',
-        icon: <GroupWork />,
-      },
       {
         title: 'Users',
         label: 'users',
         url: '/users',
         icon: <Group />,
+      },
+      {
+        title: 'Teams',
+        label: 'teams',
+        url: '/teams',
+        icon: <GroupWork />,
       },
     ],
   },

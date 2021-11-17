@@ -7,6 +7,7 @@ import { lazyImport } from 'utils/lazyImport';
 const { Templates } = lazyImport(() => import('features/templates'), 'Templates');
 const { Scheduler } = lazyImport(() => import('features/scheduler'), 'Scheduler');
 const { Teams } = lazyImport(() => import('features/teams'), 'Teams');
+const { Users } = lazyImport(() => import('features/users'), 'Users');
 
 const App = () => {
   return (
@@ -18,13 +19,30 @@ const App = () => {
   );
 };
 
+const UserManagement = () => {
+  return (
+    <div>
+      User Management
+      <Outlet />
+    </div>
+  );
+};
+
 export const protectedRoutes = [
   {
     path: '*',
     element: <App />,
     children: [
       { path: 'schedule', element: <Scheduler /> },
-      { path: 'teams', element: <Teams /> },
+      {
+        path: 'manage',
+        element: <UserManagement />,
+        children: [
+          { path: 'users', element: <Users /> },
+          { path: 'teams', element: <Teams /> },
+          { path: '*', element: <Navigate to="users" /> },
+        ],
+      },
       { path: 'templates', element: <Templates /> },
       { path: '*', element: <Navigate to="schedule" /> },
     ],
