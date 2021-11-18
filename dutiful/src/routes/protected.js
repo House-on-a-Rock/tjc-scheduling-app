@@ -8,6 +8,7 @@ const { Templates } = lazyImport(() => import('features/templates'), 'Templates'
 const { Scheduler } = lazyImport(() => import('features/scheduler'), 'Scheduler');
 const { Teams } = lazyImport(() => import('features/teams'), 'Teams');
 const { Users } = lazyImport(() => import('features/users'), 'Users');
+const { Profile } = lazyImport(() => import('features/users'), 'Profile');
 const { Dashboard } = lazyImport(() => import('features/dashboard'), 'Dashboard');
 
 // TODO /manage/* doesn't renavigate to manage/
@@ -42,7 +43,7 @@ export const protectedRoutes = [
         ],
       },
       { path: 'templates', element: <Templates /> },
-      { path: 'profile', element: <div>Profile</div> },
+      { path: 'profile', element: <Profile /> },
       { path: 'settings', element: <div>Settings</div> },
       { path: 'notifications', element: <div>Notifications</div> },
       { path: '*', element: <Navigate to="schedule" /> },

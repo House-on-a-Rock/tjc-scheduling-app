@@ -31,7 +31,7 @@ export const Dashboard = () => {
 
   return (
     <div>
-      <Typography variant="h3">Dashboard</Typography>
+      <Typography variant="h3">User Management</Typography>
       <Divider />
       <Paper elevation={0} className={classes.dashboard}>
         <Grid container>

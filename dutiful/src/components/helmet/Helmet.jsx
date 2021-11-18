@@ -1,10 +1,10 @@
-import { Helmet } from 'react-helmet-async';
+import { Helmet as Helm } from 'react-helmet-async';
 
-export const ReactHelmet = ({ title = '' }) => {
+export const Helmet = ({ title = '' }) => {
   return (
-    <Helmet>
+    <Helm>
       <title>{`Dutiful${title ? ` - ${title}` : ''}`}</title>
       <meta name-="description" content="Scheduling and Duty Management Application" />
-    </Helmet>
+    </Helm>
   );
 };
