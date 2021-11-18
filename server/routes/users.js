@@ -35,6 +35,7 @@ router.get('/users', certify, async (req, res, next) => {
         'email',
         'churchId',
         'disabled',
+        'isVerified',
       ],
       include: [
         {

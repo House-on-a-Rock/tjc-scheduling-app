@@ -19,5 +19,6 @@ export function addUser(data) {
 }
 
 export const useUsers = (churchId) => {
+  console.log({ churchId });
   return useQuery({ queryKey: ['users'], queryFn: () => getUsers(churchId) });
 };
