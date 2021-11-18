@@ -43,19 +43,22 @@ export const MainLayout = ({ children }) => {
   };
 
   const headerActions = [
-    { key: 'mail', label: 'show 4 new mails', icon: <Mail />, disabled: true },
+    {
+      key: 'mail',
+      label: 'show 4 new mails',
+      icon: <Mail />,
+      disabled: true,
+    },
     {
       key: 'notification',
       label: 'show new notifications',
       icon: <Notifications />,
-      // type: 'link',
-      // url: '/notifications',
       type: 'menu',
       list: [
-        { text: 'Notification 1' },
-        { text: 'Notification 2' },
-        { text: 'Notification 3' },
-        { text: 'Notification 4' },
+        { text: 'Notification 1', type: 'link', url: '/notifications' },
+        { text: 'Notification 2', type: 'link', url: '/notifications' },
+        { text: 'Notification 3', type: 'link', url: '/notifications' },
+        { text: 'Notification 4', type: 'link', url: '/notifications' },
       ],
       disabled: true,
       tooltip: 'Notifications',
@@ -70,6 +73,7 @@ export const MainLayout = ({ children }) => {
         { text: 'My Account', type: 'link', url: '/settings' },
         { text: 'Logout', onClick: () => logout() },
       ],
+      tooltip: 'Account',
     },
   ];
 

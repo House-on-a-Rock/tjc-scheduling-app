@@ -1,8 +1,7 @@
 import { Fragment, useEffect, useRef, useState } from 'react';
-import Badge from '@material-ui/core/Badge';
-import IconButton from '@material-ui/core/IconButton';
-import { Menu, MenuItem } from 'components/menu';
 import { Link } from 'react-router-dom';
+import { Badge, IconButton, Tooltip } from '@material-ui/core';
+import { Menu, MenuItem } from 'components/menu';
 
 export const HeaderAction = ({ action }) => {
   const [open, setOpen] = useState(false);
@@ -43,16 +42,20 @@ export const HeaderAction = ({ action }) => {
 
   return (
     <Fragment key={`${action.key}`}>
-      <IconButton
-        key={action.key}
-        color="inherit"
-        disabled={action.disabled}
-        {...baseProps[action.type]}
-      >
-        <Badge badgeContent={action.items} color="secondary">
-          {action.icon}
-        </Badge>
-      </IconButton>
+      <Tooltip title={action.tooltip ?? ''}>
+        <span>
+          <IconButton
+            key={action.key}
+            color="inherit"
+            disabled={action.disabled}
+            {...baseProps[action.type]}
+          >
+            <Badge badgeContent={action.items} color="secondary">
+              {action.icon}
+            </Badge>
+          </IconButton>
+        </span>
+      </Tooltip>
       {action.type === 'menu' && (
         <Menu open={open} handleClose={handleClose} ref={anchorRef}>
           {action.list.map((item) => (
