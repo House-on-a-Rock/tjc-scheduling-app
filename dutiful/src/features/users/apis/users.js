@@ -18,7 +18,5 @@ export function addUser(data) {
   return axios.post('/api/user', data);
 }
 
-export const useUsers = (churchId) => {
-  console.log({ churchId });
-  return useQuery({ queryKey: ['users'], queryFn: () => getUsers(churchId) });
-};
+export const useUsers = (churchId) =>
+  useQuery({ queryKey: ['users'], queryFn: () => getUsers(churchId) });
