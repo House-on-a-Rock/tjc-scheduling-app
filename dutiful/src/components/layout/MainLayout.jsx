@@ -4,75 +4,79 @@ import { Container, CssBaseline, Typography } from '@material-ui/core';
 import {
   EventNote,
   Assignment,
-  Group,
+  AccountCircle,
   RecentActors,
-  GroupWork,
   Home,
-  LockOpen,
+  Mail,
+  Notifications,
 } from '@material-ui/icons';
 
 import { Header, ToolbarPlaceholder } from 'components/header';
 import { NavSidebar } from 'components/sidebar';
+import { useAuthorization } from 'lib/authorization';
+import { useAuth } from 'lib/auth';
 
 const navigationOptions = [
-  {
-    title: 'Unhidden',
-    icon: <Home />,
-    type: 'title',
-  },
-  {
-    title: 'Scheduling Tool',
-    url: '/schedule',
-    icon: <EventNote />,
-    label: 'schedule',
-  },
+  { title: 'Unhidden', icon: <Home />, type: 'title' },
+  { title: 'Scheduling Tool', url: '/schedule', icon: <EventNote />, label: 'schedule' },
   {
     title: 'User Management',
     label: 'manage',
     url: '/manage',
     icon: <RecentActors />,
     children: [
-      {
-        title: 'Users',
-        label: 'users',
-        url: '/users',
-        icon: <Group />,
-      },
-      {
-        title: 'Teams',
-        label: 'teams',
-        url: '/teams',
-        icon: <GroupWork />,
-      },
-      {
-        title: 'Permissions',
-        label: 'permission',
-        url: '/manage',
-        icon: <LockOpen />,
-        disabled: true,
-      },
+      { title: 'Users', label: 'users', url: '/users' },
+      { title: 'Teams', label: 'teams', url: '/teams' },
+      { title: 'Permissions', label: 'permission', url: '/permission', disabled: true },
     ],
   },
-  {
-    title: 'Templates',
-    label: 'templates',
-    url: '/templates',
-    icon: <Assignment />,
-  },
+  { title: 'Templates', label: 'templates', url: '/templates', icon: <Assignment /> },
 ];
 
 export const MainLayout = ({ children }) => {
   const classes = useStyles();
   const [open, setOpen] = useState(true);
+  const { logout } = useAuth();
 
   const handleDrawer = () => {
     setOpen(!open);
   };
 
+  const headerActions = [
+    { key: 'mail', label: 'show 4 new mails', icon: <Mail />, disabled: true },
+    {
+      key: 'notification',
+      label: 'show new notifications',
+      icon: <Notifications />,
+      // type: 'link',
+      // url: '/notifications',
+      type: 'menu',
+      list: [
+        { text: 'Notification 1' },
+        { text: 'Notification 2' },
+        { text: 'Notification 3' },
+        { text: 'Notification 4' },
+      ],
+      disabled: true,
+      tooltip: 'Notifications',
+    },
+    {
+      key: 'account',
+      label: 'account settings',
+      icon: <AccountCircle />,
+      type: 'menu',
+      list: [
+        { text: 'Profile', type: 'link', url: '/profile' },
+        { text: 'My Account', type: 'link', url: '/settings' },
+        { text: 'Logout', onClick: () => logout() },
+      ],
+    },
+  ];
+
   return (
     <div className={classes.root}>
       <CssBaseline />
-      <Header handleDrawer={handleDrawer}>
+      <Header handleDrawer={handleDrawer} actions={headerActions}>
         <Typography variant="h5" noWrap style={{ fontWeight: 600 }}>
           DUTIFUL SOFTWARE
         </Typography>

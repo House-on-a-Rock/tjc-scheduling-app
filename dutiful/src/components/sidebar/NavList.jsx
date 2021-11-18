@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import clsx from 'clsx';
 
 import { makeStyles } from '@material-ui/core/styles';
@@ -37,11 +37,13 @@ export const NavList = ({ options, nested = false, handleRoute, path = '', open 
       {options.map((option, idx) => {
         if (option.type === 'title')
           return (
-            <>
-              <ListItem key={`${option.title} ${idx}`} className={classes.titleListItem}>
-                <ListItemIcon className={clsx(classes.listIcon, classes.titleIcon)}>
-                  {option.icon}
-                </ListItemIcon>
+            <Fragment key={`${option.title} ${idx}`}>
+              <ListItem className={classes.titleListItem}>
+                {option.icon && (
+                  <ListItemIcon className={clsx(classes.listIcon, classes.titleIcon)}>
+                    {option.icon}
+                  </ListItemIcon>
+                )}
                 <ListItemText
                   primary={option.title}
                   classes={{ primary: classes.title }}
@@ -49,7 +51,7 @@ export const NavList = ({ options, nested = false, handleRoute, path = '', open 
                 {option.children && (open ? <ExpandLess /> : <ExpandMore />)}
               </ListItem>
               <Divider />
-            </>
+            </Fragment>
           );
         return (
           <NavListItem
@@ -125,9 +127,7 @@ const useStyles = makeStyles((theme) => ({
   text: {
     fontWeight: 700,
   },
-  nested: {
-    paddingLeft: theme.spacing(4),
-  },
+
   selected: {
     '&$selected': {
       backgroundColor: theme.palette.grey[300],

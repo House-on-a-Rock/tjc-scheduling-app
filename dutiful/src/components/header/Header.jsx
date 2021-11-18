@@ -4,16 +4,13 @@ import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import IconButton from '@material-ui/core/IconButton';
 
-import Badge from '@material-ui/core/Badge';
 import MenuIcon from '@material-ui/icons/Menu';
-import AccountCircle from '@material-ui/icons/AccountCircle';
-import MailIcon from '@material-ui/icons/Mail';
-import NotificationsIcon from '@material-ui/icons/Notifications';
 import { makeStyles } from '@material-ui/core/styles';
+import { HeaderAction } from './HeaderActions';
 
 // TODO reimport all button themes
 
-export const Header = ({ handleDrawer, children }) => {
+export const Header = ({ handleDrawer, actions, children }) => {
   const classes = useStyles();
   return (
     <AppBar position="fixed" className={classes.appBar}>
@@ -32,24 +29,9 @@ export const Header = ({ handleDrawer, children }) => {
           {children}
         </div>
         <div className={classes.badges}>
-          <IconButton aria-label="show 4 new mails" color="inherit">
-            <Badge badgeContent={4} color="secondary">
-              <MailIcon />
-            </Badge>
-          </IconButton>
-          <IconButton aria-label="show 17 new notifications" color="inherit">
-            <Badge badgeContent={17} color="secondary">
-              <NotificationsIcon />
-            </Badge>
-          </IconButton>
-          <IconButton
-            edge="end"
-            aria-label="account of current user"
-            aria-haspopup="true"
-            color="inherit"
-          >
-            <AccountCircle />
-          </IconButton>
+          {actions.map((action) => (
+            <HeaderAction key={action.label} action={action} />
+          ))}
         </div>
       </Toolbar>
     </AppBar>
