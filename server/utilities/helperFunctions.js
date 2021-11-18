@@ -99,16 +99,19 @@ export function addMinutes(date, minutes) {
   return new Date(date.getTime() + minutes * 60000);
 }
 
-export function createUserToken({ user, tokenType = '', expirationMin, roleIds = [] }) {
+export function createUserToken({ user, tokenType = '', expirationMin, teams = [] }) {
   console.log('Creating token');
-  let mappedRoleIds = '';
-  roleIds.forEach((roleId, id) => {
-    if (roleId) {
-      if (id === 0) mappedRoleIds += roleId.toString();
-      else mappedRoleIds += `|${roleId.toString()}`;
-    }
-  });
-  if (user.isAdmin) mappedRoleIds = '0';
+
+  let access = '';
+
+  if (user.isAdmin) access = 'ADMIN';
+  else if (teams.length) {
+    access = 'TEAM_LEAD';
+    teams.forEach(({ role }) => {
+      const { name } = role;
+      access = `${access}-${name.toUpperCase().replace(' ', '_').replace('-', '_')}`;
+    });
+  } else access = 'USER';
 
   const userInfo = JSON.stringify({
     id: user.id,
@@ -116,20 +119,18 @@ export function createUserToken({ user, tokenType = '', expirationMin, roleIds =
     firstName: user.firstName,
     lastName: user.lastName,
     email: user.email,
-    isAdmin: user.isAdmin,
+    access,
   });
+
   const token = jwt.sign(
     {
       iss: process.env.AUDIENCE,
       sub: `tjc-scheduling|${userInfo}`,
       exp: Math.floor(Date.now() / 1000) + expirationMin * 60 * 60,
       type: tokenType,
-      access: mappedRoleIds,
+      access,
     },
-    {
-      key: privateKey,
-      passphrase: process.env.PRIVATEKEY_PASS ?? '',
-    },
+    { key: privateKey, passphrase: process.env.PRIVATEKEY_PASS ?? '' },
     { algorithm: process.env.JWT_ALGORITHM },
   );
 

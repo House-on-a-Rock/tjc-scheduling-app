@@ -6,7 +6,7 @@ export const ErrorPage = ({
   message = 'Page not found',
   subtext = (
     <p>
-      The Page you are looking for doesn't exist or another error occurred. Go back or
+      The page you are looking for doesn't exist or another error occurred. Go back or
       head over to <a href="/auth/login">link</a> to login
     </p>
   ),

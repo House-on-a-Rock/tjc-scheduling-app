@@ -8,6 +8,7 @@ const aliases = (prefix = `src`) => ({
   '@routes': `${prefix}/routes`,
   '@lib': `${prefix}/lib`,
   '@themes': `${prefix}/themes`,
+  '@constants': `${prefix}/constants`,
 });
 
 module.exports = aliases;

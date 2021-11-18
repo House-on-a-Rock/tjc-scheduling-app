@@ -1,10 +1,8 @@
 import { initReactQueryAuth } from 'react-query-auth';
 import { Spinner } from '@components/loading';
-
 import { tokenStorage } from 'utils/storage';
-import { authenticate } from 'apis/auth';
-
 import { extractTokenInfo } from 'utils/extractTokenInfo';
+import { authenticate } from 'apis/auth';
 
 function checkTokenExpiration(token) {
   const expiration = extractTokenInfo(token, 'exp');

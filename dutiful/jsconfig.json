@@ -13,7 +13,8 @@
       "@assets": ["assets"],
       "@routes": ["routes"],
       "@lib": ["lib"],
-      "@themes": ["themes"]
+      "@themes": ["themes"],
+      "@constants": ["constants"]
     }
   }
 }

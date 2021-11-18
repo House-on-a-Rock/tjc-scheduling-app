@@ -15,33 +15,31 @@ import { Header, ToolbarPlaceholder } from 'components/header';
 import { NavSidebar } from 'components/sidebar';
 import { useAuthorization } from 'lib/authorization';
 import { useAuth } from 'lib/auth';
-
-const navigationOptions = [
-  { title: 'Unhidden', icon: <Home />, type: 'title' },
-  { title: 'Scheduling Tool', url: '/schedule', icon: <EventNote />, label: 'schedule' },
-  {
-    title: 'User Management',
-    label: 'manage',
-    url: '/manage',
-    icon: <RecentActors />,
-    children: [
-      { title: 'Users', label: 'users', url: '/users' },
-      { title: 'Teams', label: 'teams', url: '/teams' },
-      { title: 'Permissions', label: 'permission', url: '/permission', disabled: true },
-    ],
-  },
-  { title: 'Templates', label: 'templates', url: '/templates', icon: <Assignment /> },
-];
+import { ADMIN, HYMN_LEADER } from 'constants/permission';
 
 export const MainLayout = ({ children }) => {
   const classes = useStyles();
   const [open, setOpen] = useState(true);
-  const { logout } = useAuth();
 
   const handleDrawer = () => {
     setOpen(!open);
   };
 
+  return (
+    <div className={classes.root}>
+      <CssBaseline />
+      <HeaderNavigation toggleDrawer={handleDrawer} />
+      <AppSideNavigation open={open} />
+      <main className={classes.content}>
+        <ToolbarPlaceholder />
+        <Container maxWidth="lg">{children}</Container>
+      </main>
+    </div>
+  );
+};
+
+const HeaderNavigation = ({ toggleDrawer }) => {
+  const { logout } = useAuth();
   const headerActions = [
     {
       key: 'mail',
@@ -78,20 +76,47 @@ export const MainLayout = ({ children }) => {
   ];
 
   return (
-    <div className={classes.root}>
-      <CssBaseline />
-      <Header handleDrawer={handleDrawer} actions={headerActions}>
-        <Typography variant="h5" noWrap style={{ fontWeight: 600 }}>
-          DUTIFUL SOFTWARE
-        </Typography>
-      </Header>
-      <NavSidebar open={open} options={navigationOptions} />
-      <main className={classes.content}>
-        <ToolbarPlaceholder />
-        <Container maxWidth="lg">{children}</Container>
-      </main>
-    </div>
+    <Header handleDrawer={toggleDrawer} actions={headerActions}>
+      <Typography variant="h5" noWrap style={{ fontWeight: 600 }}>
+        DUTIFUL SOFTWARE
+      </Typography>
+    </Header>
   );
+};
+
+const AppSideNavigation = ({ open }) => {
+  const { checkAccess } = useAuthorization();
+  const navigationOptions = [
+    { title: 'Unhidden', icon: <Home />, type: 'title' },
+    {
+      title: 'Scheduling Tool',
+      url: '/schedule',
+      icon: <EventNote />,
+      label: 'schedule',
+    },
+    {
+      title: 'User Management',
+      label: 'manage',
+      url: '/manage',
+      icon: <RecentActors />,
+      children: [
+        checkAccess({ allowedRoles: [ADMIN] }) && {
+          title: 'Users',
+          label: 'users',
+          url: '/users',
+        },
+        checkAccess({ allowedRoles: [HYMN_LEADER] }) && {
+          title: 'Teams',
+          label: 'teams',
+          url: '/teams',
+        },
+        { title: 'Permissions', label: 'permission', url: '/permission', disabled: true },
+      ].filter(Boolean),
+    },
+    { title: 'Templates', label: 'templates', url: '/templates', icon: <Assignment /> },
+  ];
+
+  return <NavSidebar open={open} options={navigationOptions} />;
 };
 
 const useStyles = makeStyles((theme) => ({
