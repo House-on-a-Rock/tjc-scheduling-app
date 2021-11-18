@@ -54,7 +54,7 @@ export const Login = () => {
   useEffect(() => {
     if (defaultValues) setRemember(true);
     return;
-  }, [defaultValues]);
+  }, []);
 
   return (
     <Container className={classes.root} component="main" maxWidth="xs">
