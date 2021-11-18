@@ -166,5 +166,3 @@ const useStyles = makeStyles((theme) => ({
     margin: `${theme.spacing(1.5)}px 0`,
   },
 }));
-
-export default Login;

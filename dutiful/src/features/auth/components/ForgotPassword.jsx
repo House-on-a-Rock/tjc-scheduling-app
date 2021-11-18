@@ -1,15 +1,16 @@
-import { Container, makeStyles, Typography } from '@material-ui/core';
-import { recoverEmail } from 'apis/auth';
+import * as Yup from 'yup';
+import _ from 'lodash';
 import clsx from 'clsx';
+import { useState } from 'react';
+import { useNavigate } from 'react-router';
+
+import { Container, makeStyles, Typography } from '@material-ui/core';
 import { StatusAlert } from 'components/alert/StatusAlert';
 import { Button } from 'components/button';
 import { Form } from 'components/form';
 import { TransitionsModal } from 'components/modal';
 import { Textfield } from 'components/textfield';
-import { useState } from 'react';
-import { useNavigate } from 'react-router';
-import * as Yup from 'yup';
-import _ from 'lodash';
+import { recoverEmail } from 'features/auth/api';
 
 const validationSchema = Yup.object().shape({
   email: Yup.string().required('Email is required').email('Email is invalid'),

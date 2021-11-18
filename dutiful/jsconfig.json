@@ -8,7 +8,6 @@
       "@hooks": ["hooks"],
       "@services": ["services"],
       "@images": ["images"],
-      "@apis": ["apis"],
       "@providers": ["providers]"],
       "@assets": ["assets"],
       "@routes": ["routes"],

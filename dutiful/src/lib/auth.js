@@ -2,7 +2,7 @@ import { initReactQueryAuth } from 'react-query-auth';
 import { Spinner } from '@components/loading';
 import { tokenStorage } from 'utils/storage';
 import { extractTokenInfo } from 'utils/extractTokenInfo';
-import { authenticate } from 'apis/auth';
+import { authenticate } from 'features/auth/api';
 
 function checkTokenExpiration(token) {
   const expiration = extractTokenInfo(token, 'exp');
@@ -25,8 +25,8 @@ async function loadUser() {
 }
 
 async function loginFn(credentials) {
-  const response = await authenticate(credentials);
-  const user = await handleUserResponse(response.data.token);
+  const { token } = await authenticate(credentials);
+  const user = await handleUserResponse(token);
   return user;
 }
 
