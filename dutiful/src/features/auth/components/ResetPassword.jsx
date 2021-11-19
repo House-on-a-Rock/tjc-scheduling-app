@@ -36,7 +36,9 @@ export const ResetPassword = () => {
   const [error, setError] = useState(null);
 
   function handleSubmit(event) {
-    console.log({ event });
+    setError(null);
+    if (event) setLoading(true);
+    setLoading(false);
   }
 
   return (
@@ -45,7 +47,7 @@ export const ResetPassword = () => {
       <TransitionsModal
         open={openModal}
         setOpen={setOpenModal}
-        description={`You've successfully changed your password!`}
+        description="You've successfully changed your password!"
         status={loading}
       />
       <div className={classes.paper}>

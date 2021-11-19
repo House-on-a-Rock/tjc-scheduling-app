@@ -1,4 +1,4 @@
-import { Grid, makeStyles, MenuItem, Select } from '@material-ui/core';
+import { Grid, MenuItem, Select } from '@material-ui/core';
 import { Table } from 'components/table';
 import { useMemo } from 'react';
 import { useUsers } from '../apis/users';
@@ -75,4 +75,4 @@ export const UsersTable = ({ churchId }) => {
   );
 };
 
-const useStyles = makeStyles(() => ({}));
+// const useStyles = makeStyles(() => ({}));
