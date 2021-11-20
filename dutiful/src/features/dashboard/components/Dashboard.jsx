@@ -1,7 +1,9 @@
-import { makeStyles } from '@material-ui/core/styles';
-import { Divider, Grid, Paper, Typography } from '@material-ui/core';
+import { useTheme, makeStyles } from '@material-ui/core/styles';
+import { Divider, Grid, Paper, Typography, useMediaQuery } from '@material-ui/core';
+
 import { DashboardCard } from './DashboardCard';
 import clsx from 'clsx';
+import { useEffect } from 'react';
 
 // *Dashboard*
 // Notification- permit swap
@@ -28,27 +30,35 @@ import clsx from 'clsx';
 
 export const Dashboard = () => {
   const classes = useStyles();
+  const theme = useTheme();
+  const md = useMediaQuery(theme.breakpoints.up('md'));
 
   return (
     <div>
       <Typography variant="h3">User Management</Typography>
       <Divider />
       <Paper elevation={0} className={classes.dashboard}>
-        <Grid container>
-          <Grid item container direction="column" xs={10}>
+        <Grid container direction={md ? 'row' : 'column'}>
+          <Grid item container direction="column" md={10}>
             <Grid item className={clsx(classes.grid)}>
               <DashboardCard />
             </Grid>
             <Divider />
             <Grid item className={clsx(classes.grid, classes.cards)}>
-              <DashboardCard />
-              <DashboardCard />
+              <DashboardCard title="Users" />
+              <DashboardCard title="Teams" />
             </Grid>
           </Grid>
-          <Divider orientation="vertical" flexItem style={{ marginRight: '-1px' }} />
-          <Grid item xs={2} className={classes.grid}>
+
+          <Divider
+            orientation={md ? 'vertical' : 'horizontal'}
+            flexItem={md}
+            className={clsx(md && classes.divider)}
+          />
+
+          <Grid item md={2} className={classes.grid}>
             <Typography variant="h6">Recent Duty Switch</Typography>
-            <Divider />
+            {<Divider />}
           </Grid>
         </Grid>
       </Paper>
@@ -73,4 +83,5 @@ const useStyles = makeStyles((theme) => ({
     display: 'flex',
     justifyContent: 'space-evenly',
   },
+  divider: { marginRight: -theme.spacing(0.125) },
 }));

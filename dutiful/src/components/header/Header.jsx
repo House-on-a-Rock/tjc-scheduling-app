@@ -8,25 +8,22 @@ import MenuIcon from '@material-ui/icons/Menu';
 import { makeStyles } from '@material-ui/core/styles';
 import { HeaderAction } from './HeaderActions';
 
-// TODO reimport all button themes
-
-export const Header = ({ handleDrawer, actions, children }) => {
+export const Header = ({ toggleDrawer, actions, title }) => {
   const classes = useStyles();
   return (
     <AppBar position="fixed" className={classes.appBar}>
       <Toolbar className={classes.root}>
-        <div style={{ display: 'flex', alignItems: 'center' }}>
-          <div className={classes.burger}>
-            <IconButton
-              color="inherit"
-              aria-label="open drawer"
-              onClick={handleDrawer}
-              edge="start"
-            >
-              <MenuIcon />
-            </IconButton>
-          </div>
-          {children}
+        <div className={classes.left}>
+          <IconButton
+            color="inherit"
+            aria-label="open drawer"
+            onClick={toggleDrawer}
+            edge="start"
+            className={classes.burger}
+          >
+            <MenuIcon />
+          </IconButton>
+          {title}
         </div>
         <div className={classes.badges}>
           {actions.map((action) => (
@@ -49,5 +46,9 @@ const useStyles = makeStyles((theme) => ({
   burger: {
     width: theme.spacing(7) + 1,
     marginRight: theme.spacing(1),
+  },
+  left: {
+    display: 'flex',
+    alignItems: 'center',
   },
 }));
