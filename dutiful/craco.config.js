@@ -1,7 +1,7 @@
-const path = require('path');
-const alias = require('./src/config/aliases');
+const path = require(`path`);
+const alias = require(`./src/config/aliases`);
 
-const SRC = './src';
+const SRC = `./src`;
 const aliases = alias(SRC);
 
 const resolvedAliases = Object.fromEntries(

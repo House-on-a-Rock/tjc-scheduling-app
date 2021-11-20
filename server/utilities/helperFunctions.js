@@ -121,7 +121,6 @@ export function createUserToken({ user, tokenType = '', expirationMin, teams = [
     email: user.email,
     access,
   });
-
   const token = jwt.sign(
     {
       iss: process.env.AUDIENCE,
