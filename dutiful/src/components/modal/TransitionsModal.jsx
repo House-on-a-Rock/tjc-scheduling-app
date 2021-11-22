@@ -9,9 +9,6 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 import Button from '@material-ui/core/Button';
 import { Grid } from '@material-ui/core';
 
-// TODO style Transition Modal to something more aesthetic pleasing
-// TODO abstract Forgot Password logic out
-
 export const TransitionsModal = ({ open, setOpen, description, status }) => {
   const classes = useStyles();
   return (

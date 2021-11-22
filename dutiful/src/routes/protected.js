@@ -3,7 +3,7 @@ import { Navigate, Outlet } from 'react-router';
 import { MainLayout } from 'components/layout';
 import { Spinner } from 'components/loading';
 import { lazyImport } from 'utils/lazyImport';
-import { useAppNavigations } from '@hooks';
+import { useAppNavigations } from 'hooks';
 
 const { Templates } = lazyImport(() => import('features/templates'), 'Templates');
 const { Scheduler } = lazyImport(() => import('features/scheduler'), 'Scheduler');
@@ -11,8 +11,6 @@ const { Teams } = lazyImport(() => import('features/teams'), 'Teams');
 const { Users } = lazyImport(() => import('features/users'), 'Users');
 const { Profile } = lazyImport(() => import('features/users'), 'Profile');
 const { Dashboard } = lazyImport(() => import('features/dashboard'), 'Dashboard');
-
-// TODO /manage/* doesn't renavigate to manage/
 
 const App = () => {
   const [headers, sidebar] = useAppNavigations();

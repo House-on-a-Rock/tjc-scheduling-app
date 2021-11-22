@@ -17,8 +17,6 @@ import { PasswordStrengthMeter } from 'components/elements';
 import { StatusAlert } from 'components/alert/StatusAlert';
 import { Button } from 'components/button';
 
-// TODO render form alerts only "onSubmit"
-
 const validationSchema = Yup.object().shape({
   password: Yup.string()
     .required('Password is required')

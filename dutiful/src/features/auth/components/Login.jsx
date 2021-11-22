@@ -23,8 +23,6 @@ import { StatusAlert } from 'components/alert/StatusAlert';
 import { useAuth } from 'lib/auth';
 import { loginCredStorage } from 'utils/storage';
 
-// TODO make error's disappearance not affect the page layout
-
 const validationSchema = Yup.object().shape({
   email: Yup.string().required('Email is required').email('Email is invalid'),
   password: Yup.string().required('Password is required'),

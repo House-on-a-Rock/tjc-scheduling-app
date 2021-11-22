@@ -12,8 +12,6 @@ import {
 } from '@material-ui/core';
 import { ExpandMore, ExpandLess } from '@material-ui/icons/';
 
-// TODO event.preventDefault || separate the chevron icon
-
 export const NavList = ({ options, nested = false, handleRoute, path = '', open }) => {
   const classes = useStyles();
   const [selected, setSelected] = useState('');
@@ -79,7 +77,7 @@ const NavListItem = ({ className, option, onSelect, selected, path, isDrawerOpen
       onSelect();
     }
   }
-  // TODO change open logic to depend on child
+
   useEffect(() => {
     setOpen(isDrawerOpen && selected && !!path);
   }, [isDrawerOpen, selected]);
