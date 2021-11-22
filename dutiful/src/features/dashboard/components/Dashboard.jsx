@@ -3,9 +3,10 @@ import { Divider, Grid, Paper, Typography, useMediaQuery } from '@material-ui/co
 
 import { DashboardCard } from './DashboardCard';
 import clsx from 'clsx';
-import { useEffect } from 'react';
+import { useUsers } from 'features/users';
+import { RecentSwaps } from './RecentSwaps';
 
-// *Dashboard*
+// *Dashboard* (Top Bar)
 // Notification- permit swap
 // Go to "Notifications"
 // number of swaps last month
@@ -22,16 +23,12 @@ import { useEffect } from 'react';
 // Content- [Number of teams]
 // Action- to teams page, to team permissions
 
-// *Recent Swaps*
-// 1. Date
-// 2. Duty
-// 3. Switcher
-// 4. Switchee
-
 export const Dashboard = () => {
   const classes = useStyles();
   const theme = useTheme();
   const md = useMediaQuery(theme.breakpoints.up('md'));
+
+  const users = useUsers(2)?.data?.filter(({ firstName }) => !!firstName);
 
   return (
     <div>
@@ -39,26 +36,32 @@ export const Dashboard = () => {
       <Divider />
       <Paper elevation={0} className={classes.dashboard}>
         <Grid container direction={md ? 'row' : 'column'}>
-          <Grid item container direction="column" md={10}>
+          <Grid item container direction="column" md={8} lg={9}>
             <Grid item className={clsx(classes.grid)}>
               <DashboardCard />
             </Grid>
             <Divider />
             <Grid item className={clsx(classes.grid, classes.cards)}>
-              <DashboardCard title="Users" />
-              <DashboardCard title="Teams" />
+              <div className={classes.card}>
+                <DashboardCard title="Users" />
+              </div>
+              <div className={classes.card}>
+                <DashboardCard title="Teams" />
+              </div>
             </Grid>
           </Grid>
 
           <Divider
+            className={clsx(md && classes.divider)}
             orientation={md ? 'vertical' : 'horizontal'}
             flexItem={md}
-            className={clsx(md && classes.divider)}
           />
 
-          <Grid item md={2} className={classes.grid}>
-            <Typography variant="h6">Recent Duty Switch</Typography>
-            {<Divider />}
+          <Grid item md={4} lg={3} className={classes.grid}>
+            <Typography variant="h6">Recent Swaps</Typography>
+            <Divider />
+
+            <RecentSwaps />
           </Grid>
         </Grid>
       </Paper>
@@ -82,6 +85,10 @@ const useStyles = makeStyles((theme) => ({
   cards: {
     display: 'flex',
     justifyContent: 'space-evenly',
+  },
+  card: {
+    maxWidth: 300,
+    minWidth: 200,
   },
   divider: { marginRight: -theme.spacing(0.125) },
 }));

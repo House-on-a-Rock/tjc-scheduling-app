@@ -9,14 +9,14 @@ import {
   Typography,
 } from '@material-ui/core';
 
-export const DashboardCard = ({ title }) => {
+export const DashboardCard = ({ title = '' }) => {
   const classes = useStyles();
   return (
     <Card className={classes.root}>
-      <CardHeader title="Title" />
+      <CardHeader title={title} />
       <CardContent>
         <Typography variant="h5" component="h2">
-          {title}
+          Stuff
         </Typography>
         <Typography className={classes.pos} color="textSecondary">
           adjective
@@ -28,7 +28,7 @@ export const DashboardCard = ({ title }) => {
         </Typography>
       </CardContent>
       <CardActions>
-        <Button size="small">Learn More</Button>
+        <Button size="small">Click to go to {`${title}`}</Button>
       </CardActions>
     </Card>
   );

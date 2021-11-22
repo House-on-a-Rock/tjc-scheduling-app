@@ -1,58 +1,12 @@
-import { Grid, MenuItem, Select } from '@material-ui/core';
-import { Table } from 'components/table';
 import { useMemo } from 'react';
+import { Grid } from '@material-ui/core';
+import { Table } from 'components/table';
 import { useUsers } from '../apis/users';
-
-// TODO add guests
+import { defaultColumns } from './columns';
 
 export const UsersTable = ({ churchId }) => {
   const { data: users } = useUsers(churchId);
-  const columns = useMemo(
-    () => [
-      {
-        Header: 'Users',
-        columns: [
-          { Header: 'First Name', accessor: 'firstName' },
-          { Header: 'Last Name', accessor: 'lastName' },
-          { Header: 'Email', accessor: 'email' },
-          {
-            Header: 'Active',
-            accessor: 'active',
-            Cell: ({ value }) => {
-              return (
-                <Select value={value} variant="outlined">
-                  <MenuItem value="Yes">Yes</MenuItem>
-                  <MenuItem value="No">No</MenuItem>
-                </Select>
-              );
-            },
-          },
-          {
-            Header: 'Verified',
-            accessor: 'verified',
-            Cell: ({ value }) => {
-              return (
-                <>
-                  {value} {value !== 'Yes' && <button>Remind?</button>}
-                </>
-              );
-            },
-          },
-          {
-            Header: 'Action',
-            accessor: 'action',
-            Cell: (item) => (
-              <>
-                <button onClick={() => console.log(item)}>Edit</button>
-                <button onClick={() => console.log(item.value)}>Delete</button>
-              </>
-            ),
-          },
-        ],
-      },
-    ],
-    [],
-  );
+  const columns = useMemo(() => [{ Header: 'Users', columns: defaultColumns }], []);
   const data = users
     ?.map((user) => ({
       ...user,
@@ -74,5 +28,3 @@ export const UsersTable = ({ churchId }) => {
     </div>
   );
 };
-
-// const useStyles = makeStyles(() => ({}));

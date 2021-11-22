@@ -38,13 +38,7 @@ export const TransitionsModal = ({ open, setOpen, description, status }) => {
             </Grid>
             <Grid item className={classes.content} xs={8}>
               <div style={{ height: '80%' }}>
-                {status ? (
-                  <CircularProgress />
-                ) : (
-                  <>
-                    <p>{description}</p>
-                  </>
-                )}
+                {status ? <CircularProgress /> : <p>{description}</p>}
               </div>
             </Grid>
             <Grid item>
