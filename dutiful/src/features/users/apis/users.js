@@ -10,7 +10,6 @@ export function getUser(userId) {
 }
 
 export function destroyUser(userId) {
-  // only admins can delete, and they can't delete themselves
   return axios.delete(`/api/user/${userId}`);
 }
 

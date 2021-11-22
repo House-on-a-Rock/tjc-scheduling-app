@@ -13,7 +13,7 @@ router.get('/roles', certify, async (req, res, next) => {
         where: { churchId: churchId.toString() },
         attributes: ['id', 'name'],
       });
-      const userRoles = await db.UserRole.findAll({
+      const teammates = await db.UserRole.findAll({
         where: {
           roleId: {
             [Sequelize.Op.or]: roles.map((role) => role.id),
@@ -25,9 +25,13 @@ router.get('/roles', certify, async (req, res, next) => {
         ],
       });
       const rolesWithAssociatedUsers = roles.map((role) => {
-        const filteredByRole = userRoles.filter(
-          (userRole) => userRole.roleId === role.id,
-        );
+        const filteredByRole = teammates
+          .filter((userRole) => userRole.roleId === role.id && role.name !== 'Any')
+          .map((ur) => ({
+            teamLead: ur.teamLead,
+            firstName: ur.user.firstName,
+            lastName: ur.user.lastName,
+          }));
         return { id: role.id, name: role.name, users: filteredByRole };
       });
       return res.status(200).json(rolesWithAssociatedUsers);

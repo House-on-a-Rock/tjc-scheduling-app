@@ -29,7 +29,7 @@ export const RecentSwaps = () => {
                       </Grid>
                     ))}
                   </Grid>
-                  <Typography>{convertDate(date)}</Typography>
+                  <Typography color="textSecondary">{convertDate(date)}</Typography>
                 </Grid>
               </Grid>
             </ListItem>

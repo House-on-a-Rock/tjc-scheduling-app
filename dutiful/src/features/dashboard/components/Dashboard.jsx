@@ -1,10 +1,12 @@
 import { useTheme, makeStyles } from '@material-ui/core/styles';
 import { Divider, Grid, Paper, Typography, useMediaQuery } from '@material-ui/core';
 
-import { DashboardCard } from './DashboardCard';
+import { DashboardCards } from './DashboardCards';
 import clsx from 'clsx';
 import { useUsers } from 'features/users';
 import { RecentSwaps } from './RecentSwaps';
+import { Button, Card, CardActions, CardContent } from '@material-ui/core';
+import { useTeams } from 'features/teams/apis';
 
 // *Dashboard* (Top Bar)
 // Notification- permit swap
@@ -12,23 +14,13 @@ import { RecentSwaps } from './RecentSwaps';
 // number of swaps last month
 // number of swaps this month
 
-// *Cards*
-// 1. Users
-// Title- Users
-// Content- [Number of Users, ]
-// Action- to users page
-
-// 2. Teams
-// Title- Users
-// Content- [Number of teams]
-// Action- to teams page, to team permissions
-
 export const Dashboard = () => {
   const classes = useStyles();
   const theme = useTheme();
   const md = useMediaQuery(theme.breakpoints.up('md'));
 
   const users = useUsers(2)?.data?.filter(({ firstName }) => !!firstName);
+  const teams = useTeams(2)?.data;
 
   return (
     <div>
@@ -36,19 +28,14 @@ export const Dashboard = () => {
       <Divider />
       <Paper elevation={0} className={classes.dashboard}>
         <Grid container direction={md ? 'row' : 'column'}>
-          <Grid item container direction="column" md={8} lg={9}>
-            <Grid item className={clsx(classes.grid)}>
-              <DashboardCard />
-            </Grid>
-            <Divider />
-            <Grid item className={clsx(classes.grid, classes.cards)}>
-              <div className={classes.card}>
-                <DashboardCard title="Users" />
-              </div>
-              <div className={classes.card}>
-                <DashboardCard title="Teams" />
-              </div>
-            </Grid>
+          <Grid
+            item
+            container
+            md={8}
+            lg={9}
+            className={clsx(classes.grid, classes.cards)}
+          >
+            {users && teams && <DashboardCards users={users} teams={teams} />}
           </Grid>
 
           <Divider
@@ -56,11 +43,11 @@ export const Dashboard = () => {
             orientation={md ? 'vertical' : 'horizontal'}
             flexItem={md}
           />
-
           <Grid item md={4} lg={3} className={classes.grid}>
-            <Typography variant="h6">Recent Swaps</Typography>
+            <Typography variant="h6" style={{ fontWeight: '700' }}>
+              Recent Swaps
+            </Typography>
             <Divider />
-
             <RecentSwaps />
           </Grid>
         </Grid>
@@ -70,10 +57,6 @@ export const Dashboard = () => {
 };
 
 const useStyles = makeStyles((theme) => ({
-  root: {
-    minWidth: 275,
-    minHeight: 300,
-  },
   dashboard: {
     marginTop: theme.spacing(6),
     padding: theme.spacing(3),
@@ -86,9 +69,6 @@ const useStyles = makeStyles((theme) => ({
     display: 'flex',
     justifyContent: 'space-evenly',
   },
-  card: {
-    maxWidth: 300,
-    minWidth: 200,
-  },
+
   divider: { marginRight: -theme.spacing(0.125) },
 }));
