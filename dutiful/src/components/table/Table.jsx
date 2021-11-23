@@ -7,7 +7,10 @@ import { useTable, useSortBy, usePagination, useRowSelect } from 'react-table';
 import { forwardRef, useEffect, useRef } from 'react';
 
 import { makeStyles } from '@material-ui/core/styles';
-// import Pagination from '@material-ui/lab/Pagination';
+
+// TODO improve Table styling
+// TODO improve Table dynamic props
+// TODO compose Table to provide methods to top level components
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -18,6 +21,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export const Table = ({ columns, data }) => {
+  console.log({ data });
   const {
     getTableProps,
     headerGroups,
@@ -70,8 +74,6 @@ export const Table = ({ columns, data }) => {
     },
   );
 
-  const classes = useStyles();
-  console.log({ page });
   return (
     <>
       <MuiTable {...getTableProps()}>
@@ -102,7 +104,6 @@ export const Table = ({ columns, data }) => {
           })}
         </MuiTableBody>
       </MuiTable>
-      {/* <Pagination count={10} shape="rounded" page={page} /> */}
       <div className="pagination">
         <button onClick={() => gotoPage(0)} disabled={!canPreviousPage}>
           {'<<'}
