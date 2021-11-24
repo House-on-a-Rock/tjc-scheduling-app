@@ -8,10 +8,6 @@ import { forwardRef, useEffect, useRef } from 'react';
 
 import { makeStyles } from '@material-ui/core/styles';
 
-// TODO improve Table styling
-// TODO improve Table dynamic props
-// TODO compose Table to provide methods to top level components
-
 const useStyles = makeStyles((theme) => ({
   root: {
     '& > *': {

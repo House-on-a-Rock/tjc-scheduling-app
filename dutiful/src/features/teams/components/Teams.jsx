@@ -7,9 +7,6 @@ import { Button } from 'components/button';
 
 import { useTeams } from '../apis';
 
-// TODO update teams to include access levels
-// TODO generate what kind of access levels there are
-
 export const Teams = () => {
   const teams = useTeams(2)?.data;
   const classes = useStyles();
