@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import clsx from 'clsx';
 import { makeStyles } from '@material-ui/styles';
-import { Table } from 'components/table';
 import { Slider } from 'components/slider';
 import { Button } from 'components/button';
+import { TableHeader, TableBody, Table } from 'components/table';
+import { Pagination } from 'components/pagination';
 
 import { useTeams } from '../apis';
 
@@ -15,7 +16,13 @@ export const Teams = () => {
   return (
     <div className={classes.root}>
       <div className={classes.content}>
-        {teams && <Table columns={defaultColumns} data={teams[step].users} />}
+        {teams && (
+          <Table columns={defaultColumns} data={teams[step].users}>
+            {({ headerGroups }) => <TableHeader headerGroups={headerGroups} />}
+            {({ page, prepareRow }) => <TableBody page={page} prepareRow={prepareRow} />}
+            {(methods) => <Pagination methods={methods} />}
+          </Table>
+        )}
       </div>
       <div className={classes.footer}>
         {teams && <BottomTabs activeStep={step} setActiveStep={setStep} data={teams} />}

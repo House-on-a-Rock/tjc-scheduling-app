@@ -4,12 +4,10 @@ import { Helmet } from 'components/helmet';
 
 function App() {
   return (
-    <>
-      <AppProvider>
-        <Helmet />
-        <AppRoutes />
-      </AppProvider>
-    </>
+    <AppProvider>
+      <Helmet />
+      <AppRoutes />
+    </AppProvider>
   );
 }
 
