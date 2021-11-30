@@ -14,7 +14,15 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export const Table = ({ columns, data, paginatable, children, sortable }) => {
+export const Table = ({
+  columns,
+  data,
+  paginatable,
+  children,
+  sortable,
+  updateMethods,
+  ...props
+}) => {
   const [header, body, pages] = children;
   const tableProps = useTableProps({
     columns,
@@ -22,6 +30,7 @@ export const Table = ({ columns, data, paginatable, children, sortable }) => {
     multiselect: false,
     paginatable,
     sortable,
+    updateMethods,
   });
   const methods = useTable(...tableProps);
 
@@ -34,18 +43,25 @@ export const Table = ({ columns, data, paginatable, children, sortable }) => {
   const paginationMethods = () => methods;
 
   return (
-    <>
+    <div {...props}>
       <MuiTable {...methods.getTableProps()}>
         {header(headerMethods())}
         {body(bodyMethods())}
       </MuiTable>
       {pages && <div>{pages(paginationMethods())}</div>}
-    </>
+    </div>
   );
 };
 
-const useTableProps = ({ columns, data, multiselect, paginatable, sortable }) => {
-  const tableProps = [{ columns, data }];
+const useTableProps = ({
+  columns,
+  data,
+  multiselect,
+  paginatable,
+  sortable,
+  updateMethods,
+}) => {
+  const tableProps = [{ columns, data, ...updateMethods }];
   const rowSelect = [
     useRowSelect,
     (hooks) => {

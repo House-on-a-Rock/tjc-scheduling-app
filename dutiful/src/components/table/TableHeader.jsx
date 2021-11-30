@@ -11,7 +11,6 @@ export const TableHeader = ({ headerGroups, sortable }) => {
         <MuiTableRow {...headerGroup.getHeaderGroupProps()}>
           {headerGroup.headers.map((column) => {
             const sortProps = sortable && column.getSortByToggleProps();
-            console.log(column.render);
             return (
               <MuiTableCell {...column.getHeaderProps(sortProps)}>
                 <div style={{ display: 'flex' }}>
