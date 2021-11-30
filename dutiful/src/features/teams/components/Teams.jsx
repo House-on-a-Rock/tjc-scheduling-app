@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import clsx from 'clsx';
 import { makeStyles } from '@material-ui/styles';
 import { Slider } from 'components/slider';
@@ -12,15 +12,18 @@ export const Teams = () => {
   const teams = useTeams(2)?.data;
   const classes = useStyles();
   const [step, setStep] = useState(0);
+  const pagination = teams?.[step].users.length > 10;
+
+  const columns = useMemo(() => defaultColumns, []);
 
   return (
     <div className={classes.root}>
       <div className={classes.content}>
         {teams && (
-          <Table columns={defaultColumns} data={teams[step].users}>
-            {({ headerGroups }) => <TableHeader headerGroups={headerGroups} />}
-            {({ page, prepareRow }) => <TableBody page={page} prepareRow={prepareRow} />}
-            {(methods) => <Pagination methods={methods} />}
+          <Table columns={columns} data={teams[step].users} paginatable={pagination}>
+            {TableHeader}
+            {TableBody}
+            {pagination && Pagination}
           </Table>
         )}
       </div>

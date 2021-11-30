@@ -1,16 +1,19 @@
+import { TableRow, TableCell } from '@material-ui/core';
 import MuiTableBody from '@material-ui/core/TableBody';
 
-export const TableBody = ({ page, prepareRow }) => {
+export const TableBody = ({ rows, prepareRow }) => {
   return (
     <MuiTableBody>
-      {page.map((row, i) => {
+      {rows.map((row) => {
         prepareRow(row);
         return (
-          <tr {...row.getRowProps()}>
+          <TableRow {...row.getRowProps()}>
             {row.cells.map((cell) => {
-              return <td {...cell.getCellProps()}>{cell.render('Cell')}</td>;
+              return (
+                <TableCell {...cell.getCellProps()}>{cell.render('Cell')}</TableCell>
+              );
             })}
-          </tr>
+          </TableRow>
         );
       })}
     </MuiTableBody>

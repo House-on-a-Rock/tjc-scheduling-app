@@ -1,15 +1,14 @@
-export const Pagination = ({ methods }) => {
-  const {
-    gotoPage,
-    canPreviousPage,
-    previousPage,
-    canNextPage,
-    nextPage,
-    pageCount,
-    state: { pageIndex, pageSize, selectedRowIds },
-    pageOptions,
-    setPageSize,
-  } = methods;
+export const Pagination = ({
+  gotoPage,
+  canPreviousPage,
+  previousPage,
+  canNextPage,
+  nextPage,
+  pageCount,
+  state: { pageIndex, pageSize, selectedRowIds },
+  pageOptions,
+  setPageSize,
+}) => {
   return (
     <div className="pagination">
       <button onClick={() => gotoPage(0)} disabled={!canPreviousPage}>

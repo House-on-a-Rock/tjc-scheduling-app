@@ -2,6 +2,7 @@ import MuiTable from '@material-ui/core/Table';
 
 import { useTable, useSortBy, usePagination, useRowSelect } from 'react-table';
 import { forwardRef, useEffect, useRef } from 'react';
+import Checkbox from '@material-ui/core/Checkbox';
 
 import { makeStyles } from '@material-ui/core/styles';
 
@@ -13,52 +14,61 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export const Table = ({ columns, data, children }) => {
-  // const tableProps =
-  const methods = useTable(
-    {
-      columns,
-      data,
-    },
-    useSortBy,
-    usePagination,
+export const Table = ({ columns, data, paginatable, children, sortable }) => {
+  const [header, body, pages] = children;
+  const tableProps = useTableProps({
+    columns,
+    data,
+    multiselect: false,
+    paginatable,
+    sortable,
+  });
+  const methods = useTable(...tableProps);
+
+  const headerMethods = () => ({ headerGroups: methods.headerGroups, sortable });
+  const bodyMethods = () => {
+    let props = { prepareRow: methods.prepareRow };
+    props.rows = paginatable ? methods.page : methods.rows;
+    return props;
+  };
+  const paginationMethods = () => methods;
+
+  return (
+    <>
+      <MuiTable {...methods.getTableProps()}>
+        {header(headerMethods())}
+        {body(bodyMethods())}
+      </MuiTable>
+      {pages && <div>{pages(paginationMethods())}</div>}
+    </>
+  );
+};
+
+const useTableProps = ({ columns, data, multiselect, paginatable, sortable }) => {
+  const tableProps = [{ columns, data }];
+  const rowSelect = [
     useRowSelect,
     (hooks) => {
       hooks.visibleColumns.push((columns) => [
-        // Let's make a column for selection
         {
           id: 'selection',
-          // The header can use the table's getToggleAllRowsSelectedProps method
-          // to render a checkbox
           Header: ({ getToggleAllPageRowsSelectedProps }) => (
-            <div>
-              <IndeterminateCheckbox {...getToggleAllPageRowsSelectedProps()} />
-            </div>
+            <IndeterminateCheckbox {...getToggleAllPageRowsSelectedProps()} />
           ),
-          // The cell can use the individual row's getToggleRowSelectedProps method
-          // to the render a checkbox
           Cell: ({ row }) => (
-            <div>
-              <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} />
-            </div>
+            <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} />
           ),
         },
         ...columns,
       ]);
     },
-  );
-
-  console.log({ children });
-
-  return (
-    <>
-      <MuiTable {...methods.getTableProps()}>
-        {children[0](methods)}
-        {children[1](methods)}
-      </MuiTable>
-      <div>{children[2](methods)}</div>
-    </>
-  );
+  ];
+  const pageProps = [usePagination];
+  const sortProps = [useSortBy];
+  if (multiselect) tableProps.push(...rowSelect);
+  if (sortable) tableProps.push(...sortProps);
+  if (paginatable) tableProps.push(...pageProps);
+  return tableProps;
 };
 
 const IndeterminateCheckbox = forwardRef(({ indeterminate, ...rest }, ref) => {
@@ -69,9 +79,5 @@ const IndeterminateCheckbox = forwardRef(({ indeterminate, ...rest }, ref) => {
     resolvedRef.current.indeterminate = indeterminate;
   }, [resolvedRef, indeterminate]);
 
-  return (
-    <>
-      <input type="checkbox" ref={resolvedRef} {...rest} />
-    </>
-  );
+  return <Checkbox ref={resolvedRef} {...rest} />;
 });

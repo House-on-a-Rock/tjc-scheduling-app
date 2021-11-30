@@ -8,7 +8,7 @@ import { Pagination } from 'components/pagination';
 
 export const UsersTable = ({ churchId }) => {
   const { data: users } = useUsers(churchId);
-  const columns = useMemo(() => [{ Header: 'Users', columns: defaultColumns }], []);
+  const columns = useMemo(() => defaultColumns, []);
   const data = users
     ?.map((user) => ({
       ...user,
@@ -19,17 +19,16 @@ export const UsersTable = ({ churchId }) => {
     }))
     .filter((item) => !!item.firstName);
 
+  const pagination = true;
   return (
     <div>
       <Grid container spacing={3}>
         <Grid item xs={12}>
           {data && (
-            <Table columns={columns} data={data}>
-              {({ headerGroups }) => <TableHeader headerGroups={headerGroups} />}
-              {({ page, prepareRow }) => (
-                <TableBody page={page} prepareRow={prepareRow} />
-              )}
-              {(methods) => <Pagination methods={methods} />}
+            <Table columns={columns} data={data} paginatable={pagination} sortable>
+              {TableHeader}
+              {TableBody}
+              {pagination && Pagination}
             </Table>
           )}
         </Grid>
