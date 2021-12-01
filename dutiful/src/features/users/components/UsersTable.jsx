@@ -35,17 +35,17 @@ export const UsersTable = ({ churchId }) => {
       );
   }, [users]);
 
-  // const largeData = data && [
-  //   ...data,
-  //   ...data,
-  //   ...data,
-  //   ...data,
-  //   ...data,
-  //   ...data,
-  //   ...data,
-  //   ...data,
-  //   ...data,
-  // ];
+  const largeData = data && [
+    ...data,
+    ...data,
+    ...data,
+    ...data,
+    ...data,
+    ...data,
+    ...data,
+    ...data,
+    ...data,
+  ];
   const pagination = true;
 
   return (
@@ -55,7 +55,7 @@ export const UsersTable = ({ churchId }) => {
           {data && (
             <Table
               columns={columns}
-              data={data}
+              data={largeData}
               paginatable={pagination}
               sortable
               style={{ minHeight: '82vh', position: 'relative' }}
@@ -66,12 +66,31 @@ export const UsersTable = ({ churchId }) => {
               {pagination &&
                 ((props) => (
                   <div style={{ position: 'absolute', bottom: 0 }}>
-                    {<Pagination {...props} />}
+                    {
+                      <Pagination
+                        dataLength={100}
+                        itemsPerPage={1}
+                        pageSpreadMax={7}
+                        {...props}
+                      />
+                    }
                   </div>
                 ))}
+              {/* {pagination &&
+                ((props) => (
+                  <div style={{ position: 'absolute', bottom: 0 }}>
+                    <PaginatedButtonBar
+                      dataLength={100}
+                      itemsPerPage={1}
+                      pageSpreadMax={7}
+                      {...props}
+                    />
+                  </div>
+                ))} */}
             </Table>
           )}
         </Grid>
+        {/* <PaginatedButtonBar dataLength={100} itemsPerPage={1} pageSpreadMax={7} /> */}
         <Grid></Grid>
       </Grid>
       {/* CRUD/RequestAvailabilitiesDialog DIALOGS */}

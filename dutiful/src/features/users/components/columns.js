@@ -2,7 +2,7 @@ import { ButtonGroup, Menu, MenuItem } from '@material-ui/core';
 import { Button } from 'components/button';
 import { useState } from 'react';
 
-const SetActive = ({ value, row: { index }, column: { id }, updateMyData }) => {
+const SetStatus = ({ value, row: { index }, column: { id }, updateMyData }) => {
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
   const handleClick = (event) => {
@@ -62,7 +62,7 @@ export const defaultColumns = [
   {
     Header: 'Status',
     accessor: 'active',
-    Cell: SetActive,
+    Cell: SetStatus,
   },
   {
     Header: 'Email Verified',
@@ -70,7 +70,7 @@ export const defaultColumns = [
     Cell: ({ value }) => {
       return (
         <>
-          {value} {value !== 'Yes' && <button>Remind?</button>}
+          {value} {value !== 'Yes' && <Button>Remind?</Button>}
         </>
       );
     },
