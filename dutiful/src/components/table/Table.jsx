@@ -4,16 +4,6 @@ import { useTable, useSortBy, usePagination, useRowSelect } from 'react-table';
 import { forwardRef, useEffect, useRef } from 'react';
 import Checkbox from '@material-ui/core/Checkbox';
 
-import { makeStyles } from '@material-ui/core/styles';
-
-const useStyles = makeStyles((theme) => ({
-  root: {
-    '& > *': {
-      marginTop: theme.spacing(2),
-    },
-  },
-}));
-
 export const Table = ({
   columns,
   data,
@@ -34,21 +24,21 @@ export const Table = ({
   });
   const methods = useTable(...tableProps);
 
-  const headerMethods = () => ({ headerGroups: methods.headerGroups, sortable });
-  const bodyMethods = () => {
+  const headerMethods = (() => ({ headerGroups: methods.headerGroups, sortable }))();
+  const bodyMethods = (() => {
     let props = { prepareRow: methods.prepareRow };
     props.rows = paginatable ? methods.page : methods.rows;
     return props;
-  };
-  const paginationMethods = () => methods;
+  })();
+  const paginationMethods = (() => methods)();
 
   return (
     <div {...props}>
       <MuiTable {...methods.getTableProps()}>
-        {header(headerMethods())}
-        {body(bodyMethods())}
+        {header(headerMethods)}
+        {body(bodyMethods)}
       </MuiTable>
-      {pages && <div>{pages(paginationMethods())}</div>}
+      {pages && <div>{pages(paginationMethods)}</div>}
     </div>
   );
 };
