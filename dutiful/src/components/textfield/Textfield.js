@@ -1,20 +1,30 @@
-import { TextField } from '@material-ui/core';
+import { Input, TextField } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
+import clsx from 'clsx';
 import { forwardRef } from 'react';
 
 const useStyles = makeStyles(() => ({
-  root: (props) => ({
-    pointerEvents: props.disabled && 'none',
-  }),
-  disabled: {
-    backgroundColor: '#ECECEC',
+  root: {},
+  disabled: { backgroundColor: '#ECECEC', pointerEvents: 'none' },
+  number: {
+    '&[type=number]': {
+      '-moz-appearance': 'textfield',
+    },
+    '&::-webkit-outer-spin-button': {
+      '-webkit-appearance': 'none',
+      margin: 0,
+    },
+    '&::-webkit-inner-spin-button': {
+      '-webkit-appearance': 'none',
+      margin: 0,
+    },
   },
 }));
 
 export const Textfield = forwardRef(
   (
     {
-      InputProps,
+      type = 'string',
       onEnter = null,
       value,
       setValue = null,
@@ -23,17 +33,27 @@ export const Textfield = forwardRef(
       allowClear = true,
       onChange = null,
       disabled = false,
+      InputProps = {},
       ...props
     },
     ref,
   ) => {
     const classes = useStyles({ disabled });
 
-    const handleKeyPressEnter = (event) => {
-      if (event.key === 'Enter') {
-        onEnter && onEnter(event);
+    function handleKeyPressEnter(event) {
+      if (event.key === 'Enter') onEnter && onEnter(event);
+    }
+
+    const computedInputProps = (() => {
+      let computedProps = { ...InputProps };
+      if (type === 'number') {
+        computedProps = {
+          ...computedProps,
+          className: clsx(computedProps.className, classes.number),
+        };
       }
-    };
+      return computedProps;
+    })();
 
     return (
       <TextField
@@ -44,8 +64,12 @@ export const Textfield = forwardRef(
         onChange={onChange}
         disabled={disabled}
         onKeyPress={handleKeyPressEnter}
-        InputProps={{ ...InputProps, classes: { disabled: classes.disabled } }}
-        className={classes.root}
+        className={clsx(
+          classes.root,
+          disabled && classes.disabled,
+          props.className && props.className,
+        )}
+        InputProps={computedInputProps}
         {...props}
       />
     );
