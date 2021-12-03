@@ -1,6 +1,7 @@
 import { useTable } from 'react-table';
 import MuiTable from '@material-ui/core/Table';
 import { useTableProps } from '@hooks';
+import { makeStyles } from '@material-ui/core/styles';
 
 export const Table = ({
   columns,
@@ -11,6 +12,7 @@ export const Table = ({
   updateMethods,
   ...props
 }) => {
+  const classes = useStyles();
   const [header, body, pages] = children;
   const tableProps = useTableProps({
     columns,
@@ -31,12 +33,25 @@ export const Table = ({
   const paginationMethods = (() => methods)();
 
   return (
-    <div {...props}>
-      <MuiTable {...methods.getTableProps()}>
-        {header(headerMethods)}
-        {body(bodyMethods)}
-      </MuiTable>
-      {pages && <div>{pages(paginationMethods)}</div>}
+    <div {...props} className={classes.root}>
+      <div className={classes.table}>
+        <MuiTable {...methods.getTableProps()}>
+          {header(headerMethods)}
+          {body(bodyMethods)}
+        </MuiTable>
+      </div>
+      {pages && <div className={classes.pagination}>{pages(paginationMethods)}</div>}
     </div>
   );
 };
+
+const useStyles = makeStyles((theme) => ({
+  root: {
+    display: 'flex',
+    flexDirection: 'column',
+
+    minHeight: '85vh',
+  },
+  table: { flexGrow: 1 },
+  pagination: { flexShrink: 0, marginTop: '16px' },
+}));
