@@ -14,13 +14,21 @@ function createInnerSpread(start, end) {
   return spread;
 }
 
+// TODO clicking spread forward doesn't go to accurate page index
+
 export function usePagination({ currentPage, pages, spreadSize = 7, setPage }) {
   const [pagination, setPagination] = useState([]);
   const [innerSpreadStart, setInnerSpreadStart] = useState(1);
   const [backSpread, setBackSpread] = useState(false);
   const [forwardSpread, setForwardSpread] = useState(false);
+  const [canPreviousPage, setCanPreviousPage] = useState(false);
+  const [canNextPage, setCanNextPage] = useState(false);
+
   const lastPage = pages.length - 1;
-  const innerSpreadLength = Math.ceil(spreadSize / 2);
+  const innerSpreadLength = (() => {
+    if (pages.length <= Math.ceil(spreadSize / 2) + 1) return pages.length - 1;
+    return Math.ceil(spreadSize / 2);
+  })();
 
   function determineInnerSpreadStart(start = 1) {
     const innerSpreadEnd = start + innerSpreadLength - 1;
@@ -52,7 +60,7 @@ export function usePagination({ currentPage, pages, spreadSize = 7, setPage }) {
 
   function onPageSelect(value, type) {
     return () => {
-      if (type === PAGE_INDEX) return setPage(value);
+      if (!type || type === PAGE_INDEX) return setPage(value);
       if (value === FORWARD) return setPage(innerSpreadStart + innerSpreadLength);
 
       const needBackSpread = innerSpreadStart - innerSpreadLength - 1 > 1;
@@ -77,5 +85,10 @@ export function usePagination({ currentPage, pages, spreadSize = 7, setPage }) {
   useEffect(() => determineSpreads(), [innerSpreadStart]);
   useEffect(() => buildPagination(), [backSpread, forwardSpread]);
 
-  return [pagination, onPageSelect];
+  useEffect(() => {
+    setCanPreviousPage(currentPage !== 0);
+    setCanNextPage(currentPage !== pages.length - 1);
+  }, [currentPage]);
+
+  return [pagination, onPageSelect, canPreviousPage, canNextPage];
 }
