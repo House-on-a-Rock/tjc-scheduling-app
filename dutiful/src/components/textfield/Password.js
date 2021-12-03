@@ -11,7 +11,6 @@ export const Password = forwardRef(({ ...props }, ref) => {
   function handleVisible() {
     setVisible(!visible);
   }
-  // console.log
 
   return (
     <Textfield

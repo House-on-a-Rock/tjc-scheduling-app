@@ -3,13 +3,11 @@ import _ from 'lodash';
 import clsx from 'clsx';
 import { useState } from 'react';
 
-// Material UI
 import { makeStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Container from '@material-ui/core/Container';
 
-// Custom
 import { Form } from 'components/form';
 import { Password } from 'components/textfield';
 import { TransitionsModal } from 'components/modal';
