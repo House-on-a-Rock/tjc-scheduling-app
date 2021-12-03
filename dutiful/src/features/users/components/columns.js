@@ -1,50 +1,56 @@
-import { ButtonGroup, Menu, MenuItem } from '@material-ui/core';
+import { ButtonGroup } from '@material-ui/core';
+import { makeStyles } from '@material-ui/core/styles';
 import { Button } from 'components/button';
-import { useState } from 'react';
+import { Menu, MenuItem } from 'components/menu';
+import { useEffect, useRef, useState } from 'react';
 
 const SetStatus = ({ value, row: { index }, column: { id }, updateMyData }) => {
-  const [anchorEl, setAnchorEl] = useState(null);
-  const open = Boolean(anchorEl);
-  const handleClick = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-  const handleClose = (itemValue) => {
-    return () => {
-      updateMyData(index, id, itemValue);
-      setAnchorEl(null);
+  const classes = useStyles();
+  const [open, setOpen] = useState(false);
+  const anchorRef = useRef(null);
+  const prevOpen = useRef(open);
+
+  function handleToggle() {
+    setOpen((prevOpen) => !prevOpen);
+  }
+
+  function handleClose(event) {
+    if (anchorRef.current && anchorRef.current.contains(event?.target)) return;
+    setOpen(false);
+  }
+
+  function handleMenuItemClose(value) {
+    return (event) => {
+      console.log('closing');
+      updateMyData(index, id, value);
+      handleClose(event);
     };
-  };
+  }
+
+  useEffect(() => {
+    if (!!prevOpen.current && !open) {
+      anchorRef.current.focus();
+    }
+    prevOpen.current = open;
+  }, [open]);
 
   return (
     <div>
-      <Button
-        id="basic-button"
-        aria-controls="basic-menu"
-        aria-haspopup="true"
-        aria-expanded={open ? 'true' : undefined}
-        onClick={handleClick}
-      >
+      <Button ref={anchorRef} onClick={handleToggle}>
         {value}
       </Button>
-      <Menu
-        id="basic-menu"
-        anchorEl={anchorEl}
-        open={open}
-        onClose={handleClose}
-        MenuListProps={{
-          'aria-labelledby': 'basic-button',
-        }}
-      >
+      <Menu open={open} handleClose={handleMenuItemClose(value)} ref={anchorRef}>
         <MenuItem
           value="Active"
-          onClick={handleClose('Active')}
+          onClick={handleMenuItemClose('Active')}
           disabled={value === 'Active'}
+          className={classes.button}
         >
           Active
         </MenuItem>
         <MenuItem
           value="Inactive"
-          onClick={handleClose('Inactive')}
+          onClick={handleMenuItemClose('Inactive')}
           disabled={value === 'Inactive'}
         >
           Inactive
@@ -86,3 +92,9 @@ export const defaultColumns = [
     ),
   },
 ];
+
+const useStyles = makeStyles((theme) => ({
+  button: {
+    backgroundColor: theme.palette.background.paper,
+  },
+}));

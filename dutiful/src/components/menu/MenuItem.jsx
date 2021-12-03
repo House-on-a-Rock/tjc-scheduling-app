@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import MuiMenuItem from '@material-ui/core/MenuItem';
 
-export const MenuItem = ({ type, url, text, ...props }) => {
+export const MenuItem = ({ type, url, text, children, ...props }) => {
   let computeProps = {};
   if (type === 'link') {
     computeProps['component'] = Link;
@@ -10,7 +10,7 @@ export const MenuItem = ({ type, url, text, ...props }) => {
 
   return (
     <MuiMenuItem {...computeProps} {...props}>
-      {text}
+      {text ?? children ?? ''}
     </MuiMenuItem>
   );
 };
