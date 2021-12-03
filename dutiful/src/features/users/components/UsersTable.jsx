@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Grid } from '@material-ui/core';
+import { makeStyles } from '@material-ui/core';
 
 import { useUsers } from '../apis/users';
 import { defaultColumns } from './columns';
@@ -7,9 +8,23 @@ import { TableHeader, TableBody, Table } from 'components/table';
 import { Pagination } from 'components/pagination';
 
 export const UsersTable = ({ churchId }) => {
+  const classes = useStyles();
   const { data: users } = useUsers(churchId);
   const [data, setData] = useState();
   const columns = useMemo(() => defaultColumns, []);
+  const largeData = data && [
+    ...data,
+    ...data,
+    ...data,
+    ...data,
+    ...data,
+    ...data,
+    ...data,
+    ...data,
+    ...data,
+  ];
+
+  const pagination = true;
 
   function updateMyData(rowIndex, columnAccessor, value) {
     setData((oldData) =>
@@ -35,19 +50,6 @@ export const UsersTable = ({ churchId }) => {
       );
   }, [users]);
 
-  const largeData = data && [
-    ...data,
-    ...data,
-    ...data,
-    ...data,
-    ...data,
-    ...data,
-    ...data,
-    ...data,
-    ...data,
-  ];
-  const pagination = true;
-
   return (
     <div>
       <Grid container spacing={3}>
@@ -58,42 +60,40 @@ export const UsersTable = ({ churchId }) => {
               data={largeData}
               paginatable={pagination}
               sortable
-              style={{ minHeight: '82vh', position: 'relative' }}
+              className={classes.table}
               updateMethods={{ updateMyData }}
             >
               {TableHeader}
               {TableBody}
               {pagination &&
-                ((props) => (
-                  <div style={{ position: 'absolute', bottom: 0 }}>
-                    {
+                ((methods) => {
+                  return (
+                    methods.pageOptions.length > 1 && (
                       <Pagination
-                        dataLength={100}
-                        itemsPerPage={1}
-                        pageSpreadMax={7}
-                        {...props}
+                        methods={methods}
+                        withInput={methods.pageOptions.length > 5}
+                        withPageSize={methods.data.length > 20}
                       />
-                    }
-                  </div>
-                ))}
-              {/* {pagination &&
-                ((props) => (
-                  <div style={{ position: 'absolute', bottom: 0 }}>
-                    <PaginatedButtonBar
-                      dataLength={100}
-                      itemsPerPage={1}
-                      pageSpreadMax={7}
-                      {...props}
-                    />
-                  </div>
-                ))} */}
+                    )
+                  );
+                })}
             </Table>
           )}
         </Grid>
-        {/* <PaginatedButtonBar dataLength={100} itemsPerPage={1} pageSpreadMax={7} /> */}
         <Grid></Grid>
       </Grid>
       {/* CRUD/RequestAvailabilitiesDialog DIALOGS */}
     </div>
   );
 };
+
+const useStyles = makeStyles((theme) => ({
+  table: {
+    minHeight: '82vh',
+    position: 'relative',
+  },
+  pagination: {
+    position: 'absolute',
+    bottom: 0,
+  },
+}));
