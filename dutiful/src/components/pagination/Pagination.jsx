@@ -1,9 +1,5 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-
-import { Fragment } from 'react';
-import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
-import { Box, Divider } from '@material-ui/core';
+import { Box, Grid } from '@material-ui/core';
 
 import { usePagination } from '@hooks';
 import { PaginationSpread, PaginationPageSize, PaginationTextfield } from '.';
@@ -30,38 +26,33 @@ export const Pagination = ({
 
   const secondaryComponents = (() => {
     const components = [];
-    if (withInput)
-      components.push(
-        <PaginationTextfield currentPage={pageIndex} handlePageChange={pagination[1]} />,
-      );
     if (withPageSize)
       components.push(
         <PaginationPageSize pageSize={pageSize} setPageSize={setPageSize} />,
+      );
+    if (withInput)
+      components.push(
+        <PaginationTextfield currentPage={pageIndex} handlePageChange={pagination[1]} />,
       );
     return components;
   })();
 
   return (
-    <Box className={clsx(classes.root, props.className ?? '')}>
-      <PaginationSpread pagination={pagination} currentPage={pageIndex} />
-      {secondaryComponents.map((component, idx) => {
-        return (
-          <Fragment key={idx}>
-            <Divider className={classes.margin} flexItem orientation="vertical" />
-            <Box className={classes.margin}>{component} </Box>
-          </Fragment>
-        );
-      })}
-    </Box>
+    <Grid container {...props}>
+      <Grid item xs={4} style={{}}>
+        <PaginationSpread pagination={pagination} currentPage={pageIndex} />
+      </Grid>
+      <Grid item container xs={8} direction="row-reverse">
+        {secondaryComponents.map((component, idx) => {
+          return (
+            <Grid item key={idx}>
+              <Box className={classes.margin}>{component}</Box>
+            </Grid>
+          );
+        })}
+      </Grid>
+    </Grid>
   );
 };
 
-const useStyles = makeStyles((theme) => ({
-  root: {
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: '2px 0',
-  },
-  margin: { marginLeft: theme.spacing(2) },
-}));
+const useStyles = makeStyles((theme) => ({ margin: { marginLeft: theme.spacing(2) } }));

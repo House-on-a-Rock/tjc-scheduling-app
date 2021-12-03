@@ -33,15 +33,13 @@ export const Table = ({
   const paginationMethods = (() => methods)();
 
   return (
-    <div {...props} className={classes.root}>
-      <div className={classes.table}>
-        <MuiTable {...methods.getTableProps()}>
-          {header(headerMethods)}
-          {body(bodyMethods)}
-        </MuiTable>
-      </div>
+    <>
+      <MuiTable {...methods.getTableProps()} {...props}>
+        {header(headerMethods)}
+        {body(bodyMethods)}
+      </MuiTable>
       {pages && <div className={classes.pagination}>{pages(paginationMethods)}</div>}
-    </div>
+    </>
   );
 };
 
@@ -49,9 +47,7 @@ const useStyles = makeStyles((theme) => ({
   root: {
     display: 'flex',
     flexDirection: 'column',
-
-    minHeight: '85vh',
+    minHeight: '25vh',
   },
-  table: { flexGrow: 1 },
-  pagination: { flexShrink: 0, marginTop: '16px' },
+  pagination: { marginTop: '16px' },
 }));

@@ -37,8 +37,5 @@ const useStyles = makeStyles((theme) => ({
     display: 'flex',
     alignItems: 'center',
   },
-  select: {
-    marginTop: '2px',
-    marginLeft: theme.spacing(1),
-  },
+  select: { marginLeft: theme.spacing(1) },
 }));

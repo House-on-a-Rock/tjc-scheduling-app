@@ -12,18 +12,6 @@ export const UsersTable = ({ churchId }) => {
   const { data: users } = useUsers(churchId);
   const [data, setData] = useState();
   const columns = useMemo(() => defaultColumns, []);
-  const largeData = data && [
-    ...data,
-    ...data,
-    ...data,
-    ...data,
-    ...data,
-    ...data,
-    ...data,
-    ...data,
-    ...data,
-  ];
-
   const pagination = true;
 
   function updateMyData(rowIndex, columnAccessor, value) {
@@ -36,18 +24,18 @@ export const UsersTable = ({ churchId }) => {
   }
 
   useEffect(() => {
-    if (users)
-      setData(
-        users
-          ?.map((user) => ({
-            ...user,
-            verified: user.isVerified ? 'Yes' : 'No',
-            active: !user.disabled ? 'Active' : 'Inactive',
-            action: user.id,
-            subRows: undefined,
-          }))
-          .filter((item) => !!item.firstName),
-      );
+    if (!users) return;
+    setData(
+      users
+        ?.map((user) => ({
+          ...user,
+          verified: user.isVerified ? 'Yes' : 'No',
+          active: !user.disabled ? 'Active' : 'Inactive',
+          action: user.id,
+          subRows: undefined,
+        }))
+        .filter((item) => !!item.firstName),
+    );
   }, [users]);
 
   return (
@@ -57,10 +45,9 @@ export const UsersTable = ({ churchId }) => {
           {data && (
             <Table
               columns={columns}
-              data={largeData}
+              data={data}
               paginatable={pagination}
               sortable
-              className={classes.table}
               updateMethods={{ updateMyData }}
             >
               {TableHeader}
@@ -73,6 +60,7 @@ export const UsersTable = ({ churchId }) => {
                         methods={methods}
                         withInput={methods.pageOptions.length > 5}
                         withPageSize={methods.data.length > 20}
+                        className={classes.pagination}
                       />
                     )
                   );
@@ -88,12 +76,5 @@ export const UsersTable = ({ churchId }) => {
 };
 
 const useStyles = makeStyles((theme) => ({
-  table: {
-    minHeight: '82vh',
-    position: 'relative',
-  },
-  pagination: {
-    position: 'absolute',
-    bottom: 0,
-  },
+  pagination: { width: '98%' },
 }));
