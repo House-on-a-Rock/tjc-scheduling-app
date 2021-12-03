@@ -1,18 +1,16 @@
-import { Fragment, useEffect, useRef, useState } from 'react';
+import { Fragment } from 'react';
 import { Link } from 'react-router-dom';
 import { Badge, IconButton, Tooltip } from '@material-ui/core';
 import { Menu, MenuItem } from 'components/menu';
+import { useMenuRef } from 'hooks/useMenuRef';
 
 export const HeaderAction = ({ action }) => {
-  const [open, setOpen] = useState(false);
-  const anchorRef = useRef(null);
-  const prevOpen = useRef(open);
+  const { open, anchorRef, handleClose, handleMenuItemClose, handleToggle } = useMenuRef(
+    {},
+  );
 
   const baseProps = {
-    link: {
-      component: Link,
-      to: action.url,
-    },
+    link: { component: Link, to: action.url },
     menu: {
       ref: anchorRef,
       'aria-controls': open ? 'menu-list-grow' : undefined,
@@ -20,25 +18,6 @@ export const HeaderAction = ({ action }) => {
       onClick: handleToggle,
     },
   };
-
-  function handleToggle() {
-    setOpen((prevOpen) => !prevOpen);
-  }
-  function handleClose(event) {
-    if (anchorRef.current && anchorRef.current.contains(event?.target)) return;
-    setOpen(false);
-  }
-  function handleMenuItemClose(callback) {
-    return () => {
-      callback && callback();
-      handleClose();
-    };
-  }
-
-  useEffect(() => {
-    if (!!prevOpen.current && !open) anchorRef.current.focus();
-    prevOpen.current = open;
-  }, [open]);
 
   return (
     <Fragment key={`${action.key}`}>
@@ -59,11 +38,7 @@ export const HeaderAction = ({ action }) => {
       {action.type === 'menu' && (
         <Menu open={open} handleClose={handleClose} ref={anchorRef}>
           {action.list.map((item) => (
-            <MenuItem
-              key={item.text}
-              onClick={handleMenuItemClose(item.onClick)}
-              {...item}
-            />
+            <MenuItem key={item.text} onClick={handleMenuItemClose()} {...item} />
           ))}
         </Menu>
       )}
