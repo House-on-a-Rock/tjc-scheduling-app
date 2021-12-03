@@ -2,8 +2,8 @@ import { useEffect, useMemo, useState } from 'react';
 import { Grid } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core';
 
-import { useUsers } from '../apis/users';
-import { defaultColumns } from './columns';
+import { userManagementColumns } from 'features/management';
+import { useUsers } from 'features/users/apis';
 import { TableHeader, TableBody, Table } from 'components/table';
 import { Pagination } from 'components/pagination';
 
@@ -11,7 +11,7 @@ export const UsersTable = ({ churchId }) => {
   const classes = useStyles();
   const { data: users } = useUsers(churchId);
   const [data, setData] = useState();
-  const columns = useMemo(() => defaultColumns, []);
+  const columns = useMemo(() => userManagementColumns, []);
   const pagination = true;
 
   function updateMyData(rowIndex, columnAccessor, value) {
