@@ -12,7 +12,6 @@ import clsx from 'clsx';
 export const PaginationSpread = ({ pagination, currentPage }) => {
   const classes = useStyles();
   const [spread, handlePageChange, canPreviousPage, canNextPage] = pagination;
-  console.log({ canPreviousPage });
 
   return (
     <div className={classes.pagination}>
