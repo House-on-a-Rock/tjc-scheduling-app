@@ -82,8 +82,8 @@ export function usePagination({ currentPage, pages, spreadSize = 7, setPage }) {
     );
     if (pageWithinSpread) determineInnerSpreadStart();
   }, [currentPage]);
-  useEffect(() => determineSpreads(), [innerSpreadStart]);
-  useEffect(() => buildPagination(), [backSpread, forwardSpread]);
+  useEffect(() => determineSpreads(), [innerSpreadStart, pages]);
+  useEffect(() => buildPagination(), [backSpread, forwardSpread, pages]);
 
   useEffect(() => {
     setCanPreviousPage(currentPage !== 0);
