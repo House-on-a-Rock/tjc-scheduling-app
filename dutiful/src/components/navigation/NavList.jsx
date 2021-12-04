@@ -26,8 +26,6 @@ export const NavList = ({ options, nested = false, handleRoute, path = '' }) => 
     };
   }
 
-  useEffect(() => console.log({ selected }));
-
   useEffect(() => {
     const selectedOption = options.find((option) => path.includes(option.url));
     if (selectedOption) setSelected(selectedOption.url);
@@ -39,21 +37,11 @@ export const NavList = ({ options, nested = false, handleRoute, path = '' }) => 
       {options.map((option, idx) => {
         if (option.type === 'title')
           return (
-            <Fragment key={`${option.title} ${idx}`}>
-              <ListItem className={classes.titleListItem}>
-                {option.icon && (
-                  <ListItemIcon className={clsx(classes.listIcon, classes.titleIcon)}>
-                    {option.icon}
-                  </ListItemIcon>
-                )}
-                <ListItemText
-                  primary={option.title}
-                  classes={{ primary: classes.title }}
-                />
-                {option.children && (isDrawerOpen ? <ExpandLess /> : <ExpandMore />)}
-              </ListItem>
-              <Divider />
-            </Fragment>
+            <OrganizationItem
+              key={`${option.title} ${idx}`}
+              option={option}
+              isDrawerOpen={isDrawerOpen}
+            />
           );
         return (
           <NavListItem
@@ -67,6 +55,23 @@ export const NavList = ({ options, nested = false, handleRoute, path = '' }) => 
         );
       })}
     </List>
+  );
+};
+
+const OrganizationItem = ({ option, isDrawerOpen }) => {
+  const classes = useStyles();
+  return (
+    <Fragment>
+      <ListItem className={classes.titleListItem}>
+        {option.icon && (
+          <ListItemIcon className={clsx(classes.listIcon, classes.titleIcon)}>
+            {option.icon}
+          </ListItemIcon>
+        )}
+        <ListItemText primary={option.title} classes={{ primary: classes.title }} />
+      </ListItem>
+      <Divider />
+    </Fragment>
   );
 };
 
