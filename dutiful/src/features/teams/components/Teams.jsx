@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { makeStyles } from '@material-ui/styles';
 import { TableHeader, TableBody, Table } from 'components/table';
 import { Pagination } from 'components/pagination';
-import { BottomNavigation } from 'components/navigation';
+import { TabNavigation } from 'components/navigation';
 import { constructEmptyRow, teamManagementColumns } from 'features/management';
 import { useTeams } from '../apis';
 
@@ -53,7 +53,7 @@ export const Teams = () => {
       </div>
       <div className={classes.footer}>
         {teams && (
-          <BottomNavigation activeStep={step} setActiveStep={setStep} data={teams} />
+          <TabNavigation activeStep={step} setActiveStep={setStep} data={teams} />
         )}
       </div>
     </div>
@@ -68,5 +68,5 @@ const useStyles = makeStyles((theme) => ({
     overflow: 'scroll',
     marginBottom: theme.spacing(3),
   },
-  footer: { flexShrink: 0, width: '100%' },
+  footer: { flexShrink: 0 },
 }));

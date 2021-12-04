@@ -1,2 +1,2 @@
-export * from './BottomNavigationBar';
+export * from './TabNavigation';
 export * from './NavigationSidebar';

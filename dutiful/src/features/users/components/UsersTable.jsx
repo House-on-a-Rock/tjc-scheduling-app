@@ -61,7 +61,6 @@ export const UsersTable = ({ churchId }) => {
                         methods={methods}
                         withInput={methods.pageOptions.length > 5}
                         withPageSize={methods.data.length > 20}
-                        initialPageSize={methods.data.length < 20 && 20}
                       />
                     )
                   );
