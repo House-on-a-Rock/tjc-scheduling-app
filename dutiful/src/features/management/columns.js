@@ -37,3 +37,11 @@ export const teamManagementColumns = [
   { Header: 'Last Name', accessor: 'lastName' },
   { Header: 'Team Lead', accessor: 'teamLead' },
 ];
+
+export function constructEmptyRow(columns) {
+  const row = {};
+  columns.forEach(({ Header, accessor }) => {
+    row[Header] = '';
+  });
+  return [row];
+}

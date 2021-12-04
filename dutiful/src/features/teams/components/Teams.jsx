@@ -3,7 +3,7 @@ import { makeStyles } from '@material-ui/styles';
 import { TableHeader, TableBody, Table } from 'components/table';
 import { Pagination } from 'components/pagination';
 import { BottomNavigation } from 'components/navigation';
-import { teamManagementColumns } from 'features/management';
+import { constructEmptyRow, teamManagementColumns } from 'features/management';
 import { useTeams } from '../apis';
 
 export const Teams = () => {
@@ -18,7 +18,12 @@ export const Teams = () => {
 
   useEffect(() => {
     if (!data) return;
-    setTeams(data.filter((team) => !!team.users.length));
+    setTeams(
+      data.map((team) => {
+        if (!!team.users.length) return team;
+        return { ...team, users: constructEmptyRow(teamManagementColumns) };
+      }),
+    );
   }, [data]);
 
   return (
@@ -63,5 +68,5 @@ const useStyles = makeStyles((theme) => ({
     overflow: 'scroll',
     marginBottom: theme.spacing(3),
   },
-  footer: { flexShrink: 0 },
+  footer: { flexShrink: 0, width: '100%' },
 }));

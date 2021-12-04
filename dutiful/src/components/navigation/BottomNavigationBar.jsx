@@ -1,47 +1,35 @@
-import clsx from 'clsx';
 import { makeStyles } from '@material-ui/styles';
-import { Slider } from 'components/slider';
-import { Button } from 'components/button';
+import { AppBar, Tab, Tabs } from '@material-ui/core';
+import clsx from 'clsx';
 
 export const BottomNavigation = ({ activeStep, setActiveStep, data }) => {
   const classes = useStyles();
-  const settings = {
-    className: '',
-    dots: true,
-    infinite: true,
-    slidesToShow: 5,
-    slidesToScroll: 5,
-    adaptiveHeight: true,
-    swipe: false,
-  };
   return (
-    <Slider {...settings}>
-      {data.map((item, idx) => {
-        return (
-          <Button
-            key={idx}
+    <AppBar color="default" position="static" className={classes.toolbar} elevation={0}>
+      <Tabs
+        value={activeStep}
+        indicatorColor="primary"
+        textColor="white"
+        variant="scrollable"
+        scrollButtons="auto"
+      >
+        {data.map((item, idx) => (
+          <Tab
             className={clsx(classes.button, activeStep === idx && classes.selected)}
+            label={item.name}
             onClick={() => setActiveStep(idx)}
-          >
-            {item.name}
-          </Button>
-        );
-      })}
-    </Slider>
+          />
+        ))}
+      </Tabs>
+    </AppBar>
   );
 };
 
 const useStyles = makeStyles((theme) => ({
-  root: {
-    width: '100%',
-    display: 'flex',
-    flexDirection: 'column',
-  },
-  content: { flexGrow: 1, height: '80vh', overflow: 'scroll' },
-  footer: { flexShrink: 0 },
   button: {},
-  selected: {
-    backgroundColor: theme.palette.primary.light,
-    color: 'white',
+  selected: {},
+  toolbar: {
+    borderRadius: 4,
+    borderColor: theme.palette.primary.main,
   },
 }));
