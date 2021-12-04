@@ -33,9 +33,6 @@ export const PaginationPageSize = ({ pageSize, setPageSize }) => {
 };
 
 const useStyles = makeStyles((theme) => ({
-  root: {
-    display: 'flex',
-    alignItems: 'center',
-  },
+  root: { display: 'flex', alignItems: 'center' },
   select: { marginLeft: theme.spacing(1) },
 }));

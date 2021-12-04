@@ -1,18 +1,16 @@
 import { useMemo, useState } from 'react';
-import clsx from 'clsx';
 import { makeStyles } from '@material-ui/styles';
-import { Slider } from 'components/slider';
-import { Button } from 'components/button';
 import { TableHeader, TableBody, Table } from 'components/table';
 import { Pagination } from 'components/pagination';
-
+import { BottomNavigation } from 'components/navigation';
 import { useTeams } from '../apis';
 
 export const Teams = () => {
-  const teams = useTeams(2)?.data;
   const classes = useStyles();
+  const { data: teams } = useTeams(2);
   const [step, setStep] = useState(0);
   const pagination = teams?.[step].users.length > 10;
+  const users = teams?.[step].users;
 
   const columns = useMemo(() => defaultColumns, []);
 
@@ -20,43 +18,36 @@ export const Teams = () => {
     <div className={classes.root}>
       <div className={classes.content}>
         {teams && (
-          <Table columns={columns} data={teams[step].users} paginatable={pagination}>
+          <Table
+            columns={columns}
+            data={users}
+            paginatable={pagination}
+            initialState={{ pageSize: 15 }}
+          >
             {TableHeader}
             {TableBody}
-            {pagination && Pagination}
+            {pagination &&
+              ((methods) => {
+                return (
+                  (methods.pageOptions.length > 1 || methods.data.length > 20) && (
+                    <Pagination
+                      methods={methods}
+                      withInput={methods.pageOptions.length > 5}
+                      withPageSize={methods.data.length > 20}
+                      className={classes.pagination}
+                    />
+                  )
+                );
+              })}
           </Table>
         )}
       </div>
       <div className={classes.footer}>
-        {teams && <BottomTabs activeStep={step} setActiveStep={setStep} data={teams} />}
+        {teams && (
+          <BottomNavigation activeStep={step} setActiveStep={setStep} data={teams} />
+        )}
       </div>
     </div>
-  );
-};
-
-const BottomTabs = ({ activeStep, setActiveStep, data }) => {
-  const classes = useStyles();
-  const settings = {
-    className: '',
-    dots: true,
-    infinite: true,
-    slidesToShow: 5,
-    slidesToScroll: 5,
-    adaptiveHeight: true,
-  };
-  return (
-    <Slider {...settings}>
-      {data.map((item, idx) => {
-        return (
-          <Button
-            className={clsx(classes.button, activeStep === idx && classes.selected)}
-            onClick={() => setActiveStep(idx)}
-          >
-            {item.name}
-          </Button>
-        );
-      })}
-    </Slider>
   );
 };
 
@@ -66,7 +57,12 @@ const useStyles = makeStyles((theme) => ({
     display: 'flex',
     flexDirection: 'column',
   },
-  content: { flexGrow: 1, height: '80vh', overflow: 'scroll' },
+  content: {
+    flexGrow: 1,
+    height: '80vh',
+    overflow: 'scroll',
+    marginBottom: theme.spacing(3),
+  },
   footer: { flexShrink: 0 },
   button: {},
   selected: {

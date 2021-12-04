@@ -50,12 +50,11 @@ export function usePagination({ currentPage, pages, spreadSize = 7, setPage }) {
   function buildPagination() {
     const innerPages = [elementPage(0)];
     const innerSpreadEnd = innerSpreadStart + innerSpreadLength - 1;
-
     if (backSpread) innerPages.push(spreadPage(BACK));
     if (innerSpreadStart !== 0)
       innerPages.push(...createInnerSpread(innerSpreadStart, innerSpreadEnd));
     if (forwardSpread) innerPages.push(spreadPage(FORWARD));
-    if (innerSpreadEnd < lastPage) innerPages.push(elementPage(lastPage));
+    if (innerSpreadEnd < lastPage && lastPage) innerPages.push(elementPage(lastPage));
     setPagination(innerPages);
   }
 
@@ -83,10 +82,7 @@ export function usePagination({ currentPage, pages, spreadSize = 7, setPage }) {
     );
     if (pageWithinSpread) determineInnerSpreadStart();
   }, [currentPage]);
-  useEffect(() => {
-    console.log('determining spread');
-    determineSpreads();
-  }, [innerSpreadStart, pages]);
+  useEffect(() => determineSpreads(), [innerSpreadStart, pages]);
   useEffect(() => buildPagination(), [backSpread, forwardSpread, pages]);
 
   useEffect(() => {

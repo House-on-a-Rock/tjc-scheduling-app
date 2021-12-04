@@ -8,8 +8,9 @@ export const useTableProps = ({
   paginatable,
   sortable,
   updateMethods,
+  ...props
 }) => {
-  const tableProps = [{ columns, data, ...updateMethods }];
+  const tableProps = [{ columns, data, ...updateMethods, ...props }];
   const rowSelect = [
     useRowSelect,
     (hooks) => {

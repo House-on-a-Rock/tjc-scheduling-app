@@ -10,6 +10,7 @@ export const Table = ({
   children,
   sortable,
   updateMethods,
+  initialState = {},
   ...props
 }) => {
   const classes = useStyles();
@@ -17,6 +18,7 @@ export const Table = ({
   const tableProps = useTableProps({
     columns,
     data,
+    initialState,
     multiselect: false,
     paginatable,
     sortable,

@@ -10,7 +10,7 @@ import { Pagination } from 'components/pagination';
 export const UsersTable = ({ churchId }) => {
   const classes = useStyles();
   const { data: users } = useUsers(churchId);
-  const [data, setData] = useState();
+  const [data, setData] = useState(null);
   const columns = useMemo(() => userManagementColumns, []);
   const pagination = true;
 
@@ -55,12 +55,13 @@ export const UsersTable = ({ churchId }) => {
               {pagination &&
                 ((methods) => {
                   return (
-                    methods.pageOptions.length > 1 && (
+                    (methods.pageOptions.length > 1 || methods.data.length > 20) && (
                       <Pagination
+                        className={classes.pagination}
                         methods={methods}
                         withInput={methods.pageOptions.length > 5}
                         withPageSize={methods.data.length > 20}
-                        className={classes.pagination}
+                        initialPageSize={methods.data.length < 20 && 20}
                       />
                     )
                   );
