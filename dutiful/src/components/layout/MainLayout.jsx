@@ -1,15 +1,12 @@
-import { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { Container, CssBaseline, Typography } from '@material-ui/core';
 
 import { Header, ToolbarPlaceholder } from 'components/header';
-import { NavSidebar } from 'components/sidebar';
+import { NavigationSidebar } from 'components/navigation';
+import { DrawerProvider } from 'providers';
 
 export const MainLayout = ({ headers, sidebar, children }) => {
   const classes = useStyles();
-  const [open, setOpen] = useState(false);
-
-  const handleDrawer = () => setOpen(!open);
 
   const title = (
     <Typography variant="h5" noWrap style={{ fontWeight: 600 }}>
@@ -20,8 +17,10 @@ export const MainLayout = ({ headers, sidebar, children }) => {
   return (
     <div className={classes.root}>
       <CssBaseline />
-      <Header title={title} actions={headers} toggleDrawer={handleDrawer} />
-      <NavSidebar open={open} options={sidebar} />
+      <DrawerProvider>
+        <Header title={title} actions={headers} />
+        <NavigationSidebar options={sidebar} />
+      </DrawerProvider>
       <main className={classes.content}>
         <ToolbarPlaceholder />
         <Container maxWidth="lg">{children}</Container>

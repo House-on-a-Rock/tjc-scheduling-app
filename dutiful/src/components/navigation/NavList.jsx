@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useState } from 'react';
+import { Fragment, useContext, useEffect, useState } from 'react';
 import clsx from 'clsx';
 
 import { makeStyles } from '@material-ui/core/styles';
@@ -11,10 +11,12 @@ import {
   ListItemText,
 } from '@material-ui/core';
 import { ExpandMore, ExpandLess } from '@material-ui/icons/';
+import { NavigationDrawerContext } from 'providers';
 
-export const NavList = ({ options, nested = false, handleRoute, path = '', open }) => {
+export const NavList = ({ options, nested = false, handleRoute, path = '' }) => {
   const classes = useStyles();
   const [selected, setSelected] = useState('');
+  const { isOpen: isDrawerOpen } = useContext(NavigationDrawerContext);
 
   function handleSelect(url) {
     return (nestedUrl = '') => {
@@ -23,6 +25,8 @@ export const NavList = ({ options, nested = false, handleRoute, path = '', open 
       handleRoute(route);
     };
   }
+
+  useEffect(() => console.log({ selected }));
 
   useEffect(() => {
     const selectedOption = options.find((option) => path.includes(option.url));
@@ -46,7 +50,7 @@ export const NavList = ({ options, nested = false, handleRoute, path = '', open 
                   primary={option.title}
                   classes={{ primary: classes.title }}
                 />
-                {option.children && (open ? <ExpandLess /> : <ExpandMore />)}
+                {option.children && (isDrawerOpen ? <ExpandLess /> : <ExpandMore />)}
               </ListItem>
               <Divider />
             </Fragment>
@@ -59,7 +63,6 @@ export const NavList = ({ options, nested = false, handleRoute, path = '', open 
             onSelect={handleSelect(option.url)}
             selected={selected.includes(option.label)}
             path={path}
-            isDrawerOpen={open}
           />
         );
       })}
@@ -67,19 +70,22 @@ export const NavList = ({ options, nested = false, handleRoute, path = '', open 
   );
 };
 
-const NavListItem = ({ className, option, onSelect, selected, path, isDrawerOpen }) => {
+const NavListItem = ({ className, option, onSelect, selected, path }) => {
   const classes = useStyles();
-  const [open, setOpen] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
+  const { isOpen: isDrawerOpen, setIsOpen: setDrawerOpen } = useContext(
+    NavigationDrawerContext,
+  );
 
   function handleSelect() {
-    if (!option.disabled) {
-      if (isDrawerOpen && option.children) setOpen(!open);
-      onSelect();
-    }
+    if (option.disabled) return;
+    if (!isDrawerOpen && selected) return setDrawerOpen();
+    if (isDrawerOpen && option.children) setIsExpanded(!isExpanded);
+    onSelect();
   }
 
   useEffect(() => {
-    setOpen(isDrawerOpen && selected && !!path);
+    setIsExpanded(isDrawerOpen && selected && !!path);
   }, [isDrawerOpen, selected]);
 
   return (
@@ -101,10 +107,10 @@ const NavListItem = ({ className, option, onSelect, selected, path, isDrawerOpen
           primary={option.title}
           className={clsx(classes.text, selected && classes.selectedItem)}
         />
-        {option.children && (open ? <ExpandLess /> : <ExpandMore />)}
+        {option.children && (isExpanded ? <ExpandLess /> : <ExpandMore />)}
       </ListItem>
       {option.children && (
-        <Collapse in={open} timeout="auto" unmountOnExit>
+        <Collapse in={isExpanded} timeout="auto" unmountOnExit>
           <NavList
             options={option.children}
             nested
@@ -122,28 +128,15 @@ const useStyles = makeStyles((theme) => ({
     marginLeft: theme.spacing(1),
     color: theme.palette.secondary.main,
   },
-  text: {
-    fontWeight: 700,
-  },
-
+  text: { fontWeight: 700 },
   selected: {
     '&$selected': {
       backgroundColor: theme.palette.grey[300],
-      '&:hover': {
-        backgroundColor: theme.palette.grey[300],
-      },
+      '&:hover': { backgroundColor: theme.palette.grey[300] },
     },
   },
-  selectedItem: {
-    color: theme.palette.primary.light,
-  },
-  titleListItem: {
-    margin: `${theme.spacing(2)}px 0`,
-  },
-  title: {
-    fontSize: theme.spacing(3),
-  },
-  titleIcon: {
-    color: theme.palette.primary.main,
-  },
+  selectedItem: { color: theme.palette.primary.light },
+  titleListItem: { margin: `${theme.spacing(2)}px 0` },
+  title: { fontSize: theme.spacing(3) },
+  titleIcon: { color: theme.palette.primary.main },
 }));

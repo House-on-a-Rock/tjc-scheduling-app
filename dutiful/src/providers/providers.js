@@ -1,4 +1,4 @@
-import { Suspense } from 'react';
+import { createContext, Suspense, useState } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import { HelmetProvider } from 'react-helmet-async';
 import { QueryClientProvider } from 'react-query';
@@ -39,3 +39,16 @@ export const AppProvider = ({ children }) => {
     </Suspense>
   );
 };
+
+export const DrawerProvider = ({ children }) => {
+  const [open, setOpen] = useState(false);
+  return (
+    <NavigationDrawerContext.Provider
+      value={{ isOpen: open, setIsOpen: () => setOpen(!open) }}
+    >
+      {children}
+    </NavigationDrawerContext.Provider>
+  );
+};
+
+export const NavigationDrawerContext = createContext();

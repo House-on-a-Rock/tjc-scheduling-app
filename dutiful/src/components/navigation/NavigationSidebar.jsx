@@ -5,10 +5,11 @@ import { Drawer } from '@material-ui/core';
 import { ToolbarPlaceholder } from 'components/header';
 import { NavList } from './NavList';
 import { useEffect, useState } from 'react';
+import { NavigationDrawerContext } from 'providers';
 
 const drawerWidth = 280;
 
-export const NavSidebar = ({ open, options }) => {
+export const NavigationSidebar = ({ options }) => {
   const classes = useStyles();
   const location = useLocation();
   const navigate = useNavigate();
@@ -24,25 +25,35 @@ export const NavSidebar = ({ open, options }) => {
   }, [location]);
 
   return (
-    <Drawer
-      variant="permanent"
-      className={clsx(classes.drawer, {
-        [classes.drawerOpen]: open,
-        [classes.drawerClose]: !open,
-      })}
-      classes={{
-        paper: clsx({
-          [classes.drawerOpen]: open,
-          [classes.drawerClose]: !open,
-        }),
-      }}
-    >
-      <ToolbarPlaceholder />
+    <NavigationDrawerContext.Consumer>
+      {({ isOpen, setIsOpen }) => (
+        <Drawer
+          variant="permanent"
+          className={clsx(classes.drawer, {
+            [classes.drawerOpen]: isOpen,
+            [classes.drawerClose]: !isOpen,
+          })}
+          classes={{
+            paper: clsx({
+              [classes.drawerOpen]: isOpen,
+              [classes.drawerClose]: !isOpen,
+            }),
+          }}
+        >
+          <ToolbarPlaceholder />
 
-      {path && (
-        <NavList options={options} handleRoute={handleRoute} path={path} open={open} />
+          {path && (
+            <NavList
+              options={options}
+              handleRoute={handleRoute}
+              path={path}
+              isOpen={isOpen}
+              setIsOpen={setIsOpen}
+            />
+          )}
+        </Drawer>
       )}
-    </Drawer>
+    </NavigationDrawerContext.Consumer>
   );
 };
 

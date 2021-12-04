@@ -7,22 +7,27 @@ import IconButton from '@material-ui/core/IconButton';
 import MenuIcon from '@material-ui/icons/Menu';
 import { makeStyles } from '@material-ui/core/styles';
 import { HeaderAction } from './HeaderActions';
+import { NavigationDrawerContext } from 'providers';
 
-export const Header = ({ toggleDrawer, actions, title }) => {
+export const Header = ({ actions, title }) => {
   const classes = useStyles();
   return (
     <AppBar position="fixed" className={classes.appBar}>
       <Toolbar className={classes.root}>
         <div className={classes.left}>
-          <IconButton
-            color="inherit"
-            aria-label="open drawer"
-            onClick={toggleDrawer}
-            edge="start"
-            className={classes.burger}
-          >
-            <MenuIcon />
-          </IconButton>
+          <NavigationDrawerContext.Consumer>
+            {({ setIsOpen }) => (
+              <IconButton
+                color="inherit"
+                aria-label="open drawer"
+                onClick={setIsOpen}
+                edge="start"
+                className={classes.burger}
+              >
+                <MenuIcon />
+              </IconButton>
+            )}
+          </NavigationDrawerContext.Consumer>
           {title}
         </div>
         <div className={classes.badges}>
