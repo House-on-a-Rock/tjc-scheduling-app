@@ -32,6 +32,6 @@ const useStyles = makeStyles((theme) => ({
   toolbar: {
     borderRadius: 4,
     borderColor: theme.palette.primary.main,
-    display: 'flex',
+    maxWidth: '80vw',
   },
 }));
