@@ -9,14 +9,14 @@ import { Pagination } from 'components/pagination';
 
 export const UsersTable = ({ churchId }) => {
   const classes = useStyles();
-  const { data: users } = useUsers(churchId);
-  const [data, setData] = useState(null);
+  const { data } = useUsers(churchId);
+  const [users, setUsers] = useState(null);
   const columns = useMemo(() => userManagementColumns, []);
   const pagination = true;
 
   function updateMyData(rowIndex, columnAccessor, value) {
-    setData((oldData) =>
-      oldData.map((row, index) => {
+    setUsers((oldUsers) =>
+      oldUsers.map((row, index) => {
         if (index !== rowIndex) return row;
         return { ...row, [columnAccessor]: value };
       }),
@@ -24,10 +24,10 @@ export const UsersTable = ({ churchId }) => {
   }
 
   useEffect(() => {
-    if (!users) return;
-    setData(
-      users
-        ?.map((user) => ({
+    if (!data) return;
+    setUsers(
+      data
+        .map((user) => ({
           ...user,
           verified: user.isVerified ? 'Yes' : 'No',
           active: !user.disabled ? 'Active' : 'Inactive',
@@ -36,16 +36,16 @@ export const UsersTable = ({ churchId }) => {
         }))
         .filter((item) => !!item.firstName),
     );
-  }, [users]);
+  }, [data]);
 
   return (
     <div>
       <Grid container spacing={3}>
         <Grid item xs={12}>
-          {data && (
+          {users && (
             <Table
               columns={columns}
-              data={data}
+              data={users}
               paginatable={pagination}
               sortable
               updateMethods={{ updateMyData }}
