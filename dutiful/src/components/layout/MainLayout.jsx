@@ -3,7 +3,7 @@ import { Container, CssBaseline, Typography } from '@material-ui/core';
 
 import { Header, ToolbarPlaceholder } from 'components/header';
 import { NavigationSidebar } from 'components/navigation';
-import { DrawerProvider } from 'providers';
+import { DrawerProvider } from 'providers/drawerProvider';
 
 export const MainLayout = ({ headers, sidebar, children }) => {
   const classes = useStyles();

@@ -7,7 +7,7 @@ import { useAppNavigations } from 'hooks';
 
 const { Templates } = lazyImport(() => import('features/templates'), 'Templates');
 const { Scheduler } = lazyImport(() => import('features/scheduler'), 'Scheduler');
-const { Teams } = lazyImport(() => import('features/teams'), 'Teams');
+const { TeamManagement } = lazyImport(() => import('features/teams'), 'TeamManagement');
 const { Users } = lazyImport(() => import('features/users'), 'Users');
 const { Profile } = lazyImport(() => import('features/users'), 'Profile');
 const { Dashboard } = lazyImport(() => import('features/dashboard'), 'Dashboard');
@@ -39,7 +39,7 @@ export const protectedRoutes = [
         children: [
           { path: '*', element: <Dashboard /> },
           { path: 'users', element: <Users /> },
-          { path: 'teams', element: <Teams /> },
+          { path: 'teams', element: <TeamManagement /> },
         ],
       },
       { path: 'templates', element: <Templates /> },

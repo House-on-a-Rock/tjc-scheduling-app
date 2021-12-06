@@ -11,7 +11,7 @@ import {
   ListItemText,
 } from '@material-ui/core';
 import { ExpandMore, ExpandLess } from '@material-ui/icons/';
-import { NavigationDrawerContext } from 'providers';
+import { NavigationDrawerContext } from 'providers/drawerProvider';
 
 export const NavList = ({ options, nested = false, handleRoute, path = '' }) => {
   const classes = useStyles();

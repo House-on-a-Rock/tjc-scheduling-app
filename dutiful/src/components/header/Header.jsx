@@ -7,7 +7,7 @@ import IconButton from '@material-ui/core/IconButton';
 import MenuIcon from '@material-ui/icons/Menu';
 import { makeStyles } from '@material-ui/core/styles';
 import { HeaderAction } from './HeaderActions';
-import { NavigationDrawerContext } from 'providers';
+import { NavigationDrawerContext } from 'providers/drawerProvider';
 
 export const Header = ({ actions, title }) => {
   const classes = useStyles();

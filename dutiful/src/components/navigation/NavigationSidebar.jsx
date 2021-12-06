@@ -5,7 +5,7 @@ import { Drawer } from '@material-ui/core';
 import { ToolbarPlaceholder } from 'components/header';
 import { NavList } from './NavList';
 import { useEffect, useState } from 'react';
-import { NavigationDrawerContext } from 'providers';
+import { NavigationDrawerContext } from 'providers/drawerProvider';
 
 const drawerWidth = 280;
 

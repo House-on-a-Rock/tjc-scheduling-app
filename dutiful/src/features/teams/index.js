@@ -1,1 +1,1 @@
-export * from './components/Teams';
+export * from './components/TeamManagement';
