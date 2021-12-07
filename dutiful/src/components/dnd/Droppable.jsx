@@ -3,16 +3,20 @@ import { cloneElement } from 'react';
 
 import { Droppable as DndDroppable } from 'react-beautiful-dnd';
 
-export const Droppable = ({ droppable = false, droppableId, children }) => {
+export const Droppable = ({ droppable = false, droppableId, draggable, children }) => {
   return (
     <DndDroppable
       renderClone={getRenderClone(children)}
       droppableId={droppableId ?? 'list'}
       isDropDisabled={!droppable}
     >
-      {(provided, snapshot) => (
-        <MuiList ref={provided.innerRef}>{children(provided, snapshot)}</MuiList>
-      )}
+      {(provided, snapshot) =>
+        draggable ? (
+          <MuiList ref={provided.innerRef}>{children(provided, snapshot)}</MuiList>
+        ) : (
+          <div ref={provided.innerRef}>{children}</div>
+        )
+      }
     </DndDroppable>
   );
 };

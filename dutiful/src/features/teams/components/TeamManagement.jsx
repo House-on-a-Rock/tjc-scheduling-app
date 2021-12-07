@@ -40,8 +40,8 @@ export const TeamManagement = () => {
           }}
         >
           <Grid item xs={appendingUsers ? 8 : 12}>
-            <Droppable droppableId={TEAMMATES}>
-              {() => <TeamTable teamId={teams[step]?.id} />}
+            <Droppable droppableId={TEAMMATES} droppable draggable={false}>
+              <TeamTable teamId={teams[step]?.id} />
             </Droppable>
           </Grid>
 
