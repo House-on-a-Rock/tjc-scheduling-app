@@ -1,6 +1,8 @@
 import { axios } from 'lib/axios';
 import { useQuery } from 'react-query';
 
+export const USERS = 'USERS';
+
 export function getUsers(churchId) {
   return axios.get(`/api/users?churchId=${churchId}`);
 }
@@ -18,4 +20,4 @@ export function addUser(data) {
 }
 
 export const useUsers = (churchId, methods) =>
-  useQuery({ queryKey: ['users'], queryFn: () => getUsers(churchId), ...methods });
+  useQuery({ queryKey: [USERS], queryFn: () => getUsers(churchId), ...methods });

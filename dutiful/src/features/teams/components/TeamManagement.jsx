@@ -9,7 +9,8 @@ import { Button } from 'components/button';
 import { DndProvider } from 'lib/dnd';
 
 import { TeamTable } from './TeamTable';
-import { useTeams } from '../apis';
+import { TEAMMATES, useTeams } from '../apis';
+import { USERS } from 'features/users';
 
 export const TeamManagement = () => {
   const classes = useStyles();
@@ -32,14 +33,9 @@ export const TeamManagement = () => {
     <div className={classes.root}>
       <Button onClick={toggleAppendUsers}>Append Users</Button>
       <Grid container className={classes.content} spacing={3}>
-        <DndProvider
-          initialState={{
-            users: [],
-            teammates: [],
-          }}
-        >
+        <DndProvider initialState={{ [USERS]: [], [TEAMMATES]: [] }}>
           <Grid item xs={appendingUsers ? 8 : 12}>
-            <Droppable droppableId="teams-table">
+            <Droppable droppableId={TEAMMATES}>
               <TeamTable teamId={teams[step]?.id} />
             </Droppable>
           </Grid>

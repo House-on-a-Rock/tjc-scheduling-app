@@ -4,7 +4,7 @@ import { makeStyles } from '@material-ui/styles';
 import { TableHeader, TableBody, Table } from 'components/table';
 import { Pagination } from 'components/pagination';
 import { constructEmptyRow, teamManagementColumns } from 'features/management';
-import { useTeammates } from '../apis';
+import { TEAMMATES, useTeammates } from '../apis';
 import { useDnd } from 'lib/dnd';
 
 // TODO pagination breaks when teammates length state change
@@ -12,26 +12,27 @@ import { useDnd } from 'lib/dnd';
 export const TeamTable = ({ teamId }) => {
   const classes = useStyles();
   const columns = useMemo(() => teamManagementColumns, []);
+  const { state, bootstrapState } = useDnd();
   const { data } = useTeammates(teamId, {
     enabled: !!teamId,
     keepPreviousData: true,
   });
-  const { state, bootstrapState } = useDnd();
 
-  const pagination = state.teammates?.length > 10;
+  const pagination = state[TEAMMATES]?.length > 10;
 
   useEffect(() => {
     if (!data) return;
     // TODO authorized roles can see teams- disable unauthorized tabs
     bootstrapState({
-      teammates: data.length ? data : constructEmptyRow(teamManagementColumns),
+      [TEAMMATES]: data.length ? data : constructEmptyRow(teamManagementColumns),
     });
   }, [data]);
+  useEffect(() => console.log(state), [state]);
 
   return (
     <Table
       columns={columns}
-      data={state.teammates}
+      data={state[TEAMMATES]}
       paginatable={pagination}
       initialState={{ pageSize: 15 }}
       className={classes.table}

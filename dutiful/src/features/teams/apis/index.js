@@ -1,6 +1,9 @@
 import { axios } from 'lib/axios';
 import { useQuery } from 'react-query';
 
+export const TEAM = 'TEAM';
+export const TEAMMATES = 'TEAMMATES';
+
 const getTeams = (churchId) => {
   return axios.get(`/api/teams?churchId=${churchId}`);
 };
@@ -10,11 +13,11 @@ const getTeams = (churchId) => {
 const getTeammates = (teamId) => axios.get(`/api/teammates?teamId=${teamId}`);
 
 export const useTeams = (churchId) =>
-  useQuery({ queryKey: ['teams'], queryFn: () => getTeams(churchId) });
+  useQuery({ queryKey: [TEAM], queryFn: () => getTeams(churchId) });
 
 export const useTeammates = (teamId, config) =>
   useQuery({
-    queryKey: ['teammates', teamId],
+    queryKey: [TEAMMATES, teamId],
     queryFn: () => getTeammates(teamId),
     ...config,
   });
