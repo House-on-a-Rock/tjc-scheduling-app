@@ -33,16 +33,21 @@ export const TeamManagement = () => {
     <div className={classes.root}>
       <Button onClick={toggleAppendUsers}>Append Users</Button>
       <Grid container className={classes.content} spacing={3}>
-        <DndProvider initialState={{ [USERS]: [], [TEAMMATES]: [] }}>
+        <DndProvider
+          initialState={{
+            [USERS]: [],
+            [TEAMMATES]: [],
+          }}
+        >
           <Grid item xs={appendingUsers ? 8 : 12}>
             <Droppable droppableId={TEAMMATES}>
-              <TeamTable teamId={teams[step]?.id} />
+              {() => <TeamTable teamId={teams[step]?.id} />}
             </Droppable>
           </Grid>
 
           {appendingUsers && (
             <Grid item xs={4}>
-              <UsersList draggable />
+              <UsersList />
             </Grid>
           )}
         </DndProvider>

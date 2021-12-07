@@ -9,7 +9,7 @@ const DndContext = createContext();
 // 1. there can easily be many state changes, this will rerender everythine
 // 2. callbacks are possibly being rerendered on every state change (use useCallback)
 
-const DndProvider = ({ children, initialState }) => {
+const DndProvider = ({ children, initialState, reorderable }) => {
   const [state, setState] = useState(initialState);
 
   function bootstrapState(payload) {
@@ -55,7 +55,13 @@ const useDnd = () => {
   return context;
 };
 
-export { useDnd, DndProvider };
+const useDndProps = () => {
+  const [initialState, setInitialState] = useState([]);
+
+  return [initialState];
+};
+
+export { useDnd, DndProvider, useDndProps };
 
 const reorder = (list, startIndex, endestIdex) => {
   const result = Array.from(list);

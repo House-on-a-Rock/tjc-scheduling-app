@@ -1,11 +1,10 @@
+import { useEffect } from 'react';
 import { ListItemText, Paper } from '@material-ui/core';
-
 import { List, ListItem } from 'components/list';
 import { useDnd } from 'lib/dnd';
-import { useEffect } from 'react';
 import { USERS, useUsers } from '..';
 
-export const UsersList = ({ droppableId, draggable }) => {
+export const UsersList = ({}) => {
   const { data: usersData } = useUsers(2);
   const { state, bootstrapState } = useDnd();
 
@@ -18,16 +17,18 @@ export const UsersList = ({ droppableId, draggable }) => {
   }, [usersData]);
 
   return (
-    <Paper>
-      <List droppable={draggable} droppableId={USERS}>
-        {state[USERS]?.map((user, index) => {
-          return (
-            <ListItem draggable={draggable} key={index} item={user} index={index}>
-              <ListItemText primary={user.firstName} />
-            </ListItem>
-          );
-        })}
-      </List>
-    </Paper>
+    state[USERS] && (
+      <Paper style={{ display: 'flex', flexDirection: 'row' }}>
+        <List draggable droppableId={USERS}>
+          {state[USERS].map((item, index) => {
+            return (
+              <ListItem key={item.id} index={index} item={item}>
+                <ListItemText primary={item.firstName} />
+              </ListItem>
+            );
+          })}
+        </List>
+      </Paper>
+    )
   );
 };

@@ -3,9 +3,7 @@ import { Draggable } from 'components/dnd';
 
 export const ListItem = ({ draggable = false, children, ...props }) => {
   return draggable ? (
-    <Draggable {...props}>
-      <MuiListItem>{children}</MuiListItem>
-    </Draggable>
+    <Draggable {...props}>{children}</Draggable>
   ) : (
     <MuiListItem>{children}</MuiListItem>
   );

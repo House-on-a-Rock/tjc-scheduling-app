@@ -27,7 +27,6 @@ export const TeamTable = ({ teamId }) => {
       [TEAMMATES]: data.length ? data : constructEmptyRow(teamManagementColumns),
     });
   }, [data]);
-  useEffect(() => console.log(state), [state]);
 
   return (
     <Table
