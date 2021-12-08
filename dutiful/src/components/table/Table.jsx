@@ -51,5 +51,5 @@ const useStyles = makeStyles((theme) => ({
     flexDirection: 'column',
     minHeight: '25vh',
   },
-  pagination: { marginTop: '16px' },
+  pagination: { marginTop: theme.spacing(2) },
 }));

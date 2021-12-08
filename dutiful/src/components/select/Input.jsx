@@ -9,7 +9,7 @@ export const Input = withStyles((theme) => ({
     border: '1px solid',
     borderColor: theme.palette.grey[400],
     fontSize: theme.typography.htmlFontSize,
-    paddingLeft: '8px',
+    paddingLeft: theme.spacing(1),
     transition: theme.transitions.create(['border-color', 'box-shadow']),
     maxHeight: theme.spacing(2),
     '&:focus': {

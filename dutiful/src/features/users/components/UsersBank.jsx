@@ -86,7 +86,7 @@ const useStyles = makeStyles((theme) => ({
     borderColor: theme.palette.grey[300],
   },
   root: { padding: theme.spacing(3), height: 'inherit' },
-  text: { marginTop: theme.spacing(1), marginLeft: '8px' },
-  spacing: { marginBottom: '16px' },
+  text: { marginTop: theme.spacing(1), marginLeft: theme.spacing(1) },
+  spacing: { marginBottom: theme.spacing(2) },
   list: { overflow: 'scroll', height: '88.5%' },
 }));
