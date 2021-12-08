@@ -4,7 +4,7 @@ import { List, ListItem } from 'components/list';
 import { useDnd } from 'lib/dnd';
 import { USERS, useUsers } from '..';
 
-export const UsersList = () => {
+export const UsersBank = () => {
   const { data: usersData } = useUsers(2);
   const { state, bootstrapState } = useDnd();
 

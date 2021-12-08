@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { makeStyles } from '@material-ui/styles';
 import { Grid } from '@material-ui/core';
 
-import { UsersList } from 'features/users/components/UsersList';
+import { UsersBank } from 'features/users/components';
 import { TabNavigation } from 'components/navigation';
 import { Droppable } from 'components/dnd';
 import { Button } from 'components/button';
@@ -47,7 +47,7 @@ export const TeamManagement = () => {
 
           {appendingUsers && (
             <Grid item xs={4}>
-              <UsersList />
+              <UsersBank />
             </Grid>
           )}
         </DndProvider>
