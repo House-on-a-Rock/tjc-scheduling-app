@@ -1,10 +1,12 @@
 import { useEffect } from 'react';
-import { ListItemText, Paper } from '@material-ui/core';
+import { makeStyles } from '@material-ui/core/styles';
+import { Card, ListItemText, Paper } from '@material-ui/core';
 import { List, ListItem } from 'components/list';
 import { useDnd } from 'lib/dnd';
 import { USERS, useUsers } from '..';
 
 export const UsersBank = () => {
+  const classes = useStyles();
   const { data: usersData } = useUsers(2);
   const { state, bootstrapState } = useDnd();
 
@@ -21,8 +23,15 @@ export const UsersBank = () => {
       <Paper>
         <List droppableId={USERS} draggable>
           {state[USERS].map((item, index) => (
-            <ListItem key={item.id} index={index} item={item}>
-              <ListItemText primary={item.firstName} />
+            <ListItem
+              className={classes.card}
+              component={Card}
+              elevation={0}
+              key={item.id}
+              index={index}
+              item={item}
+            >
+              <ListItemText primary={`${item.firstName} ${item.lastName}`} />
             </ListItem>
           ))}
         </List>
@@ -30,3 +39,12 @@ export const UsersBank = () => {
     )
   );
 };
+
+const useStyles = makeStyles((theme) => ({
+  card: {
+    padding: theme.spacing(1),
+    margin: theme.spacing(1),
+    border: 'solid 1px',
+    width: '95%',
+  },
+}));

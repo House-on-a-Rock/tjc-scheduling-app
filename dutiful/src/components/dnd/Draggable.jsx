@@ -1,17 +1,26 @@
+import clsx from 'clsx';
 import { Draggable as DndDraggable } from 'react-beautiful-dnd';
+import { makeStyles } from '@material-ui/core/styles';
 import { ListItem as MuiListItem } from '@material-ui/core';
 
-import { makeStyles } from '@material-ui/core/styles';
-import clsx from 'clsx';
-import { cloneElement } from 'react';
-
-export const Draggable = ({ item, index, children, snapshot, reorderable }) => {
+export const Draggable = ({
+  item,
+  index,
+  children,
+  snapshot,
+  reorderable,
+  provided,
+  className,
+  ...props
+}) => {
   const classes = useStyles();
   const shouldRenderClone =
     !reorderable && snapshot.draggingFromThisWith === String(item.id);
 
   const FixedItem = (
-    <MuiListItem className={clsx(!reorderable && classes.fixed)}>{children}</MuiListItem>
+    <MuiListItem className={clsx(className, !reorderable && classes.fixed)}>
+      {children}
+    </MuiListItem>
   );
 
   const DraggableItem = (
@@ -19,10 +28,11 @@ export const Draggable = ({ item, index, children, snapshot, reorderable }) => {
       {(draggableProvided, draggableSnapshot) => {
         return (
           <MuiListItem
-            className={clsx(classes.item, !reorderable && classes.fixed)}
+            className={clsx(className, !reorderable && classes.fixed)}
             ref={draggableProvided.innerRef}
             {...draggableProvided.draggableProps}
             {...draggableProvided.dragHandleProps}
+            {...props}
           >
             {children}
           </MuiListItem>
@@ -46,19 +56,12 @@ export const draggedChild = (children) => (provided, snapshot, rubric) => {
       {...provided.draggableProps}
       {...provided.dragHandleProps}
     >
-      {cloneElement(Child, {
-        ...provided.draggableProps,
-        ...provided.dragHandleProps,
-        style: provided.draggableProps.style,
-      })}
+      {Child}
     </div>
   );
 };
 
 const useStyles = makeStyles((theme) => ({
   fixed: { transform: 'none !important' },
-  item: {},
-  dragged: {
-    backgroundColor: theme.palette.grey[200],
-  },
+  dragged: {},
 }));
