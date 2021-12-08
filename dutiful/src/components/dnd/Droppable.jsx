@@ -29,22 +29,28 @@ export const Droppable = ({
     return props;
   })();
 
-  const BaseChildren = (provided, snapshot) => {
-    return cloneElement(children, {
-      ref: provided.innerRef,
-      className: clsx(
-        className,
-        classes.base,
-        snapshot.isDraggingOver && classes.hovered,
-      ),
-    });
+  const setClass = (snapshot) => {
+    if (!snapshot.isDraggingOver) return '';
+    return reorderable ? classes.reorderable : classes.droppable;
   };
 
-  if (children.length > 0) console.log({ children });
+  const BaseChildren = (provided, snapshot) =>
+    cloneElement(children, {
+      ref: provided.innerRef,
+      className: clsx(className, classes.base, setClass(snapshot)),
+    });
 
   const DraggableChildren = (provided, snapshot) => (
     <>
-      <MuiList ref={provided.innerRef} {...props}>
+      <MuiList
+        ref={provided.innerRef}
+        {...props}
+        className={clsx(
+          className,
+          classes.base,
+          // setClass(snapshot) // TODO this styling is ugly
+        )}
+      >
         {children.map((child) =>
           cloneElement(child, { provided, snapshot, ...draggableProps }),
         )}
@@ -61,7 +67,12 @@ export const Droppable = ({
 };
 const useStyles = makeStyles((theme) => ({
   base: { height: 'inherit' },
-  hovered: {
+  reorderable: {
+    border: 'dotted 2px',
+    borderColor: theme.palette.grey[600],
+    height: 'fit-content',
+  },
+  droppable: {
     backgroundColor: theme.palette.grey[100],
     border: 'dotted 2px',
     borderColor: theme.palette.grey[600],

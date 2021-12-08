@@ -18,6 +18,10 @@ export const UsersBank = ({ filterKey }) => {
     setSearch(event.target.value);
   }
 
+  function isInactive(user) {
+    return !!user.firstName && user.isVerified && !user.disabled;
+  }
+
   function applySearchFilter(user) {
     const firstname = user.firstName.toLowerCase();
     const lastname = user.lastName.toLowerCase();
@@ -39,7 +43,8 @@ export const UsersBank = ({ filterKey }) => {
   useEffect(() => {
     if (!usersData) return;
     const activeUsers = usersData
-      .filter((user) => !!user.firstName && user.isVerified && !user.disabled)
+      .filter(isInactive)
+      .filter(applyParentFilter)
       .map((user) => ({ ...user, id: user.userId }));
     bootstrapState({ [USERS]: activeUsers });
   }, [usersData]);

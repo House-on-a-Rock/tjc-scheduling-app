@@ -18,7 +18,7 @@ const DndProvider = ({ children, initialState, reorderable }) => {
 
   function onDragEnd(result) {
     const { source, destination } = result;
-    console.log({ source, destination });
+    console.log({ source, destination, state });
 
     // if dropped outside the list
     if (!destination) return;

@@ -10,7 +10,6 @@ import { Pagination } from 'components/pagination';
 import { constructEmptyRow, teamManagementColumns } from 'features/management';
 import { useDnd } from 'lib/dnd';
 import { TEAMMATES, useTeammates } from '../apis';
-import clsx from 'clsx';
 
 // TODO pagination breaks when teammates length state change
 
