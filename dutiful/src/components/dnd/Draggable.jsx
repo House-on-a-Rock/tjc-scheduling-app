@@ -17,8 +17,9 @@ export const Draggable = ({
   const shouldRenderClone =
     !reorderable && snapshot.draggingFromThisWith === String(item.id);
 
+  // Clone left behind
   const FixedItem = (
-    <MuiListItem className={clsx(className, !reorderable && classes.fixed)}>
+    <MuiListItem className={clsx(!reorderable && classes.fixed)} {...props}>
       {children}
     </MuiListItem>
   );
@@ -63,5 +64,5 @@ export const draggedChild = (children) => (provided, snapshot, rubric) => {
 
 const useStyles = makeStyles((theme) => ({
   fixed: { transform: 'none !important' },
-  dragged: {},
+  isDragging: { margin: `${theme.spacing(1)}px 0` },
 }));

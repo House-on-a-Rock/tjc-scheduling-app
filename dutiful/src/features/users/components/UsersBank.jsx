@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { Card, ListItemText, Paper } from '@material-ui/core';
+import { Card, ListItemText, Paper, Typography } from '@material-ui/core';
 import { List, ListItem } from 'components/list';
 import { useDnd } from 'lib/dnd';
 import { USERS, useUsers } from '..';
@@ -20,7 +20,10 @@ export const UsersBank = () => {
 
   return (
     state[USERS] && (
-      <Paper>
+      <Paper className={classes.root}>
+        <Typography variant="h5" align="center" className={classes.text}>
+          User Bank
+        </Typography>
         <List droppableId={USERS} draggable>
           {state[USERS].map((item, index) => (
             <ListItem
@@ -42,9 +45,10 @@ export const UsersBank = () => {
 
 const useStyles = makeStyles((theme) => ({
   card: {
-    padding: theme.spacing(1),
-    margin: theme.spacing(1),
+    margin: `${theme.spacing(1)}px 0`,
     border: 'solid 1px',
-    width: '95%',
+    borderColor: theme.palette.grey[300],
   },
+  root: { padding: theme.spacing(1) },
+  text: { marginTop: theme.spacing(1) },
 }));
