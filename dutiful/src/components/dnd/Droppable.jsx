@@ -19,7 +19,7 @@ export const Droppable = ({
   })();
 
   const draggableProps = (() => {
-    let props = { draggable, reorderable };
+    let props = { draggable: reorderable || draggable, reorderable };
     return props;
   })();
 
@@ -36,7 +36,7 @@ export const Droppable = ({
 
   return (
     <DndDroppable {...droppableProps}>
-      {draggable ? DraggableChild : BaseChild}
+      {reorderable || draggable ? DraggableChild : BaseChild}
     </DndDroppable>
   );
 };

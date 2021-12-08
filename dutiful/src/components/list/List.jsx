@@ -2,8 +2,8 @@ import { List as MuiList } from '@material-ui/core';
 import { Droppable } from 'components/dnd';
 import { cloneElement } from 'react';
 
-export const List = ({ children, ...props }) => {
-  const droppable = props.droppable || props.draggable;
+export const List = ({ component, children, ...props }) => {
+  const droppable = props.droppable || props.draggable || props.reorderable;
   const Base = <MuiList>{children}</MuiList>;
 
   const DroppableList = (
