@@ -18,15 +18,13 @@ export const UsersList = () => {
 
   return (
     state[USERS] && (
-      <Paper style={{ display: 'flex', flexDirection: 'row' }}>
-        <List draggable droppableId={USERS}>
-          {state[USERS].map((item, index) => {
-            return (
-              <ListItem key={item.id} index={index} item={item}>
-                <ListItemText primary={item.firstName} />
-              </ListItem>
-            );
-          })}
+      <Paper>
+        <List droppableId={USERS} draggable>
+          {state[USERS].map((item, index) => (
+            <ListItem key={item.id} index={index} item={item}>
+              <ListItemText primary={item.firstName} />
+            </ListItem>
+          ))}
         </List>
       </Paper>
     )

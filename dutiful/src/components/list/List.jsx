@@ -8,9 +8,7 @@ export const List = ({ children, ...props }) => {
 
   const DroppableList = (
     <Droppable {...props}>
-      {(provided, snapshot) =>
-        children.map((child) => cloneElement(child, { snapshot, draggable: true }))
-      }
+      {(methods) => children.map((child) => cloneElement(child, { ...methods }))}
     </Droppable>
   );
 
