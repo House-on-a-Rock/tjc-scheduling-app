@@ -1,14 +1,30 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { Card, ListItemText, Paper, Typography } from '@material-ui/core';
 import { List, ListItem } from 'components/list';
 import { useDnd } from 'lib/dnd';
 import { USERS, useUsers } from '..';
+import { Textfield } from 'components/textfield';
 
 export const UsersBank = () => {
   const classes = useStyles();
   const { data: usersData } = useUsers(2);
   const { state, bootstrapState } = useDnd();
+  const [filter, setFilter] = useState('');
+
+  function handleFilter(event) {
+    setFilter(event.target.value);
+  }
+
+  const filteredUsers = (() => {
+    if (!state[USERS]) return false;
+    if (!filter) return state[USERS];
+    return state[USERS].filter((user) => {
+      const firstname = user.firstName.toLowerCase();
+      const lastname = user.lastName.toLowerCase();
+      return firstname.includes(filter) || lastname.includes(filter);
+    });
+  })();
 
   useEffect(() => {
     if (!usersData) return;
@@ -19,13 +35,23 @@ export const UsersBank = () => {
   }, [usersData]);
 
   return (
-    state[USERS] && (
+    filteredUsers && (
       <Paper className={classes.root}>
-        <Typography variant="h5" align="center" className={classes.text}>
+        <Typography variant="h5" className={classes.text}>
           User Bank
         </Typography>
-        <List droppableId={USERS} draggable>
-          {state[USERS].map((item, index) => (
+        <div className={classes.spacing} />
+        <Textfield
+          id="outlined-multiline-flexible"
+          label="Filter"
+          value={filter}
+          onChange={handleFilter}
+          variant="outlined"
+          size="small"
+        />
+
+        <List droppableId={USERS} draggable className={classes.list}>
+          {filteredUsers.map((item, index) => (
             <ListItem
               className={classes.card}
               component={Card}
@@ -49,6 +75,8 @@ const useStyles = makeStyles((theme) => ({
     border: 'solid 1px',
     borderColor: theme.palette.grey[300],
   },
-  root: { padding: theme.spacing(1) },
-  text: { marginTop: theme.spacing(1) },
+  root: { padding: theme.spacing(3), height: 'inherit' },
+  text: { marginTop: theme.spacing(1), marginLeft: '8px' },
+  spacing: { marginBottom: '16px' },
+  list: { overflow: 'scroll', height: '88.5%' },
 }));

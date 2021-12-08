@@ -8,6 +8,7 @@ export const Droppable = ({
   draggable,
   children,
   reorderable,
+  ...props
 }) => {
   const droppableProps = (() => {
     let props = {
@@ -23,11 +24,15 @@ export const Droppable = ({
     return props;
   })();
 
-  const BaseChild = (provided, snapshot) => <div ref={provided.innerRef}>{children}</div>;
+  const BaseChild = (provided, snapshot) => (
+    <div ref={provided.innerRef} {...props} style={{ height: 'inherit' }}>
+      {children}
+    </div>
+  );
 
   const DraggableChild = (provided, snapshot) => (
     <>
-      <MuiList ref={provided.innerRef}>
+      <MuiList ref={provided.innerRef} {...props}>
         {children({ provided, snapshot, ...draggableProps })}
       </MuiList>
       {reorderable && provided.placeholder}

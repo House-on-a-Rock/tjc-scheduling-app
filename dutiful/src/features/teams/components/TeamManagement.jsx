@@ -1,11 +1,9 @@
 import { useEffect, useState } from 'react';
 import { makeStyles } from '@material-ui/styles';
-import { Grid } from '@material-ui/core';
+import { Grid, Typography } from '@material-ui/core';
 
 import { UsersBank } from 'features/users/components';
 import { TabNavigation } from 'components/navigation';
-import { Droppable } from 'components/dnd';
-import { Button } from 'components/button';
 import { DndProvider } from 'lib/dnd';
 
 import { TeamTable } from './TeamTable';
@@ -18,9 +16,9 @@ export const TeamManagement = () => {
   const [teams, setTeams] = useState([]);
   const [step, setStep] = useState(0);
   const { data } = useTeams(2);
-  const [appendingUsers, setAppendingUsers] = useState(true);
+  const [appendingUsers, setAppendingUsers] = useState(false);
 
-  function toggleAppendUsers() {
+  function handleAppendingUsers() {
     setAppendingUsers(!appendingUsers);
   }
 
@@ -31,42 +29,49 @@ export const TeamManagement = () => {
 
   return (
     <div className={classes.root}>
-      <Button onClick={toggleAppendUsers}>Append Users</Button>
-      <Grid container className={classes.content} spacing={3}>
-        <DndProvider
-          initialState={{
-            [USERS]: [],
-            [TEAMMATES]: [],
-          }}
-        >
-          <Grid item xs={appendingUsers ? 9 : 12} md={appendingUsers ? 10 : 12}>
-            <Droppable droppableId={TEAMMATES} droppable draggable={false}>
-              <TeamTable teamId={teams[step]?.id} />
-            </Droppable>
+      <Typography variant="h4" style={{ marginLeft: '8px' }}>
+        Team Management
+      </Typography>
+      <div className={classes.spacing} />
+      <TabNavigation activeStep={step} setActiveStep={setStep} data={teams} />
+      <div className={classes.spacing} />
+      <Grid container className={classes.grid} spacing={3}>
+        <DndProvider initialState={{ [USERS]: [], [TEAMMATES]: [] }}>
+          <Grid
+            item
+            xs={appendingUsers ? 8 : 12}
+            md={appendingUsers ? 9 : 12}
+            className={classes.gridItem}
+          >
+            <TeamTable
+              teamId={teams[step]?.id}
+              toggleAppendUsers={handleAppendingUsers}
+            />
           </Grid>
 
           {appendingUsers && (
-            <Grid item xs={3} md={2}>
+            <Grid item xs={4} md={3} className={classes.gridItem}>
               <UsersBank />
             </Grid>
           )}
         </DndProvider>
       </Grid>
-      <div className={classes.footer}>
-        <TabNavigation activeStep={step} setActiveStep={setStep} data={teams} />
-      </div>
     </div>
   );
 };
 
 const useStyles = makeStyles((theme) => ({
-  root: { width: '100%', display: 'flex', flexDirection: 'column' },
-  content: {
+  root: {
+    width: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+  },
+  grid: {
     flexGrow: 1,
     height: '80vh',
     marginBottom: theme.spacing(3),
-    overflow: 'scroll',
   },
-  list: {},
+  gridItem: { height: '68vh' },
+  spacing: { marginBottom: theme.spacing(3) },
   footer: { flexShrink: 0 },
 }));
