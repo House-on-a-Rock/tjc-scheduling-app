@@ -24,11 +24,9 @@ export const Droppable = ({
     return props;
   })();
 
-  const BaseChild = (provided, snapshot) => (
-    <div ref={provided.innerRef} {...props} style={{ height: 'inherit' }}>
-      {children}
-    </div>
-  );
+  const BaseChild = (provided, snapshot) => {
+    return children({ provided, snapshot });
+  };
 
   const DraggableChild = (provided, snapshot) => (
     <>

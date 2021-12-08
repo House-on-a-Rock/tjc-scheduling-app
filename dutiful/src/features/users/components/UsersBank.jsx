@@ -6,32 +6,42 @@ import { useDnd } from 'lib/dnd';
 import { USERS, useUsers } from '..';
 import { Textfield } from 'components/textfield';
 
-export const UsersBank = () => {
+const makeFullName = (user) => `${user.firstName} ${user.lastName}`;
+
+export const UsersBank = ({ filterKey }) => {
   const classes = useStyles();
   const { data: usersData } = useUsers(2);
   const { state, bootstrapState } = useDnd();
-  const [filter, setFilter] = useState('');
+  const [search, setSearch] = useState('');
 
-  function handleFilter(event) {
-    setFilter(event.target.value);
+  function handleSearch(event) {
+    setSearch(event.target.value);
+  }
+
+  function applySearchFilter(user) {
+    const firstname = user.firstName.toLowerCase();
+    const lastname = user.lastName.toLowerCase();
+    return firstname.includes(search) || lastname.includes(search);
+  }
+
+  function applyParentFilter(user) {
+    const filter = state[filterKey].map(makeFullName);
+    return !filter.includes(makeFullName(user));
   }
 
   const filteredUsers = (() => {
     if (!state[USERS]) return false;
-    if (!filter) return state[USERS];
-    return state[USERS].filter((user) => {
-      const firstname = user.firstName.toLowerCase();
-      const lastname = user.lastName.toLowerCase();
-      return firstname.includes(filter) || lastname.includes(filter);
-    });
+    const filteredState = state[USERS].filter(applyParentFilter);
+    if (!search) return filteredState;
+    return filteredState.filter(applySearchFilter);
   })();
 
   useEffect(() => {
     if (!usersData) return;
-    const filteredUsers = usersData
+    const activeUsers = usersData
       .filter((user) => !!user.firstName && user.isVerified && !user.disabled)
       .map((user) => ({ ...user, id: user.userId }));
-    bootstrapState({ [USERS]: filteredUsers });
+    bootstrapState({ [USERS]: activeUsers });
   }, [usersData]);
 
   return (
@@ -44,8 +54,8 @@ export const UsersBank = () => {
         <Textfield
           id="outlined-multiline-flexible"
           label="Filter"
-          value={filter}
-          onChange={handleFilter}
+          value={search}
+          onChange={handleSearch}
           variant="outlined"
           size="small"
         />
@@ -60,7 +70,7 @@ export const UsersBank = () => {
               index={index}
               item={item}
             >
-              <ListItemText primary={`${item.firstName} ${item.lastName}`} />
+              <ListItemText primary={makeFullName(item)} />
             </ListItem>
           ))}
         </List>
@@ -71,7 +81,7 @@ export const UsersBank = () => {
 
 const useStyles = makeStyles((theme) => ({
   card: {
-    margin: `${theme.spacing(1)}px 0`,
+    margin: `${theme.spacing(2)}px 0`,
     border: 'solid 1px',
     borderColor: theme.palette.grey[300],
   },

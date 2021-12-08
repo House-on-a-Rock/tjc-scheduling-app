@@ -29,7 +29,7 @@ export const TeamManagement = () => {
 
   return (
     <div className={classes.root}>
-      <Typography variant="h4" style={{ marginLeft: '8px' }}>
+      <Typography variant="h4" className={classes.title}>
         Team Management
       </Typography>
       <div className={classes.spacing} />
@@ -51,7 +51,7 @@ export const TeamManagement = () => {
 
           {appendingUsers && (
             <Grid item xs={4} md={3} className={classes.gridItem}>
-              <UsersBank />
+              <UsersBank filterKey={TEAMMATES} />
             </Grid>
           )}
         </DndProvider>
@@ -66,12 +66,13 @@ const useStyles = makeStyles((theme) => ({
     display: 'flex',
     flexDirection: 'column',
   },
+  title: { marginLeft: theme.spacing(1) },
   grid: {
     flexGrow: 1,
     height: '80vh',
     marginBottom: theme.spacing(3),
   },
-  gridItem: { height: '68vh' },
+  gridItem: { height: '72vh' },
   spacing: { marginBottom: theme.spacing(3) },
   footer: { flexShrink: 0 },
 }));

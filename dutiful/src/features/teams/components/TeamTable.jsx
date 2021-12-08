@@ -10,6 +10,7 @@ import { Pagination } from 'components/pagination';
 import { constructEmptyRow, teamManagementColumns } from 'features/management';
 import { useDnd } from 'lib/dnd';
 import { TEAMMATES, useTeammates } from '../apis';
+import clsx from 'clsx';
 
 // TODO pagination breaks when teammates length state change
 
@@ -31,32 +32,37 @@ export const TeamTable = ({ teamId, toggleAppendUsers }) => {
 
   return (
     <Droppable droppableId={TEAMMATES} droppable draggable={false}>
-      <Paper className={classes.paper}>
-        <div className={classes.toolbar}>
-          <Button onClick={toggleAppendUsers} startIcon={<AddIcon />}>
-            Add Users
-          </Button>
-        </div>
-        <Table
-          columns={columns}
-          data={state[TEAMMATES]}
-          paginatable={pagination}
-          initialState={{ pageSize: 15 }}
-          className={classes.table}
+      {({ provided, snapshot }) => (
+        <Paper
+          ref={provided.innerRef}
+          className={clsx(classes.paper, snapshot.isDraggingOver && classes.hovered)}
         >
-          {TableHeader}
-          {TableBody}
-          {pagination &&
-            ((methods) =>
-              (methods.pageOptions.length > 1 || methods.data.length > 20) && (
-                <Pagination
-                  methods={methods}
-                  withInput={methods.pageOptions.length > 5}
-                  withPageSize={methods.data.length > 20}
-                />
-              ))}
-        </Table>
-      </Paper>
+          <div className={classes.toolbar}>
+            <Button onClick={toggleAppendUsers} startIcon={<AddIcon />}>
+              Add Users
+            </Button>
+          </div>
+          <Table
+            columns={columns}
+            data={state[TEAMMATES]}
+            paginatable={pagination}
+            initialState={{ pageSize: 15 }}
+            className={classes.table}
+          >
+            {TableHeader}
+            {TableBody}
+            {pagination &&
+              ((methods) =>
+                (methods.pageOptions.length > 1 || methods.data.length > 20) && (
+                  <Pagination
+                    methods={methods}
+                    withInput={methods.pageOptions.length > 5}
+                    withPageSize={methods.data.length > 20}
+                  />
+                ))}
+          </Table>
+        </Paper>
+      )}
     </Droppable>
   );
 };
@@ -64,5 +70,14 @@ export const TeamTable = ({ teamId, toggleAppendUsers }) => {
 const useStyles = makeStyles((theme) => ({
   table: {},
   toolbar: { display: 'flex', flexDirection: 'row-reverse' },
-  paper: { padding: theme.spacing(2), height: '100%' },
+  paper: {
+    padding: theme.spacing(2),
+    height: 'inherit',
+  },
+  hovered: {
+    backgroundColor: theme.palette.grey[100],
+    border: 'dotted 2px',
+    borderColor: theme.palette.grey[600],
+    '& *': { color: theme.palette.grey[500] },
+  },
 }));
