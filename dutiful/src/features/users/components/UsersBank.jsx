@@ -60,7 +60,7 @@ export const UsersBank = ({ filterKey }) => {
           size="small"
         />
 
-        <List droppableId={USERS} draggable className={classes.list}>
+        <List droppableId={USERS} draggable className={classes.list} reorderable>
           {filteredUsers.map((item, index) => (
             <ListItem
               className={classes.card}

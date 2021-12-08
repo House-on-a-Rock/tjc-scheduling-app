@@ -1,6 +1,9 @@
+import { cloneElement } from 'react';
 import { Droppable as DndDroppable } from 'react-beautiful-dnd';
 import { List as MuiList } from '@material-ui/core';
+import { makeStyles } from '@material-ui/styles';
 import { draggedChild } from '.';
+import clsx from 'clsx';
 
 export const Droppable = ({
   droppable = false,
@@ -8,8 +11,10 @@ export const Droppable = ({
   draggable,
   children,
   reorderable,
+  className,
   ...props
 }) => {
+  const classes = useStyles();
   const droppableProps = (() => {
     let props = {
       droppableId: droppableId ?? 'list',
@@ -24,14 +29,25 @@ export const Droppable = ({
     return props;
   })();
 
-  const BaseChild = (provided, snapshot) => {
-    return children({ provided, snapshot });
+  const BaseChildren = (provided, snapshot) => {
+    return cloneElement(children, {
+      ref: provided.innerRef,
+      className: clsx(
+        className,
+        classes.base,
+        snapshot.isDraggingOver && classes.hovered,
+      ),
+    });
   };
 
-  const DraggableChild = (provided, snapshot) => (
+  if (children.length > 0) console.log({ children });
+
+  const DraggableChildren = (provided, snapshot) => (
     <>
       <MuiList ref={provided.innerRef} {...props}>
-        {children({ provided, snapshot, ...draggableProps })}
+        {children.map((child) =>
+          cloneElement(child, { provided, snapshot, ...draggableProps }),
+        )}
       </MuiList>
       {reorderable && provided.placeholder}
     </>
@@ -39,7 +55,16 @@ export const Droppable = ({
 
   return (
     <DndDroppable {...droppableProps}>
-      {reorderable || draggable ? DraggableChild : BaseChild}
+      {reorderable || draggable ? DraggableChildren : BaseChildren}
     </DndDroppable>
   );
 };
+const useStyles = makeStyles((theme) => ({
+  base: { height: 'inherit' },
+  hovered: {
+    backgroundColor: theme.palette.grey[100],
+    border: 'dotted 2px',
+    borderColor: theme.palette.grey[600],
+    '& *': { color: theme.palette.grey[500] },
+  },
+}));

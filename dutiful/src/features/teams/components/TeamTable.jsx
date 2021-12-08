@@ -31,38 +31,38 @@ export const TeamTable = ({ teamId, toggleAppendUsers }) => {
   }, [data]);
 
   return (
-    <Droppable droppableId={TEAMMATES} droppable draggable={false}>
-      {({ provided, snapshot }) => (
-        <Paper
-          ref={provided.innerRef}
-          className={clsx(classes.paper, snapshot.isDraggingOver && classes.hovered)}
+    <Droppable
+      droppableId={TEAMMATES}
+      droppable
+      draggable={false}
+      className={classes.paper}
+    >
+      <Paper>
+        <div className={classes.toolbar}>
+          <Button onClick={toggleAppendUsers} startIcon={<AddIcon />}>
+            Add Users
+          </Button>
+        </div>
+        <Table
+          columns={columns}
+          data={state[TEAMMATES]}
+          paginatable={pagination}
+          initialState={{ pageSize: 15 }}
+          className={classes.table}
         >
-          <div className={classes.toolbar}>
-            <Button onClick={toggleAppendUsers} startIcon={<AddIcon />}>
-              Add Users
-            </Button>
-          </div>
-          <Table
-            columns={columns}
-            data={state[TEAMMATES]}
-            paginatable={pagination}
-            initialState={{ pageSize: 15 }}
-            className={classes.table}
-          >
-            {TableHeader}
-            {TableBody}
-            {pagination &&
-              ((methods) =>
-                (methods.pageOptions.length > 1 || methods.data.length > 20) && (
-                  <Pagination
-                    methods={methods}
-                    withInput={methods.pageOptions.length > 5}
-                    withPageSize={methods.data.length > 20}
-                  />
-                ))}
-          </Table>
-        </Paper>
-      )}
+          {TableHeader}
+          {TableBody}
+          {pagination &&
+            ((methods) =>
+              (methods.pageOptions.length > 1 || methods.data.length > 20) && (
+                <Pagination
+                  methods={methods}
+                  withInput={methods.pageOptions.length > 5}
+                  withPageSize={methods.data.length > 20}
+                />
+              ))}
+        </Table>
+      </Paper>
     </Droppable>
   );
 };
@@ -70,14 +70,5 @@ export const TeamTable = ({ teamId, toggleAppendUsers }) => {
 const useStyles = makeStyles((theme) => ({
   table: {},
   toolbar: { display: 'flex', flexDirection: 'row-reverse' },
-  paper: {
-    padding: theme.spacing(2),
-    height: 'inherit',
-  },
-  hovered: {
-    backgroundColor: theme.palette.grey[100],
-    border: 'dotted 2px',
-    borderColor: theme.palette.grey[600],
-    '& *': { color: theme.palette.grey[500] },
-  },
+  paper: { padding: theme.spacing(2) },
 }));

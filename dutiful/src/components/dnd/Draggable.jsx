@@ -48,7 +48,7 @@ export const Draggable = ({
 export const draggedChild = (children) => (provided, snapshot, rubric) => {
   const classes = useStyles();
   // Rubric holds the index of the child to be dragged
-  const Child = children({ provided, snapshot })[rubric.source.index];
+  const Child = children[rubric.source.index];
   return (
     <div
       className={classes.dragged}
