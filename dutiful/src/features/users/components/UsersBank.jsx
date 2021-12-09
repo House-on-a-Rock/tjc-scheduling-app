@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { Card, ListItemText, Paper, Typography } from '@material-ui/core';
+import { Card, ListItemText, Typography } from '@material-ui/core';
 import { List, ListItem } from 'components/list';
 import { useDnd } from 'lib/dnd';
 import { USERS, useUsers } from '..';
 import { Textfield } from 'components/textfield';
+import { Spacing } from 'components/spacing';
 
 const makeFullName = (user) => `${user.firstName} ${user.lastName}`;
 
@@ -46,16 +47,17 @@ export const UsersBank = ({ filterKey }) => {
       .filter(isInactive)
       .filter(applyParentFilter)
       .map((user) => ({ ...user, id: user.userId }));
+
     bootstrapState({ [USERS]: activeUsers });
-  }, [usersData]);
+  }, [usersData, state[filterKey]]);
 
   return (
     filteredUsers && (
-      <Paper className={classes.root}>
+      <div className={classes.root}>
         <Typography variant="h5" className={classes.text}>
           User Bank
         </Typography>
-        <div className={classes.spacing} />
+        <Spacing size={2} />
         <Textfield
           id="outlined-multiline-flexible"
           label="Filter"
@@ -65,7 +67,7 @@ export const UsersBank = ({ filterKey }) => {
           size="small"
         />
 
-        <List droppableId={USERS} draggable className={classes.list} reorderable>
+        <List droppableId={USERS} draggable className={classes.list}>
           {filteredUsers.map((item, index) => (
             <ListItem
               className={classes.card}
@@ -79,7 +81,7 @@ export const UsersBank = ({ filterKey }) => {
             </ListItem>
           ))}
         </List>
-      </Paper>
+      </div>
     )
   );
 };

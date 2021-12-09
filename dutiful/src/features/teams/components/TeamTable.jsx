@@ -1,7 +1,6 @@
 import { useEffect, useMemo } from 'react';
 import { makeStyles } from '@material-ui/styles';
 import AddIcon from '@material-ui/icons/Add';
-import { Paper } from '@material-ui/core';
 
 import { Droppable } from 'components/dnd';
 import { Button } from 'components/button';
@@ -36,7 +35,7 @@ export const TeamTable = ({ teamId, toggleAppendUsers }) => {
       draggable={false}
       className={classes.paper}
     >
-      <Paper>
+      <div>
         <div className={classes.toolbar}>
           <Button onClick={toggleAppendUsers} startIcon={<AddIcon />}>
             Add Users
@@ -61,7 +60,7 @@ export const TeamTable = ({ teamId, toggleAppendUsers }) => {
                 />
               ))}
         </Table>
-      </Paper>
+      </div>
     </Droppable>
   );
 };

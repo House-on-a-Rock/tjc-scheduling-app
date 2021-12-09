@@ -1,5 +1,6 @@
 import React from 'react';
 import zxcvbn from 'zxcvbn';
+import { makeStyles } from '@material-ui/core/styles';
 import './PasswordMeter.css';
 
 export const PasswordStrengthMeter = ({ password = '' }) => {
@@ -42,3 +43,13 @@ function testStrength(result) {
       return 'Weak';
   }
 }
+
+const useStyles = makeStyles((theme) => ({
+  password: { textAlign: 'left' },
+  progress: {
+    // -webkit-appearance: none;
+    appearance: 'none',
+    width: '250px',
+    height: '12px',
+  },
+}));
