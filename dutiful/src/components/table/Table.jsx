@@ -1,7 +1,7 @@
 import { useTable } from 'react-table';
 import MuiTable from '@material-ui/core/Table';
-import { useTableProps } from '@hooks';
 import { makeStyles } from '@material-ui/core/styles';
+import { useTableProps } from 'hooks';
 
 export const Table = ({
   columns,

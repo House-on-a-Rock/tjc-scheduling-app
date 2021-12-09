@@ -21,12 +21,24 @@ export const theme = createTheme({
       dark: secondaryDark,
     },
   },
-  typography: {
-    fontFamily: 'Source Sans Pro',
-  },
+  typography: { fontFamily: 'Source Sans Pro' },
   props: {
     MuiButtonBase: {
       disableRipple: true,
     },
+  },
+  overrides: {
+    MuiTableCell: {
+      root: {
+        borderBottom: 'none',
+        padding: '8px',
+      },
+    },
+    // MuiTableRow: {
+    //   root: {
+    //     borderBottom: 'none',
+    //     padding: '8px',
+    //   },
+    // },
   },
 });

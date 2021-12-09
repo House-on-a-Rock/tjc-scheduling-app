@@ -1,4 +1,4 @@
-import { Button } from 'components/button';
+import { TableCellButton } from 'components/button';
 import { Menu, MenuItem } from 'components/menu';
 import { useMenuRef } from 'hooks/useMenuRef';
 
@@ -18,9 +18,9 @@ export const StatusDropdown = ({
 
   return (
     <div>
-      <Button ref={anchorRef} onClick={handleToggle}>
+      <TableCellButton ref={anchorRef} onClick={handleToggle}>
         {value}
-      </Button>
+      </TableCellButton>
       <Menu open={open} handleClose={handleClose} ref={anchorRef}>
         <MenuItem
           value="Active"

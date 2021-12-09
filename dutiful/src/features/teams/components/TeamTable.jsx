@@ -52,7 +52,10 @@ export const TeamTable = ({ teamId, toggleAppendUsers }) => {
           initialState={{ pageSize: 15 }}
           className={classes.table}
         >
-          {TableHeader}
+          {(methods) => {
+            console.log(methods);
+            return <TableHeader {...methods} />;
+          }}
           {TableBody}
           {pagination &&
             ((methods) =>

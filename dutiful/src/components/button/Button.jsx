@@ -9,24 +9,24 @@ export const Button = React.forwardRef(
       type = 'button',
       className = '',
       variant = 'outlined',
-      size = 'md',
+      size = 'medium',
       isLoading = false,
-      startIcon,
       endIcon,
       ...props
     },
     ref,
   ) => {
+    if (props.color) console.log({ props });
     return (
       <MuiButton
         ref={ref}
         variant={variant}
         type={type}
         className={clsx(className)}
+        startIcon={!isLoading && props.startIcon}
         {...props}
       >
         {isLoading && <Spinner size="sm" className="text-current" />}
-        {!isLoading && startIcon}
         <span>{props.children}</span> {!isLoading && endIcon}
       </MuiButton>
     );
