@@ -3,6 +3,8 @@ import zxcvbn from 'zxcvbn';
 import { makeStyles } from '@material-ui/core/styles';
 import './PasswordMeter.css';
 
+// TODO migrate css to useStyles
+
 export const PasswordStrengthMeter = ({ password = '' }) => {
   const result = zxcvbn(password);
   const strength = testStrength(result);

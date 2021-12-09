@@ -32,8 +32,6 @@ export const TeamTable = ({ teamId, toggleAppendUsers }) => {
     });
   }, [data]);
 
-  // useEffect(() => console.log({ state, data }));
-
   return (
     <Droppable
       droppableId={TEAMMATES}

@@ -11,22 +11,27 @@ function reorder(list, startIndex, endIndex) {
   return result;
 }
 
-function move(source, destination, droppableSource, droppableDestination, config) {
+function move({ source, destination, state, config }) {
+  const sourceKey = source.droppableId;
+  const destKey = destination.droppableId;
+  const sourceState = state[sourceKey];
+  const destinationState = state[destKey];
+
   const mold = (prev) => {
-    const { template } = config;
+    const { template } = config[destKey];
     let curr = {};
     Object.keys(template).forEach((key) => (curr[key] = prev[key] ?? template[key]));
     return curr;
   };
-  const sourceClone = Array.from(source);
-  const destClone = Array.from(destination);
-  const removed = sourceClone.splice(droppableSource.index, 1)[0];
-  config.fixed
+  const sourceClone = Array.from(sourceState);
+  const destClone = Array.from(destinationState);
+  const removed = sourceClone.splice(source.index, 1)[0];
+  config[destKey].fixed
     ? destClone.push(mold(removed))
-    : destClone.splice(droppableDestination.index, 0, mold(removed));
+    : destClone.splice(destination.index, 0, mold(removed));
   const result = {};
-  result[droppableSource.droppableId] = source;
-  result[droppableDestination.droppableId] = destClone;
+  result[source.droppableId] = sourceState;
+  result[destination.droppableId] = destClone;
 
   return result;
 }
@@ -79,13 +84,7 @@ const DndProvider = ({ children, initialState }) => {
       newState[sourceKey] = items;
       setState(newState);
     } else {
-      const result = move(
-        state[sourceKey],
-        state[destKey],
-        source,
-        destination,
-        config[destKey],
-      );
+      const result = move({ source, destination, state, config });
       const newState = { ...state };
       newState[sourceKey] = result[sourceKey];
       newState[destKey] = result[destKey];
