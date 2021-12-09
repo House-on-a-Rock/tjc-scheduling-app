@@ -19,7 +19,7 @@ export const UsersBank = ({ filterKey }) => {
     setSearch(event.target.value);
   }
 
-  function isInactive(user) {
+  function isUserActive(user) {
     return !!user.firstName && user.isVerified && !user.disabled;
   }
 
@@ -44,17 +44,12 @@ export const UsersBank = ({ filterKey }) => {
   useEffect(() => {
     if (!usersData) return;
     const activeUsers = usersData
-      .filter(isInactive)
+      .filter(isUserActive)
       .filter(applyParentFilter)
       .map((user) => ({ ...user, id: user.userId }));
 
     bootstrapState({ [USERS]: activeUsers });
-    bootstrapConfig({
-      // fixed: [USERS],
-      // defaultDataInterface: {
-      //   [USERS]: { firstName: '', lastName: '', teamLead: false },
-      // },
-    });
+    bootstrapConfig(USERS, {});
   }, [usersData, state[filterKey]]);
 
   return (
