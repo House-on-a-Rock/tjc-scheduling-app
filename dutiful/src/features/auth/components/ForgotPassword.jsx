@@ -11,6 +11,7 @@ import { Form } from 'components/form';
 import { TransitionsModal } from 'components/modal';
 import { Textfield } from 'components/textfield';
 import { recoverEmail } from 'features/auth/api';
+import { useToggle } from 'hooks/useToggle';
 
 const validationSchema = Yup.object().shape({
   email: Yup.string().required('Email is required').email('Email is invalid'),
@@ -19,8 +20,8 @@ const validationSchema = Yup.object().shape({
 export const ForgotPassword = () => {
   const classes = useStyles();
   const navigate = useNavigate();
-  const [open, setOpen] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
+  const [open, setOpen] = useToggle(false);
+  const [submitting, setSubmitting] = useToggle(false);
   const title = 'Forgot Password';
   const description =
     'Lost your password? Please enter your email address. You will receive a link to create a new password via email.';

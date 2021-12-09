@@ -12,6 +12,7 @@ import {
 } from '@material-ui/core';
 import { ExpandMore, ExpandLess } from '@material-ui/icons/';
 import { NavigationDrawerContext } from 'providers/drawerProvider';
+import { useToggle } from 'hooks/useToggle';
 
 export const NavList = ({ options, nested = false, handleRoute, path = '' }) => {
   const classes = useStyles();
@@ -77,7 +78,7 @@ const OrganizationItem = ({ option, isDrawerOpen }) => {
 
 const NavListItem = ({ className, option, onSelect, selected, path }) => {
   const classes = useStyles();
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [isExpanded, setIsExpanded] = useToggle(false);
   const { isOpen: isDrawerOpen, setIsOpen: setDrawerOpen } = useContext(
     NavigationDrawerContext,
   );
@@ -85,7 +86,7 @@ const NavListItem = ({ className, option, onSelect, selected, path }) => {
   function handleSelect() {
     if (option.disabled) return;
     if (!isDrawerOpen && selected) return setDrawerOpen();
-    if (isDrawerOpen && option.children) setIsExpanded(!isExpanded);
+    if (isDrawerOpen && option.children) setIsExpanded();
     onSelect();
   }
 

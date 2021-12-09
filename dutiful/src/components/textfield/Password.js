@@ -3,14 +3,11 @@ import IconButton from '@material-ui/core/IconButton';
 import { Visibility, VisibilityOff } from '@material-ui/icons';
 
 import { Textfield } from '.';
-import { forwardRef, useState } from 'react';
+import { forwardRef } from 'react';
+import { useToggle } from 'hooks/useToggle';
 
 export const Password = forwardRef(({ ...props }, ref) => {
-  const [visible, setVisible] = useState(false);
-
-  function handleVisible() {
-    setVisible(!visible);
-  }
+  const [visible, setVisible] = useToggle(false);
 
   return (
     <Textfield
@@ -22,7 +19,7 @@ export const Password = forwardRef(({ ...props }, ref) => {
       fullWidth
       InputProps={{
         endAdornment: (
-          <VisiblePasswordAdornment visible={visible} handleVisible={handleVisible} />
+          <VisiblePasswordAdornment visible={visible} handleVisible={setVisible} />
         ),
       }}
       ref={ref}
