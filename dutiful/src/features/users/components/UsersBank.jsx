@@ -12,7 +12,7 @@ const makeFullName = (user) => `${user.firstName} ${user.lastName}`;
 export const UsersBank = ({ filterKey }) => {
   const classes = useStyles();
   const { data: usersData } = useUsers(2);
-  const { state, bootstrapState } = useDnd();
+  const { state, bootstrapState, bootstrapConfig } = useDnd();
   const [search, setSearch] = useState('');
 
   function handleSearch(event) {
@@ -49,6 +49,12 @@ export const UsersBank = ({ filterKey }) => {
       .map((user) => ({ ...user, id: user.userId }));
 
     bootstrapState({ [USERS]: activeUsers });
+    bootstrapConfig({
+      // fixed: [USERS],
+      // defaultDataInterface: {
+      //   [USERS]: { firstName: '', lastName: '', teamLead: false },
+      // },
+    });
   }, [usersData, state[filterKey]]);
 
   return (

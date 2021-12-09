@@ -10,18 +10,14 @@ import { TeamTable } from './TeamTable';
 import { TEAMMATES, useTeams } from '../apis';
 import { USERS } from 'features/users';
 import { Spacing } from 'components/spacing';
+import { useToggle } from 'hooks/useToggle';
 
 export const TeamManagement = () => {
   const classes = useStyles();
-
   const [teams, setTeams] = useState([]);
   const [step, setStep] = useState(0);
   const { data } = useTeams(2);
-  const [appendingUsers, setAppendingUsers] = useState(true);
-
-  function handleAppendingUsers() {
-    setAppendingUsers(!appendingUsers);
-  }
+  const [appendingUsers, setAppendingUsers] = useToggle(false);
 
   useEffect(() => {
     if (!data) return;
@@ -30,7 +26,7 @@ export const TeamManagement = () => {
 
   return (
     <Paper className={classes.root}>
-      <DndProvider initialState={{ [USERS]: [], [TEAMMATES]: [] }}>
+      <DndProvider initialState={{ [USERS]: [], [TEAMMATES]: [] }} fixed={[TEAMMATES]}>
         <Grid container className={classes.content} spacing={3}>
           <Grid
             item
@@ -46,10 +42,7 @@ export const TeamManagement = () => {
               <TabNavigation activeStep={step} setActiveStep={setStep} data={teams} />
               <Spacing size={4} />
 
-              <TeamTable
-                teamId={teams[step]?.id}
-                toggleAppendUsers={handleAppendingUsers}
-              />
+              <TeamTable teamId={teams[step]?.id} toggleAppendUsers={setAppendingUsers} />
             </div>
           </Grid>
           <Grid item xs={4} md={3} className={classes.gridItem}>
@@ -63,7 +56,6 @@ export const TeamManagement = () => {
 
 const useStyles = makeStyles((theme) => ({
   root: { padding: theme.spacing(4) },
-
   content: {
     flexGrow: 1,
     height: '80vh',

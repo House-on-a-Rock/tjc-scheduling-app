@@ -15,7 +15,7 @@ import { TEAMMATES, useTeammates } from '../apis';
 export const TeamTable = ({ teamId, toggleAppendUsers }) => {
   const classes = useStyles();
   const columns = useMemo(() => teamManagementColumns, []);
-  const { state, bootstrapState } = useDnd();
+  const { state, bootstrapState, bootstrapConfig } = useDnd();
   const { data } = useTeammates(teamId, { enabled: !!teamId, keepPreviousData: true });
 
   const pagination = state[TEAMMATES]?.length > 10;
@@ -26,7 +26,13 @@ export const TeamTable = ({ teamId, toggleAppendUsers }) => {
     bootstrapState({
       [TEAMMATES]: data.length ? data : constructEmptyRow(teamManagementColumns),
     });
+    bootstrapConfig(TEAMMATES, {
+      fixed: true,
+      template: { firstName: '', lastName: '', teamLead: false, userId: null },
+    });
   }, [data]);
+
+  // useEffect(() => console.log({ state, data }));
 
   return (
     <Droppable

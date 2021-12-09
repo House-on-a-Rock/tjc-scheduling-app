@@ -78,6 +78,7 @@ router.get('/teammates', certify, async (req, res, next) => {
       teamLead: ur.teamLead,
       firstName: ur.user.firstName,
       lastName: ur.user.lastName,
+      userId: ur.user.id,
     }));
     // const rolesWithAssociatedUsers = roles.map((role) => {
     //   const filteredByRole = teammates
