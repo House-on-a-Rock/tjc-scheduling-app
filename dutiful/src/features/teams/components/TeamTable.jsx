@@ -45,7 +45,6 @@ export const TeamTable = ({ teamId }) => {
           className={classes.table}
         >
           {(methods) => {
-            console.log(methods);
             return <TableHeader {...methods} />;
           }}
           {TableBody}
