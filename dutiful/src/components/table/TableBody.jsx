@@ -9,16 +9,9 @@ export const TableBody = ({ rows, prepareRow }) => {
         prepareRow(row);
         return (
           <TableRow {...row.getRowProps()} className={classes.row}>
-            {row.cells.map((cell) => {
-              console.log({ cell });
-              return (
-                <TableCell
-                // {...cell.getCellProps()}
-                >
-                  {cell.render('Cell')}
-                </TableCell>
-              );
-            })}
+            {row.cells.map((cell) => (
+              <TableCell {...cell.getCellProps()}>{cell.render('Cell')}</TableCell>
+            ))}
           </TableRow>
         );
       })}
@@ -27,9 +20,5 @@ export const TableBody = ({ rows, prepareRow }) => {
 };
 
 const useStyles = makeStyles((theme) => ({
-  row: {
-    '&:nth-of-type(even)': {
-      backgroundColor: theme.palette.grey[100],
-    },
-  },
+  row: {},
 }));

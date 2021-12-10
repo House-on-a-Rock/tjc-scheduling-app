@@ -1,9 +1,6 @@
 import { useEffect, useMemo } from 'react';
 import { makeStyles } from '@material-ui/styles';
-import AddIcon from '@material-ui/icons/Add';
-
 import { Droppable } from 'components/dnd';
-import { Button } from 'components/button';
 import { TableHeader, TableBody, Table } from 'components/table';
 import { Pagination } from 'components/pagination';
 import { constructEmptyRow, teamManagementColumns } from 'features/management';
@@ -12,7 +9,7 @@ import { TEAMMATES, useTeammates } from '../apis';
 
 // TODO pagination breaks when teammates length state change
 
-export const TeamTable = ({ teamId, toggleAppendUsers }) => {
+export const TeamTable = ({ teamId }) => {
   const classes = useStyles();
   const columns = useMemo(() => teamManagementColumns, []);
   const { state, bootstrapState, bootstrapConfig } = useDnd();
@@ -40,11 +37,6 @@ export const TeamTable = ({ teamId, toggleAppendUsers }) => {
       className={classes.paper}
     >
       <div>
-        <div className={classes.toolbar}>
-          <Button onClick={toggleAppendUsers} startIcon={<AddIcon />}>
-            Add Users
-          </Button>
-        </div>
         <Table
           columns={columns}
           data={state[TEAMMATES]}
@@ -75,5 +67,5 @@ export const TeamTable = ({ teamId, toggleAppendUsers }) => {
 const useStyles = makeStyles((theme) => ({
   table: {},
   toolbar: { display: 'flex', flexDirection: 'row-reverse' },
-  paper: { padding: theme.spacing(2) },
+  // paper: { padding: theme.spacing(2) },
 }));

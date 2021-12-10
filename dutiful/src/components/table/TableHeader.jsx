@@ -37,7 +37,7 @@ const SortedIcons = ({ column }) =>
 
 const useStyles = makeStyles((theme) => ({
   header: {
-    backgroundColor: theme.palette.grey[200],
+    backgroundColor: theme.palette.grey[100],
   },
   cell: {
     borderBottom: `1px solid ${theme.palette.grey[300]}`,

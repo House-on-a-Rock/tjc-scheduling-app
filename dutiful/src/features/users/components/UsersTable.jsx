@@ -49,6 +49,7 @@ export const UsersTable = ({ churchId }) => {
               paginatable={pagination}
               sortable
               updateMethods={{ updateMyData }}
+              selectable
             >
               {TableHeader}
               {TableBody}

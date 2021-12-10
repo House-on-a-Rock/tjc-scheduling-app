@@ -1,4 +1,4 @@
-import { TableCellButton } from 'components/button';
+import { Pill } from 'components/chip';
 import { Menu, MenuItem } from 'components/menu';
 import { useMenuRef } from 'hooks/useMenuRef';
 
@@ -18,9 +18,7 @@ export const StatusDropdown = ({
 
   return (
     <div>
-      <TableCellButton ref={anchorRef} onClick={handleToggle}>
-        {value}
-      </TableCellButton>
+      <Pill ref={anchorRef} onClick={handleToggle} label={value} />
       <Menu open={open} handleClose={handleClose} ref={anchorRef}>
         <MenuItem
           value="Active"

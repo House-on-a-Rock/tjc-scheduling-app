@@ -1,8 +1,24 @@
-import { Button } from 'components/button';
+import { makeStyles } from '@material-ui/core';
+import { PillButton } from 'components/button';
+
 export const IsEmailVerified = ({ value }) => {
+  const classes = useStyles();
   return (
-    <>
-      {value} {value !== 'Yes' && <Button>Remind?</Button>}
-    </>
+    <span>
+      {value}
+      {value === 'No' && (
+        <PillButton
+          className={classes.remind}
+          label="Remind?"
+          onClick={() => console.log('reminding')}
+        />
+      )}
+    </span>
   );
 };
+
+const useStyles = makeStyles((theme) => ({
+  remind: {
+    marginLeft: theme.spacing(1),
+  },
+}));

@@ -1,26 +1,27 @@
 import { makeStyles } from '@material-ui/core';
 import { DeleteOutline, EditOutlined } from '@material-ui/icons';
-import { TableCellButton } from 'components/button';
+import { PillButton } from 'components/button';
 
 export const ActionItems = (item) => {
   const classes = useStyles();
   return (
     <div>
-      <TableCellButton
+      <PillButton
         color="primary"
         onClick={() => console.log(item)}
         className={classes.edit}
-        startIcon={<EditOutlined fontSize="small" />}
-      >
-        Edit
-      </TableCellButton>
-      <TableCellButton
+        label="Edit"
+        variant="outlined"
+        icon={<EditOutlined fontSize="small" />}
+      />
+      <PillButton
         color="secondary"
         onClick={() => console.log(item)}
-        startIcon={<DeleteOutline fontSize="small" />}
-      >
-        Delete
-      </TableCellButton>
+        className={classes.edit}
+        label="Delete"
+        variant="outlined"
+        icon={<DeleteOutline fontSize="small" />}
+      />
     </div>
   );
 };

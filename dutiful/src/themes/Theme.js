@@ -34,11 +34,12 @@ export const theme = createTheme({
         padding: '8px',
       },
     },
-    // MuiTableRow: {
-    //   root: {
-    //     borderBottom: 'none',
-    //     padding: '8px',
-    //   },
-    // },
+    MuiTableRow: {
+      root: {
+        '&:nth-of-type(even)': {
+          backgroundColor: '#f5f5f5',
+        },
+      },
+    },
   },
 });

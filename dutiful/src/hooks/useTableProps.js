@@ -4,7 +4,7 @@ import { useSortBy, usePagination, useRowSelect } from 'react-table';
 export const useTableProps = ({
   columns,
   data,
-  multiselect,
+  selectable,
   paginatable,
   sortable,
   updateMethods,
@@ -30,8 +30,8 @@ export const useTableProps = ({
   ];
   const pageProps = [usePagination];
   const sortProps = [useSortBy];
-  if (multiselect) tableProps.push(...rowSelect);
   if (sortable) tableProps.push(...sortProps);
   if (paginatable) tableProps.push(...pageProps);
+  if (selectable) tableProps.push(...rowSelect);
   return tableProps;
 };

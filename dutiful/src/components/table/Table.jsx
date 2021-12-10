@@ -11,6 +11,7 @@ export const Table = ({
   sortable,
   updateMethods,
   initialState = {},
+  selectable,
   ...props
 }) => {
   const classes = useStyles();
@@ -19,11 +20,12 @@ export const Table = ({
     columns,
     data,
     initialState,
-    multiselect: false,
+    selectable,
     paginatable,
     sortable,
     updateMethods,
   });
+
   const methods = useTable(...tableProps);
 
   const headerMethods = (() => ({ headerGroups: methods.headerGroups, sortable }))();

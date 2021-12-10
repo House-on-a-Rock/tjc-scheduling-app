@@ -11,6 +11,8 @@ import { TEAMMATES, useTeams } from '../apis';
 import { USERS } from 'features/users';
 import { Spacing } from 'components/spacing';
 import { useToggle } from 'hooks/useToggle';
+import { Button } from 'components/button';
+import { Add as AddIcon } from '@material-ui/icons';
 
 export const TeamManagement = () => {
   const classes = useStyles();
@@ -27,6 +29,11 @@ export const TeamManagement = () => {
   return (
     <Paper className={classes.root}>
       <DndProvider initialState={{ [USERS]: [], [TEAMMATES]: [] }} fixed={[TEAMMATES]}>
+        <div className={classes.toolbar}>
+          <Button onClick={setAppendingUsers} startIcon={<AddIcon />}>
+            Add Users
+          </Button>
+        </div>
         <Grid container className={classes.content} spacing={3}>
           <Grid
             item
@@ -72,4 +79,5 @@ const useStyles = makeStyles((theme) => ({
   gridItem: {},
   spacing: { marginBottom: theme.spacing(3) },
   footer: { flexShrink: 0 },
+  toolbar: { display: 'flex', flexDirection: 'row-reverse' },
 }));
