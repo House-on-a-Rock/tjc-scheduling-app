@@ -20,7 +20,7 @@ export const useMenuRef = ({ callback = null }) => {
   }
 
   useEffect(() => {
-    if (!!prevOpen.current && !open) anchorRef.current.focus();
+    if (!!prevOpen.current && !open) anchorRef.current.blur();
     prevOpen.current = open;
   }, [open]);
 
