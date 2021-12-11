@@ -29,7 +29,7 @@ const useStyles = makeStyles((theme) => ({
   },
   pill: {
     '&:hover': {
-      backgroundColor: 'transparent',
+      backgroundColor: theme.palette.primary.light,
     },
   },
 }));

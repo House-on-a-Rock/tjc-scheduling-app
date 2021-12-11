@@ -16,7 +16,6 @@ export const Button = React.forwardRef(
     },
     ref,
   ) => {
-    if (props.color) console.log({ props });
     return (
       <MuiButton
         ref={ref}
@@ -27,7 +26,7 @@ export const Button = React.forwardRef(
         {...props}
       >
         {isLoading && <Spinner size="sm" className="text-current" />}
-        <span>{props.children}</span> {!isLoading && endIcon}
+        <>{props.children}</> {!isLoading && endIcon}
       </MuiButton>
     );
   },

@@ -5,7 +5,7 @@ import { PillButton } from 'components/button';
 export const ActionItems = (item) => {
   const classes = useStyles();
   return (
-    <div>
+    <>
       <PillButton
         color="primary"
         onClick={() => console.log(item)}
@@ -22,7 +22,7 @@ export const ActionItems = (item) => {
         variant="outlined"
         icon={<DeleteOutline fontSize="small" />}
       />
-    </div>
+    </>
   );
 };
 
