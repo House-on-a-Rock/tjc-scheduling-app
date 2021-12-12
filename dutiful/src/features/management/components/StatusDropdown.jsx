@@ -1,6 +1,6 @@
 import { Paper, makeStyles, Divider } from '@material-ui/core';
 import { Pill } from 'components/chip';
-import { CellPopover } from 'components/table';
+import { EditableCell } from 'components/table';
 import { useMenuRef } from 'hooks/useMenuRef';
 
 export const StatusDropdown = ({
@@ -24,7 +24,7 @@ export const StatusDropdown = ({
   return (
     <div>
       <Pill ref={anchorRef} onClick={handleToggle} label={value} />
-      <CellPopover open={open} handleClose={handleClose} ref={anchorRef}>
+      <EditableCell open={open} handleClose={handleClose} ref={anchorRef}>
         <Paper style={{ width: '100px' }}>
           <div style={{ padding: '8px' }}>
             <Pill
@@ -65,7 +65,7 @@ export const StatusDropdown = ({
         >
           Inactive
         </MenuItem> */}
-      </CellPopover>
+      </EditableCell>
     </div>
   );
 };

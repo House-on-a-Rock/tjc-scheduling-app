@@ -1,10 +1,11 @@
 import { Popover } from '@material-ui/core';
-import { forwardRef } from 'react';
+import { cloneElement, forwardRef } from 'react';
+import { TableCell } from '..';
 
 const defaultAnchorOrigin = { vertical: 'top', horizontal: 'left' };
 const defaultTransformOrigin = { vertical: 'top', horizontal: 'left' };
 
-export const CellPopover = forwardRef(
+export const EditableCell = forwardRef(
   (
     {
       handleClose,
@@ -28,3 +29,15 @@ export const CellPopover = forwardRef(
     );
   },
 );
+
+export const WithEditableCell =
+  (Component) =>
+  ({ role, key, ...props }) =>
+    (
+      <TableCell role={role} key={key}>
+        {cloneElement(<Component />, { ...props })}
+      </TableCell>
+    );
+
+export const renderCustomCells = (cell) =>
+  cloneElement(cell.render('Cell'), { ...cell.getCellProps() });
