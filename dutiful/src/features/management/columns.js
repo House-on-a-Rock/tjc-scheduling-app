@@ -1,10 +1,10 @@
 import { WithEditableCell } from 'components/table';
 import { IsEmailVerified, StatusDropdown } from 'features/management';
 import { ActionItems } from 'features/management/components/ActionItems';
-import { DefaultColumnCell } from 'components/table/TableCells';
+import { withDefaultCells } from './utilities/manageColumns';
 
 // TODO add Access Level (admin)
-export const userManagementColumns = [
+const userManagementColumns = withDefaultCells([
   { Header: 'First Name', accessor: 'firstName' },
   { Header: 'Last Name', accessor: 'lastName' },
   { Header: 'Email', accessor: 'email' },
@@ -23,11 +23,15 @@ export const userManagementColumns = [
     accessor: 'action',
     Cell: WithEditableCell(ActionItems),
   },
-].map((initialColumn) => {
-  let column = { ...initialColumn };
-  if (!column.Cell) column.Cell = DefaultColumnCell;
-  return column;
-});
+]);
+
+const teamManagementColumns = withDefaultCells([
+  { Header: 'First Name', accessor: 'firstName' },
+  { Header: 'Last Name', accessor: 'lastName' },
+  { Header: 'Team Lead', accessor: 'teamLead' },
+]);
+
+export { teamManagementColumns, userManagementColumns };
 
 // TODO Roles Management
 // Allowing your users to assign roles for other users is not just basic, it’s critical. The most basic approach would be to assign each user a specific role within your SaaS application. There are also several more advanced approaches for handling assignment of roles for your users:
@@ -37,17 +41,3 @@ export const userManagementColumns = [
 // Specific Access — Some apps let you choose the specific module/section access for each user. This can be achieved by taking a pure role-based access approach as well, although it sometimes allows for higher granularity on the allowed actions within the product.
 
 // TODO  Constructing a Role Statement
-
-export const teamManagementColumns = [
-  { Header: 'First Name', accessor: 'firstName' },
-  { Header: 'Last Name', accessor: 'lastName' },
-  { Header: 'Team Lead', accessor: 'teamLead' },
-];
-
-export function constructEmptyRow(columns) {
-  const row = {};
-  columns.forEach(({ Header, accessor }) => {
-    row[Header] = '';
-  });
-  return [row];
-}

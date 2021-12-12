@@ -9,7 +9,7 @@ export const TableBody = ({ rows, prepareRow }) => {
       {rows.map((row) => {
         prepareRow(row);
         return (
-          <TableRow {...row.getRowProps()} className={classes.row}>
+          <TableRow className={classes.row} {...row.getRowProps()}>
             {row.cells.map((cell) =>
               cell.column.id === 'selection'
                 ? renderDefaultCells(cell)
@@ -22,6 +22,4 @@ export const TableBody = ({ rows, prepareRow }) => {
   );
 };
 
-const useStyles = makeStyles((theme) => ({
-  // row: { backgroundColor: 'red' },
-}));
+const useStyles = makeStyles((theme) => ({}));

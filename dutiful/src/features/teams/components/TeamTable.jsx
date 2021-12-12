@@ -3,9 +3,10 @@ import { makeStyles } from '@material-ui/styles';
 import { Droppable } from 'components/dnd';
 import { TableHeader, TableBody, Table } from 'components/table';
 import { Pagination } from 'components/pagination';
-import { constructEmptyRow, teamManagementColumns } from 'features/management';
+import { teamManagementColumns } from 'features/management';
 import { useDnd } from 'lib/dnd';
 import { TEAMMATES, useTeammates } from '../apis';
+import { constructEmptyRow } from 'features/management/utilities/manageColumns';
 
 // TODO pagination breaks when teammates length state change
 
