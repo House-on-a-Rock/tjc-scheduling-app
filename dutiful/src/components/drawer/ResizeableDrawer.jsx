@@ -13,10 +13,13 @@ const Dragger = ({ handleMouseDown }) => {
   return <div onMouseDown={handleMouseDown} className={classes.dragger} />;
 };
 
-export const ResizeableDrawer = ({ open, children }) => {
+export const ResizeableDrawer = ({ open, setOpen, children }) => {
   const [drawerWidth, setDrawerWidth] = useState(minDrawerWidth);
   const [ease, setEase] = useState(true);
   const classes = useStyles({ drawerWidth });
+
+  const isDrawerClosed = drawerWidth === minDrawerWidth;
+  const isDrawerOpen = drawerWidth === maxDrawerWidth;
 
   function handleMouseDown(e) {
     document.addEventListener('mouseup', handleMouseUp, true);
@@ -42,7 +45,18 @@ export const ResizeableDrawer = ({ open, children }) => {
   }, []);
 
   useEffect(() => {
-    if (drawerWidth !== minDrawerWidth && drawerWidth !== maxDrawerWidth) setEase(false);
+    const inTransition = !(isDrawerClosed && isDrawerOpen);
+    if (!inTransition) return setEase(false);
+
+    function unifyWithDrawerState() {
+      if (isDrawerClosed && open) {
+        return setOpen(false);
+      } else if (isDrawerOpen && !open) {
+        return setOpen(true);
+      }
+    }
+
+    unifyWithDrawerState();
   }, [drawerWidth]);
 
   useEffect(() => {

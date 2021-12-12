@@ -21,7 +21,7 @@ export const NavigationSidebar = ({ options }) => {
   return (
     <NavigationDrawerContext.Consumer>
       {({ isOpen, setIsOpen }) => (
-        <ResizeableDrawer open={isOpen} handleOpen={setIsOpen}>
+        <ResizeableDrawer open={isOpen} setOpen={setIsOpen}>
           {path && (
             <NavList
               options={options}
