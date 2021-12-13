@@ -1,4 +1,4 @@
-import { TableCell } from '@material-ui/core';
+import { TableCell } from 'components/table';
 import { cloneElement } from 'react';
 
 const renderCustomCells = (cell) =>

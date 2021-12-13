@@ -7,7 +7,6 @@ import { teamManagementColumns } from 'features/management';
 import { useDnd } from 'lib/dnd';
 import { TEAMMATES, useTeammates } from '../apis';
 import { constructEmptyRow } from 'lib/react-table';
-// import { constructEmptyRow } from 'features/management/utilities/manageColumns';
 
 // TODO pagination breaks when teammates length state change
 
