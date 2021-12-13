@@ -7,8 +7,8 @@ export const StatusDropdown = forwardRef(
   ({ value, row: { index }, column: { id }, updateMyData }, ref) => {
     return (
       <TableCell.Select value={value} ref={ref}>
-        <TableCell.Option item={{ value: 'Active' }} />
-        <TableCell.Option item={{ value: 'Inactive' }} />
+        <TableCell.Option item={{ value: 'Active' }} component={Pill} />
+        <TableCell.Option item={{ value: 'Inactive' }} component={Pill} />
       </TableCell.Select>
     );
   },

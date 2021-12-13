@@ -28,8 +28,7 @@ const useStyles = makeStyles((theme) => ({
     backgroundColor: theme.palette.primary.light,
   },
   pill: {
-    '&:hover': {
-      backgroundColor: theme.palette.primary.light,
-    },
+    '&:hover': { backgroundColor: theme.palette.primary.light },
+    '&:focus': { backgroundColor: theme.palette.primary.light },
   },
 }));

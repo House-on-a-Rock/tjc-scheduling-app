@@ -15,7 +15,6 @@ const TableCell = ({ editable, children, ...props }) => {
   const Base = <MuiTableCell {...props}>{children}</MuiTableCell>;
   const CustomComponent = <MuiTableCell {...props}>{children}</MuiTableCell>;
   const Editable = <EditableCell {...props}>{children}</EditableCell>;
-  if (editable) console.log({ editable });
 
   if (typeof children === 'string') return Base;
   if (!editable) return CustomComponent;

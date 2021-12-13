@@ -23,7 +23,8 @@ export const usePortalRef = ({ ref = null, submit } = {}) => {
   }
 
   useEffect(() => {
-    if (!!prevOpen.current && !open) resolvedRef.current?.blur();
+    if (!!prevOpen.current && !open) resolvedRef.current.blur();
+
     prevOpen.current = open;
   }, [open]);
 
