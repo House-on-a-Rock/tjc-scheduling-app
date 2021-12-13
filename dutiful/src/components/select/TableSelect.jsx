@@ -36,3 +36,16 @@ function manageChildrenProps(children, props) {
   let elements = Children.toArray(children);
   return elements.map((element) => cloneElement(element, props));
 }
+const Paper = () => {};
+
+const useStyles = makeStyles((theme) => ({
+  paper: {
+    display: ' table-cell',
+    padding: theme.spacing(1),
+    fontSize: '0.875rem',
+    textAlign: 'left',
+    lineHeight: 1.43,
+
+    // vertical-align: inherit;
+  },
+}));

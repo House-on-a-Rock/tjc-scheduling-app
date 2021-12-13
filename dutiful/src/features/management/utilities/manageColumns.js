@@ -1,5 +1,11 @@
-import { DefaultColumnCell, TableCell } from 'components/table';
+import { TableCell } from 'components/table';
 import { cloneElement } from 'react';
+
+const DefaultColumnCell = ({ role, key, ...props }) => (
+  <TableCell role={role} {...props.cell.getCellProps()}>
+    {props.cell.value}
+  </TableCell>
+);
 
 const applyProps =
   (Cell, props) =>
