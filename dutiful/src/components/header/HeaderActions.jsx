@@ -2,12 +2,10 @@ import { Fragment } from 'react';
 import { Link } from 'react-router-dom';
 import { Badge, IconButton, Tooltip } from '@material-ui/core';
 import { Menu, MenuItem } from 'components/menu';
-import { useMenuRef } from 'hooks/useMenuRef';
+import { usePortalRef } from 'hooks';
 
 export const HeaderAction = ({ action }) => {
-  const { open, anchorRef, handleClose, handleMenuItemClose, handleToggle } = useMenuRef(
-    {},
-  );
+  const { open, anchorRef, handleClose, handleSubmit, handleToggle } = usePortalRef();
 
   const baseProps = {
     link: { component: Link, to: action.url },
@@ -38,7 +36,7 @@ export const HeaderAction = ({ action }) => {
       {action.type === 'menu' && (
         <Menu open={open} handleClose={handleClose} ref={anchorRef}>
           {action.list.map((item) => (
-            <MenuItem key={item.text} onClick={handleMenuItemClose()} {...item} />
+            <MenuItem key={item.text} onClick={handleSubmit()} {...item} />
           ))}
         </Menu>
       )}

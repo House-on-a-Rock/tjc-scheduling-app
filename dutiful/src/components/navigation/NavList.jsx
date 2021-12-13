@@ -12,7 +12,7 @@ import {
 } from '@material-ui/core';
 import { ExpandMore, ExpandLess } from '@material-ui/icons/';
 import { NavigationDrawerContext } from 'providers/drawerProvider';
-import { useToggle } from 'hooks/useToggle';
+import { useToggle } from 'hooks';
 
 export const NavList = ({ options, nested = false, handleRoute, path = '' }) => {
   const classes = useStyles();

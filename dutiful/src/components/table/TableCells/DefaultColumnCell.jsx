@@ -5,7 +5,3 @@ export const DefaultColumnCell = ({ role, key, ...props }) => (
     {props.cell.value}
   </TableCell>
 );
-
-export const renderDefaultCells = (cell) => (
-  <TableCell {...cell.getCellProps()}>{cell.render('Cell')}</TableCell>
-);

@@ -4,7 +4,7 @@ import { Visibility, VisibilityOff } from '@material-ui/icons';
 
 import { Textfield } from '.';
 import { forwardRef } from 'react';
-import { useToggle } from 'hooks/useToggle';
+import { useToggle } from 'hooks';
 
 export const Password = forwardRef(({ ...props }, ref) => {
   const [visible, setVisible] = useToggle(false);

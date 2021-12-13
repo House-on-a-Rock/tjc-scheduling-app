@@ -1,31 +1,32 @@
-import { WithEditableCell } from 'components/table';
 import { IsEmailVerified, StatusDropdown } from 'features/management';
 import { ActionItems } from 'features/management/components/ActionItems';
-import { withDefaultCells } from './utilities/manageColumns';
+
+import { withCells } from './utilities/manageColumns';
 
 // TODO add Access Level (admin)
-const userManagementColumns = withDefaultCells([
+const userManagementColumns = withCells([
   { Header: 'First Name', accessor: 'firstName' },
   { Header: 'Last Name', accessor: 'lastName' },
   { Header: 'Email', accessor: 'email' },
   {
     Header: 'Status',
     accessor: 'active',
-    Cell: WithEditableCell(StatusDropdown),
+    Cell: StatusDropdown,
+    props: { editable: true },
   },
   {
     Header: 'Email Verified',
     accessor: 'verified',
-    Cell: WithEditableCell(IsEmailVerified),
+    Cell: IsEmailVerified, // Not an editable cell
   },
   {
     Header: 'Action',
     accessor: 'action',
-    Cell: WithEditableCell(ActionItems),
+    Cell: ActionItems, // Not an editable cell
   },
 ]);
 
-const teamManagementColumns = withDefaultCells([
+const teamManagementColumns = withCells([
   { Header: 'First Name', accessor: 'firstName' },
   { Header: 'Last Name', accessor: 'lastName' },
   { Header: 'Team Lead', accessor: 'teamLead' },

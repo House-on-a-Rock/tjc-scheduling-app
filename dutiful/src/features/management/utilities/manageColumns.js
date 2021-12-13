@@ -1,10 +1,25 @@
-import { DefaultColumnCell } from 'components/table';
+import { DefaultColumnCell, TableCell } from 'components/table';
+import { cloneElement } from 'react';
 
-const withDefaultCells = (columns) =>
+const applyProps =
+  (Cell, props) =>
+  ({ role, ...rTableProps }) =>
+    (
+      <TableCell role={role} {...props}>
+        {cloneElement(<Cell />, { ...rTableProps })}
+      </TableCell>
+    );
+
+const withCells = (columns) =>
   columns.map((initialColumn) => {
     let column = { ...initialColumn };
     if (!column.Cell) column.Cell = DefaultColumnCell;
-    return column;
+    else column.Cell = applyProps(column.Cell, column.props);
+    return {
+      Header: column.Header,
+      accessor: column.accessor,
+      Cell: column.Cell,
+    };
   });
 
 function constructEmptyRow(columns) {
@@ -13,4 +28,4 @@ function constructEmptyRow(columns) {
   return [row];
 }
 
-export { withDefaultCells, constructEmptyRow };
+export { constructEmptyRow, withCells };

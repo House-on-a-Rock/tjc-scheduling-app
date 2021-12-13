@@ -1,6 +1,7 @@
 import { TableRow, makeStyles } from '@material-ui/core';
 import MuiTableBody from '@material-ui/core/TableBody';
-import { renderCustomCells, renderDefaultCells } from '.';
+import { cloneElement } from 'react';
+import { TableCell } from '.';
 
 export const TableBody = ({ rows, prepareRow }) => {
   const classes = useStyles();
@@ -23,3 +24,9 @@ export const TableBody = ({ rows, prepareRow }) => {
 };
 
 const useStyles = makeStyles((theme) => ({}));
+export const renderCustomCells = (cell) =>
+  cloneElement(cell.render('Cell'), { ...cell.getCellProps() });
+
+const renderDefaultCells = (cell) => (
+  <TableCell {...cell.getCellProps()}>{cell.render('Cell')}</TableCell>
+);

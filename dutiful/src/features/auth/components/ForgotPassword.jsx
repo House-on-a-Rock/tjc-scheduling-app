@@ -11,7 +11,7 @@ import { Form } from 'components/form';
 import { TransitionsModal } from 'components/modal';
 import { Textfield } from 'components/textfield';
 import { recoverEmail } from 'features/auth/api';
-import { useToggle } from 'hooks/useToggle';
+import { useToggle } from 'hooks';
 
 const validationSchema = Yup.object().shape({
   email: Yup.string().required('Email is required').email('Email is invalid'),
