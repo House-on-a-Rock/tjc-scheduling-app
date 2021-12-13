@@ -1,7 +1,6 @@
 import { IsEmailVerified, StatusDropdown } from 'features/management';
 import { ActionItems } from 'features/management/components/ActionItems';
-
-import { withCells } from './utilities/manageColumns';
+import { withCells } from 'lib/react-table';
 
 // TODO add Access Level (admin)
 const userManagementColumns = withCells([

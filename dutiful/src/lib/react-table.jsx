@@ -1,5 +1,12 @@
-import { TableCell } from 'components/table';
+import { TableCell } from '@material-ui/core';
 import { cloneElement } from 'react';
+
+const renderCustomCells = (cell) =>
+  cloneElement(cell.render('Cell'), { ...cell.getCellProps() });
+
+const renderDefaultCells = (cell) => (
+  <TableCell {...cell.getCellProps()}>{cell.render('Cell')}</TableCell>
+);
 
 const DefaultColumnCell = ({ role, key, ...props }) => (
   <TableCell role={role} {...props.cell.getCellProps()}>
@@ -34,4 +41,10 @@ function constructEmptyRow(columns) {
   return [row];
 }
 
-export { constructEmptyRow, withCells };
+export {
+  renderCustomCells,
+  renderDefaultCells,
+  DefaultColumnCell,
+  constructEmptyRow,
+  withCells,
+};
