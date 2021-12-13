@@ -29,7 +29,7 @@ export const NavList = ({ options, nested = false, handleRoute, path = '' }) => 
 
   useEffect(() => {
     const selectedOption = options.find((option) => path.includes(option.url));
-    if (selectedOption) setSelected(selectedOption.url);
+    setSelected(selectedOption?.url);
     if (nested && selectedOption) handleRoute(selectedOption.url);
   }, [path, options, nested]);
 
@@ -50,7 +50,7 @@ export const NavList = ({ options, nested = false, handleRoute, path = '' }) => 
             className={clsx(nested && classes.nested)}
             option={option}
             onSelect={handleSelect(option.url)}
-            selected={selected.includes(option.label)}
+            selected={selected?.includes(option.label)}
             path={path}
           />
         );
