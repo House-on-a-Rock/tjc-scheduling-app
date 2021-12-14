@@ -64,8 +64,11 @@ const useStyles = makeStyles((theme) => ({
     minWidth: theme.spacing(4),
     minHeight: theme.spacing(4),
   },
-  innerButtons: { maxHeight: theme.spacing(4), maxWidth: theme.spacing(3.5) },
+  innerButtons: {
+    maxHeight: theme.spacing(4),
+    maxWidth: theme.spacing(3.5),
+  },
   text: { fontSize: theme.typography.htmlFontSize },
   selected: { backgroundColor: theme.palette.grey[200] },
-  icon: { paddingTop: theme.spacing(1.5) },
+  // icon: { paddingTop: theme.spacing(1.5) },
 }));

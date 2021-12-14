@@ -21,7 +21,10 @@ export const theme = createTheme({
       dark: secondaryDark,
     },
   },
-  typography: { fontFamily: 'Source Sans Pro' },
+  typography: {
+    fontFamily: 'sans-serif',
+    // fontFamily: 'Source Sans Pro',
+  },
   props: {
     MuiButtonBase: {
       disableRipple: true,
@@ -30,15 +33,15 @@ export const theme = createTheme({
   overrides: {
     MuiTableCell: {
       root: {
-        borderBottom: 'none',
-        padding: '8px',
+        // borderBottom: 'none',
+        border: '1px solid rgb(238, 238, 237)',
+        padding: '0 16px',
       },
     },
     MuiTableRow: {
       root: {
-        '&:nth-of-type(even)': {
-          backgroundColor: '#f5f5f5',
-        },
+        height: '43px',
+        backgroundColor: '#fff',
       },
     },
   },
