@@ -1,29 +1,23 @@
 import { makeStyles, Popover } from '@material-ui/core';
 import { cloneElement, Children, forwardRef } from 'react';
-import { usePortalRef } from 'hooks';
 
-export const TableSelect = forwardRef(({ value, children }, ref) => {
-  const { open, anchorRef, handleClose, handleToggle } = usePortalRef({ ref });
-  const idx = children.findIndex((child) => child.props.item.value === value);
-  const id = open ? 'simple-popover' : undefined;
+export const TableSelect = forwardRef(({ id, value, children, ...props }, ref) => {
+  const { onClick, open, onClose } = props;
+  const childIdx = children.findIndex((child) => child.props.value === value);
 
-  const SelectedElement = manageChildrenProps(children[idx], {
-    onClick: () => handleToggle(),
-  });
-  const PoppinElements = (
-    <ul>{manageChildrenProps(children, { onClick: handleClose })}</ul>
-  );
+  const SelectedElement = children[childIdx];
+  const PoppinElements = <ul>{manageChildrenProps(children, { onClick: onClose })}</ul>;
 
   return (
     <>
       {SelectedElement}
       <Popover
-        id={id}
+        id={open ? `table-select-${id}` : undefined}
         open={open}
-        anchorEl={anchorRef?.current}
+        anchorEl={ref?.current}
         anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
         transformOrigin={{ vertical: 'top', horizontal: 'left' }}
-        onClose={handleClose}
+        onClose={onClose}
         TransitionProps={{ timeout: { enter: 0, exit: 0 } }}
       >
         {PoppinElements}

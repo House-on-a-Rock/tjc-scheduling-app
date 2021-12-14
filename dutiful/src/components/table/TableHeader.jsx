@@ -1,28 +1,36 @@
-import MuiTableHead from '@material-ui/core/TableHead';
-import MuiTableRow from '@material-ui/core/TableRow';
-import MuiTableCell from '@material-ui/core/TableCell';
+import {
+  TableRow as MuiTableRow,
+  TableHead as MuiTableHead,
+  makeStyles,
+} from '@material-ui/core';
+import { TableCell } from '.';
 import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
-import { makeStyles } from '@material-ui/core/styles';
+import clsx from 'clsx';
 
-export const TableHeader = ({ headerGroups, sortable }) => {
+export const TableHeader = ({ headerGroups, sortable, selectable }) => {
   const classes = useStyles();
   return (
     <MuiTableHead>
       {headerGroups.map((headerGroup) => (
-        <MuiTableRow {...headerGroup.getHeaderGroupProps()} className={classes.header}>
-          {headerGroup.headers.map((column) => {
+        <MuiTableRow {...headerGroup.getHeaderGroupProps()}>
+          {headerGroup.headers.map((column, columnId) => {
+            const isSelection = selectable && !columnId;
+            const afterSelection = selectable && columnId === 1;
             const sortProps = sortable && column.getSortByToggleProps();
             return (
-              <MuiTableCell
-                className={classes.cell}
+              <TableCell
                 {...column.getHeaderProps(sortProps)}
+                className={clsx(
+                  isSelection && classes.selection,
+                  afterSelection && classes.afterSelection,
+                )}
               >
-                <div style={{ display: 'flex' }}>
+                <div className={classes.header}>
                   {column.render('Header')}
-                  {sortable && <SortedIcons column={column} />}
+                  <div>{sortable ? <SortedIcons column={column} /> : <div />}</div>
                 </div>
-              </MuiTableCell>
+              </TableCell>
             );
           })}
         </MuiTableRow>
@@ -31,15 +39,23 @@ export const TableHeader = ({ headerGroups, sortable }) => {
   );
 };
 
+const useStyles = makeStyles((theme) => ({
+  header: {
+    display: 'flex',
+    justifyContent: 'space-between',
+  },
+  selection: {
+    padding: 0,
+    paddingLeft: '4px',
+    width: 'fit-content',
+    borderRight: 'none',
+  },
+  afterSelection: {
+    borderLeft: 'none',
+    paddingLeft: 0,
+  },
+}));
+
 const SortedIcons = ({ column }) =>
   column.isSorted &&
   (column.isSortedDesc ? <KeyboardArrowDownIcon /> : <KeyboardArrowUpIcon />);
-
-const useStyles = makeStyles((theme) => ({
-  header: {
-    backgroundColor: theme.palette.grey[100],
-  },
-  cell: {
-    borderBottom: `1px solid ${theme.palette.grey[300]}`,
-  },
-}));

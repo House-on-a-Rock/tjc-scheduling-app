@@ -4,11 +4,19 @@ import { TableCell } from 'components/table';
 import { forwardRef } from 'react';
 
 export const StatusDropdown = forwardRef(
-  ({ value, row: { index }, column: { id }, updateMyData }, ref) => {
+  ({ value, row: { index }, column: { id }, updateMyData, ...props }, ref) => {
+    const { handleToggle, handleClose, open } = props;
     return (
-      <TableCell.Select value={value} ref={ref}>
-        <TableCell.Option item={{ value: 'Active' }} component={Pill} />
-        <TableCell.Option item={{ value: 'Inactive' }} component={Pill} />
+      <TableCell.Select
+        id="status-dropdown"
+        value={value}
+        ref={ref}
+        onClick={handleToggle}
+        onClose={handleClose}
+        open={open}
+      >
+        <TableCell.Option component={Pill} label="Active" value="Active" />
+        <TableCell.Option component={Pill} label="Inactive" value="Inactive" />
       </TableCell.Select>
     );
   },

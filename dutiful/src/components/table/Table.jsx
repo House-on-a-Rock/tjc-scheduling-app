@@ -28,9 +28,13 @@ export const Table = ({
 
   const methods = useTable(...tableProps);
 
-  const headerMethods = (() => ({ headerGroups: methods.headerGroups, sortable }))();
+  const headerMethods = (() => ({
+    headerGroups: methods.headerGroups,
+    sortable,
+    selectable,
+  }))();
   const bodyMethods = (() => {
-    let props = { prepareRow: methods.prepareRow };
+    let props = { prepareRow: methods.prepareRow, selectable };
     props.rows = paginatable ? methods.page : methods.rows;
     return props;
   })();

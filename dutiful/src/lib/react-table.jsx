@@ -1,15 +1,8 @@
 import { TableCell } from 'components/table';
 import { cloneElement } from 'react';
 
-const renderCustomCells = (cell) =>
-  cloneElement(cell.render('Cell'), { ...cell.getCellProps() });
-
-const renderDefaultCells = (cell) => (
-  <TableCell {...cell.getCellProps()}>{cell.render('Cell')}</TableCell>
-);
-
-const DefaultColumnCell = ({ role, key, ...props }) => (
-  <TableCell role={role} {...props.cell.getCellProps()}>
+const DefaultColumnCell = ({ role, key, className, ...props }) => (
+  <TableCell role={role} className={className} {...props.cell.getCellProps()}>
     {props.cell.value}
   </TableCell>
 );
@@ -41,10 +34,4 @@ function constructEmptyRow(columns) {
   return [row];
 }
 
-export {
-  renderCustomCells,
-  renderDefaultCells,
-  DefaultColumnCell,
-  constructEmptyRow,
-  withCells,
-};
+export { DefaultColumnCell, constructEmptyRow, withCells };

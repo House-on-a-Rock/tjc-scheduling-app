@@ -1,12 +1,19 @@
+import { usePortalRef } from '@hooks';
 import { TableCell as MuiTableCell } from '@material-ui/core';
 import { TableOption, TableSelect } from 'components/select';
-import { cloneElement, useRef } from 'react';
+import { cloneElement } from 'react';
 
 const EditableCell = ({ children, ...props }) => {
-  const anchorRef = useRef(null);
+  const { open, anchorRef, handleClose, handleToggle } = usePortalRef();
+
   return (
-    <MuiTableCell {...props} ref={anchorRef}>
-      {cloneElement(children, { ref: anchorRef })}
+    <MuiTableCell onClick={handleToggle} {...props} ref={anchorRef}>
+      {cloneElement(children, {
+        ref: anchorRef,
+        handleToggle,
+        onClose: handleClose,
+        open,
+      })}
     </MuiTableCell>
   );
 };
@@ -17,6 +24,7 @@ const TableCell = ({ editable, children, ...props }) => {
   const Editable = <EditableCell {...props}>{children}</EditableCell>;
 
   if (typeof children === 'string') return Base;
+  // add some primitive checks
   if (!editable) return CustomComponent;
   return Editable;
 };

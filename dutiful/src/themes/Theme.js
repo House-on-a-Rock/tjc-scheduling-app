@@ -36,13 +36,14 @@ export const theme = createTheme({
         // borderBottom: 'none',
         border: '1px solid rgb(238, 238, 237)',
         padding: '0 16px',
+        '&:first-child': {
+          borderLeft: 'none',
+        },
+        '&:last-child': { borderRight: 'none' },
       },
     },
     MuiTableRow: {
-      root: {
-        height: '43px',
-        backgroundColor: '#fff',
-      },
+      root: { height: '43px' },
     },
   },
 });
