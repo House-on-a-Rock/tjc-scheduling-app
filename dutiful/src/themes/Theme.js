@@ -37,7 +37,11 @@ export const theme = createTheme({
         padding: '0 16px',
         '&:first-child': { borderLeft: 'none' },
         '&:last-child': { borderRight: 'none' },
+        width: 'max-content',
       },
+    },
+    MuiTableHead: {
+      root: { borderTop: 'none' },
     },
     MuiTableRow: {
       root: { height: '43px' },

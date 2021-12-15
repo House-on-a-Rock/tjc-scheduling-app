@@ -1,11 +1,12 @@
 import { makeStyles } from '@material-ui/core';
 import { DeleteOutline, EditOutlined } from '@material-ui/icons';
 import { PillButton } from 'components/button';
+import { TableCell } from 'components/table';
 
 export const ActionItems = (item) => {
   const classes = useStyles();
   return (
-    <>
+    <TableCell>
       <PillButton
         color="primary"
         onClick={() => console.log(item)}
@@ -22,7 +23,7 @@ export const ActionItems = (item) => {
         variant="outlined"
         icon={<DeleteOutline fontSize="small" />}
       />
-    </>
+    </TableCell>
   );
 };
 

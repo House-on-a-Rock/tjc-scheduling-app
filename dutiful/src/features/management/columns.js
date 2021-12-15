@@ -12,16 +12,16 @@ const userManagementColumns = withCells([
     accessor: 'active',
     Cell: StatusDropdown,
   },
-  // {
-  //   Header: 'Email Verified',
-  //   accessor: 'verified',
-  //   Cell: IsEmailVerified, // Not an editable cell
-  // },
-  // {
-  //   Header: 'Action',
-  //   accessor: 'action',
-  //   Cell: ActionItems, // Not an editable cell
-  // },
+  {
+    Header: 'Email Verified',
+    accessor: 'verified',
+    Cell: IsEmailVerified, // Not an editable cell
+  },
+  {
+    Header: 'Action',
+    accessor: 'action',
+    Cell: ActionItems, // Not an editable cell
+  },
 ]);
 
 const teamManagementColumns = withCells([

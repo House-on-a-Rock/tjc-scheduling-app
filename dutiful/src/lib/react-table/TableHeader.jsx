@@ -22,7 +22,9 @@ export const TableHeader = ({ headerGroups, sortable, selectable }) => {
         <div className={classes.header}>
           {column.render('Header')}
           {/* // TODO Clicking sort changes row height size */}
-          <div>{sortable ? <SortedIcons column={column} /> : <div />}</div>
+          <div className={classes.icons}>
+            {sortable ? <SortedIcons column={column} /> : <div />}
+          </div>
         </div>
       </TableCell>
     );
@@ -42,7 +44,8 @@ const useStyles = makeStyles((theme) => ({
   header: {
     display: 'flex',
     justifyContent: 'space-between',
-    height: '43px',
+    alignItems: 'center',
+    fontWeight: 600,
   },
   selection: {
     padding: 0,
@@ -54,6 +57,7 @@ const useStyles = makeStyles((theme) => ({
     borderLeft: 'none',
     paddingLeft: 0,
   },
+  icons: { marginTop: theme.spacing(1) },
 }));
 
 const SortedIcons = ({ column }) =>
