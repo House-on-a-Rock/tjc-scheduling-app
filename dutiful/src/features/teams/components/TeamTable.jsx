@@ -43,7 +43,7 @@ export const TeamTable = ({ teamId }) => {
           columns={columns}
           data={state[TEAMMATES]}
           paginatable={pagination}
-          initialState={{ pageSize: 15 }}
+          initialState={{ pageSize: 30 }}
           className={classes.table}
         >
           {(methods) => {

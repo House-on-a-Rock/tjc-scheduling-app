@@ -19,12 +19,11 @@ const EditableCell = ({ children, ...props }) => {
 };
 
 const TableCell = ({ editable, children, ...props }) => {
-  const Base = <MuiTableCell {...props}>{children}</MuiTableCell>;
+  const Base = <MuiTableCell {...props}>{String(children)}</MuiTableCell>;
   const CustomComponent = <MuiTableCell {...props}>{children}</MuiTableCell>;
   const Editable = <EditableCell {...props}>{children}</EditableCell>;
 
-  if (typeof children === 'string') return Base;
-  // TODO add primitave children
+  if (['string', 'boolean', 'number'].includes(typeof children)) return Base;
   if (!editable) return CustomComponent;
   return Editable;
 };

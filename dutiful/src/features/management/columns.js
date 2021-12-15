@@ -1,5 +1,10 @@
-import { IsEmailVerified, StatusDropdown } from 'features/management';
-import { ActionItems } from 'features/management/components/ActionItems';
+import {
+  IsEmailVerified,
+  StatusDropdown,
+  ActionItems,
+  TeamPermissionsLevel,
+} from 'features/management';
+
 import { withCells } from 'lib/react-table/helpers';
 
 // TODO add Access Level (admin)
@@ -27,7 +32,7 @@ const userManagementColumns = withCells([
 const teamManagementColumns = withCells([
   { Header: 'First Name', accessor: 'firstName' },
   { Header: 'Last Name', accessor: 'lastName' },
-  { Header: 'Team Lead', accessor: 'teamLead' },
+  { Header: 'Permission Level', accessor: 'teamLead', Cell: TeamPermissionsLevel },
 ]);
 
 export { teamManagementColumns, userManagementColumns };

@@ -7,7 +7,7 @@ import { Option } from 'components/select/Option';
 
 export const PaginationPageSize = ({ pageSize, setPageSize }) => {
   const classes = useStyles();
-  const sizes = [15, 30, 45, 60];
+  const sizes = [20, 40, 60, 80];
 
   function handleSelect(e) {
     return setPageSize(Number(e.target.value));

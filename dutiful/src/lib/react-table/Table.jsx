@@ -10,7 +10,7 @@ export const Table = ({
   children,
   sortable,
   updateMethods,
-  initialState = {},
+  initialState = { pageSize: 30 },
   selectable,
   ...props
 }) => {
