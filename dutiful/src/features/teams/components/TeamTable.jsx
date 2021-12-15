@@ -1,12 +1,12 @@
 import { useEffect, useMemo } from 'react';
 import { makeStyles } from '@material-ui/styles';
 import { Droppable } from 'components/dnd';
-import { TableHeader, TableBody, Table } from 'components/table';
 import { Pagination } from 'components/pagination';
 import { teamManagementColumns } from 'features/management';
 import { useDnd } from 'lib/dnd';
 import { TEAMMATES, useTeammates } from '../apis';
-import { constructEmptyRow } from 'lib/react-table';
+import { constructEmptyRow } from 'lib/react-table/helpers';
+import { Table, TableHeader, TableBody } from 'lib/react-table';
 
 // TODO pagination breaks when teammates length state change
 
@@ -38,6 +38,7 @@ export const TeamTable = ({ teamId }) => {
       className={classes.paper}
     >
       <div>
+        {/* Layer in between droppable and table to provide ref */}
         <Table
           columns={columns}
           data={state[TEAMMATES]}

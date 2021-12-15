@@ -1,6 +1,6 @@
 import { IsEmailVerified, StatusDropdown } from 'features/management';
 import { ActionItems } from 'features/management/components/ActionItems';
-import { withCells } from 'lib/react-table';
+import { withCells } from 'lib/react-table/helpers';
 
 // TODO add Access Level (admin)
 const userManagementColumns = withCells([
@@ -11,18 +11,17 @@ const userManagementColumns = withCells([
     Header: 'Status',
     accessor: 'active',
     Cell: StatusDropdown,
-    props: { editable: true },
   },
-  {
-    Header: 'Email Verified',
-    accessor: 'verified',
-    Cell: IsEmailVerified, // Not an editable cell
-  },
-  {
-    Header: 'Action',
-    accessor: 'action',
-    Cell: ActionItems, // Not an editable cell
-  },
+  // {
+  //   Header: 'Email Verified',
+  //   accessor: 'verified',
+  //   Cell: IsEmailVerified, // Not an editable cell
+  // },
+  // {
+  //   Header: 'Action',
+  //   accessor: 'action',
+  //   Cell: ActionItems, // Not an editable cell
+  // },
 ]);
 
 const teamManagementColumns = withCells([

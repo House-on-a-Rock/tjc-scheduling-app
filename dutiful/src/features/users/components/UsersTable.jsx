@@ -4,7 +4,7 @@ import { makeStyles } from '@material-ui/core';
 
 import { userManagementColumns } from 'features/management';
 import { useUsers } from 'features/users/apis';
-import { TableHeader, TableBody, Table } from 'components/table';
+import { Table, TableHeader, TableBody } from 'lib/react-table';
 import { Pagination } from 'components/pagination';
 
 export const UsersTable = ({ churchId }) => {

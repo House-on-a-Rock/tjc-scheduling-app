@@ -1,26 +1,16 @@
 import { TableCell } from 'components/table';
-import { cloneElement } from 'react';
 
-const DefaultColumnCell = ({ role, key, className, ...props }) => (
-  <TableCell role={role} className={className} {...props.cell.getCellProps()}>
-    {props.cell.value}
+const DefaultColumnCell = ({ role, key, className, cell }) => (
+  <TableCell role={role} className={className} {...cell.getCellProps()}>
+    {cell.value}
   </TableCell>
 );
-
-const applyProps =
-  (Cell, props) =>
-  ({ role, ...rTableProps }) =>
-    (
-      <TableCell role={role} {...props}>
-        {cloneElement(<Cell />, { ...rTableProps })}
-      </TableCell>
-    );
 
 const withCells = (columns) =>
   columns.map((initialColumn) => {
     let column = { ...initialColumn };
     if (!column.Cell) column.Cell = DefaultColumnCell;
-    else column.Cell = applyProps(column.Cell, column.props);
+
     return {
       Header: column.Header,
       accessor: column.accessor,

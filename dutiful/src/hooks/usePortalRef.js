@@ -6,13 +6,13 @@ export const usePortalRef = ({ ref = null, submit } = {}) => {
   const resolvedRef = ref || defaultRef;
   const prevOpen = useRef(open);
 
-  function handleToggle(arg) {
-    setOpen((prevOpen) => !prevOpen);
+  function handleOpen(e) {
+    if (!open) setOpen(true);
   }
 
   function handleClose(event) {
     if (resolvedRef.current && resolvedRef.current.contains(event?.target)) return;
-    setOpen(false);
+    setOpen(() => false);
   }
 
   function handleSubmit(value) {
@@ -23,17 +23,15 @@ export const usePortalRef = ({ ref = null, submit } = {}) => {
   }
 
   useEffect(() => {
-    if (!!prevOpen.current && !open) resolvedRef.current.blur();
-
+    if (!!prevOpen.current && !open) resolvedRef.current.focus();
     prevOpen.current = open;
   }, [open]);
 
   return {
     open,
     anchorRef: resolvedRef,
-    prevOpen,
     handleClose,
     handleSubmit,
-    handleToggle,
+    handleOpen,
   };
 };
