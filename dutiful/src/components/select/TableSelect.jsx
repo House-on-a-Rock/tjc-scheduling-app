@@ -30,6 +30,7 @@ export const TableSelect = forwardRef(
           PaperProps={{ className: classes.paper }}
         >
           <div className={classes.popupTopBar}>{SelectedElement}</div>
+          {/* // TODO  abstract to a reusable component */}
           <div
             style={{
               padding: '8px 16px',
@@ -71,12 +72,12 @@ const useStyles = makeStyles((theme) => ({
   paper: { borderRadius: '2px' },
   popupTopBar: {
     background: 'rgba(242, 241, 238, 0.6)',
-    paddingLeft: '16px',
-    height: '44px',
+    paddingLeft: theme.spacing(2),
+    height: theme.spacing(5.5),
     alignContent: 'center',
     alignItems: 'center',
     display: 'flex',
     borderBottom: '1px solid rgba(224, 224, 224, 1)',
-    width: '200px',
+    width: theme.spacing(25),
   },
 }));
