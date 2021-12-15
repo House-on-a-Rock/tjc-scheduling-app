@@ -9,11 +9,13 @@ export const TableBody = ({ rows, prepareRow, selectable }) => {
 
   const BodyCell = (cell, cellId) => {
     const isSelection = selectable && !cellId;
-    const afterSelection = selectable && cellId === 1;
+    const followingSelection = selectable && cellId === 1;
     const className = clsx(
       isSelection && classes.selection,
-      afterSelection && classes.afterSelection,
+      followingSelection && classes.followingSelection,
+      !isSelection && classes.nonSelection,
     );
+
     return cell.column.id === 'selection' ? (
       <TableCell {...cell.getCellProps()} className={className}>
         {cell.render('Cell')}
@@ -43,8 +45,9 @@ const useStyles = makeStyles((theme) => ({
     width: 'fit-content',
     borderRight: 'none',
   },
-  afterSelection: {
+  followingSelection: {
     borderLeft: 'none',
     paddingLeft: 0,
   },
+  nonSelection: { minWidth: theme.spacing(15) },
 }));

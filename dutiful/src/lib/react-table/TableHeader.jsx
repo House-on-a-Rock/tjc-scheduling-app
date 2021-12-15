@@ -9,16 +9,16 @@ export const TableHeader = ({ headerGroups, sortable, selectable }) => {
 
   const HeaderCell = (column, columnId) => {
     const isSelection = selectable && !columnId;
-    const afterSelection = selectable && columnId === 1;
+    const followingSelection = selectable && columnId === 1;
+
+    const className = clsx(
+      isSelection && classes.selection,
+      followingSelection && classes.followingSelection,
+      !isSelection && classes.nonSelection,
+    );
     const sortProps = sortable && column.getSortByToggleProps();
     return (
-      <TableCell
-        {...column.getHeaderProps(sortProps)}
-        className={clsx(
-          isSelection && classes.selection,
-          afterSelection && classes.afterSelection,
-        )}
-      >
+      <TableCell {...column.getHeaderProps(sortProps)} className={className}>
         <div className={classes.header}>
           {column.render('Header')}
           {/* // TODO Clicking sort changes row height size */}
@@ -53,10 +53,11 @@ const useStyles = makeStyles((theme) => ({
     width: 'fit-content',
     borderRight: 'none',
   },
-  afterSelection: {
+  followingSelection: {
     borderLeft: 'none',
     paddingLeft: 0,
   },
+  nonSelection: { minWidth: theme.spacing(15) },
   icons: { marginTop: theme.spacing(1) },
 }));
 
