@@ -42,11 +42,8 @@ export const theme = createTheme({
         whiteSpace: 'nowrap',
       },
     },
-    MuiTableHead: {
-      root: { borderTop: 'none' },
-    },
-    MuiTableRow: {
-      root: { maxHeight: '43px', height: '43px' },
-    },
+    MuiTableHead: { root: { borderTop: 'none' } },
+    MuiTableRow: { root: { maxHeight: '43px', height: '43px' } },
+    MuiTable: { root: { borderCollapse: 'separate' } },
   },
 });

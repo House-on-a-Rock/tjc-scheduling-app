@@ -21,6 +21,7 @@ function move({ source, destination, state, config }) {
     const { template } = config[destKey];
     let curr = {};
     Object.keys(template).forEach((key) => (curr[key] = prev[key] ?? template[key]));
+    curr.newItem = true;
     return curr;
   };
   const sourceClone = Array.from(sourceState);
